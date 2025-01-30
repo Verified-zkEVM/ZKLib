@@ -31,7 +31,7 @@ def dotProduct (a b : Vector R n) : R :=
 
 scoped notation:80 a " *ᵥ " b => dotProduct a b
 
-/-! ### TODO: define induction principles for `Vector` similar to `List.Vector` -/
+/-! ### DOWN: define induction principles for `Vector` similar to `List.Vector` -/
 
 /-- Induction principle that applies for vector in lean4, similar to List.Vector.casesOn -/
 def VectorInduction {α : Type} {P : ∀ {n}, Vector α n → Sort*}
