@@ -252,7 +252,7 @@ theorem perfect_completeness : (reduction R d D).perfectCompleteness
       simp [reduction, verifier, Verifier.run]
       simp [inputRelation, h] at hValid
       convert hValid
-      sorry -- Remains to show initial state or prover is the polynomial
+      sorry -- Remains to show initial state of prover is the polynomial
   · intro ⟨⟨r, st⟩, ⟨(), ⟨transcript, log1, log2⟩⟩⟩ hx
     -- This runs *very* slow without the `only`, seems like a `simp` priority issue
     -- Keeps trying to apply lemmas that fail to unify, so could also relate to `reducible` tags.
