@@ -254,10 +254,12 @@ def rbrSoundness (langIn : Set StmtIn) (langOut : Set StmtOut)
   ∀ witIn : WitIn,
   ∀ prover : Prover pSpec oSpec StmtIn WitIn StmtOut WitOut,
   ∀ i : pSpec.ChallengeIndex,
+    let ex : OracleComp (oSpec ++ₒ [pSpec.Challenge]ₒ) _ := do
+      return (← prover.runAux stmtIn witIn i.1.castSucc, ← pSpec.getChallenge i)
     [fun ⟨⟨transcript, _⟩, challenge⟩ =>
       ¬ stateFunction.fn i.1.castSucc stmtIn transcript ∧
         stateFunction.fn i.1.succ stmtIn (transcript.snoc challenge)
-    | do return (← prover.runAux stmtIn witIn i.1.castSucc, ← pSpec.getChallenge i)] ≤
+    | ex] ≤
       rbrSoundnessError i
 
 /-- A round-by-round extractor with index `m` is given the input statement, a partial transcript
@@ -284,15 +286,16 @@ def rbrKnowledgeSoundness (relIn : StmtIn → WitIn → Prop) (relOut : StmtOut 
   ∀ witIn : WitIn,
   ∀ prover : Prover pSpec oSpec StmtIn WitIn StmtOut WitOut,
   ∀ i : pSpec.ChallengeIndex,
+    let ex : OracleComp (oSpec ++ₒ [pSpec.Challenge]ₒ) _ := (do
+      let result ← (simulateQ loggingOracle (prover.runAux stmtIn witIn i.1.castSucc)).run;
+      let chal ← pSpec.getChallenge i
+      return (result, chal))
     [fun ⟨⟨⟨transcript, _⟩, proveQueryLog⟩, challenge⟩ =>
       letI extractedWitIn := extractor i.1.castSucc stmtIn transcript proveQueryLog
       ¬ relIn stmtIn extractedWitIn ∧
         ¬ stateFunction.fn i.1.castSucc stmtIn transcript ∧
           stateFunction.fn i.1.succ stmtIn (transcript.snoc challenge)
-    | do
-      let result ← (simulateQ loggingOracle (prover.runAux stmtIn witIn i.1.castSucc)).run;
-      let chal ← pSpec.getChallenge i
-      return (result, chal)] ≤ rbrKnowledgeError i
+    | ex] ≤ rbrKnowledgeError i
 
 end RoundByRound
 
