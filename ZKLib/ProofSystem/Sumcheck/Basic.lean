@@ -203,36 +203,63 @@ instance : Nonempty ((pSpec R d).FullTranscript) := by
   · simp; exact default
   · simp; exact default
 
+section simp_lemmas -- Some extra lemmas that still need to move to vcv
+
+universe u v w
+
+variable {ι : Type u} {spec : OracleSpec ι} {α β γ ω : Type u}
+
+@[simp]
+lemma probFailure_bind_eq_zero_iff [spec.FiniteRange]
+    (oa : OracleComp spec α) (ob : α → OracleComp spec β) :
+    [⊥ | oa >>= ob] = 0 ↔ [⊥ | oa] = 0 ∧ ∀ x ∈ oa.support, [⊥ | ob x] = 0 := by
+  simp [probFailure_bind_eq_tsum, ← imp_iff_not_or]
+
+@[simp] -- TODO: more general version/class for query impls that never have failures
+lemma loggingOracle.probFailure_simulateQ [spec.FiniteRange] (oa : OracleComp spec α) :
+    [⊥ | (simulateQ loggingOracle oa).run] = [⊥ | oa] := by
+  sorry
+
+@[simp]
+lemma WriterT.run_map {m : Type u → Type v} [Monad m] [Monoid ω]
+    (x : WriterT ω m α) (f : α → β) :
+    (f <$> x).run = Prod.map f id <$> x.run := rfl
+
+@[simp]
+lemma probFailure_liftComp {ι' : Type w} {superSpec : OracleSpec ι'}
+    [spec.FiniteRange] [superSpec.FiniteRange]
+    [h : MonadLift (OracleQuery spec) (OracleQuery superSpec)]
+    (oa : OracleComp spec α) : [⊥ | liftComp oa superSpec] = [⊥ | oa] := by
+  simp only [probFailure_def, evalDist_liftComp]
+
+end simp_lemmas
+
 -- set_option maxHeartbeats 1000000 in
 theorem perfect_completeness : (reduction R d D).perfectCompleteness
     (inputRelation R d D) (outputRelation R d) := by
   rw [perfectCompleteness_eq]
   intro ⟨target, oStmt⟩ () hValid
-  generalize h : oStmt () = p
-  obtain ⟨poly, hp⟩ := p
-  simp [inputRelation, h] at hValid
-  -- simp only [probEvent_eq_one_iff, Prod.forall]
-  unfold Reduction.run outputRelation reduction Prover.run Prover.runAux Verifier.run
-    prover verifier pSpec
-  simp only [Fin.induction_two, getDir_apply, getType_apply, Matrix.cons_val_zero,
-    Matrix.cons_val_one, Matrix.head_cons, getChallenge]
-  simp only [probEvent_eq_one_iff, Prod.forall, simulate, simulateQ, StateT.run]
-  constructor
-  · simp
-    simp [probFailure, OptionT.run]
-    sorry
-  · intro chal newOStmt () tr log _ hSupport
-    simp only [Fin.reduceLast, Nat.reduceAdd, Fin.isValue, Fin.castSucc_one, Fin.succ_one_eq_two,
-      Fin.castSucc_zero, Fin.succ_zero_eq_one, mapM_pure, bind_pure_comp, pure_bind, bind_map_left,
-      map_bind, Functor.map_map, sum_map, guard_eq, bind_assoc, support_bind, support_map,
-      Set.mem_iUnion, Set.mem_image, Prod.mk.injEq, true_and, Prod.exists, exists_prop,
-      Subtype.exists] at hSupport
-    simp only [liftM_eq_liftComp] at hSupport
-    -- simp [support_liftComp, support_pure] at hSupport
-    obtain ⟨a, ha, a1, a2, ha2, b, supp, i, rest⟩ := hSupport
-    -- rw [support_pure _] at supp
-    -- simp only [] at hSupport
-    sorry
+  generalize h : oStmt () = p; obtain ⟨poly, hp⟩ := p
+  -- Need `convert` because of some duplicate instances, should eventually track those down
+  convert (probEvent_eq_one_iff _ _).2 ⟨?_, ?_⟩
+  · simp only [Reduction.run, probFailure_bind_eq_zero_iff]
+    refine ⟨?_, ?_⟩
+    · simp -- There's still some pathing issue here w/ simp, need to simp in steps which is sub-par
+      unfold Prover.runAux
+      simp [Fin.induction, Fin.induction.go, reduction, prover]
+    · intro ⟨⟨r, ⟨(), st⟩⟩, log⟩ hx
+      simp -- Also some pathing issues, need to simp once before reducing `reduction`
+      simp [reduction, verifier, Verifier.run]
+      simp [inputRelation, h] at hValid
+      convert hValid
+      sorry -- Remains to show initial state or prover is the polynomial
+  · intro ⟨⟨r, st⟩, ⟨(), ⟨transcript, log1, log2⟩⟩⟩ hx
+    -- This runs *very* slow without the `only`, seems like a `simp` priority issue
+    -- Keeps trying to apply lemmas that fail to unify, so could also relate to `reducible` tags.
+    simp only [run, support_bind, liftM_eq_liftComp, Set.mem_iUnion, support_pure,
+      Set.mem_singleton_iff, Prod.eq_iff_fst_eq_snd_eq, true_and] at hx
+    obtain ⟨x1, hx1, x2, hx2, ⟨⟨rfl, rfl⟩, ⟨rfl, ⟨rfl, rfl⟩⟩⟩⟩ := hx
+    sorry -- Remains to show output relation holds
 
 end Simpler
 
@@ -306,7 +333,8 @@ def proverIn (i : Fin (n + 1)) : ProverIn
   `deg` -/
 theorem sumcheck_roundPoly_degreeLE (i : Fin (n + 1)) {challenges : Fin i.castSucc → R}
     {poly : R[X Fin (n + 1)]} (hp : poly ∈ R⦃≤ deg⦄[X Fin (n + 1)]) :
-      ∑ x ∈ (univ.map D) ^ᶠ (n - i), poly ⸨X ⦃i⦄, challenges, x⸩'(by simp; omega) ∈ R⦃≤ deg⦄[X] := by
+      ∑ x ∈ (univ.map D) ^ᶠ (n - i), poly ⸨X ⦃i⦄, challenges, x⸩'
+        (by simp; omega) ∈ R⦃≤ deg⦄[X] := by
   refine mem_degreeLE.mpr (le_trans (degree_sum_le ((univ.map D) ^ᶠ (n - i)) _) ?_)
   simp only [Finset.sup_le_iff, Fintype.mem_piFinset, mem_map, mem_univ, true_and]
   intro x hx
