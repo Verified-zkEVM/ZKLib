@@ -28,7 +28,7 @@ def UniPoly (R : Type*) := Array R
 
 /-- Convert a `Polynomial` to a `UniPoly`. -/
 def Polynomial.toImpl {R : Type*} [Semiring R] (p : Polynomial R) : UniPoly R :=
-  .ofFn (fun i : Fin p.natDegree => p.coeff i)
+  .ofFn (fun i : Fin (p.natDegree + 1) => p.coeff i)
 
 namespace UniPoly
 
@@ -447,25 +447,6 @@ instance : Pow (UniPoly R) Nat := ⟨UniPoly.pow⟩
 instance : NatCast (UniPoly R) := ⟨fun n => UniPoly.C (n : R)⟩
 instance : IntCast (UniPoly R) := ⟨fun n => UniPoly.C (n : R)⟩
 
-/-- Convert a `UniPoly` to a `Polynomial`. -/
-noncomputable def toPoly (p : UniPoly R) : Polynomial R :=
-  p.eval₂ Polynomial.C Polynomial.X
-
-alias ofPoly := Polynomial.toImpl
-
--- theorem toPoly_add {p q : UniPoly R} : (p + q).toPoly = p.toPoly + q.toPoly := by
---   simp [toPoly, eval₂]
---   sorry
-
--- theorem ofPoly_toPoly (p : Polynomial R) : p = p.toImpl.toPoly := by
---   induction p using Polynomial.induction_on' with
---   | h_add p q hp hq =>
---     rw [hp, hq]
---     simp [toPoly, toImpl, eval₂]
---     sorry
---   | h_monomial n a =>
---     sorry
-
 /-- Return a bound on the degree of a `UniPoly` as the size of the underlying array
 (and `⊥` if the array is empty). -/
 def degreeBound (p : UniPoly R) : WithBot Nat :=
@@ -699,6 +680,76 @@ instance [LawfulBEq R] : AddCommGroup (UniPolyC R) where
 
 end OperationsC
 
+section ToPoly
+variable {S: Type} [Semiring S]
+
+/-- Convert a `UniPoly` to a `Polynomial`. -/
+noncomputable def toPoly (p : UniPoly R) : Polynomial R :=
+  p.eval₂ Polynomial.C Polynomial.X
+
+-- this is more low-level and simple, maybe a better definition
+noncomputable def toPoly' (p : UniPoly R) : Polynomial R :=
+  Polynomial.ofFinsupp (Finsupp.onFinset (Finset.range p.size) (fun i => p.getD i 0) (by
+    intro n hn
+    simp only at hn
+    rw [Finset.mem_range]
+    by_contra! h
+    have h' : p.getD n 0 = 0 := by simp [h]
+    contradiction
+  ))
+
+alias ofPoly := Polynomial.toImpl
+
+theorem eval_toPoly_eq_eval (x : Q) (p : UniPoly Q) : p.toPoly.eval x = p.eval x := by
+  unfold toPoly eval eval₂
+  rw [← Array.foldl_hom (Polynomial.eval x)
+    (fun acc (t : Q × ℕ) ↦ acc + Polynomial.C t.1 * Polynomial.X ^ t.2)
+    (fun acc (a, i) ↦ acc + a * x ^ i) ]
+  congr
+  exact Polynomial.eval_zero
+  simp
+
+lemma coeff_toPoly (p : UniPoly Q) (n : ℕ) : p.toPoly.coeff n = p.getD n 0 := by
+  unfold toPoly eval₂
+
+  let motive (k: ℕ) (a: Polynomial Q) := a.coeff n = if (k ≤ n) then 0 else Array.getD p n 0
+
+  let as := p.zipIdx
+  let f := fun (acc: Polynomial Q) ((a,i): Q × ℕ) ↦ acc + Polynomial.C a * Polynomial.X ^ i
+  show (Array.foldl f 0 as).coeff n = p.getD n 0
+
+  have h0 : motive 0 0 := by simp [motive]
+
+  have hf : ∀ (i : Fin as.size) acc, motive (↑i) acc → motive (↑i + 1) (f acc as[i]) := by
+    unfold motive
+    intros i acc h
+    rcases (Nat.lt_trichotomy i n) with hlt | heq | hgt
+    · sorry
+    · sorry
+    · sorry
+
+  rw [Array.foldl_induction motive h0 hf, ite_eq_right_iff]
+  intro hn
+  simp [as, Array.zipIdx] at hn
+  simp [hn]
+
+theorem ofPoly_toPoly (p : Polynomial Q) : p = p.toImpl.toPoly := by
+  ext n
+  rw [coeff_toPoly]
+  unfold Polynomial.toImpl
+  simp only [Array.getD_eq_get?, Array.getElem?_ofFn]
+  by_cases h : n < p.natDegree + 1
+  · simp only [h, Option.getD_some, reduceDIte]
+  simp only [h, Option.getD_none, reduceDIte]
+  rw [not_lt] at h
+  replace h := Nat.lt_of_succ_le h
+  exact coeff_eq_zero_of_natDegree_lt h
+
+theorem toPoly_add {p q : UniPoly R} : (add_raw p q).toPoly = p.toPoly + q.toPoly := by
+  dsimp [toPoly]
+  sorry
+
+end ToPoly
 
 section Equiv
 
