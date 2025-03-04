@@ -27,8 +27,10 @@ the same polynomial via zero-padding, for example `#[1,2,3] = #[1,2,3,0,0,0,...]
 def UniPoly (R : Type*) := Array R
 
 /-- Convert a `Polynomial` to a `UniPoly`. -/
-def Polynomial.toImpl {R : Type*} [Semiring R] (p : Polynomial R) : UniPoly R :=
-  .ofFn (fun i : Fin p.natDegree => p.coeff i)
+def Polynomial.toImpl {R : Type*} [Semiring R] (p : R[X]) : UniPoly R :=
+  match p.degree with
+  | ⊥ => #[]
+  | some d  => .ofFn (fun i : Fin (d + 1) => p.coeff i)
 
 namespace UniPoly
 
@@ -367,6 +369,15 @@ theorem non_zero_map [LawfulBEq R] (f : R → R) (hf : ∀ r, f r = 0 → r = 0)
   have : p.size = 0 := by linarith
   have : fp.size = 0 := by simp [this, fp]
   apply canonical_of_size_zero this
+
+/-- Canonical polynomials enjoy a stronger extensionality theorem:
+  they just need to agree at all values, without any hypothesis about equal sizes
+-/
+theorem canonical_ext [LawfulBEq R] {p q : UniPoly R} (hp: p.trim = p) (hq: q.trim = q) :
+    equiv p q → p = q := by
+  intro h_equiv
+  rw [← hp, ← hq]
+  exact eq_of_equiv h_equiv
 end Trim
 
 /-- canonical version of UniPoly -/
@@ -446,25 +457,6 @@ instance : Mul (UniPoly R) := ⟨UniPoly.mul⟩
 instance : Pow (UniPoly R) Nat := ⟨UniPoly.pow⟩
 instance : NatCast (UniPoly R) := ⟨fun n => UniPoly.C (n : R)⟩
 instance : IntCast (UniPoly R) := ⟨fun n => UniPoly.C (n : R)⟩
-
-/-- Convert a `UniPoly` to a `Polynomial`. -/
-noncomputable def toPoly (p : UniPoly R) : Polynomial R :=
-  p.eval₂ Polynomial.C Polynomial.X
-
-alias ofPoly := Polynomial.toImpl
-
--- theorem toPoly_add {p q : UniPoly R} : (p + q).toPoly = p.toPoly + q.toPoly := by
---   simp [toPoly, eval₂]
---   sorry
-
--- theorem ofPoly_toPoly (p : Polynomial R) : p = p.toImpl.toPoly := by
---   induction p using Polynomial.induction_on' with
---   | h_add p q hp hq =>
---     rw [hp, hq]
---     simp [toPoly, toImpl, eval₂]
---     sorry
---   | h_monomial n a =>
---     sorry
 
 /-- Return a bound on the degree of a `UniPoly` as the size of the underlying array
 (and `⊥` if the array is empty). -/
@@ -699,6 +691,146 @@ instance [LawfulBEq R] : AddCommGroup (UniPolyC R) where
 
 end OperationsC
 
+section ToPoly
+variable {S: Type} [Semiring S]
+
+/-- Convert a `UniPoly` to a `Polynomial`. -/
+noncomputable def toPoly (p : UniPoly R) : Polynomial R :=
+  p.eval₂ Polynomial.C Polynomial.X
+
+/-- this is more low-level and direct, maybe a better definition than `toPoly` -/
+noncomputable def toPoly' (p : UniPoly R) : Polynomial R :=
+  Polynomial.ofFinsupp (Finsupp.onFinset (Finset.range p.size) (fun i => p.getD i 0) (by
+    intro n hn
+    simp only at hn
+    rw [Finset.mem_range]
+    by_contra! h
+    have h' : p.getD n 0 = 0 := by simp [h]
+    contradiction
+  ))
+
+alias ofPoly := Polynomial.toImpl
+
+theorem eval_toPoly_eq_eval (x : Q) (p : UniPoly Q) : p.toPoly.eval x = p.eval x := by
+  unfold toPoly eval eval₂
+  rw [← Array.foldl_hom (Polynomial.eval x)
+    (fun acc (t : Q × ℕ) ↦ acc + Polynomial.C t.1 * Polynomial.X ^ t.2)
+    (fun acc (a, i) ↦ acc + a * x ^ i) ]
+  congr
+  exact Polynomial.eval_zero
+  simp
+
+lemma coeff_toPoly {p : UniPoly Q} {n : ℕ} : p.toPoly.coeff n = p.getD n 0 := by
+  unfold toPoly eval₂
+
+  let f := fun (acc: Q[X]) ((a,i): Q × ℕ) ↦ acc + Polynomial.C a * Polynomial.X ^ i
+  show (Array.foldl f 0 p.zipIdx).coeff n = p.getD n 0
+
+  -- we slightly weaken the goal, to use `Array.foldl_induction`
+  let motive (size: ℕ) (acc: Q[X]) := acc.coeff n = if (n < size) then Array.getD p n 0 else 0
+
+  have zipIdx_size : p.zipIdx.size = p.size := by simp [Array.zipIdx]
+
+  suffices h : motive p.zipIdx.size (Array.foldl f 0 p.zipIdx) by
+    rw [h, ite_eq_left_iff, zipIdx_size]
+    intro hn
+    replace hn : n ≥ p.size := by linarith
+    rw [Array.getD_eq_get?, Array.getElem?_eq_none hn, Option.getD_none]
+
+  apply Array.foldl_induction motive
+  · show motive 0 0
+    simp [motive]
+
+  show ∀ (i : Fin p.zipIdx.size) acc, motive i acc → motive (i + 1) (f acc p.zipIdx[i])
+  unfold motive f
+  intros i acc h
+  have i_lt_p : i < p.size := by linarith [i.is_lt]
+  have : p.zipIdx[i] = (p[i], ↑i) := by simp [Array.getElem_zipIdx]
+  rw [this, coeff_add, coeff_C_mul, coeff_X_pow, mul_ite, mul_one, mul_zero, h]
+  rcases (Nat.lt_trichotomy i n) with hlt | heq | hgt
+  · have h1 : ¬ (n < i) := by linarith
+    have h2 : ¬ (n = i) := by linarith
+    have h3 : ¬ (n < i + 1) := by linarith
+    simp [h1, h2, h3]
+  · subst heq
+    simp [i_lt_p]
+  · have h1 : ¬ (n = i) := by linarith
+    have h2 : n < i + 1 := by linarith
+    simp [hgt, h1, h2]
+
+/-- lemma to argue about toImpl by cases -/
+lemma toImpl_elim (p : Q[X]) :
+    (p = 0 ∧ p.toImpl = #[])
+  ∨ (p ≠ 0 ∧ p.toImpl = .ofFn (fun i : Fin (p.natDegree + 1) => p.coeff i)) := by
+  unfold toImpl
+  by_cases hbot : p.degree = ⊥
+  · left
+    use degree_eq_bot.mp hbot
+    rw [hbot]
+  right
+  use degree_ne_bot.mp hbot
+  have hnat : p.degree = p.natDegree := degree_eq_natDegree (degree_ne_bot.mp hbot)
+  simp [hnat]
+
+theorem toPoly_toImpl {p : Q[X]} : p.toImpl.toPoly = p := by
+  ext n
+  rw [coeff_toPoly]
+  rcases toImpl_elim p with ⟨rfl, h⟩ | ⟨_, h⟩
+  · simp [h]
+  rw [h]
+  by_cases h : n < p.natDegree + 1
+  · simp [h]
+  simp only [Array.getD_eq_get?, Array.getElem?_ofFn]
+  simp only [h, reduceDIte, Option.getD_none]
+  replace h := Nat.lt_of_succ_le (not_lt.mp h)
+  symm
+  exact coeff_eq_zero_of_natDegree_lt h
+
+theorem toPoly_add {p q : UniPoly Q} : (add_raw p q).toPoly = p.toPoly + q.toPoly := by
+  ext n
+  rw [coeff_add, coeff_toPoly, coeff_toPoly, coeff_toPoly, add_coeff?]
+
+theorem toPoly_trim [LawfulBEq R] {p : UniPoly R} : p.trim.toPoly = p.toPoly := by
+  ext n
+  rw [coeff_toPoly, coeff_toPoly, Trim.getD_eq_getD]
+
+lemma toImpl_nonzero {p : Q[X]} (hp: p ≠ 0) : p.toImpl.size > 0 := by
+  rcases toImpl_elim p with ⟨rfl, h⟩ | ⟨_, h⟩
+  · contradiction
+  suffices h : p.toImpl ≠ #[] from Array.size_pos.mpr h
+  simp [h]
+
+lemma getLast_toImpl {p : Q[X]} (hp: p ≠ 0) : let h : p.toImpl.size > 0 := toImpl_nonzero hp;
+    p.toImpl[p.toImpl.size - 1] = p.leadingCoeff := by
+  rcases toImpl_elim p with ⟨rfl, h⟩ | ⟨h_nz, h⟩
+  · contradiction
+  simp [h]
+
+theorem trim_toImpl [LawfulBEq R] (p : R[X]) : p.toImpl.trim = p.toImpl := by
+  rcases toImpl_elim p with ⟨rfl, h⟩ | ⟨h_nz, h⟩
+  · rw [h]; exact Trim.canonical_empty
+  rw [Trim.canonical_iff]
+  unfold Array.getLast
+  intro
+  rw [getLast_toImpl h_nz]
+  exact Polynomial.leadingCoeff_ne_zero.mpr h_nz
+
+theorem toImpl_toPoly_of_canonical [LawfulBEq R] (p: UniPoly R) (hp: p.trim = p) :
+    p.toPoly.toImpl = p := by
+  -- we will show something slightly more general: `toPoly` is injective on canonical polynomials
+  suffices h_inj : ∀ q : UniPoly R, q.trim = q → p.toPoly = q.toPoly → p = q by
+    have : p.toPoly = p.toPoly.toImpl.toPoly := by rw [toPoly_toImpl]
+    exact Eq.symm <| h_inj p.toPoly.toImpl (trim_toImpl p.toPoly) this
+  intro q hq hpq
+  apply Trim.canonical_ext hp hq
+  intro i
+  rw [← coeff_toPoly, ← coeff_toPoly]
+  congr
+
+theorem toImpl_toPoly [LawfulBEq R] (p: UniPoly R) : p.toPoly.toImpl = p.trim := by
+  rw [← toPoly_trim]
+  exact toImpl_toPoly_of_canonical p.trim (Trim.trim_twice p)
+end ToPoly
 
 section Equiv
 
