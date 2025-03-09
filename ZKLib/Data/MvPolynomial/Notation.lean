@@ -73,7 +73,7 @@ macro_rules (kind := mvEval')
   | `($p⸨$x, $y, $z⸩'$h) =>
       `(MvPolynomial.eval (Fin.append (Fin.append $x $y) $z ∘ Fin.cast $h) $p)
 
-example : (X 0 + X 1 * X 2 : ℕ[X Fin 3]) ⸨![1, 2], ![8], ![]⸩ = 17 := by simp_arith
+example : (X 0 + X 1 * X 2 : ℕ[X Fin 3]) ⸨![1, 2], ![8], ![]⸩ = 17 := by simp +arith +decide
 
 /--
   Notation for evaluating a multivariate polynomial with one variable left intact. The expression `p

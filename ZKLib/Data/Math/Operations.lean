@@ -242,24 +242,16 @@ def toNum {R : Type _} [Zero R] [DecidableEq R] (a : Array R) : ℕ :=
 def replicate (n : Nat) (a : α) : Array α :=
   ⟨List.replicate n a⟩
 
-/-- `Array` version of `List.leftpad`, which just invokes the list version. -/
-@[reducible]
-def leftpad (n : Nat) (unit : α) (a : Array α) : Array α :=
-  ⟨a.toList.leftpad n unit⟩
-
-/-- `Array` version of `List.rightpad`, which just invokes the list version. -/
-@[reducible]
-def rightpad (n : Nat) (unit : α) (a : Array α) : Array α :=
-  ⟨a.toList.rightpad n unit⟩
-
 /-- `Array` version of `List.matchSize`, which just invokes the list version. -/
 @[reducible]
 def matchSize (a : Array α) (b : Array α) (unit : α) : Array α × Array α :=
-  let tuple := List.matchSize a.toList b.toList unit
-  (⟨tuple.1⟩, ⟨tuple.2⟩)
+  if a.size > b.size then
+    (a, b.rightpad (a.size) unit)
+  else
+    (a.rightpad (b.size) unit, b)
 
 theorem getElem?_eq_toList {a : Array α} {i : ℕ} : a.toList[i]? = a[i]? := by
-  rw (occs := .pos [2]) [← List.toArray_toList a]
+  rw (occs := .pos [2]) [← Array.toArray_toList a]
   rw [List.getElem?_toArray]
 
 attribute [simp] Array.getElem?_eq_getElem
@@ -400,7 +392,7 @@ def interleave {n : Nat} (xs : Vector α n) (ys : Vector α n) : Vector α (2 * 
 def chunkPairwise {α : Type} : {n : Nat} → Vector α (2 * n) → Vector (α × α) n
   | 0, Vector.nil => Vector.nil
   | n + 1, xs => by
-    have : 2 * (n + 1) = 2 * n + 2 := by ring
+    have : 2 * (n + 1) = 2 * n + 2 := by omega
     rw [this] at xs
     exact ⟨xs.head, xs.tail.head⟩ ::ᵥ chunkPairwise xs.tail.tail
 

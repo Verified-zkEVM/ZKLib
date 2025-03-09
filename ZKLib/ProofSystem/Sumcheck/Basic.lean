@@ -259,34 +259,30 @@ theorem perfect_completeness : (reduction R d D).perfectCompleteness
     · simp -- There's still some pathing issue here w/ simp, need to simp in steps which is sub-par
       unfold Prover.run Prover.runToRound
       simp [Fin.induction, Fin.induction.go, reduction, prover]
-    · intro ⟨⟨r, ⟨(), st⟩⟩, log⟩ hx
+    · intro ⟨⟨stmt, oStmtOut⟩, _, transcript⟩
       simp -- Also some pathing issues, need to simp once before reducing `reduction`
       simp [reduction, verifier, Verifier.run]
-      simp [inputRelation, h] at hValid
-      convert hValid
-      simp [Prover.runToRound, reduction, prover] at hx
-      obtain ⟨a, ha, hr, hSt⟩ := hx
-      rw [← hSt]; simp [Transcript.snoc, Fin.snoc, h]
-  · intro ⟨⟨r, st⟩, ⟨(), ⟨transcript, log1, log2⟩⟩⟩ hx
-    -- This runs *very* slow without the `only`, seems like a `simp` priority issue
-    -- Keeps trying to apply lemmas that fail to unify, so could also relate to `reducible` tags.
+      intro hSupport
+      simp [Prover.run, Prover.runToRound, reduction, prover] at hSupport
+      obtain ⟨h1, h2⟩ := hSupport
+      simp [← h2, Transcript.snoc, Fin.snoc, h]
+      split_ifs with hEval
+      · simp [noFailure]
+      · contrapose! hEval; simp [inputRelation, h] at hValid; exact hValid
+  · intro ⟨⟨stmt, oStmtOut⟩, _, transcript⟩ hSupport
     simp only [run, support_bind, liftM_eq_liftComp, Set.mem_iUnion, support_pure,
-      Set.mem_singleton_iff, Prod.eq_iff_fst_eq_snd_eq, true_and] at hx
-    obtain ⟨x1, hx1, ⟨x2, _⟩, hx2, ⟨⟨rfl, rfl⟩, ⟨rfl, ⟨rfl, rfl⟩⟩⟩⟩ := hx
+      Set.mem_singleton_iff, Prod.eq_iff_fst_eq_snd_eq, true_and] at hSupport
+    obtain ⟨x1, hx1, ⟨x2, _⟩, hx2, ⟨⟨rfl, rfl⟩, ⟨rfl, ⟨rfl, rfl⟩⟩⟩⟩ := hSupport
     simp only [reduction, prover, Prover.run, Prover.runToRound] at hx1
     simp at hx1
     obtain ⟨a, b, hab, hx1'⟩ := hx1
     simp only [Verifier.run, reduction, verifier] at hx2
-    simp only [liftComp_support] at hx2
+    simp [liftComp_support, Transcript.snoc, Fin.snoc] at hx2
+    obtain ⟨h1, h2, h3⟩ := hx2
     split; rename_i hEq
     simp at hEq
     obtain ⟨hStmtOut, _⟩ := hEq
-    rw [outputRelation, ← hStmtOut]
-
-    sorry -- Remains to show output relation holds
-
-theorem test {α β : Type} {a : α} {b : β} {S : Set (α × β)} (h : (a, b) ∈ S) : a ∈ Prod.fst '' S := by
-  aesop?
+    simp [outputRelation, ← hStmtOut, ← h3]
 
 end Simpler
 
