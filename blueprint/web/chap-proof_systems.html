@@ -166,8 +166,8 @@
 <p>Round-by-round error: \(d / \lvert \mathbb {F} \rvert \) </p>
 <p>Round-by-round knowledge soundness: follows from Schwartz-Zippel </p>
 <p>To summarize, we have the following judgment: </p>
-<div class="displaymath" id="a0000000028">
-  \[  \begin{array}{c} \Psi := (); \;  \Theta := (P, Q); \;  \Sigma := (); \;  \tau := (\mathsf{V2P}, \mathbb {F}) \vdash \\[1ex] \{ P = Q\}  \quad \left( \begin{array}{l} \mathcal{P} := (), \\ \mathcal{V} := (P,Q,r) \mapsto [P(r) \stackrel{?}{=} Q(r)], \\ \mathcal{E} := () \end{array} \right)^{\emptyset } \quad \{ \! \{ P(r) = Q(r); \mathsf{St}_{P,Q}; \frac{d}{\lvert \mathbb {F} \rvert }\} \! \}  \end{array}  \]
+<div class="displaymath" id="a0000000029">
+  \[  \begin{array}{c} \Psi := (); \;  \Theta := (P, Q); \;  \Sigma := (); \;  \tau := (\mathsf{V2P}, \mathbb {F}) \vdash \\[1ex] \{ P = Q\}  \quad \left( \begin{array}{l} \mathcal{P} := (), \\ \mathcal{V} := (P,Q,r) \mapsto [P(r) \stackrel{?}{=} Q(r)], \\ \mathcal{E} := () \end{array} \right)^{\emptyset } \quad \{ \! \! \{ P(r) = Q(r); \mathsf{St}_{P,Q}; \frac{d}{\lvert \mathbb {F} \rvert }\} \! \! \}  \end{array}  \]
 </div>
 <p> where \(\mathsf{St}(i) = \begin{cases} \end{cases} P \stackrel{?}{=} Q \text{ if } i = 0 \\ P(r) \stackrel{?}{=} Q(r) \text{ if } i = 1 \end{cases}\) </p>
 <h2 id="a0000000014">3.1.2 Batching Polynomial Evaluation Claims</h2>
@@ -186,31 +186,31 @@
 	]
 </span> in a modular manner, as a running example for our approach to specifying and proving properties of oracle reductions (based on a program logic approach). </p>
 <p>The sum-check protocol, as described in the original paper and many expositions thereafter, is a protocol to reduce the claim that </p>
-<div class="displaymath" id="a0000000029">
+<div class="displaymath" id="a0000000030">
   \[  \sum _{x \in \{ 0, 1\} ^n} P(x) = c,  \]
 </div>
 <p> where \(P\) is an \(n\)-variate polynomial of certain individual degree bounds, and \(c\) is some field element, to the claim that </p>
-<div class="displaymath" id="a0000000030">
+<div class="displaymath" id="a0000000031">
   \[  P(r) = v,  \]
 </div>
 <p> for some claimed value \(v\) (derived from the protocol transcript), where \(r\) is a vector of random challenges from the verifier sent during the protocol. </p>
 <p>In our language, the initial context of the sum-check protocol is the pair \((P, c)\), where \(P\) is an oracle input and \(c\) is public. The protocol proceeds in \(n\) rounds of interaction, where in each round \(i\) the prover sends a univariate polynomial \(s_i\) of bounded degree and the verifier sends a challenge \(r_i \gets \mathbb {F}\). The honest prover would compute </p>
-<div class="displaymath" id="a0000000031">
+<div class="displaymath" id="a0000000032">
   \[  s_i(X) = \sum _{x \in \{ 0, 1\} ^{n - i - 1}} P(r_1, \ldots , r_{i - 1}, X, x),  \]
 </div>
 <p> and the honest verifier would check that \(s_i(0) + s_i(1) = s_{i - 1}(r_{i - 1})\), with the convention that \(s_0(r_0) = c\). </p>
-<div class="theorem_thmwrapper theorem-style-plain" id="a0000000032">
+<div class="theorem_thmwrapper theorem-style-plain" id="a0000000033">
   <div class="theorem_thmheading">
     <span class="theorem_thmcaption">
     Theorem
     </span>
-    <span class="theorem_thmlabel">16</span>
+    <span class="theorem_thmlabel">18</span>
     <div class="thm_header_extras">
 
         </div>
     <div class="thm_header_hidden_extras">
 
-    <a class="icon proof" href="chap-proof_systems.html#a0000000032">#</a>
+    <a class="icon proof" href="chap-proof_systems.html#a0000000033">#</a>
     
     
     

@@ -61,22 +61,22 @@
 <div id="statements">
 
     
-    <div class="dep-modal-container" id="a0000000032_modal">
+    <div class="dep-modal-container" id="a0000000033_modal">
       <div class="dep-modal-content">
           <button class="dep-closebtn">
 <svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
 </button>
         
-  <div class="thm" id="a0000000032" style="display: none">
+  <div class="thm" id="a0000000033" style="display: none">
     <div class="thm_thmheading">
       <span class="theorem_thmcaption">
       Theorem
       </span>
-      <span class="theorem_thmlabel">16</span></div>
+      <span class="theorem_thmlabel">18</span></div>
     <div class="thm_thmcontent"><p>The sum-check protocol is complete. </p>
 </div>
 
-    <a class="latex_link" href="chap-proof_systems.html#a0000000032">LaTeX</a>
+    <a class="latex_link" href="chap-proof_systems.html#a0000000033">LaTeX</a>
     
     
   
@@ -102,7 +102,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">22</span><span class="definition_thmtitle">Code Distance</span></div>
+      <span class="definition_thmlabel">24</span><span class="definition_thmtitle">Code Distance</span></div>
     <div class="thm_thmcontent">
 </div>
 
@@ -132,7 +132,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">8</span><span class="definition_thmtitle">Completeness</span></div>
+      <span class="definition_thmlabel">10</span><span class="definition_thmtitle">Completeness</span></div>
     <div class="thm_thmcontent">
 </div>
 
@@ -162,7 +162,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">21</span><span class="definition_thmtitle">Computable Multilinear Polynomials</span></div>
+      <span class="definition_thmlabel">23</span><span class="definition_thmtitle">Computable Multilinear Polynomials</span></div>
     <div class="thm_thmcontent">
 </div>
 
@@ -192,7 +192,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">20</span><span class="definition_thmtitle">Computable Univariate Polynomials</span></div>
+      <span class="definition_thmlabel">22</span><span class="definition_thmtitle">Computable Univariate Polynomials</span></div>
     <div class="thm_thmcontent">
 </div>
 
@@ -222,8 +222,9 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">1</span><span class="definition_thmtitle">Context</span></div>
-    <div class="thm_thmcontent"><p> In an oracle reduction, its <em>context</em> consists of a list of public inputs, a list of witness inputs, a list of oracle inputs, and a shared oracle (possibly represented as a list of lazily sampled query-response pairs). These inputs have the expected visibility. </p>
+      <span class="definition_thmlabel">2</span><span class="definition_thmtitle">Context</span></div>
+    <div class="thm_thmcontent"><p> In an oracle reduction, its <em>context</em> (denoted \(\Gamma \)) consists of a list of public inputs, a list of witness inputs, a list of oracle inputs, and a shared oracle (possibly represented as a list of lazily sampled query-response pairs). These inputs have the expected visibility. </p>
+<p>For simplicity, we imagine the context as <em>append-only</em>, as we add new messages from the protocol execution. </p>
 </div>
 
     <a class="latex_link" href="chap-oracle_reductions.html#def:context">LaTeX</a>
@@ -252,7 +253,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">23</span><span class="definition_thmtitle">Distance from a Code</span></div>
+      <span class="definition_thmlabel">25</span><span class="definition_thmtitle">Distance from a Code</span></div>
     <div class="thm_thmcontent">
 </div>
 
@@ -282,7 +283,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">24</span><span class="definition_thmtitle">Generator Matrix</span></div>
+      <span class="definition_thmlabel">26</span><span class="definition_thmtitle">Generator Matrix</span></div>
     <div class="thm_thmcontent">
 </div>
 
@@ -312,7 +313,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">32</span><span class="definition_thmtitle">Handling Oracle Queries</span></div>
+      <span class="definition_thmlabel">34</span><span class="definition_thmtitle">Handling Oracle Queries</span></div>
     <div class="thm_thmcontent"><p>  To actually run oracle computations, we need a way to handle (or implement) the oracle queries. An oracle implementation consists a mapping from oracle queries to values in another monad. Depending on the monad, this may allow for various interpretations of the oracle queries.  </p>
 </div>
 
@@ -342,8 +343,8 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">5</span><span class="definition_thmtitle">Interactive Oracle Reduction</span></div>
-    <div class="thm_thmcontent"><p>   An interactive oracle reduction is a combination of a type signature <code class="verbatim">ProtocolSpec</code>, a prover for <code class="verbatim">ProtocolSpec</code>, and an oracle verifier for <code class="verbatim">ProtocolSpec</code>. </p>
+      <span class="definition_thmlabel">7</span><span class="definition_thmtitle">Interactive Oracle Reduction</span></div>
+    <div class="thm_thmcontent"><p>   An interactive oracle reduction for a given context \(\Gamma \) is a combination a prover and a verifier of the types specified above. </p>
 </div>
 
     <a class="latex_link" href="chap-oracle_reductions.html#def:interactive_oracle_reduction">LaTeX</a>
@@ -372,7 +373,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">26</span><span class="definition_thmtitle">Interleaved Code</span></div>
+      <span class="definition_thmlabel">28</span><span class="definition_thmtitle">Interleaved Code</span></div>
     <div class="thm_thmcontent">
 </div>
 
@@ -402,7 +403,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">10</span><span class="definition_thmtitle">Knowledge Soundness</span></div>
+      <span class="definition_thmlabel">12</span><span class="definition_thmtitle">Knowledge Soundness</span></div>
     <div class="thm_thmcontent">
 </div>
 
@@ -432,7 +433,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">35</span><span class="definition_thmtitle">Logging &amp; Caching Oracle Queries</span></div>
+      <span class="definition_thmlabel">37</span><span class="definition_thmtitle">Logging &amp; Caching Oracle Queries</span></div>
     <div class="thm_thmcontent"><p>  Using the simulation framework, we can add logging and caching behaviors to oracle queries: </p>
 <ul class="itemize">
   <li><p>Logging records all queries made during a computation </p>
@@ -478,7 +479,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">17</span><span class="definition_thmtitle">Multilinear Extension</span></div>
+      <span class="definition_thmlabel">19</span><span class="definition_thmtitle">Multilinear Extension</span></div>
     <div class="thm_thmcontent">
 </div>
 
@@ -508,7 +509,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">31</span><span class="definition_thmtitle">Oracle Computation</span></div>
+      <span class="definition_thmlabel">33</span><span class="definition_thmtitle">Oracle Computation</span></div>
     <div class="thm_thmcontent"><p>  An oracle computation represents a program that can make oracle queries. It can: </p>
 <ul class="itemize">
   <li><p>Return a pure value without making any queries (via <span class="ttfamily">pure</span>) </p>
@@ -547,7 +548,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">6</span><span class="definition_thmtitle">Execution of an Oracle Reduction</span></div>
+      <span class="definition_thmlabel">8</span><span class="definition_thmtitle">Execution of an Oracle Reduction</span></div>
     <div class="thm_thmcontent">
 </div>
 
@@ -577,14 +578,23 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">2</span><span class="definition_thmtitle">Type Signature of an Oracle Reduction</span></div>
-    <div class="thm_thmcontent"><p>  An <em>\(n\)-message oracle reduction</em> between two parties \(\mathcal{P}\) and \(\mathcal{V}\) consists of a sequence of messages \(m_0, \dots , m_n\), where each message \(m_i\) (of a given type) is associated with a <em>direction</em> (to \(\mathcal{P}\) or to \(\mathcal{V}\)), and a message visibility (public or oracle) if coming from \(\mathcal{P}\). </p>
+      <span class="definition_thmlabel">1</span><span class="definition_thmtitle">Type Signature of an Oracle Reduction</span></div>
+    <div class="thm_thmcontent"><p>  A protocol specification \(\rho : \mathsf{PSpec}\;  n\) of an oracle reduction is parametrized by a fixed number of messages sent in total. For each step of interaction, it specifies a direction for the messsage (prover to verifier, or vice versa), and a type for the message. If a message from the prover to the verifier is further marked as oracle, then we also expect an oracle interface for that message. In Lean, we handle these oracle interfaces via the \(\mathsf{ToOracle}\) type class.  </p>
 </div>
 
     <a class="latex_link" href="chap-oracle_reductions.html#def:oracle_reduction_type_signature">LaTeX</a>
     
     
-  
+  <div class="tooltip">
+      <span class="lean_link">Lean</span>
+      <ul class="tooltip_list">
+        
+           <li><a href="https://verified-zkevm.github.io/ZKLib/docs/find/#doc/ProtocolSpec" class="lean_decl">ProtocolSpec</a></li>
+        
+           <li><a href="https://verified-zkevm.github.io/ZKLib/docs/find/#doc/ToOracle" class="lean_decl">ToOracle</a></li>
+        
+      </ul>
+  </div>
     
     
   
@@ -607,7 +617,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">30</span><span class="definition_thmtitle">Specification of Oracles</span></div>
+      <span class="definition_thmlabel">32</span><span class="definition_thmtitle">Specification of Oracles</span></div>
     <div class="thm_thmcontent"><p>  An oracle specification describes a collection of available oracles, each with its own input and output types. Formally, it’s given by an indexed family where each oracle is specified by: </p>
 <ul class="itemize">
   <li><p>A domain type (what inputs it accepts) </p>
@@ -644,7 +654,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">25</span><span class="definition_thmtitle">Parity Check Matrix</span></div>
+      <span class="definition_thmlabel">27</span><span class="definition_thmtitle">Parity Check Matrix</span></div>
     <div class="thm_thmcontent">
 </div>
 
@@ -674,7 +684,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">33</span><span class="definition_thmtitle">Probabilistic Semantics of Oracle Computations</span></div>
+      <span class="definition_thmlabel">35</span><span class="definition_thmtitle">Probabilistic Semantics of Oracle Computations</span></div>
     <div class="thm_thmcontent"><p>  We can view oracle computations as probabilistic programs by considering what happens when oracles respond uniformly at random. This gives rise to a probability distribution over possible outputs (including the possibility of failure). The semantics maps each oracle query to a uniform distribution over its possible responses.  </p>
 </div>
 
@@ -704,7 +714,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">3</span><span class="definition_thmtitle">Type Signature of a Prover</span></div>
+      <span class="definition_thmlabel">5</span><span class="definition_thmtitle">Type Signature of a Prover</span></div>
     <div class="thm_thmcontent"><p>  A prover \(\mathcal{P}\) in an oracle reduction, given a context, is a stateful oracle computation that at each step of the protocol, either takes in a new message from the verifier, or sends a new message to the verifier.  </p>
 </div>
 
@@ -734,7 +744,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">29</span><span class="definition_thmtitle">Proximity Gap</span></div>
+      <span class="definition_thmlabel">31</span><span class="definition_thmtitle">Proximity Gap</span></div>
     <div class="thm_thmcontent">
 </div>
 
@@ -764,7 +774,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">28</span><span class="definition_thmtitle">Proximity Measure</span></div>
+      <span class="definition_thmlabel">30</span><span class="definition_thmtitle">Proximity Measure</span></div>
     <div class="thm_thmcontent">
 </div>
 
@@ -794,7 +804,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">36</span><span class="definition_thmtitle">Random Oracle</span></div>
+      <span class="definition_thmlabel">38</span><span class="definition_thmtitle">Random Oracle</span></div>
     <div class="thm_thmcontent"><p>  A random oracle is implemented as a caching oracle that uses lazy sampling: </p>
 <ul class="itemize">
   <li><p>On first query: generates a uniform random response and caches it </p>
@@ -831,7 +841,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">27</span><span class="definition_thmtitle">Reed-Solomon Code</span></div>
+      <span class="definition_thmlabel">29</span><span class="definition_thmtitle">Reed-Solomon Code</span></div>
     <div class="thm_thmcontent">
 </div>
 
@@ -861,7 +871,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">13</span><span class="definition_thmtitle">Round-by-Round Knowledge Soundness</span></div>
+      <span class="definition_thmlabel">15</span><span class="definition_thmtitle">Round-by-Round Knowledge Soundness</span></div>
     <div class="thm_thmcontent">
 </div>
 
@@ -891,7 +901,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">12</span><span class="definition_thmtitle">Round-by-Round Soundness</span></div>
+      <span class="definition_thmlabel">14</span><span class="definition_thmtitle">Round-by-Round Soundness</span></div>
     <div class="thm_thmcontent">
 </div>
 
@@ -921,14 +931,14 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">34</span><span class="definition_thmtitle">Simulating Oracle Queries with Other Oracles</span></div>
-    <div class="thm_thmcontent"><p>  We can simulate complex oracles using simpler ones by providing a translation mechanism. A simulation oracle specifies how to implement queries in one specification using computations in another specification, possibly maintaining additional state information during the simulation.  </p>
+      <span class="definition_thmlabel">36</span><span class="definition_thmtitle">Simulating Oracle Queries with Other Oracles</span></div>
+    <div class="thm_thmcontent"><p>  We can simulate complex oracles using simpler ones by providing a translation mechanism. A simulation oracle specifies how to implement queries in one specification using computations in another specification, possibly maintaining additional state information during the simulation. </p>
 </div>
 
     <a class="latex_link" href="chap-supporting_theories.html#def:sim_oracle">LaTeX</a>
     
     
-  <a class="lean_link lean_decl" href="https://verified-zkevm.github.io/ZKLib/docs/find/#doc/SimOracle">Lean</a>
+  
     
     
   
@@ -951,7 +961,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">9</span><span class="definition_thmtitle">Soundness</span></div>
+      <span class="definition_thmlabel">11</span><span class="definition_thmtitle">Soundness</span></div>
     <div class="thm_thmcontent">
 </div>
 
@@ -981,7 +991,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">11</span><span class="definition_thmtitle">State Function</span></div>
+      <span class="definition_thmlabel">13</span><span class="definition_thmtitle">State Function</span></div>
     <div class="thm_thmcontent">
 </div>
 
@@ -989,6 +999,47 @@
     
     
   <a class="lean_link lean_decl" href="https://verified-zkevm.github.io/ZKLib/docs/find/#doc/Reduction.StateFunction">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="def:transcript_and_related_defs_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="def:transcript_and_related_defs" style="display: none">
+    <div class="thm_thmheading">
+      <span class="definition_thmcaption">
+      Definition
+      </span>
+      <span class="definition_thmlabel">3</span><span class="definition_thmtitle">Transcript &amp; Related Definitions</span></div>
+    <div class="thm_thmcontent"><p>  Given protocol specification \(\rho : \mathsf{PSpec}\;  n\), its <em>transcript</em> up to round \(i\) is an element of type \(\rho _{[:i]} ::= \prod _{j {\lt} i} \rho \;  j\). We define the type of all challenges sent by the verifier as \(\rho .\mathsf{Chals} ::= \prod _{i \text{ s.t. } (\rho \;  i).\mathsf{fst} = \mathsf{V2P}} (\rho \;  i).\mathsf{snd}\).  </p>
+</div>
+
+    <a class="latex_link" href="chap-oracle_reductions.html#def:transcript_and_related_defs">LaTeX</a>
+    
+    
+  <div class="tooltip">
+      <span class="lean_link">Lean</span>
+      <ul class="tooltip_list">
+        
+           <li><a href="https://verified-zkevm.github.io/ZKLib/docs/find/#doc/ProtocolSpec.Transcript" class="lean_decl">ProtocolSpec.Transcript</a></li>
+        
+           <li><a href="https://verified-zkevm.github.io/ZKLib/docs/find/#doc/ProtocolSpec.Message" class="lean_decl">ProtocolSpec.Message</a></li>
+        
+           <li><a href="https://verified-zkevm.github.io/ZKLib/docs/find/#doc/ProtocolSpec.Challenge" class="lean_decl">ProtocolSpec.Challenge</a></li>
+        
+      </ul>
+  </div>
     
     
   
@@ -1011,7 +1062,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">4</span><span class="definition_thmtitle">Type Signature of a Verifier</span></div>
+      <span class="definition_thmlabel">6</span><span class="definition_thmtitle">Type Signature of a Verifier</span></div>
     <div class="thm_thmcontent"><p>  A verifier \(\mathcal{V}\) in an oracle reduction is an oracle computation that may perform a series of checks (i.e. ‘Bool‘-valued, or ‘Option Unit‘) on the given context.  </p>
 </div>
 
@@ -1041,7 +1092,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">14</span><span class="definition_thmtitle">Mapping into Virtual Context</span></div>
+      <span class="definition_thmlabel">16</span><span class="definition_thmtitle">Mapping into Virtual Context</span></div>
     <div class="thm_thmcontent"><p>  In order to apply an oracle reduction on virtual data, we will need to provide a mapping from the current context to the virtual context. This includes: </p>
 <ul class="itemize">
   <li><p>A mapping from the current public inputs to the virtual public inputs. </p>
@@ -1081,7 +1132,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">15</span><span class="definition_thmtitle">Virtual Oracle Reduction</span></div>
+      <span class="definition_thmlabel">17</span><span class="definition_thmtitle">Virtual Oracle Reduction</span></div>
     <div class="thm_thmcontent"><p>  Given a suitable mapping into a virtual context, we may define an oracle reduction via the following construction: </p>
 <ul class="itemize">
   <li><p>The prover first applies the mappings to obtain the virtual context. The verifier does the same, but only for the non-private inputs. </p>
@@ -1117,7 +1168,7 @@
       <span class="theorem_thmcaption">
       Theorem
       </span>
-      <span class="theorem_thmlabel">18</span><span class="theorem_thmtitle">Multilinear Extension is Unique</span></div>
+      <span class="theorem_thmlabel">20</span><span class="theorem_thmtitle">Multilinear Extension is Unique</span></div>
     <div class="thm_thmcontent">
 </div>
 
@@ -1147,7 +1198,7 @@
       <span class="theorem_thmcaption">
       Theorem
       </span>
-      <span class="theorem_thmlabel">19</span><span class="theorem_thmtitle">Schwartz-Zippel Lemma</span></div>
+      <span class="theorem_thmlabel">21</span><span class="theorem_thmtitle">Schwartz-Zippel Lemma</span></div>
     <div class="thm_thmcontent">
 </div>
 
@@ -1182,7 +1233,7 @@ graphContainer.graphviz({useWorker: true})
     .width(width)
     .height(height)
     .fit(true)
-    .renderDot(`strict digraph "" {	graph [bgcolor=transparent];	node [label="\N",		penwidth=1.8	];	edge [arrowhead=vee];	"def:oracle_spec"	[color=blue,		fillcolor="#A3D6FF",		label=oracle_spec,		shape=box,		style=filled];	"def:parity_check_matrix"	[color=blue,		fillcolor="#A3D6FF",		label=parity_check_matrix,		shape=box,		style=filled];	"def:code_distance"	[color=blue,		fillcolor="#A3D6FF",		label=code_distance,		shape=box,		style=filled];	"def:round_by_round_knowledge_soundness"	[color=blue,		fillcolor="#A3D6FF",		label=round_by_round_knowledge_soundness,		shape=box,		style=filled];	"def:interactive_oracle_reduction"	[color=blue,		fillcolor="#A3D6FF",		label=interactive_oracle_reduction,		shape=box,		style=filled];	"def:oracle_reduction_execution"	[color=blue,		fillcolor="#A3D6FF",		label=oracle_reduction_execution,		shape=box,		style=filled];	"def:virtual_oracle_reduction"	[color=blue,		fillcolor="#A3D6FF",		label=virtual_oracle_reduction,		shape=box,		style=filled];	"def:distance_from_code"	[color=blue,		fillcolor="#A3D6FF",		label=distance_from_code,		shape=box,		style=filled];	"def:computable_univariate_polynomials"	[color=blue,		fillcolor="#A3D6FF",		label=computable_univariate_polynomials,		shape=box,		style=filled];	"def:interleaved_code"	[color=blue,		fillcolor="#A3D6FF",		label=interleaved_code,		shape=box,		style=filled];	"def:proximity_measure"	[color=blue,		fillcolor="#A3D6FF",		label=proximity_measure,		shape=box,		style=filled];	"def:probabilistic_semantics_of_oracle_computations"	[color=blue,		fillcolor="#A3D6FF",		label=probabilistic_semantics_of_oracle_computations,		shape=box,		style=filled];	"def:logging_caching_oracle_queries"	[color=blue,		fillcolor="#A3D6FF",		label=logging_caching_oracle_queries,		shape=box,		style=filled];	"def:virtual_context_mapping"	[color=blue,		fillcolor="#A3D6FF",		label=virtual_context_mapping,		shape=box,		style=filled];	"def:random_oracle"	[color=blue,		fillcolor="#A3D6FF",		label=random_oracle,		shape=box,		style=filled];	"def:proximity_gap"	[color=blue,		fillcolor="#A3D6FF",		label=proximity_gap,		shape=box,		style=filled];	"def:reed_solomon_code"	[color=blue,		fillcolor="#A3D6FF",		label=reed_solomon_code,		shape=box,		style=filled];	a0000000032	[color=blue,		label=a0000000032,		shape=ellipse];	"def:handling_oracle_queries"	[color=blue,		fillcolor="#A3D6FF",		label=handling_oracle_queries,		shape=box,		style=filled];	"def:computable_multilinear_polynomials"	[color=blue,		fillcolor="#A3D6FF",		label=computable_multilinear_polynomials,		shape=box,		style=filled];	"def:multilinear_extension"	[color=blue,		fillcolor="#A3D6FF",		label=multilinear_extension,		shape=box,		style=filled];	"def:round_by_round_soundness"	[color=blue,		fillcolor="#A3D6FF",		label=round_by_round_soundness,		shape=box,		style=filled];	"def:context"	[color=blue,		fillcolor="#A3D6FF",		label=context,		shape=box,		style=filled];	"def:prover_type_signature"	[color=blue,		fillcolor="#A3D6FF",		label=prover_type_signature,		shape=box,		style=filled];	"def:verifier_type_signature"	[color=blue,		fillcolor="#A3D6FF",		label=verifier_type_signature,		shape=box,		style=filled];	"def:oracle_reduction_type_signature"	[color=blue,		fillcolor="#A3D6FF",		label=oracle_reduction_type_signature,		shape=box,		style=filled];	"def:completeness"	[color=blue,		fillcolor="#A3D6FF",		label=completeness,		shape=box,		style=filled];	"def:soundness"	[color=blue,		fillcolor="#A3D6FF",		label=soundness,		shape=box,		style=filled];	"def:knowledge_soundness"	[color=blue,		fillcolor="#A3D6FF",		label=knowledge_soundness,		shape=box,		style=filled];	"thm:schwartz_zippel"	[color=blue,		label=schwartz_zippel,		shape=ellipse];	"def:sim_oracle"	[color=blue,		fillcolor="#A3D6FF",		label=sim_oracle,		shape=box,		style=filled];	"thm:multilinear_extension_unique"	[color=blue,		label=multilinear_extension_unique,		shape=ellipse];	"def:generator_matrix"	[color=blue,		fillcolor="#A3D6FF",		label=generator_matrix,		shape=box,		style=filled];	"def:oracle_computation"	[color=blue,		fillcolor="#A3D6FF",		label=oracle_computation,		shape=box,		style=filled];	"def:state_function"	[color=blue,		fillcolor="#A3D6FF",		label=state_function,		shape=box,		style=filled];}`)
+    .renderDot(`strict digraph "" {	graph [bgcolor=transparent];	node [label="\N",		penwidth=1.8	];	edge [arrowhead=vee];	"def:logging_caching_oracle_queries"	[color=blue,		fillcolor="#A3D6FF",		label=logging_caching_oracle_queries,		shape=box,		style=filled];	"thm:multilinear_extension_unique"	[color=blue,		label=multilinear_extension_unique,		shape=ellipse];	"def:round_by_round_soundness"	[color=blue,		fillcolor="#A3D6FF",		label=round_by_round_soundness,		shape=box,		style=filled];	"def:virtual_oracle_reduction"	[color=blue,		fillcolor="#A3D6FF",		label=virtual_oracle_reduction,		shape=box,		style=filled];	"def:state_function"	[color=blue,		fillcolor="#A3D6FF",		label=state_function,		shape=box,		style=filled];	"def:computable_univariate_polynomials"	[color=blue,		fillcolor="#A3D6FF",		label=computable_univariate_polynomials,		shape=box,		style=filled];	"def:code_distance"	[color=blue,		fillcolor="#A3D6FF",		label=code_distance,		shape=box,		style=filled];	"def:round_by_round_knowledge_soundness"	[color=blue,		fillcolor="#A3D6FF",		label=round_by_round_knowledge_soundness,		shape=box,		style=filled];	"def:oracle_reduction_type_signature"	[color=blue,		fillcolor="#A3D6FF",		label=oracle_reduction_type_signature,		shape=box,		style=filled];	"def:context"	[color=blue,		fillcolor="#A3D6FF",		label=context,		shape=box,		style=filled];	"def:oracle_reduction_execution"	[color=blue,		fillcolor="#A3D6FF",		label=oracle_reduction_execution,		shape=box,		style=filled];	"def:knowledge_soundness"	[color=blue,		fillcolor="#A3D6FF",		label=knowledge_soundness,		shape=box,		style=filled];	"def:reed_solomon_code"	[color=blue,		fillcolor="#A3D6FF",		label=reed_solomon_code,		shape=box,		style=filled];	"def:proximity_gap"	[color=blue,		fillcolor="#A3D6FF",		label=proximity_gap,		shape=box,		style=filled];	"def:random_oracle"	[color=blue,		fillcolor="#A3D6FF",		label=random_oracle,		shape=box,		style=filled];	"def:oracle_computation"	[color=blue,		fillcolor="#A3D6FF",		label=oracle_computation,		shape=box,		style=filled];	"thm:schwartz_zippel"	[color=blue,		label=schwartz_zippel,		shape=ellipse];	"def:multilinear_extension"	[color=blue,		fillcolor="#A3D6FF",		label=multilinear_extension,		shape=box,		style=filled];	"def:generator_matrix"	[color=blue,		fillcolor="#A3D6FF",		label=generator_matrix,		shape=box,		style=filled];	a0000000033	[color=blue,		label=a0000000033,		shape=ellipse];	"def:distance_from_code"	[color=blue,		fillcolor="#A3D6FF",		label=distance_from_code,		shape=box,		style=filled];	"def:computable_multilinear_polynomials"	[color=blue,		fillcolor="#A3D6FF",		label=computable_multilinear_polynomials,		shape=box,		style=filled];	"def:prover_type_signature"	[color=blue,		fillcolor="#A3D6FF",		label=prover_type_signature,		shape=box,		style=filled];	"def:transcript_and_related_defs"	[color=blue,		fillcolor="#A3D6FF",		label=transcript_and_related_defs,		shape=box,		style=filled];	"def:verifier_type_signature"	[color=blue,		fillcolor="#A3D6FF",		label=verifier_type_signature,		shape=box,		style=filled];	"def:interactive_oracle_reduction"	[color=blue,		fillcolor="#A3D6FF",		label=interactive_oracle_reduction,		shape=box,		style=filled];	"def:completeness"	[color=blue,		fillcolor="#A3D6FF",		label=completeness,		shape=box,		style=filled];	"def:soundness"	[color=blue,		fillcolor="#A3D6FF",		label=soundness,		shape=box,		style=filled];	"def:virtual_context_mapping"	[color=blue,		fillcolor="#A3D6FF",		label=virtual_context_mapping,		shape=box,		style=filled];	"def:parity_check_matrix"	[color=blue,		fillcolor="#A3D6FF",		label=parity_check_matrix,		shape=box,		style=filled];	"def:interleaved_code"	[color=blue,		fillcolor="#A3D6FF",		label=interleaved_code,		shape=box,		style=filled];	"def:oracle_spec"	[color=blue,		fillcolor="#A3D6FF",		label=oracle_spec,		shape=box,		style=filled];	"def:sim_oracle"	[color=blue,		fillcolor="#A3D6FF",		label=sim_oracle,		shape=box,		style=filled];	"def:handling_oracle_queries"	[color=blue,		fillcolor="#A3D6FF",		label=handling_oracle_queries,		shape=box,		style=filled];	"def:proximity_measure"	[color=blue,		fillcolor="#A3D6FF",		label=proximity_measure,		shape=box,		style=filled];	"def:probabilistic_semantics_of_oracle_computations"	[color=blue,		fillcolor="#A3D6FF",		label=probabilistic_semantics_of_oracle_computations,		shape=box,		style=filled];}`)
     .on("end", interactive);
 
 latexLabelEscaper = function(label) {
