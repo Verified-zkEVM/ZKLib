@@ -22,18 +22,19 @@ import ZKLib.Data.MvPolynomial.Notation
 /-- `⊕ᵥ` is notation for `Sum.elim`, e.g. sending `α → γ` and `β → γ` to `α ⊕ β → γ`. -/
 infixr:35 " ⊕ᵥ " => Sum.elim
 
-open OracleComp
-
-open OracleSpec OracleQuery
+open OracleComp OracleSpec OracleQuery
 
 variable {ι ιₜ : Type}
 
+@[reducible]
 def SimOracle.Stateful (spec : OracleSpec ι) (specₜ : OracleSpec ιₜ) (σ : Type) :=
   QueryImpl spec (StateT σ (OracleComp specₜ))
 
+@[reducible]
 def SimOracle.Stateless (spec : OracleSpec ι) (specₜ : OracleSpec ιₜ) :=
   QueryImpl spec (OracleComp specₜ)
 
+@[reducible]
 def SimOracle.Impl (spec : OracleSpec ι) := QueryImpl spec Option
 
 namespace SimOracle

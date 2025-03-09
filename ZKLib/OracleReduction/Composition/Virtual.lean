@@ -23,6 +23,15 @@ section Transport
 
 open scoped NNReal
 
+-- sub-reduction: (StmtIn, WitIn) →[..] (StmtOut, WitOut)
+
+-- current reduction : (StmtIn', WinIn')
+
+-- there's a mapping : (StmtIn', WinIn') → (StmtIn, WitIn), and an inverse mapping : WitIn → WitIn'
+-- (for extraction)
+
+-- what should be (StmtOut' = StmtIn × transcript, WitOut')?
+
 structure TransportStatement (StmtIn StmtOut StmtIn' StmtOut' : Type) where
   fStmtIn : StmtIn → StmtIn'
   fStmtOut : StmtIn × StmtOut' → StmtOut
@@ -137,7 +146,7 @@ theorem Prover.run_transport
           P.run (data.fStmtIn stmtIn) (data.fWitIn witIn)
         return ⟨data.fStmtOut (stmtIn, stmtOut), data.fWitOut (witIn, witOut),
           fullTranscript⟩ := by
-  unfold Prover.run Prover.runAux
+  unfold Prover.run Prover.runToRound
   simp [Prover.transport]
   sorry
 

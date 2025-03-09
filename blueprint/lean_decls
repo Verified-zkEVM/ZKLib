@@ -1,3 +1,8 @@
+ProtocolSpec
+ToOracle
+ProtocolSpec.Transcript
+ProtocolSpec.Message
+ProtocolSpec.Challenge
 Prover
 Verifier
 OracleReduction
@@ -31,7 +36,6 @@ OracleSpec.OracleQuery
 OracleComp
 OracleImpl
 OracleComp.evalDist
-SimOracle
 loggingOracle
 cachingOracle
 randOracle

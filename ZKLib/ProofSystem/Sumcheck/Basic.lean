@@ -218,7 +218,10 @@ lemma probFailure_bind_eq_zero_iff [spec.FiniteRange]
 @[simp] -- TODO: more general version/class for query impls that never have failures
 lemma loggingOracle.probFailure_simulateQ [spec.FiniteRange] (oa : OracleComp spec α) :
     [⊥ | (simulateQ loggingOracle oa).run] = [⊥ | oa] := by
-  sorry
+  induction oa using OracleComp.induction with
+  | pure a => simp
+  | query_bind i t oa ih => simp [ih, probFailure_bind_eq_tsum]
+  | failure => simp
 
 @[simp]
 lemma WriterT.run_map {m : Type u → Type v} [Monad m] [Monoid ω]
@@ -232,34 +235,58 @@ lemma probFailure_liftComp {ι' : Type w} {superSpec : OracleSpec ι'}
     (oa : OracleComp spec α) : [⊥ | liftComp oa superSpec] = [⊥ | oa] := by
   simp only [probFailure_def, evalDist_liftComp]
 
+@[simp]
+lemma liftComp_support {ι' : Type w} {superSpec : OracleSpec ι'}
+    [h : MonadLift (OracleQuery spec) (OracleQuery superSpec)]
+    (oa : OracleComp spec α) : (liftComp oa superSpec).support = oa.support := by
+  induction oa using OracleComp.induction with
+  | pure a => simp
+  | query_bind i t oa ih => simp [ih]
+  | failure => simp
+
 end simp_lemmas
 
 -- set_option maxHeartbeats 1000000 in
 theorem perfect_completeness : (reduction R d D).perfectCompleteness
     (inputRelation R d D) (outputRelation R d) := by
-  rw [perfectCompleteness_eq]
+  rw [perfectCompleteness_eq_prob_one]
   intro ⟨target, oStmt⟩ () hValid
   generalize h : oStmt () = p; obtain ⟨poly, hp⟩ := p
   -- Need `convert` because of some duplicate instances, should eventually track those down
   convert (probEvent_eq_one_iff _ _).2 ⟨?_, ?_⟩
   · simp only [Reduction.run, probFailure_bind_eq_zero_iff]
-    refine ⟨?_, ?_⟩
+    constructor
     · simp -- There's still some pathing issue here w/ simp, need to simp in steps which is sub-par
-      unfold Prover.runAux
+      unfold Prover.run Prover.runToRound
       simp [Fin.induction, Fin.induction.go, reduction, prover]
     · intro ⟨⟨r, ⟨(), st⟩⟩, log⟩ hx
       simp -- Also some pathing issues, need to simp once before reducing `reduction`
       simp [reduction, verifier, Verifier.run]
       simp [inputRelation, h] at hValid
       convert hValid
-      sorry -- Remains to show initial state of prover is the polynomial
+      simp [Prover.runToRound, reduction, prover] at hx
+      obtain ⟨a, ha, hr, hSt⟩ := hx
+      rw [← hSt]; simp [Transcript.snoc, Fin.snoc, h]
   · intro ⟨⟨r, st⟩, ⟨(), ⟨transcript, log1, log2⟩⟩⟩ hx
     -- This runs *very* slow without the `only`, seems like a `simp` priority issue
     -- Keeps trying to apply lemmas that fail to unify, so could also relate to `reducible` tags.
     simp only [run, support_bind, liftM_eq_liftComp, Set.mem_iUnion, support_pure,
       Set.mem_singleton_iff, Prod.eq_iff_fst_eq_snd_eq, true_and] at hx
-    obtain ⟨x1, hx1, x2, hx2, ⟨⟨rfl, rfl⟩, ⟨rfl, ⟨rfl, rfl⟩⟩⟩⟩ := hx
+    obtain ⟨x1, hx1, ⟨x2, _⟩, hx2, ⟨⟨rfl, rfl⟩, ⟨rfl, ⟨rfl, rfl⟩⟩⟩⟩ := hx
+    simp only [reduction, prover, Prover.run, Prover.runToRound] at hx1
+    simp at hx1
+    obtain ⟨a, b, hab, hx1'⟩ := hx1
+    simp only [Verifier.run, reduction, verifier] at hx2
+    simp only [liftComp_support] at hx2
+    split; rename_i hEq
+    simp at hEq
+    obtain ⟨hStmtOut, _⟩ := hEq
+    rw [outputRelation, ← hStmtOut]
+
     sorry -- Remains to show output relation holds
+
+theorem test {α β : Type} {a : α} {b : β} {S : Set (α × β)} (h : (a, b) ∈ S) : a ∈ Prod.fst '' S := by
+  aesop?
 
 end Simpler
 
@@ -467,21 +494,21 @@ theorem perfect_completeness : OracleReduction.perfectCompleteness
     (pSpec := pSpec R deg) (oSpec := oSpec)
     (relation R n deg D i.castSucc) (relation R n deg D i.succ)
     (oracleReduction R n deg D oSpec i) := by
-  simp only [OracleReduction.perfectCompleteness, perfectCompleteness_eq, eq_iff_iff, iff_true, probEvent_eq_one_iff, Prod.forall]
+  simp only [OracleReduction.perfectCompleteness, perfectCompleteness_eq_prob_one, eq_iff_iff, iff_true, probEvent_eq_one_iff, Prod.forall]
   unfold relation oracleReduction
   -- prover verifier Reduction.run
   intro ⟨target, challenge⟩ oStmt _ hValid
   simp at hValid
   constructor
-  · simp [Reduction.run, Prover.run, Prover.runAux]; sorry
-  simp only [pSpec, getType_apply, getDir_apply, evalDist, eq_mp_eq_cast, reduction, prover,
-    proverIn, proverRound, eq_mpr_eq_cast, proverOut, verifier, Matrix.cons_val_zero,
-    sum_map, decide_eq_true_eq, Bool.decide_or, Bool.decide_eq_true, decide_not,
-    simulate', simulate, map_pure, bind_pure_comp, PMF.pure_bind, Function.comp_apply]
-  simp only [map_eq_bind_pure_comp, bind, pure, PMF.bind_bind, PMF.pure_bind,
-  Function.comp_apply, Function.uncurry_apply_pair, PMF.bind_apply, PMF.uniformOfFintype_apply,
-  PMF.pure_apply, eq_iff_iff, eq_mp_eq_cast, mul_ite, mul_one, mul_zero, iff_true]
-  -- simp [Reduction.run, Prover.run, Prover.runAux]
+  · simp [Reduction.run, Prover.run, Prover.runToRound]; sorry
+  -- simp only [pSpec, getType_apply, getDir_apply, evalDist, eq_mp_eq_cast, reduction, prover,
+  --   proverIn, proverRound, eq_mpr_eq_cast, proverOut, verifier, Matrix.cons_val_zero,
+  --   sum_map, decide_eq_true_eq, Bool.decide_or, Bool.decide_eq_true, decide_not,
+  --   simulate', simulate, map_pure, bind_pure_comp, PMF.pure_bind, Function.comp_apply]
+  -- simp only [map_eq_bind_pure_comp, bind, pure, PMF.bind_bind, PMF.pure_bind,
+  -- Function.comp_apply, Function.uncurry_apply_pair, PMF.bind_apply, PMF.uniformOfFintype_apply,
+  -- PMF.pure_apply, eq_iff_iff, eq_mp_eq_cast, mul_ite, mul_one, mul_zero, iff_true]
+  -- simp [Reduction.run, Prover.run, Prover.runToRound]
   sorry
   -- by_cases hp : p = True
   -- · simp [hp, hReject]

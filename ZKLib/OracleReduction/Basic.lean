@@ -170,6 +170,9 @@ structure Indexer (pSpec : ProtocolSpec n) (oSpec : OracleSpec ι) (Index : Type
 structure ProverState (n : ℕ) where
   PrvState : Fin (n + 1) → Type
 
+  -- if honest prover, then expect that PrvState 0 = WitIn
+  -- initState : PrvState 0
+
 /-- Initialization of prover's state via inputting the statement and witness -/
 structure ProverIn (StmtIn WitIn PrvState : Type) where
   input : StmtIn → WitIn → PrvState
@@ -453,7 +456,7 @@ structure OracleReduction.Stateless (pSpec : ProtocolSpec n) (oSpec : OracleSpec
   prover : OracleProver.Stateless pSpec oSpec Statement OStatement Witness
   verifier : OracleVerifier.Stateless pSpec oSpec Statement OStatement
 
-def Prover.Stateless.runAux {pSpec : ProtocolSpec n} {oSpec : OracleSpec ι}
+def Prover.Stateless.runToRound {pSpec : ProtocolSpec n} {oSpec : OracleSpec ι}
     -- {CtxType : ReductionContextType} {Ctx : ReductionContext CtxType}
     {Statement Witness : Type}
     (stmt : Statement) (wit : Witness) (i : Fin (n + 1))
@@ -631,5 +634,24 @@ theorem FullTranscript.mk2_eq_snoc_snoc {pSpec : ProtocolSpec 2} (msg0 : pSpec.g
     subst this; simp [Fin.snoc]
 
 end ProtocolSpec
+
+section IsPure
+
+variable {n : ℕ} {ι : Type} {pSpec : ProtocolSpec n} {oSpec : OracleSpec ι}
+    {StmtIn WitIn StmtOut WitOut : Type}
+
+class Prover.IsPure (P : Prover pSpec oSpec StmtIn WitIn StmtOut WitOut) where
+    is_pure : ∃ sendMessage : ∀ _, _ → _, ∀ i st,
+      P.sendMessage i st = pure (sendMessage i st)
+
+class Verifier.IsPure (V : Verifier pSpec oSpec StmtIn StmtOut) where
+    is_pure : ∃ verify : _ → _ → _, ∀ stmtIn transcript,
+      V.verify stmtIn transcript = pure (verify stmtIn transcript)
+
+class Reduction.IsPure (R : Reduction pSpec oSpec StmtIn WitIn StmtOut WitOut) where
+    prover_is_pure : R.prover.IsPure
+    verifier_is_pure : R.verifier.IsPure
+
+end IsPure
 
 end Classes

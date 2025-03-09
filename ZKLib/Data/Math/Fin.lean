@@ -98,10 +98,22 @@ theorem induction_one {motive : Fin 2 → Sort*} {zero : motive 0}
     {succ : ∀ i : Fin 1, motive (Fin.castSucc i) → motive i.succ} :
       induction (motive := motive) zero succ (last 1) = succ 0 zero := rfl
 
+/-- Alternate version of `Fin.induction_one` that uses `1 : Fin 2` instead of `last 1`. -/
+@[simp]
+theorem induction_one' {motive : Fin 2 → Sort*} {zero : motive 0}
+    {succ : ∀ i : Fin 1, motive (Fin.castSucc i) → motive i.succ} :
+      induction (motive := motive) zero succ (1 : Fin 2) = succ 0 zero := rfl
+
 @[simp]
 theorem induction_two {motive : Fin 3 → Sort*} {zero : motive 0}
     {succ : ∀ i : Fin 2, motive (Fin.castSucc i) → motive i.succ} :
       induction (motive := motive) zero succ (last 2) = succ 1 (succ 0 zero) := rfl
+
+/-- Alternate version of `Fin.induction_two` that uses `2 : Fin 3` instead of `last 2`. -/
+@[simp]
+theorem induction_two' {motive : Fin 3 → Sort*} {zero : motive 0}
+    {succ : ∀ i : Fin 2, motive (Fin.castSucc i) → motive i.succ} :
+      induction (motive := motive) zero succ (2 : Fin 3) = succ 1 (succ 0 zero) := rfl
 
 /-- `Fin.insertNth 0` is equivalent to `Fin.cases`. -/
 theorem insertNth_zero_eq_cases {n : ℕ} {α : Fin (n + 1) → Sort u} :
