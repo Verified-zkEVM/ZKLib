@@ -154,7 +154,6 @@ theorem rightpad_eq_if_rightpad_eq_of_ge (l l' : List α) (m n n' : Nat) (h : n 
   simp [hEq, hLen]
   sorry
 
-
 @[simp] theorem rightpad_twice_eq_rightpad_max (m n : Nat) (unit : α) (l : List α) :
     rightpad n unit (rightpad m unit l) = rightpad (max m n) unit l := by
   rw (config := { occs := .neg [0] }) [rightpad, rightpad_length]
@@ -237,18 +236,36 @@ def isBoolean {R : Type _} [Zero R] [One R] (a : Array R) : Prop :=
 def toNum {R : Type _} [Zero R] [DecidableEq R] (a : Array R) : ℕ :=
   (a.map (fun r => if r = 0 then 0 else 1)).reverse.foldl (fun acc elem => (acc * 2) + elem) 0
 
-/-- `Array` version of `List.replicate`, which just invokes the list version. -/
-@[reducible]
-def replicate (n : Nat) (a : α) : Array α :=
-  ⟨List.replicate n a⟩
+/-- `Array` version of `List.replicate` is just `mkArray`. -/
+alias replicate := mkArray
 
-/-- `Array` version of `List.matchSize`, which just invokes the list version. -/
+theorem leftpad_toList {a : Array α} {n : Nat} {unit : α} :
+    a.leftpad n unit = mk (a.toList.leftpad n unit) := by
+  induction h : a.toList with
+  | nil => simp_all [h]
+  | cons hd tl ih => simp_all [ih, h, size_eq_length_toList]
+
+theorem rightpad_toList {a : Array α} {n : Nat} {unit : α} :
+    a.rightpad n unit = mk (a.toList.rightpad n unit) := by
+  induction h : a.toList with
+  | nil => simp_all [h]
+  | cons hd tl ih => simp_all [ih, h, size_eq_length_toList]
+
+theorem rightpad_getElem_eq_getD {a : Array α} {n : Nat} {unit : α} {i : Nat} (h : i < (a.rightpad n unit).size) :
+    (a.rightpad n unit)[i] = a.getD i unit := by
+  simp_rw [rightpad_toList] at h ⊢
+  sorry
+
+/-- `Array` version of `List.matchSize`, which rightpads the arrays to the same length. -/
 @[reducible]
-def matchSize (a : Array α) (b : Array α) (unit : α) : Array α × Array α :=
-  if a.size > b.size then
-    (a, b.rightpad (a.size) unit)
-  else
-    (a.rightpad (b.size) unit, b)
+def matchSize (a b : Array α) (unit : α) : Array α × Array α :=
+  (a.rightpad (b.size) unit, b.rightpad (a.size) unit)
+
+theorem matchSize_toList {a b : Array α} {unit : α} :
+    matchSize a b unit =
+      let (a', b') := List.matchSize a.toList b.toList unit
+      (mk a', mk b') := by
+  simp [matchSize, List.matchSize]
 
 theorem getElem?_eq_toList {a : Array α} {i : ℕ} : a.toList[i]? = a[i]? := by
   rw (occs := .pos [2]) [← Array.toArray_toList a]

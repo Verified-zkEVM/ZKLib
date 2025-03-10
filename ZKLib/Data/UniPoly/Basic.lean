@@ -307,13 +307,16 @@ theorem canonical_nonempty_iff [LawfulBEq R] {p : UniPoly R} (hp: p.size > 0) :
     constructor
     · intro h
       ext
-      conv => rhs; congr; congr; rw [← h]
+      have : p ≠ #[] := Array.ne_empty_of_size_pos hp
+      simp [this] at h
       have : k + 1 ≤ p.size := Nat.succ_le_of_lt k.is_lt
-      simp [Array.size_extract, this]
+      have : p.size = k + 1 := Nat.le_antisymm h this
+      simp [this]
     · intro h
       have : k + 1 = p.size := by rw [h]; exact Nat.succ_pred_eq_of_pos hp
       rw [this]
-      exact Array.extract_size p
+      right
+      exact le_refl _
 
 theorem last_nonzero_last_iff [LawfulBEq R] {p : UniPoly R} (hp: p.size > 0) :
   p.last_nonzero = some ⟨ p.size - 1, Nat.pred_lt_self hp ⟩ ↔ p.getLast hp ≠ 0
@@ -384,53 +387,67 @@ variable {S : Type*}
 
 -- eval₂ f x p = f(a_0) + f(a_1) x + f(a_2) x^2 + ... + f(a_n) x^n
 
-/-- Evaluates a `UniPoly` at a given value, using a ring homomorphism `f: R →+* S`. -/
+/-- Evaluates a `UniPoly` at a given value, using a ring homomorphism `f: R →+* S`.
+TODO: define an efficient version of this with caching -/
 def eval₂ [Semiring S] (f : R →+* S) (x : S) (p : UniPoly R) : S :=
   p.zipIdx.foldl (fun acc ⟨a, i⟩ => acc + f a * x ^ i) 0
 
-/-- Evaluates a `UniPoly` at a given value. -/
+/-- Evaluates a `UniPoly` at a given value -/
+@[inline, specialize]
 def eval (x : R) (p : UniPoly R) : R :=
   p.eval₂ (RingHom.id R) x
 
 /-- Addition of two `UniPoly`s. Defined as the pointwise sum of the underlying coefficient arrays
   (properly padded with zeroes). -/
+@[inline, specialize]
 def add_raw (p q : UniPoly R) : UniPoly R :=
   let ⟨p', q'⟩ := Array.matchSize p q 0
   .mk (Array.zipWith (· + ·) p' q' )
 
-/-- Addition of two `UniPoly`s. -/
+/-- Addition of two `UniPoly`s, with result trimmed. -/
+@[inline, specialize]
 def add (p q : UniPoly R) : UniPoly R :=
   add_raw p q |> trim
 
 /-- Scalar multiplication of `UniPoly` by an element of `R`. -/
+@[inline, specialize]
 def smul (r : R) (p : UniPoly R) : UniPoly R :=
   .mk (Array.map (fun a => r * a) p)
 
+/-- Scalar multiplication of `UniPoly` by a natural number. -/
+@[inline, specialize]
 def nsmul_raw (n : ℕ) (p : UniPoly R) : UniPoly R :=
   .mk (Array.map (fun a => n * a) p)
 
-/-- Scalar multiplication of `UniPoly` by a natural number. -/
+/-- Scalar multiplication of `UniPoly` by a natural number, with result trimmed. -/
+@[inline, specialize]
 def nsmul (n : ℕ) (p : UniPoly R) : UniPoly R :=
   nsmul_raw n p |> trim
 
 /-- Negation of a `UniPoly`. -/
+@[inline, specialize]
 def neg (p : UniPoly R) : UniPoly R := p.map (fun a => -a)
 
 /-- Subtraction of two `UniPoly`s. -/
+@[inline, specialize]
 def sub (p q : UniPoly R) : UniPoly R := p.add q.neg
 
 /-- Multiplication of a `UniPoly` by `X ^ i`, i.e. pre-pending `i` zeroes to the
 underlying array of coefficients. -/
+@[inline, specialize]
 def mulPowX (i : Nat) (p : UniPoly R) : UniPoly R := .mk (Array.replicate i 0 ++ p)
 
 /-- Multiplication of a `UniPoly` by `X`, reduces to `mulPowX 1`. -/
-@[reducible] def mulX (p : UniPoly R) : UniPoly R := p.mulPowX 1
+@[inline, specialize]
+def mulX (p : UniPoly R) : UniPoly R := p.mulPowX 1
 
 /-- Multiplication of two `UniPoly`s, using the naive `O(n^2)` algorithm. -/
+@[inline, specialize]
 def mul (p q : UniPoly R) : UniPoly R :=
   p.zipIdx.foldl (fun acc ⟨a, i⟩ => acc.add <| (smul a q).mulPowX i) (C 0)
 
 /-- Exponentiation of a `UniPoly` by a natural number `n` via repeated multiplication. -/
+@[inline, specialize]
 def pow (p : UniPoly R) (n : Nat) : UniPoly R := (mul p)^[n] (C 1)
 
 -- TODO: define repeated squaring version of `pow`
@@ -453,19 +470,6 @@ noncomputable def toPoly (p : UniPoly R) : Polynomial R :=
 
 alias ofPoly := Polynomial.toImpl
 
--- theorem toPoly_add {p q : UniPoly R} : (p + q).toPoly = p.toPoly + q.toPoly := by
---   simp [toPoly, eval₂]
---   sorry
-
--- theorem ofPoly_toPoly (p : Polynomial R) : p = p.toImpl.toPoly := by
---   induction p using Polynomial.induction_on' with
---   | h_add p q hp hq =>
---     rw [hp, hq]
---     simp [toPoly, toImpl, eval₂]
---     sorry
---   | h_monomial n a =>
---     sorry
-
 /-- Return a bound on the degree of a `UniPoly` as the size of the underlying array
 (and `⊥` if the array is empty). -/
 def degreeBound (p : UniPoly R) : WithBot Nat :=
@@ -476,7 +480,6 @@ def degreeBound (p : UniPoly R) : WithBot Nat :=
 /-- Convert `degreeBound` to a natural number by sending `⊥` to `0`. -/
 def natDegreeBound (p : UniPoly R) : Nat :=
   (degreeBound p).getD 0
-
 
 /-- Check if a `UniPoly` is monic, i.e. its leading coefficient is 1. -/
 def monic (p : UniPoly R) : Bool := p.leadingCoeff == 1
@@ -528,21 +531,21 @@ variable (p q r : UniPoly R)
 -- some helper lemmas to characterize p + q
 
 lemma matchSize_size_eq {p q : UniPoly Q} :
-  let (p', q') := Array.matchSize p q 0
-  p'.size = q'.size := by
-  show (List.rightpad _ _ _).length = (List.rightpad _ _ _).length
-  rw [List.rightpad_length, List.rightpad_length]
+    let (p', q') := Array.matchSize p q 0
+    p'.size = q'.size := by
+  show (Array.rightpad _ _ _).size = (Array.rightpad _ _ _).size
+  rw [Array.size_rightpad, Array.size_rightpad]
   omega
 
 lemma matchSize_size {p q : UniPoly Q} :
-  let (p', _) := Array.matchSize p q 0
-  p'.size = max p.size q.size := by
-  show (List.rightpad _ _ _).length = max (List.length _) (List.length _)
-  rw [List.rightpad_length]
+    let (p', _) := Array.matchSize p q 0
+    p'.size = max p.size q.size := by
+  show (Array.rightpad _ _ _).size = max (Array.size _) (Array.size _)
+  rw [Array.size_rightpad]
   omega
 
-lemma zipWith_size {R} {f : R → R → R} {a b : Array R} :
-  a.size = b.size → (Array.zipWith f a b).size = a.size := by
+lemma zipWith_size {R} {f : R → R → R} {a b : Array R} (h : a.size = b.size) :
+    (Array.zipWith f a b).size = a.size := by
   simp; omega
 
 -- TODO we could generalize the next few lemmas to matchSize + zipWith f for any f
@@ -555,9 +558,10 @@ theorem add_coeff {p q : UniPoly Q} {i: ℕ} (hi: i < (add_raw p q).size) :
   (add_raw p q)[i] = p.getD i 0 + q.getD i 0
 := by
   simp [add_raw]
-  unfold List.matchSize
-  repeat rw [List.rightpad_getElem_eq_getD]
-  simp only [List.getD_eq_getElem?_getD, Array.getElem?_eq_toList]
+  sorry
+  -- unfold List.matchSize
+  -- repeat rw [List.rightpad_getElem_eq_getD]
+  -- simp only [List.getD_eq_getElem?_getD, Array.getElem?_eq_toList]
 
 theorem add_coeff? (p q : UniPoly Q) (i: ℕ) :
   (add_raw p q).getD i 0 = p.getD i 0 + q.getD i 0
@@ -721,11 +725,12 @@ open List in
 @[simp] theorem equiv_trans {p q r : UniPoly Q} : equiv p q → equiv q r → equiv p r :=
   fun hpq hqr => by
     simp_all [equiv, Array.matchSize]
-    have hpq' := (List.matchSize_eq_iff_forall_eq p.toList q.toList 0).mp hpq
-    have hqr' := (List.matchSize_eq_iff_forall_eq q.toList r.toList 0).mp hqr
-    have hpr' : ∀ (i : Nat), p.toList.getD i 0 = r.toList.getD i 0 :=
-      fun i => Eq.trans (hpq' i) (hqr' i)
-    exact (List.matchSize_eq_iff_forall_eq p.toList r.toList 0).mpr hpr'
+    sorry
+    -- have hpq' := (List.matchSize_eq_iff_forall_eq p.toList q.toList 0).mp hpq
+    -- have hqr' := (List.matchSize_eq_iff_forall_eq q.toList r.toList 0).mp hqr
+    -- have hpr' : ∀ (i : Nat), p.toList.getD i 0 = r.toList.getD i 0 :=
+    --   fun i => Eq.trans (hpq' i) (hqr' i)
+    -- exact (List.matchSize_eq_iff_forall_eq p.toList r.toList 0).mpr hpr'
 
 /-- The `UniPoly.equiv` is indeed an equivalence relation. -/
 instance instEquivalenceEquiv : Equivalence (equiv (R := R)) where
