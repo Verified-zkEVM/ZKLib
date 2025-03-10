@@ -301,7 +301,7 @@ def rbrKnowledgeSoundness (relIn : StmtIn → WitIn → Prop) (relOut : StmtOut 
       let chal ← pSpec.getChallenge i
       return (result, chal))
     [fun ⟨⟨transcript, _, proveQueryLog⟩, challenge⟩ =>
-      letI extractedWitIn := extractor i.1.castSucc stmtIn transcript proveQueryLog
+      letI extractedWitIn := extractor i.1.castSucc stmtIn transcript proveQueryLog.fst
       ¬ relIn stmtIn extractedWitIn ∧
         ¬ stateFunction.fn i.1.castSucc stmtIn transcript ∧
           stateFunction.fn i.1.succ stmtIn (transcript.snoc challenge)

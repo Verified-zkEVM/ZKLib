@@ -191,8 +191,8 @@ The prover is trivial: it has no messages to send.  It only receives the verifie
 We keep track of `(a, b)` in the prover’s state, along with the single random query `q`.
 -/
 def prover : OracleProver (pSpec OStatement) oSpec Unit Unit
-    (Query OStatement × Response OStatement) Unit
-    (fun _ : Fin 2 => OStatement) (fun _ : Unit => OStatement) where
+    (Query OStatement) Unit
+    (fun _ : Fin 2 => OStatement) (fun _ : Fin 2 => OStatement) where
 
   PrvState
   | 0 => OStatement × OStatement
@@ -204,24 +204,23 @@ def prover : OracleProver (pSpec OStatement) oSpec Unit Unit
 
   receiveChallenge | ⟨0, _⟩ => fun (a, b) q => (a, b, q)
 
-  output := fun (a, b, q) => (((q, oracle b q), fun _ => a), ())
+  output := fun (a, b, q) => ((q, ![a, b]), ())
 
 /--
 The verifier queries both `a` and `b` at the random point `q`.
 We check `ToOracle.oracle a q = ToOracle.oracle b q`.
 -/
-def verifier : OracleVerifier (pSpec OStatement) oSpec Unit
-    (ToOracle.Query OStatement × ToOracle.Response OStatement)
-    (fun _ : Fin 2 => OStatement) (fun _ : Unit => OStatement) where
+def verifier : OracleVerifier (pSpec OStatement) oSpec Unit (Query OStatement)
+    (fun _ : Fin 2 => OStatement) (fun _ : Fin 2 => OStatement) where
 
-  verify := fun () chal => do
+  verify := fun _ chal => do
     let q : ToOracle.Query OStatement := chal ⟨0, rfl⟩
-    let resp ← liftM <| query
-      (spec := (oSpec ++ₒ ([fun x ↦ OStatement]ₒ ++ₒ [(pSpec OStatement).Message]ₒ)))
-      (Sum.inr <| Sum.inl (0 : Fin 2)) q
-    pure (q, resp)
+    -- let resp ← liftM <| query
+    --   (spec := (oSpec ++ₒ ([fun x ↦ OStatement]ₒ ++ₒ [(pSpec OStatement).Message]ₒ)))
+    --   (Sum.inr <| Sum.inl (0 : Fin 2)) q
+    pure q
 
-  embed := ⟨fun _ => .inl 0, by simp [Function.Injective]⟩
+  embed := Function.Embedding.inl
 
   hEq := by simp
 
@@ -231,27 +230,88 @@ the input oracles are `(a, b)`, and the output oracles are the same `(a, b)`.
 -/
 def oracleReduction :
   OracleReduction (pSpec OStatement) oSpec Unit Unit
-    (Query OStatement × Response OStatement) Unit
-    (fun _ : Fin 2 => OStatement) (fun _ : Unit => OStatement) where
+    (Query OStatement) Unit
+    (fun _ : Fin 2 => OStatement) (fun _ : Fin 2 => OStatement) where
   prover := prover oSpec OStatement
   verifier := verifier oSpec OStatement
 
 @[reducible]
-def relIn : OStatement × OStatement → Prop := Eq.uncurry
+def relIn : (Unit × (∀ _ : Fin 2, OStatement)) → Unit → Prop := fun ⟨(), oracles⟩ () =>
+  oracles 0 = oracles 1
 
 /--
 The final relation states that if the verifier’s single query was `q`, then
 `a` and `b` agree on that `q`, i.e. `ToOracle.oracle a q = ToOracle.oracle b q`.
 -/
-def relOut : (Query OStatement × Response OStatement) × (∀ _ : Unit, OStatement) → Prop :=
-  fun ⟨⟨q, resp⟩, oStmt⟩ => ToOracle.oracle (oStmt ()) q = resp
+def relOut : ((Query OStatement) × (∀ _ : Fin 2, OStatement)) → Unit → Prop :=
+  fun ⟨q, oStmt⟩ () => ToOracle.oracle (oStmt 0) q = ToOracle.oracle (oStmt 1) q
 
 variable [oSpec.FiniteRange]
 
 theorem completeness : OracleReduction.perfectCompleteness
-    (fun ⟨_, x⟩ _ => relIn OStatement (x 0, x 1))  -- trivial input relation
-    (fun x _ => relOut OStatement x)
+    (relIn OStatement)
+    (relOut OStatement)
     (oracleReduction oSpec OStatement) := by
   sorry
+
+-- def langIn : Set (Unit × (∀ _ : Fin 2, OStatement)) := setOf fun ⟨(), oracles⟩ =>
+--   oracles 0 = oracles 1
+
+-- def langOut : Set ((Query OStatement) × (∀ _ : Fin 2, OStatement)) := setOf fun ⟨q, oracles⟩ =>
+--   ToOracle.oracle (oracles 0) q = ToOracle.oracle (oracles 1) q
+
+def stateFunction : Reduction.StateFunction
+    (relIn OStatement).language (relOut OStatement).language
+    (verifier oSpec OStatement).toVerifier where
+  fn
+  | 0 => fun ⟨_, oracles⟩ _ => oracles 0 = oracles 1
+  | 1 => fun ⟨_, oracles⟩ chal =>
+    let q : Query OStatement := by simpa [pSpec] using chal ⟨0, by aesop⟩
+    ToOracle.oracle (oracles 0) q = ToOracle.oracle (oracles 1) q
+  fn_empty := fun stmt hStmt => by simp_all [relIn, Function.language]
+  fn_next := fun i hDir ⟨stmt, oStmt⟩ tr h => by simp_all
+  fn_full := fun ⟨stmt, oStmt⟩ tr h => by
+    simp_all [relOut, Function.language]
+    intro a b hSupp
+    simp [Verifier.run, OracleVerifier.toVerifier, verifier] at hSupp
+    simp [hSupp.1, hSupp.2, h]
+
+/-- The extractor is trivial since the output witness is `Unit`. -/
+def extractor : (i : Fin 2) → @Reduction.RBRExtractor _ _ (pSpec OStatement) oSpec
+    (Unit × ((i : Fin 2) → (fun _ ↦ OStatement) i)) Unit i :=
+  fun _ _ _ _ => ()
+
+-- The key fact governing the soundness of this reduction is a property of the form
+-- `∀ a b : OStatement, a ≠ b → #{q | ToOracle.oracle a q = ToOracle.oracle b q} ≤ d`.
+-- In other words, the oracle instance has distance at most `d`.
+
+variable [Fintype (Query OStatement)] [DecidableEq (Response OStatement)]
+
+open NNReal
+
+theorem rbr_knowledge_soundness {d : ℕ} (h : ToOracle.distanceLE OStatement d) :
+    OracleReduction.rbrKnowledgeSoundness
+      (relIn OStatement)
+      (relOut OStatement)
+      (verifier oSpec OStatement)
+      (stateFunction oSpec OStatement)
+      (fun _ => (d : ℝ≥0) / (Fintype.card (Query OStatement) : ℝ≥0)) := by
+  unfold OracleReduction.rbrKnowledgeSoundness Reduction.rbrKnowledgeSoundness
+  refine ⟨extractor oSpec OStatement, ?_⟩
+  intro ⟨_, oracles⟩ _ rbrP i
+  have : i = ⟨0, by simp⟩ := by aesop
+  simp
+  -- problem with `probEvent` here, we cannot do `rw [this]`, Lean complains of dependent motive
+  unfold probEvent; simp [this]; repeat rw [this]
+  simp [Prover.runWithLogToRound, Prover.runToRound]
+  rw [tsum_option _ (by simp)]
+  conv =>
+    enter [1, 1]
+    simp
+  simp
+  sorry
+  -- rw [tsum_ite_eq]
+
+#leansearch "tsum if then else?"
 
 end RandomQuery
