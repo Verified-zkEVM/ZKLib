@@ -300,18 +300,16 @@ theorem rbr_knowledge_soundness {d : ℕ} (h : ToOracle.distanceLE OStatement d)
   refine ⟨extractor oSpec OStatement, ?_⟩
   intro ⟨_, oracles⟩ _ rbrP i
   have : i = ⟨0, by simp⟩ := by aesop
-  simp
-  -- problem with `probEvent` here, we cannot do `rw [this]`, Lean complains of dependent motive
-  unfold probEvent; simp [this]; repeat rw [this]
-  simp [Prover.runWithLogToRound, Prover.runToRound]
-  rw [tsum_option _ (by simp)]
-  conv =>
-    enter [1, 1]
-    simp
-  simp
-  sorry
-  -- rw [tsum_ite_eq]
-
-#leansearch "tsum if then else?"
+  subst i
+  dsimp at oracles
+  simp [Prover.runWithLogToRound, Prover.runToRound, stateFunction]
+  classical
+  unfold Function.comp
+  simp [probEvent_liftM_eq_mul_inv, ProtocolSpec.Transcript.snoc, Fin.snoc, default]
+  rw [div_eq_mul_inv]
+  gcongr
+  simp [Finset.filter_and]
+  split_ifs with hOracles <;> simp
+  exact h (oracles 0) (oracles 1) hOracles
 
 end RandomQuery
