@@ -1002,8 +1002,7 @@ noncomputable def Equiv.UniPoly.TropicallyBoundPolynomial {R : Type} [BEq R] [Ri
             simp
             exact rfl
         · simp [hi2]
-      right_inv := by
-        sorry
+      right_inv := by sorry
       map_mul' := by sorry
       map_add' := by sorry
 
