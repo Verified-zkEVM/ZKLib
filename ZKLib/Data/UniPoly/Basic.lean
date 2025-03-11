@@ -967,25 +967,43 @@ def TropicallyBoundPoly (R) [Semiring R] : Subsemiring
   zero_mem' := Polynomial.degree_zero.le
 
 
-noncomputable def UniPoly.toTropicallyBoundPolynomial {R : Type} [Ring R] (p : UniPoly R) :
-    Polynomial R × Tropical (OrderDual (WithBot ℕ)) :=
-  (UniPoly.toPoly p, Tropical.trop (OrderDual.toDual (UniPoly.degreeBound p)))
+noncomputable def UniPoly.toTropicallyBoundPolynomial {R : Type} [Ring R] [BEq R] (p : UniPoly R) :
+    TropicallyBoundPoly (R) :=
+  ⟨
+    (p.toPoly, Tropical.trop (OrderDual.toDual p.degreeBound)),
+    by
+      sorry⟩
 
 def degBound (b: WithBot ℕ) : ℕ := match b with
   | ⊥ => 0
   | some n => n + 1
 
 def TropicallyBoundPolynomial.toUniPoly {R : Type} [Ring R]
-    (p : Polynomial R × Tropical (OrderDual (WithBot ℕ))) : UniPoly R :=
-  match p with
+    (p : TropicallyBoundPoly (R)) : UniPoly R :=
+  match p.val with
   | (p, n) => UniPoly.mk (Array.range (degBound n.untrop) |>.map (fun i => p.coeff i))
 
 noncomputable def Equiv.UniPoly.TropicallyBoundPolynomial {R : Type} [BEq R] [Ring R] :
-    UniPoly R ≃+* Polynomial R × Tropical (OrderDual (WithBot ℕ)) where
+    UniPoly R ≃+* TropicallyBoundPoly R where
       toFun := UniPoly.toTropicallyBoundPolynomial
       invFun := TropicallyBoundPolynomial.toUniPoly
-      left_inv := by sorry
-      right_inv := by sorry
+      left_inv := by
+        unfold Function.LeftInverse
+        intro p
+        unfold UniPoly.toTropicallyBoundPolynomial TropicallyBoundPolynomial.toUniPoly
+        simp_rw [Tropical.untrop_trop, UniPoly.coeff_toPoly, Array.getD_eq_getD_getElem?]
+        ext i hi1 hi2
+        · simp only [Array.size_map, Array.size_range]
+          unfold UniPoly.degreeBound
+          simp only [degBound]
+          cases p.size with
+          | zero => simp
+          | succ n =>
+            simp
+            exact rfl
+        · simp [hi2]
+      right_inv := by
+        sorry
       map_mul' := by sorry
       map_add' := by sorry
 
