@@ -46,6 +46,8 @@ lemma domain_def : (oracleSpec α).domain () = (α × α) := rfl
 @[simp]
 lemma range_def : (oracleSpec α).range () = α := rfl
 
+section
+
 variable [DecidableEq α] [Inhabited α] [Fintype α]
 
 /-- Example: a single hash computation -/
@@ -54,18 +56,18 @@ def singleHash (left : α) (right : α) : OracleComp (oracleSpec α) α := do
   return out
 
 /-- Cache for Merkle tree. Indexed by `j : Fin (n + 1)`, i.e. `j = 0, 1, ..., n`. -/
-def Cache (n : ℕ) := (j : Fin (n + 1)) → List.Vector α (2 ^ j.val)
+def Cache (n : ℕ) := (layer : Fin (n + 1)) → List.Vector α (2 ^ layer.val)
 
 /-- Add a base layer to the cache -/
 def Cache.cons (n : ℕ) (leaves : List.Vector α (2 ^ (n + 1))) (cache : Cache α n) :
     Cache α (n + 1) :=
   -- (motive := fun j => Vector α (2 ^ j.val))
-  Fin.reverseInduction leaves (fun j _ => cache j)
+  Fin.reverseInduction leaves (fun layer _ => cache layer)
 
 /-- Compute the next layer of the Merkle tree -/
-def buildLayer (n : ℕ) {m : ℕ} (h : m = n + 1) (leaves : List.Vector α (2 ^ m)) :
+def buildLayer (n : ℕ) (leaves : List.Vector α (2 ^ (n + 1))) :
     OracleComp (oracleSpec α) (List.Vector α (2 ^ n)) := do
-  let leaves : List.Vector α (2 ^ n * 2) := by rwa [h, pow_succ] at leaves
+  let leaves : List.Vector α (2 ^ n * 2) := by rwa [pow_succ] at leaves
   -- Pair up the leaves to form pairs
   let pairs : List.Vector (α × α) (2 ^ n) :=
     List.Vector.ofFn (fun i =>
@@ -76,13 +78,17 @@ def buildLayer (n : ℕ) {m : ℕ} (h : m = n + 1) (leaves : List.Vector α (2 ^
   return hashes
 
 /-- Build the full Merkle tree, returning the cache -/
-def buildMerkleTree (n : ℕ) {m : ℕ} (h : m = n + 1) (leaves : List.Vector α (2 ^ m)) :
-    OracleComp (oracleSpec α) (Cache α (n + 1)) := do
-  -- Build the next layer
-  let hashes ← buildLayer α n (by omega) leaves
-  -- Recursively build the rest of the tree
-  let cache ← buildMerkleTree (n - 1) (sorry) hashes
-  return Cache.cons α n sorry sorry
+def buildMerkleTree (α) (n : ℕ) (leaves : List.Vector α (2 ^ n)) :
+    OracleComp (oracleSpec α) (Cache α n) := do
+  match n with
+  | 0 => do
+    return fun j => (by
+      rw [Fin.val_eq_zero j]
+      exact leaves)
+  | n + 1 => do
+    let lastLayer ← buildLayer α n leaves
+    let cache ← buildMerkleTree α n lastLayer
+    return Cache.cons α n leaves cache
 
 /-- Get the root of the Merkle tree -/
 def getRoot {n : ℕ} (cache : Cache α n) : α :=
@@ -90,36 +96,43 @@ def getRoot {n : ℕ} (cache : Cache α n) : α :=
 
 /-- Figure out the indices of the Merkle tree nodes that are needed to
 recompute the root from the given leaf -/
-def findNeighbors {n : ℕ} (i : Fin (2 ^ n)) : (j : Fin n) → Fin (2 ^ (j.val + 1)) := fun j =>
+def findNeighbors {n : ℕ} (i : Fin (2 ^ n)) (layer : Fin n) :
+    Fin (2 ^ (layer.val + 1)) :=
   -- `finFunctionFinEquiv.invFun` gives the little-endian order, e.g. `6 = 011 little`
   -- so we need to reverse it to get the big-endian order, e.g. `6 = 110 big`
   let bits := (Vector.ofFn (finFunctionFinEquiv.invFun i)).reverse
   -- `6 = 110 big`, `j = 1`, we get `neighbor = 10 big`
-  let neighbor := (bits.set j (bits.get j + 1)).take (j.val + 1)
-  have : min (j.val + 1) n = j.val + 1 := by omega
+  let neighbor := (bits.set layer (bits.get layer + 1)).take (layer.val + 1)
+  have : min (layer.val + 1) n = layer.val + 1 := by omega
   -- `10 big` => `01 little` => `2`
   finFunctionFinEquiv.toFun (this ▸ neighbor.reverse.get)
 
--- @[simp]
--- theorem getRoot_trivial (a : α) : getRoot α <$> (buildMerkleTree α 0 ⟨[a], rfl⟩) = pure a := by
---   simp [getRoot, buildMerkleTree, List.Vector.head];
+end
 
--- @[simp]
--- theorem getRoot_single (a b : α) :
---     getRoot α <$> buildMerkleTree α 1 ⟨[a, b], rfl⟩ = (query () (a, b)) := by
---   simp [buildMerkleTree, buildLayer, List.Vector.ofFn, List.Vector.head, List.Vector.get]
---   unfold Cache.cons getRoot
---   simp [map_bind, Fin.reverseInduction]
+@[simp]
+theorem getRoot_trivial (a : α) : getRoot α <$> (buildMerkleTree α 0 ⟨[a], rfl⟩) = pure a := by
+  simp [getRoot, buildMerkleTree, List.Vector.head]
+
+@[simp]
+theorem getRoot_single (a b : α) :
+    getRoot α <$> buildMerkleTree α 1 ⟨[a, b], rfl⟩ = (query (spec := oracleSpec α) () (a, b)) := by
+  simp [buildMerkleTree, buildLayer, List.Vector.ofFn, List.Vector.head, List.Vector.get]
+  unfold Cache.cons getRoot
+  simp [map_bind, Fin.reverseInduction]
+
+section
+
+variable [DecidableEq α] [Inhabited α] [Fintype α]
 
 /-- Generate a Merkle proof that a given leaf at index `i` is in the Merkle tree. The proof consists
   of the Merkle tree nodes that are needed to recompute the root from the given leaf. -/
 def generateProof {n : ℕ} (i : Fin (2 ^ n)) (cache : Cache α n) :
     List.Vector α n :=
   let complement := findNeighbors i
-  let proof := List.Vector.ofFn (fun (j : Fin n) => (cache j).get (complement j))
+  let proof := List.Vector.ofFn (fun (layer : Fin n) => (cache layer).get (complement layer))
   proof
 
-/-- Verify a Merkle proof `proof`that a given `leaf` at index `i` is in the Merkle tree with given
+/-- Verify a Merkle proof `proof` that a given `leaf` at index `i` is in the Merkle tree with given
   `root`. -/
 def verifyProof {n : ℕ} (i : Fin (2 ^ n)) (leaf : α) (root : α) (proof : List.Vector α n) :
     OracleComp (oracleSpec α) Bool := do
@@ -141,12 +154,13 @@ def verifyProof {n : ℕ} (i : Fin (2 ^ n)) (leaf : α) (root : α) (proof : Lis
       verifyProof i' newLeaf root (proof.drop 1)
 
 -- theorem completeness (leaves : Vector α (2 ^ n)) (i : Fin (2 ^ n)) :
---     verifyMerkleProof i leaf (createMerkleProof i cache) = pure true := sorry
+--   verifyMerkleProof i leaf (createMerkleProof i cache) = pure true := sorry
 
 -- theorem soundness (i : Fin (2 ^ n)) (leaf : α) (proof : Vector α n) :
 --     verifyMerkleProof i leaf proof = pure true →
 --     getMerkleRoot (buildMerkleTree n (leaf ::ᵥ proof)) = leaf := sorry
 
+end
 
 section Test
 
