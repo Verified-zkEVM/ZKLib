@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
 
-import ZKLib.Data.Math.Fin -- Something weird in this file
+import ZKLib.Data.Math.Fin
 import Batteries.Data.Fin.Fold
 import ZKLib.OracleReduction.Security.Basic
 

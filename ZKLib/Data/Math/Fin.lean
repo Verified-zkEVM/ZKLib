@@ -6,6 +6,7 @@ Authors: Quang Dao
 import Mathlib.Data.Matrix.Reflection
 import Mathlib.Data.Fin.Tuple.Take
 import Mathlib.Logic.Lemmas
+import SEq.Tactic.DepRewrite
 
 /-!
   # Lemmas on `n`-tuples
@@ -13,107 +14,150 @@ import Mathlib.Logic.Lemmas
   We define operations on (dependent) finite vectors that are needed
   for composing interactive (oracle) protocols.
 -/
-universe u v
+universe u v w
 
-/-- Version of `funext_iff` for dependent functions `f : (x : α) → β x`. -/
-theorem funext_iff' {α : Sort u} {β : α → Sort v} {γ : α → Sort v}
-    {f : (x : α) → β x} {g : (x : α) → γ x} (h : ∀ x, β x = γ x) :
-      HEq f g ↔ ∀ x, HEq (f x) (g x) := by
-  have : β = γ := funext h
+/-- Version of `funext_iff` for dependent functions `f : (x : α) → β x` and
+`g : (x : α') → β' x`. -/
+theorem funext_heq_iff {α α' : Sort u} {β : α → Sort v} {β' : α' → Sort v}
+    {f : (x : α) → β x} {g : (x : α') → β' x} (ha : α = α') (hb : ∀ x, β x = β' (cast ha x)) :
+      HEq f g ↔ ∀ x, HEq (f x) (g (cast ha x)) := by
+  subst ha
+  have : β = β' := funext hb
   subst this
   simp [funext_iff]
 
-namespace List
+alias ⟨_, funext_heq⟩ := funext_heq_iff
 
--- TODO: put this elsewhere (for some reason `@[to_additive]` doesn't work)
-def partialSum {α : Type*} [AddMonoid α] (l : List α) : List α :=
-  [0] ++ match l with
-  | [] => []
-  | a :: l' => (partialSum l').map (a + ·)
+theorem funext₂_iff {α : Sort u} {β : α → Sort v} {γ : (a : α) → β a → Sort w}
+    {f g : (a : α) → (b : β a) → γ a b} : f = g ↔ ∀ a b, f a b = g a b := by
+  simp [funext_iff]
 
-@[to_additive existing]
-def partialProd {α : Type*} [Monoid α] (l : List α) : List α :=
-  [1] ++ match l with
-  | [] => []
-  | a :: l' => (partialProd l').map (a * ·)
+/-- Version of `funext₂_iff` for heterogeneous equality. -/
+theorem funext₂_heq_iff {α α' : Sort u} {β : α → Sort v} {β' : α' → Sort v}
+    {γ : (a : α) → β a → Sort w} {γ' : (a : α') → β' a → Sort w}
+    {f : (a : α) → (b : β a) → γ a b} {g : (a : α') → (b : β' a) → γ' a b}
+    (ha : α = α') (hb : ∀ a, β a = β' (cast ha a))
+    (hc : ∀ a b, γ a b = γ' (cast ha a) (cast (hb a) b)) :
+      HEq f g ↔ ∀ a b, HEq (f a b) (g (cast ha a) (cast (hb a) b)) := by
+  subst ha
+  have : β = β' := funext hb
+  subst this
+  have : γ = γ' := funext₂ hc
+  subst this
+  simp [funext₂_iff]
 
-@[simp]
-theorem partialSum_nil : [].partialSum = [0] := rfl
-
-variable {α : Type*} [AddMonoid α]
-
-@[simp]
-theorem partialSum_succ {a : α} {l : List α} :
-    (a :: l).partialSum = [0] ++ (partialSum l).map (a + ·) := rfl
-
-variable [Preorder α] [DecidableRel ((· < ·) : α → α → Prop)]
-
--- Pinpoint the first element in the list whose partial sum up to that point is more than `j`
-def findSum (l : List α) (j : α) : Option α := l.partialSum.find? (j < ·)
-
--- TODO: extend theorems to more general types than just `ℕ`
-
-theorem findSum_of_le_sum {l : List ℕ} {j : ℕ} (h : j < l.sum) : ∃ n, findSum l j = some n := by
-  match l with
-  | [] => simp only [sum_nil, not_lt_zero'] at h ⊢
-  | a :: l' =>
-    simp at h
-    sorry
-    -- by_cases h' : j < a
-    -- · use a
-    --   simp [findSum, h', findSome?_cons]
-    -- · simp [findSum, h'] at h
-    --   specialize @findSum_of_le_sum l' (j - a)
-    --   simp at h
-
--- Pinpoint the first index in the list whose partial sum is more than `j`
-def findSumIdx (l : List α) (j : α) : ℕ := l.partialSum.findIdx (j < ·)
-
--- Variant of `findSumIdx` with bounds
-def findSumIdx' (l : List ℕ) (j : Fin l.sum) : Fin l.length := ⟨findSumIdx l j, sorry⟩
-
-def findSumIdxWith (l : List ℕ) (j : Fin l.sum) : (i : Fin l.length) × Fin (l.get i) := sorry
-
-@[simp]
-theorem ranges_length_eq_self_length {l : List ℕ} : l.ranges.length = l.length := by
-  induction l with
-  | nil => simp only [List.ranges, List.length_nil]
-  | cons n l' ih => simp only [List.ranges, List.length_cons, List.length_map, ih]
-
-@[simp]
-theorem ranges_nil : List.ranges [] = [] := rfl
-
-@[simp]
-theorem ranges_succ {a : ℕ} {l : List ℕ} :
-    List.ranges (a :: l) = range a :: l.ranges.map (map (a + ·)) := rfl
-
-end List
+alias ⟨_, funext₂_heq⟩ := funext₂_heq_iff
 
 namespace Fin
 
 open Function
 
+/-- Version of `Fin.heq_fun_iff` for dependent functions `f : (i : Fin k) → α i`. -/
+protected theorem heq_fun_iff' {k l : ℕ} {α : Fin k → Sort u} {β : Fin l → Sort u} (h : k = l)
+    (h' : ∀ i : Fin k, (α i) = (β (Fin.cast h i))) {f : (i : Fin k) → α i} {g : (j : Fin l) → β j} :
+    HEq f g ↔ ∀ i : Fin k, HEq (f i) (g (Fin.cast h i)) := by
+  subst h
+  simp only [cast_eq_self]
+  exact funext_heq_iff rfl h'
+
+/-- Casting a `Fin` doesn't change its value. -/
+@[simp]
+theorem cast_val {m n : ℕ} (h : m = n) (a : Fin m) : (Fin.cast h a).val = a.val := by
+  subst h; simp
+
 @[simp]
 theorem induction_one {motive : Fin 2 → Sort*} {zero : motive 0}
-    {succ : ∀ i : Fin 1, motive (Fin.castSucc i) → motive i.succ} :
+    {succ : ∀ i : Fin 1, motive i.castSucc → motive i.succ} :
       induction (motive := motive) zero succ (last 1) = succ 0 zero := rfl
 
 /-- Alternate version of `Fin.induction_one` that uses `1 : Fin 2` instead of `last 1`. -/
 @[simp]
 theorem induction_one' {motive : Fin 2 → Sort*} {zero : motive 0}
-    {succ : ∀ i : Fin 1, motive (Fin.castSucc i) → motive i.succ} :
+    {succ : ∀ i : Fin 1, motive i.castSucc → motive i.succ} :
       induction (motive := motive) zero succ (1 : Fin 2) = succ 0 zero := rfl
 
 @[simp]
 theorem induction_two {motive : Fin 3 → Sort*} {zero : motive 0}
-    {succ : ∀ i : Fin 2, motive (Fin.castSucc i) → motive i.succ} :
+    {succ : ∀ i : Fin 2, motive i.castSucc → motive i.succ} :
       induction (motive := motive) zero succ (last 2) = succ 1 (succ 0 zero) := rfl
 
 /-- Alternate version of `Fin.induction_two` that uses `2 : Fin 3` instead of `last 2`. -/
 @[simp]
 theorem induction_two' {motive : Fin 3 → Sort*} {zero : motive 0}
-    {succ : ∀ i : Fin 2, motive (Fin.castSucc i) → motive i.succ} :
-      induction (motive := motive) zero succ (2 : Fin 3) = succ 1 (succ 0 zero) := rfl
+    {succ : ∀ i : Fin 2, motive i.castSucc → motive i.succ} :
+      induction (motive := motive) zero succ (2 : Fin 3) = succ 1 (succ 0 zero) := by rfl
+
+/-- Heterogeneous equality on `Fin.induction` -/
+theorem induction_heq {n n' : ℕ} {motive : Fin (n + 1) → Sort u} {motive' : Fin (n' + 1) → Sort u}
+    {zero : motive 0} {zero' : motive' 0}
+    {succ : ∀ i : Fin n, motive i.castSucc → motive i.succ}
+    {succ' : ∀ i : Fin n', motive' i.castSucc → motive' i.succ}
+    {i : Fin (n + 1)} {i' : Fin (n' + 1)}
+    (hn : n = n') (hmotive : HEq motive motive') (hzero : HEq zero zero')
+    (hsucc : HEq succ succ') (hi : HEq i i') :
+      HEq (induction (motive := motive) zero succ i)
+        (induction (motive := motive') zero' succ' i') := by
+  subst hn; subst hmotive; subst hzero; subst hsucc; subst hi; rfl
+
+theorem induction_init {n : ℕ} {motive : Fin (n + 2) → Sort*} {zero : motive 0}
+    {succ : ∀ i : Fin (n + 1), motive i.castSucc → motive i.succ} {i : Fin (n + 1)} :
+      induction (motive := motive) zero succ i.castSucc =
+        induction (motive := Fin.init motive) zero (fun j x => succ j.castSucc x) i := by
+  induction i using Fin.induction with
+  | zero => simp
+  | succ i ih =>
+    have : i.succ.castSucc = i.castSucc.succ := rfl
+    refine eq_of_heq ?_
+    conv => enter [1]; rw! [this]
+    simp
+    congr
+
+theorem induction_tail {n : ℕ} {motive : Fin (n + 2) → Sort*} {zero : motive 0}
+    {succ : ∀ i : Fin (n + 1), motive i.castSucc → motive i.succ} {i : Fin (n + 1)} :
+      induction (motive := motive) zero succ i.succ =
+        induction (motive := Fin.tail motive) (succ 0 zero) (fun j x => succ j.succ x) i := by
+  induction i using Fin.induction with
+  | zero => simp only [succ_zero_eq_one, induction_zero]; rfl
+  | succ i ih =>
+    simp
+    refine eq_of_heq ?_
+    have : i.succ.castSucc = i.castSucc.succ := rfl
+    conv => enter [1, 2]; rw! [this, ih]
+
+/-- `Fin.induction` on `m + n` for `i ≤ m` steps is equivalent to `Fin.induction` on `m` for `i`
+  steps. -/
+theorem induction_append_left {m n : ℕ} {motive : Fin (m + n + 1) → Sort*} {zero : motive 0}
+    {succ : ∀ i : Fin (m + n), motive i.castSucc → motive i.succ} {i : Fin (m + 1)} :
+      induction (motive := motive) zero succ ⟨i, by omega⟩ =
+        @induction m (fun j => motive ⟨j, by omega⟩) zero (fun j x => succ ⟨j, by omega⟩ x) i := by
+  induction i using Fin.induction with
+  | zero => simp [induction_zero, Fin.cast]
+  | succ i ih =>
+    simp at ih ⊢
+    refine eq_of_heq ?_
+    have : (⟨i.1 + 1, by omega⟩ : Fin (m + n + 1)) = (⟨i, by omega⟩ : Fin (m + n)).succ := rfl
+    conv => enter [1]; rw! [this, induction_succ]; simp [ih]
+
+/-- `Fin.induction` on `m + n` for `m + i` steps is equivalent to `Fin.induction` on `n` on `i`
+  steps on the result of `Fin.induction` on `m`. -/
+theorem induction_append_right {m n : ℕ} {motive : Fin (m + n + 1) → Sort*} {zero : motive 0}
+  {succ : ∀ i : Fin (m + n), motive i.castSucc → motive i.succ} {i : Fin (n + 1)} :
+    induction zero succ (i.natAdd m) =
+      @induction n (fun i => motive (i.natAdd m))
+        (@induction m (fun j => motive (Fin.cast (by omega) (j.castAdd n)))
+          zero (fun j x => succ (j.castAdd n) x) (last m))
+        (fun i x => succ (i.natAdd m) x) i := by
+  induction i using Fin.induction with
+  | zero =>
+    simp [castAdd, castLE, last, natAdd]
+    rw [induction_append_left (i := ⟨m, by omega⟩)]
+    rfl
+  | succ i ih =>
+    simp [← ih]
+    have : natAdd m i.succ = (natAdd m i).succ := rfl
+    refine eq_of_heq ?_
+    conv => enter [1]; rw! [this]
+    simp; rfl
 
 /-- `Fin.insertNth 0` is equivalent to `Fin.cases`. -/
 theorem insertNth_zero_eq_cases {n : ℕ} {α : Fin (n + 1) → Sort u} :
@@ -124,12 +168,6 @@ theorem insertNth_zero_eq_cases {n : ℕ} {α : Fin (n + 1) → Sort u} :
   | succ j =>
     simp only [insertNth, succAboveCases, not_lt_zero, ↓reduceDIte, cases_succ, Fin.succ_ne_zero]
     congr
-
-theorem partialProd_eq_partialProd_list {α : Type*} {n : ℕ} [Monoid α] (a : Fin n → α) :
-    List.partialProd (List.ofFn a) = List.ofFn (Fin.partialProd a) := by sorry
-  -- induction l with
-  -- | nil => simp [List.partialProd, List.ofFn]
-  -- | cons a l' ih => simp [List.partialProd, List.ofFn, ih]
 
 theorem append_comp {m n : ℕ} {α β : Sort*} {a : Fin m → α} {b : Fin n → α} (f : α → β) :
     append (f ∘ a) (f ∘ b) = f ∘ append a b := by
@@ -164,14 +202,6 @@ theorem append_right' {m n : ℕ} {α : Sort*} {u : Fin m → α} {v : Fin n →
     (j : Fin (m + n)) (h : j = natAdd m i) : append u v j = v i := by
   subst h
   simp only [append_right]
-
-/-- Version of `Fin.heq_fun_iff` for dependent functions `f : (i : Fin k) → α i`. -/
-protected theorem heq_fun_iff' {k l : ℕ} {α : Fin k → Sort u} {β : Fin l → Sort u} (h : k = l)
-    (h' : ∀ i : Fin k, (α i) = (β (Fin.cast h i))) {f : (i : Fin k) → α i} {g : (j : Fin l) → β j} :
-    HEq f g ↔ ∀ i : Fin k, HEq (f i) (g (Fin.cast h i)) := by
-  subst h
-  simp only [cast_eq_self]
-  exact funext_iff' h'
 
 /-- Version of `Fin.addCases` that splits the motive into two dependent vectors `α` and `β`, and
   the return type is `Fin.append α β`. -/
@@ -492,3 +522,69 @@ def finSuccEquivNth' (i : Fin n) : Fin n ≃ Option (Fin (n - 1)) := by
   exact Equiv.trans (Equiv.cast (congrArg _ this)) (finSuccEquiv' (Fin.cast this i))
 
 end OptionEquivPrime
+
+namespace List
+
+-- TODO: put this elsewhere (for some reason `@[to_additive]` doesn't work)
+def partialSum {α : Type*} [AddMonoid α] (l : List α) : List α :=
+  [0] ++ match l with
+  | [] => []
+  | a :: l' => (partialSum l').map (a + ·)
+
+@[to_additive existing]
+def partialProd {α : Type*} [Monoid α] (l : List α) : List α :=
+  [1] ++ match l with
+  | [] => []
+  | a :: l' => (partialProd l').map (a * ·)
+
+@[simp]
+theorem partialSum_nil : [].partialSum = [0] := rfl
+
+variable {α : Type*} [AddMonoid α]
+
+@[simp]
+theorem partialSum_succ {a : α} {l : List α} :
+    (a :: l).partialSum = [0] ++ (partialSum l).map (a + ·) := rfl
+
+variable [Preorder α] [DecidableRel ((· < ·) : α → α → Prop)]
+
+-- Pinpoint the first element in the list whose partial sum up to that point is more than `j`
+def findSum (l : List α) (j : α) : Option α := l.partialSum.find? (j < ·)
+
+-- TODO: extend theorems to more general types than just `ℕ`
+
+theorem findSum_of_le_sum {l : List ℕ} {j : ℕ} (h : j < l.sum) : ∃ n, findSum l j = some n := by
+  match l with
+  | [] => simp only [sum_nil, not_lt_zero'] at h ⊢
+  | a :: l' =>
+    simp at h
+    sorry
+    -- by_cases h' : j < a
+    -- · use a
+    --   simp [findSum, h', findSome?_cons]
+    -- · simp [findSum, h'] at h
+    --   specialize @findSum_of_le_sum l' (j - a)
+    --   simp at h
+
+-- Pinpoint the first index in the list whose partial sum is more than `j`
+def findSumIdx (l : List α) (j : α) : ℕ := l.partialSum.findIdx (j < ·)
+
+-- Variant of `findSumIdx` with bounds
+def findSumIdx' (l : List ℕ) (j : Fin l.sum) : Fin l.length := ⟨findSumIdx l j, sorry⟩
+
+def findSumIdxWith (l : List ℕ) (j : Fin l.sum) : (i : Fin l.length) × Fin (l.get i) := sorry
+
+@[simp]
+theorem ranges_length_eq_self_length {l : List ℕ} : l.ranges.length = l.length := by
+  induction l with
+  | nil => simp only [List.ranges, List.length_nil]
+  | cons n l' ih => simp only [List.ranges, List.length_cons, List.length_map, ih]
+
+@[simp]
+theorem ranges_nil : List.ranges [] = [] := rfl
+
+@[simp]
+theorem ranges_succ {a : ℕ} {l : List ℕ} :
+    List.ranges (a :: l) = range a :: l.ranges.map (map (a + ·)) := rfl
+
+end List
