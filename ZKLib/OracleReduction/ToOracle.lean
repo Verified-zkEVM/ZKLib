@@ -6,6 +6,7 @@ Authors: Quang Dao
 
 import VCVio
 import ZKLib.Data.MvPolynomial.Notation
+import Mathlib.Algebra.Polynomial.Roots
 -- import ZKLib.Data.MlPoly.Basic
 
 /-!
@@ -173,7 +174,7 @@ def simOracle2 {ι : Type} (oSpec : OracleSpec ι)
     | .inl i => oracle (t₁ i) q
     | .inr i => oracle (t₂ i) q)
 
-
+open Finset in
 /-- A message type together with a `ToOracle` instance is said to have **oracle distance** (at most)
       `d` if for any two distinct messages, there is at most `d` queries that distinguish them, i.e.
 
@@ -184,7 +185,7 @@ def simOracle2 {ι : Type} (oSpec : OracleSpec ι)
     `(Mv)Polynomial`. -/
 def distanceLE (Message : Type) [O : ToOracle Message]
     [Fintype (O.Query)] [DecidableEq (O.Response)] (d : ℕ) : Prop :=
-  ∀ a b : Message, a ≠ b → Finset.card {q | ToOracle.oracle a q = ToOracle.oracle b q} ≤ d
+  ∀ a b : Message, a ≠ b → #{q | ToOracle.oracle a q = ToOracle.oracle b q} ≤ d
 
 end ToOracle
 
@@ -231,14 +232,73 @@ instance instToOracleMvPolynomialDegreeLE : ToOracle (R⦃≤ d⦄[X σ]) where
   Response := R
   oracle := fun ⟨poly, _⟩ point => eval point poly
 
-variable [Fintype R] [DecidableEq R]
-
-theorem distanceLE_polynomial_degreeLT : ToOracle.distanceLE (R⦃< d⦄[X]) d := by
-  intro a b h
-  simp [ToOracle.oracle]
-  sorry
+instance [Fintype σ] [DecidableEq σ] [Fintype R] : Fintype (ToOracle.Query (R⦃≤ d⦄[X σ])) :=
+  inferInstanceAs (Fintype (σ → R))
 
 end Polynomial
+
+section PolynomialDistance
+
+open Polynomial MvPolynomial
+
+variable {R : Type} [CommRing R] {d : ℕ} [Fintype R] [DecidableEq R] [IsDomain R]
+
+-- TODO: golf this theorem
+@[simp]
+theorem distanceLE_polynomial_degreeLT : ToOracle.distanceLE (R⦃< d⦄[X]) (d - 1) := by
+  simp [ToOracle.distanceLE, instToOraclePolynomialDegreeLT, mem_degreeLT]
+  intro p hp p' hp' hNe
+  have : ∀ q ∈ Finset.univ, p.eval q = p'.eval q ↔ q ∈ (p - p').roots := by
+    intro q _
+    simp [mem_roots]
+    constructor <;> intro h
+    · constructor
+      · intro h'; contrapose! hNe; exact sub_eq_zero.mp h'
+      · simp [h]
+    · exact sub_eq_zero.mp h.2
+  conv =>
+    enter [1, 1]
+    apply Finset.filter_congr this
+  simp [Membership.mem, Finset.filter, Finset.card]
+  have : (p - p').roots.card < d := by
+    have hSubNe : p - p' ≠ 0 := sub_ne_zero_of_ne hNe
+    have hSubDegLt : (p - p').degree < d := lt_of_le_of_lt (degree_sub_le p p') (by simp [hp, hp'])
+    have := Polynomial.card_roots hSubNe
+    have : (p - p').roots.card < (d : WithBot ℕ) := lt_of_le_of_lt this hSubDegLt
+    simp at this; exact this
+  refine Nat.le_sub_one_of_lt (lt_of_le_of_lt ?_ this)
+  apply Multiset.card_le_card
+  rw [Multiset.le_iff_subset]
+  · intro x hx; simp at hx; exact hx
+  · simp [Multiset.nodup_iff_count_le_one]
+    intro a; simp [Multiset.count_filter, Multiset.count_univ]
+    aesop
+
+theorem distanceLE_polynomial_degreeLE : ToOracle.distanceLE (R⦃≤ d⦄[X]) d := by
+  simp [ToOracle.distanceLE, instToOraclePolynomialDegreeLE, mem_degreeLE]
+  intro a ha b hb hNe
+  simp [Finset.card_filter_le_iff]
+  intro s hs
+  have habNe : a - b ≠ 0 := sub_ne_zero_of_ne hNe
+  have hab : (a - b).degree ≤ d := le_trans (degree_sub_le a b) (by simp [ha, hb])
+  have : ¬ s.val ≤ (a - b).roots := by
+    intro h
+    have h1 : s.val.card ≤ (a - b).roots.card := Multiset.card_le_card h
+    have h2 : (a - b).roots.card ≤ (d : WithBot ℕ) := le_trans (card_roots habNe) hab
+    simp at h2
+    contrapose! hs
+    exact le_trans h1 h2
+  rw [Multiset.le_iff_subset s.nodup] at this
+  simp [Multiset.subset_iff] at this
+  obtain ⟨x, hMem, hx⟩ := this
+  exact ⟨x, hMem, fun h => by simp_all⟩
+
+theorem distanceLE_mvPolynomial_degreeLE {σ : Type} [Fintype σ] [DecidableEq σ] : ToOracle.distanceLE (R⦃≤ d⦄[X σ]) (Fintype.card σ * d) := by
+  simp [ToOracle.distanceLE, instToOracleMvPolynomialDegreeLE, MvPolynomial.mem_restrictDegree]
+  intro a ha b hb hNe
+  sorry
+
+end PolynomialDistance
 
 section Vector
 
