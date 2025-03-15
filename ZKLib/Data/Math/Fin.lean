@@ -105,11 +105,10 @@ theorem induction_init {n : ℕ} {motive : Fin (n + 2) → Sort*} {zero : motive
         induction (motive := Fin.init motive) zero (fun j x => succ j.castSucc x) i := by
   induction i using Fin.induction with
   | zero => simp
-  | succ i ih =>
+  | succ i _ =>
     have : i.succ.castSucc = i.castSucc.succ := rfl
-    refine eq_of_heq ?_
-    conv => enter [1]; rw! [this]
-    simp
+    rw! (castMode := .all) [this]
+    simp only [induction_succ]
     congr
 
 theorem induction_tail {n : ℕ} {motive : Fin (n + 2) → Sort*} {zero : motive 0}
@@ -120,9 +119,8 @@ theorem induction_tail {n : ℕ} {motive : Fin (n + 2) → Sort*} {zero : motive
   | zero => simp only [succ_zero_eq_one, induction_zero]; rfl
   | succ i ih =>
     simp
-    refine eq_of_heq ?_
     have : i.succ.castSucc = i.castSucc.succ := rfl
-    conv => enter [1, 2]; rw! [this, ih]
+    rw! (castMode := .all) [this, ih]
 
 /-- `Fin.induction` on `m + n` for `i ≤ m` steps is equivalent to `Fin.induction` on `m` for `i`
   steps. -/
@@ -134,9 +132,8 @@ theorem induction_append_left {m n : ℕ} {motive : Fin (m + n + 1) → Sort*} {
   | zero => simp [induction_zero, Fin.cast]
   | succ i ih =>
     simp at ih ⊢
-    refine eq_of_heq ?_
     have : (⟨i.1 + 1, by omega⟩ : Fin (m + n + 1)) = (⟨i, by omega⟩ : Fin (m + n)).succ := rfl
-    conv => enter [1]; rw! [this, induction_succ]; simp [ih]
+    rw! (castMode := .all) [this, induction_succ, ih]
 
 /-- `Fin.induction` on `m + n` for `m + i` steps is equivalent to `Fin.induction` on `n` on `i`
   steps on the result of `Fin.induction` on `m`. -/
@@ -155,9 +152,8 @@ theorem induction_append_right {m n : ℕ} {motive : Fin (m + n + 1) → Sort*} 
   | succ i ih =>
     simp [← ih]
     have : natAdd m i.succ = (natAdd m i).succ := rfl
-    refine eq_of_heq ?_
-    conv => enter [1]; rw! [this]
-    simp; rfl
+    rw! (castMode := .all) [this, induction_succ]
+    rfl
 
 /-- `Fin.insertNth 0` is equivalent to `Fin.cases`. -/
 theorem insertNth_zero_eq_cases {n : ℕ} {α : Fin (n + 1) → Sort u} :
