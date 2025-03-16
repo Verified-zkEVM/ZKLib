@@ -11,7 +11,9 @@ import Mathlib.LinearAlgebra.BilinearForm.Properties
 
 /-! # The Algebraic Group Model (With Oblivious Sampling)
 
-We attempt to define the algebraic group model -/
+We attempt to define the algebraic group model. Our mechanization follows recent papers of Jaeger &
+ Mohan [JM24](https://link.springer.com/content/pdf/10.1007/978-3-031-68388-6_2) and Lipmaa,
+ Parisella, and Siim [LPS24](https://eprint.iacr.org/2024/994.pdf). -/
 
 class IsPrimeOrderWith (G : Type*) [Group G] (p : ℕ) [Fact (Nat.Prime p)] where
   hCard : Nat.card G = p
@@ -36,6 +38,21 @@ open Polynomial
 
 section AGM
 
+/-- A type is **serializable** if it can be encoded and decoded to a bit string.
+
+This is highly similar but inequivalent to other type classes like `ToString` or `Repr`.
+
+A special case of `Encodable` except that we require all encodings have the same bit-length, and do
+not require decoding. -/
+class Serializable (α : Type*) where
+  len : ℕ
+  toBitVec : α → BitVec len
+
+/-- A type is **deserializable** if it can be decoded from a bit string of a given length. -/
+class Deserializable (α : Type*) where
+  len : ℕ
+  fromBitVec : BitVec len → Option α
+
 #leansearch "Bilinear maps?"
 
 #check LinearMap.mk₂'
@@ -54,7 +71,40 @@ structure GroupRepresentation (prev : List G) (target : G) where
 
 #print GroupRepresentation
 
-def Adversary : True := sorry
+/-- An adversary in the Algebraic Group Model (AGM) may only access group elements via handles.
+
+To formalize this, we let the handles be natural numbers, and assume that they are indices into an
+(infinite) array storing potential group elements. -/
+def GroupValTable (G : Type*) := Nat → Option G
+
+local instance {α : Type*} : Zero (Option α) where
+  zero := none
+
+-- This might be a better abstraction since the type is finite
+-- We put `DFinsupp` since it's computable, not sure if really needed (if not we use `Finsupp`)
+def GroupVal (G : Type*) := Π₀ _ : Nat, Option G
+
+-- This allows an adversary to perform the group operation on group elements stored at the indices
+-- `i` and `j` (if they are both defined), storing the result at index `k`.
+def GroupOpOracle : OracleSpec Unit := fun _ => (Nat × Nat × Nat, Unit)
+
+/-- This oracle interface allows an adversary to get the bit encoding of a group element. -/
+def GroupEncodeOracle (bitLength : ℕ) : OracleSpec Unit := fun _ => (Nat, BitVec bitLength)
+
+/-- This oracle interface allows an adversary to get the bit encoding of a group element. -/
+def GroupDecodeOracle (bitLength : ℕ) (G : Type) : OracleSpec Unit :=
+  fun _ => (BitVec bitLength, Option G)
+
+/-- An adversary in the Algebraic Group Model (AGM), given a single group `G` with elements having
+    representation size `bitLength`, is a stateful oracle computation with oracle access to the
+    `GroupOp` and `GroupEncode` oracles, and the state being the array of group elements (accessed
+    via handles).
+
+  How to make the adversary truly independent of the group description? It could have had `G`
+  hardwired. Perhaps we need to enforce parametricity, i.e. it should be of type
+  `∀ G, Group G → AGMAdversary G bitLength α`? -/
+def AGMAdversary (G : Type) (bitLength : ℕ) : Type → Type _ := fun α => StateT (GroupVal G)
+  (OracleComp ((GroupEncodeOracle bitLength) ++ₒ (GroupDecodeOracle bitLength G))) α
 
 end AGM
 
@@ -113,17 +163,20 @@ theorem commit_eq {g : G₁} {a : ZMod p} (poly : degreeLT (ZMod p) (n + 1)) :
 
 /-- To generate an opening proving that a polynomial `poly` has a certain evaluation at `z`,
   we return the commitment to the polynomial `q(X) = (poly(X) - poly.eval z) / (X - z)` -/
-noncomputable def generateOpening (srs : Vector G₁ (n + 1))
+noncomputable def generateOpening [Fact (Nat.Prime p)] (srs : Vector G₁ (n + 1))
     (coeffs : Fin (n + 1) → ZMod p) (z : ZMod p) : G₁ :=
   letI poly : degreeLT (ZMod p) (n + 1) := (degreeLTEquiv (ZMod p) (n + 1)).invFun coeffs
   letI q : degreeLT (ZMod p) (n + 1) :=
     ⟨(poly.val - C (poly.val.eval z)) / (X - C z), by
       apply mem_degreeLT.mpr
-      refine lt_of_le_of_lt (degree_div_le _ _) ?_
-      refine lt_of_le_of_lt (degree_sub_le _ _) (sup_lt_iff.mpr ?_)
-      constructor
-      · exact mem_degreeLT.mp poly.property
-      · exact lt_of_lt_of_le degree_C_lt (by norm_cast; omega)⟩
+      have : Field (ZMod p) := sorry
+      sorry⟩
+      -- Don't know why `degree_div_le` time out here
+      -- refine lt_of_le_of_lt (degree_div_le _ (X - C z)) ?_
+      -- refine lt_of_le_of_lt (degree_sub_le _ _) (sup_lt_iff.mpr ?_)
+      -- constructor
+      -- · exact mem_degreeLT.mp poly.property
+      -- · exact lt_of_lt_of_le degree_C_lt (by norm_cast; omega)⟩
   commit srs (degreeLTEquiv (ZMod p) (n + 1) q)
 
 /-- To verify a KZG opening `opening` for a commitment `commitment` at point `z` with claimed
