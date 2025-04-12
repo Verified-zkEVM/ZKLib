@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2024 ArkLib Contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Quang Dao
+Authors: Quang Dao, Chung Thai Nguyen
 -/
 
 import Mathlib.FieldTheory.Tower
@@ -21,7 +21,7 @@ Define the binary tower field GF(2^{2^k}) as an iterated quadratic extension of 
 
 ## Main Definitions
 
-- `BinaryTower k` : the binary tower field GF(2^{2^k}) as an iterated quadratic extension of GF(2).
+- `BinaryTower k` : the binary tower field GF(2^{2^k}) as an iterated quadratic extension of GF(2), where BinaryTower 0 = GF(2)
 
 - `ConcreteBinaryTower k` : the concrete implementation of `BinaryTower k` using `BitVec`.
 
@@ -77,7 +77,7 @@ theorem non_zero_divisors_iff (M₀ : Type*) [Mul M₀] [Zero M₀] :
   ⟨fun h => h.1, fun h => ⟨h⟩⟩
 
 instance neZero_one_of_nontrivial_comm_monoid_zero {M₀ : Type*}
-  [CommMonoidWithZero M₀] [Nontrivial M₀] : NeZero (1 : M₀) :=
+  [CommMonoidWithZero M₀] [instNontrivial:Nontrivial M₀] : NeZero (1 : M₀) :=
 {
   out := by
     -- Get witness of nontriviality
@@ -894,7 +894,6 @@ theorem inverse_is_root_of_prevPoly
       unfold u1
       ring_nf
     rw [u1_eq_u_pow_minus_1]
-    -- theorem mul_left_cancel_iff : a * b = a * c ↔ b = c :=
     -- ⊢ (1 / u) ^ 2 + of_prev t1 * (1 / u) + 1 = 0
     -- convert to (u^2) * (1/u)^2 + u^2 * t1 * (1/u) + u^2 = u^2 * 0 = 0
     have h_clear_denom : (1/u)^2 + of_prev t1 * (1/u) + 1 = 0 ↔
@@ -920,34 +919,32 @@ theorem inverse_is_root_of_prevPoly
       _ = 0 := by exact eval_prevPoly_at_root
 
 theorem sum_of_root_and_inverse_is_t1
-    {prevBTField : Type*} [Field prevBTField]
     {curBTField : Type*} [Field curBTField]
-    (of_prev : prevBTField →+* curBTField)
-    (u : curBTField) (t1 : prevBTField)
+    (u : curBTField) (t1: curBTField) -- here t1 is already lifted to curBTField
     (specialElementNeZero : u ≠ 0)
-    (eval_prevPoly_at_root : u^2 + of_prev t1 * u + 1 = 0)
+    (eval_prevPoly_at_root : u^2 + t1 * u + 1 = 0)
     (sumZeroIffEq : ∀ (x y : curBTField), x + y = 0 ↔ x = y) :
-    u + u⁻¹ = of_prev t1 := by
-  -- ⊢ u + u⁻¹ = of_prev t1
-  have h_clear_denom : u + u⁻¹ = of_prev t1 ↔
-    u^1 * (u + u⁻¹) = u^1 * of_prev t1 := by
+    u + u⁻¹ = t1 := by
+  -- ⊢ u + u⁻¹ = t1
+  have h_clear_denom : u + u⁻¹ = t1 ↔
+    u^1 * (u + u⁻¹) = u^1 * t1 := by
     constructor
     · intro h; rw [h]
     · intro h;
       exact mul_left_cancel₀ (pow_ne_zero 1 specialElementNeZero) h
   rw [h_clear_denom]
-  -- ⊢ u * (u + u⁻¹) = u ^ 1 * of_prev t1
+  -- ⊢ u * (u + u⁻¹) = u ^ 1 * t1
   have u_pow_2_plus_u_pow_2_is_0: u^2 + u^2 = 0 := (sumZeroIffEq (u^2) (u^2)).mpr (by rfl)
   have one_plus_one_is_0 := (sumZeroIffEq 1 1).mpr (by rfl)
-  have eq: u^1 * (u + u⁻¹) = u^1 * of_prev t1 := by
+  have eq: u^1 * (u + u⁻¹) = u^1 * t1 := by
     calc
       u^1 * (u + u⁻¹) = u^1 * u + u^1 * u⁻¹ := by ring_nf
       _ = u^2 + 1 := by rw [pow_one, mul_inv_cancel₀ (h := specialElementNeZero)]; ring_nf
       _ = u^2 + 1 + 0 := by ring_nf
-      _ = u^2 + 1 + (u^2 + of_prev t1 * u + 1) := by rw [←eval_prevPoly_at_root]
-      _ = (u^2 + u^2) + of_prev t1 * u + (1 + 1) := by ring_nf
-      _ = of_prev t1 * u := by rw [u_pow_2_plus_u_pow_2_is_0, one_plus_one_is_0, zero_add, add_zero]
-      _ = u^1 * of_prev t1 := by rw [←pow_one u]; ring_nf
+      _ = u^2 + 1 + (u^2 + t1 * u + 1) := by rw [←eval_prevPoly_at_root]
+      _ = (u^2 + u^2) + t1 * u + (1 + 1) := by ring_nf
+      _ = t1 * u := by rw [u_pow_2_plus_u_pow_2_is_0, one_plus_one_is_0, zero_add, add_zero]
+      _ = u^1 * t1 := by rw [←pow_one u]; ring_nf
   exact eq
 
 theorem self_sum_eq_zero
@@ -976,8 +973,6 @@ theorem self_sum_eq_zero
     _ = (of prevPoly) 0 * u + (of prevPoly) 0 := by rw [x1_plus_x1_eq_0, x2_plus_x2_eq_0]
     _ = 0 * u + 0 := by rw [map_zero]
     _ = 0 := by ring
-
-    -- have selfSumEqZero: ∀ (x : curBTField), x + x = 0 := self_sum_eq_zero (sumZeroIffEqPrev := sumZeroIffEqPrevBTField) (prevPoly:=prevPoly) (hf_deg:=prevPolyNatDegIs2) (hf_monic:=prevPolyIsMonic)
 
 theorem sum_zero_iff_eq_of_self_sum_zero {F : Type*} [AddGroup F] (h_self_sum_eq_zero: ∀ (x : F), x + x = 0) :
     ∀ (x y : F), x + y = 0 ↔ x = y := by
@@ -1011,9 +1006,6 @@ theorem eval₂_quadratic_prevField_coeff
   calc
     eval₂ of_prev x (X^2 + (C t1 * X + 1)) = eval₂ of_prev x (X^2) + eval₂ of_prev x (C t1 * X) + eval₂ of_prev x 1 := by rw [eval₂_add, add_assoc, eval₂_add]
     _ = x^2 + of_prev t1 * x + 1 := by rw [eval₂_pow, eval₂_mul, eval₂_C, eval₂_X, eval₂_one]
-
--- theorem pow_exp_of_2_repr_given_x_square_repr {F : Type*} [instField: Field F] (sumZeroIffEq: ∀ (x y : F), x + y = 0 ↔ x = y) (x z: F) (h_z_non_zero: z ≠ 0) (h_x_square: x^2 = x*z + 1): ∀ i : ℕ,
---   x^(2^i) = x * z^(2^i - 1) + ∑ j ∈ Finset.Icc 1 i, z^(2^i - 2^j) :=
 
 lemma galois_eval_in_BTField
     {curBTField : Type*} [Field curBTField]
@@ -1158,27 +1150,6 @@ theorem galois_automorphism_power
     rw [←u_is_inv_of_u1] at res
     exact res
 
-structure BinaryTowerResult (F : Type _) (k : ℕ) where
-  vec       : (List.Vector F (k + 1))
-  instMul   : (Mul F)
-  instField : (Field F)
-  instNontrivial:(Nontrivial F)
-  newPoly   : (Polynomial F)
-  specialElement: F
-  specialElementNeZero: specialElement ≠ 0
-  newPolyForm: newPoly = X^2 + (C specialElement * X + 1)
-  degNewPolyIs2: (newPoly.degree = 2)
-  newPolyIsMonic: (Monic newPoly)
-  instInh   : (Inhabited F)
-  instDomain: (IsDomain F)
-  isNotUnitPoly: (¬IsUnit newPoly)
-  instNoZeroDiv : (NoZeroDivisors F)
-  instIrreduciblePoly : (Irreducible (p := (newPoly : Polynomial F)))
-  sumZeroIffEq: ∀ (x y : F), x + y = 0 ↔ x = y
-  instFintype   : Fintype F  -- New: F is finite
-  fieldFintypeCard     : Fintype.card F = 2^(2^k)  -- New: Size is 2^(2^(k+1))
-  traceMapEvalAtRootsIs1 : (∑ i in Finset.range (2^k), specialElement^(2^i)) = 1 ∧ (∑ i in Finset.range (2^k), (specialElement⁻¹)^(2^i)) = 1
-
 theorem sum_Icc_split {α : Type*} [AddCommMonoid α] (f : ℕ → α) (a b c : ℕ)
     (h₁ : a ≤ b) (h₂ : b ≤ c):
     ∑ i in Finset.Icc a c, f i = ∑ i in Finset.Icc a b, f i + ∑ i in Finset.Icc (b+1) c, f i := by
@@ -1226,15 +1197,8 @@ lemma lifted_trace_map_eval_at_roots_prev_BTField
   (u : curBTField) (t1 : curBTField) -- here t1 is already lifted to curBTField
   (k : ℕ)
   (sumZeroIffEq: ∀ (x y : curBTField), x + y = 0 ↔ x = y)
-  -- (instFintype: Fintype curBTField)
-  -- (fintypeCard: Fintype.card curBTField = 2^(2^(k+1)))
-  -- (prevSpecialElementNeZero : t1 ≠ 0)
   (u_plus_inv_eq_t1 : u + u⁻¹ = t1)
   (galois_automorphism: u^(2^(2^k)) = u⁻¹ ∧ (u⁻¹)^(2^(2^k)) = u)
-  -- (h_u_square: u^2 = u*t1 + 1)
-  -- (h_t1_pow: t1^(2^(2^k)-1) = 1 ∧ (t1⁻¹)^(2^(2^k)-1) = 1)
-  -- (h_t1_pow_2_pow_2_pow_k:  t1^(2^(2^k)) = t1)
-  -- (h_t1_inv_pow_2_pow_2_pow_k:  (t1⁻¹)^(2^(2^k)) = t1⁻¹)
   (trace_map_at_prev_root: ∑ i ∈ Finset.range (2 ^ k), t1 ^ (2 ^ i) = 1) :
   ∑ i ∈ Finset.range (2 ^ (k+1)), u ^ (2 ^ i) = 1 := by
 
@@ -1322,17 +1286,10 @@ lemma lifted_trace_map_eval_at_roots_prev_BTField
 
 theorem rsum_eq_t1_square_aux
   {curBTField : Type*} [Field curBTField]
-  (c1 : curBTField) (u : curBTField) -- here u is already lifted to curBTField
+  (u : curBTField) -- here u is already lifted to curBTField
   (k : ℕ)
-  (sumZeroIffEq: ∀ (x y : curBTField), x + y = 0 ↔ x = y)
   (x_pow_card: ∀ (x : curBTField), x^(2^(2^(k+1))) = x)
-  -- (instFintype: Fintype curBTField)
-  -- (fintypeCard: Fintype.card curBTField = 2^(2^(k+1)))
-  -- (prevSpecialElementNeZero : u ≠ 0)
-  -- (h_u_square: c1^2 = c1*u + 1)
   (u_ne_zero : u ≠ 0)
-  -- (h_t1_pow_2_pow_2_pow_k:  u^(2^(2^k)) = u)
-  -- (h_t1_inv_pow_2_pow_2_pow_k:  (u⁻¹)^(2^(2^k)) = u⁻¹)
   (trace_map_at_prev_root: ∑ i ∈ Finset.range (2^(k+1)), u ^ (2 ^ i) = 1 ∧ ∑ i ∈ Finset.range (2^(k+1)), u⁻¹ ^ (2 ^ i) = 1):
    ∑ j ∈ Finset.Icc 1 (2 ^ (k + 1)), u ^ (2 ^ 2 ^ (k + 1) - 2 ^ j) = u := by
 
@@ -1366,49 +1323,118 @@ theorem rsum_eq_t1_square_aux
         simp [Finset.mem_Icc] at hi ⊢
         by_cases h : i = 2^(k+1)
         · simp [h];
-        · simp [h];
-          have tmp := Nat.lt_iff_le_and_ne.mpr ⟨hi.2, h⟩
-          sorry -- exact Nat.le_iff_lt_or_eq.mpr ⟨, False⟩ )
-          -- ⊢ ∑ j ∈ Finset.Icc 1 (2 ^ (k + 1)), u⁻¹ ^ 2 ^ j = ∑ j ∈ Finset.Icc 0 (2 ^ (k + 1) - 1), u⁻¹ ^ 2 ^ j
+        · simp [h] -- ⊢ i = 0 → 2 ^ (k + 1) = i
+          intro i_eq
+          have this_is_false: False := by
+            have h1 := hi.left  -- h1 : 1 ≤ i
+            rw [i_eq] at h1     -- h1 : 1 ≤ 0
+            have ne_one_le_zero: ¬(1 ≤ 0) := Nat.not_le_of_gt (by decide)
+            exact ne_one_le_zero h1
+          exact False.elim this_is_false
       -- hj: Maps back
       · intro i hi
-        simp [Finset.mem_Icc] at hi ⊢
+        simp [Finset.mem_Icc] at hi -- hi : i ≤ 2 ^ (k + 1) - 1
         by_cases h : i = 0
         · simp [h];
         · simp [h];
           intro i_eq
-          sorry -- TODO: use False.elim
+          have this_is_false: False := by
+            rw [i_eq] at hi
+            conv at hi =>
+              lhs
+              rw [←add_zero (a:=2^(k+1))]
+            -- conv at hi =>
+            --   rhs
+            have zero_lt_2_pow_k_plus_1: 0 < 2^(k+1) := by
+              norm_num
+            have h_contra : ¬(2^(k+1) ≤ 2^(k+1) - 1) := by
+              apply Nat.not_le_of_gt
+              exact Nat.sub_lt zero_lt_2_pow_k_plus_1 (by norm_num)
+            exact h_contra hi
+          exact False.elim this_is_false
       -- hij: j (i a) = a
-      · intro i hi
+      · intro i hi -- hi : 1 ≤ i ∧ i ≤ 2 ^ (k + 1)
         simp [Finset.mem_Icc] at hi
         by_cases h : i = 2^(k+1)
-        · simp [h]; sorry
+        · simp [h]; exact x_pow_card u
         · simp [h]
       -- hji: i (j b) = b
       · intro i hi
         simp [Finset.mem_Icc] at hi
         by_cases h : i = 0
         · simp [h]
-        · simp [h]; sorry
+        · simp [h]; -- hi : 1 ≤ i ∧ i ≤ 2 ^ (k + 1)
+          -- h : ¬i = 0
+          -- ⊢ (if i = 2 ^ (k + 1) then 0 else i) ≤ 2 ^ (k + 1) - 1
+          split_ifs with h2
+          · -- Case: i = 2 ^ (k + 1)
+            -- Goal: 0 ≤ 2 ^ (k + 1) - 1
+            exact Nat.zero_le _
+          · -- Case: i ≠ 2 ^ (k + 1)
+            -- Goal: i ≤ 2 ^ (k + 1) - 1
+            have : i < 2 ^ (k + 1) := by
+              apply lt_of_le_of_ne hi.right h2
+            exact Nat.le_pred_of_lt this
       -- h_sum: Values match
       · intro i hi
         simp [Finset.mem_Icc] at hi
         rw [Finset.mem_Icc]
-        sorry
+        split_ifs with h2
+        · -- hi : i ≤ 2 ^ (k + 1) - 1, h2 : i = 0
+          -- ⊢ 1 ≤ 2 ^ (k + 1) ∧ 2 ^ (k + 1) ≤ 2 ^ (k + 1)
+          exact ⟨one_le_two_pow_n (k+1), le_refl _⟩
+        · -- Case: hi : i ≤ 2 ^ (k + 1) - 1, h2 : ¬i = 0
+          -- ⊢ 1 ≤ i ∧ i ≤ 2 ^ (k + 1)
+          have one_le_i: 1 ≤ i := by
+            apply Nat.succ_le_of_lt
+            exact Nat.pos_of_ne_zero h2
+          have tmp: i ≤ 2^(k+1):= by
+            calc i ≤ (2^(k+1)-1).succ := Nat.le_succ_of_le hi
+              _ = 2^(k+1) := by rw [Nat.succ_eq_add_one, Nat.sub_add_cancel (h:=one_le_two_pow_n (k+1))]
+          exact ⟨one_le_i, tmp⟩
     _ = u := by rw [trace_map_icc_t1_inv, mul_one]
 
+structure BinaryTowerResult (F : Type _) (k : ℕ) where
+  vec       : (List.Vector F (k + 1))
+  instMul   : (Mul F)
+  instField : (Field F)
+  instNontrivial:(Nontrivial F)
+  newPoly   : (Polynomial F)
+  specialElement: F
+  specialElementNeZero: specialElement ≠ 0
+  newPolyForm: newPoly = X^2 + (C specialElement * X + 1)
+  degNewPolyIs2: (newPoly.degree = 2)
+  newPolyIsMonic: (Monic newPoly)
+  instInh   : (Inhabited F)
+  firstElementOfVecIsSpecialElement: vec.1.headI = specialElement
+  instDomain: (IsDomain F)
+  isNotUnitPoly: (¬IsUnit newPoly)
+  instNoZeroDiv : (NoZeroDivisors F)
+  instIrreduciblePoly : (Irreducible (p := (newPoly : Polynomial F)))
+  sumZeroIffEq: ∀ (x y : F), x + y = 0 ↔ x = y
+  instFintype   : Fintype F  -- New: F is finite
+  fieldFintypeCard     : Fintype.card F = 2^(2^k)  -- New: Size is 2^(2^(k+1))
+  traceMapEvalAtRootsIs1 : (∑ i in Finset.range (2^k), specialElement^(2^i)) = 1 ∧ (∑ i in Finset.range (2^k), (specialElement⁻¹)^(2^i)) = 1
+  -- adjacentData : if k = 0 then (ULift Unit) else (AdjacentRelationData F)
+
+structure BinaryTowerInductiveStepResult (k : ℕ) (prevBTField : Type _) (prevBTResult: BinaryTowerResult prevBTField k) [instPrevBTFieldIsField: Field prevBTField] (prevPoly : Polynomial prevBTField) (F : Type _)  where
+  binaryTowerResult: BinaryTowerResult F (k+1)
+  eq_adjoin: F = AdjoinRoot prevPoly
+  u_is_root: Eq.mp (eq_adjoin) binaryTowerResult.specialElement = AdjoinRoot.root prevPoly
+  eval_defining_poly_at_root: Eq.mp (eq_adjoin) binaryTowerResult.specialElement^2 +
+    Eq.mp (eq_adjoin) binaryTowerResult.specialElement * (of prevPoly) prevBTResult.specialElement
+    + 1 = 0
 set_option maxHeartbeats 1000000
 def binary_tower_inductive_step
   (k : Nat)
-  (prevBTField : Type*) [Field prevBTField]
-  (prevBTResult: Σ' prevBTField, BinaryTowerResult prevBTField k)
-  : Σ' (F : Type _), BinaryTowerResult F (k + 1) := by
-  let prevBTField := prevBTResult.fst
-  let prevInstField := prevBTResult.2.instField
-  let elts := prevBTResult.2.vec
-  let prevPoly := prevBTResult.2.newPoly -- poly over prevBTField
-  let prevPolyDegIs2 := prevBTResult.2.degNewPolyIs2
-  let prevPolyIsMonic: (Monic prevPoly) := prevBTResult.2.newPolyIsMonic
+  (prevBTField : Type _) [Field prevBTField]
+  (prevBTResult: BinaryTowerResult prevBTField k)
+:  Σ' (F : Type _), BinaryTowerInductiveStepResult (k:=k) (prevBTField:=prevBTField) (prevBTResult:=prevBTResult) (prevPoly:=prevBTResult.newPoly) (F:=F) (instPrevBTFieldIsField:=prevBTResult.instField) := by
+  let prevInstField := prevBTResult.instField
+  let elts := prevBTResult.vec
+  let prevPoly := prevBTResult.newPoly -- poly over prevBTField
+  let prevPolyDegIs2 := prevBTResult.degNewPolyIs2
+  let prevPolyIsMonic: (Monic prevPoly) := prevBTResult.newPolyIsMonic
   have prevPolyNatDegIs2 : prevPoly.natDegree = 2 := by
     have h_pos : 0 < 2 := by norm_num
     exact (degree_eq_iff_natDegree_eq_of_pos h_pos).mp prevPolyDegIs2
@@ -1416,11 +1442,11 @@ def binary_tower_inductive_step
     intro h_deg_eq_0
     rw [prevPolyDegIs2] at h_deg_eq_0
     contradiction
-  let instPrevPolyIrreducible := prevBTResult.2.instIrreduciblePoly
-  let prevSpecialElement: prevBTField := prevBTResult.2.specialElement
-  let prevPolyForm: prevPoly = X^2 + (C prevSpecialElement * X + 1) := prevBTResult.2.newPolyForm
+  let instPrevPolyIrreducible := prevBTResult.instIrreduciblePoly
+  let prevSpecialElement: prevBTField := prevBTResult.specialElement
+  let prevPolyForm: prevPoly = X^2 + (C prevSpecialElement * X + 1) := prevBTResult.newPolyForm
   let t1: prevBTField := prevSpecialElement
-  have t1_ne_zero_in_prevBTField: t1 ≠ 0 := prevBTResult.2.specialElementNeZero
+  have t1_ne_zero_in_prevBTField: t1 ≠ 0 := prevBTResult.specialElementNeZero
   have h_inj_of_prevPoly : Function.Injective (AdjoinRoot.of prevPoly) := AdjoinRoot.of.injective_of_degree_ne_zero degPrevPolyNe0
   have prevSpecialElementNeZero: of prevPoly t1 ≠ 0 := by
     by_contra h -- h: of prevPoly t1 = 0
@@ -1433,10 +1459,10 @@ def binary_tower_inductive_step
     have h_t1_eq_zero_in_prevBTField: t1 = 0 := by
       exact h_inj_of_prevPoly (by rw [h_t1_eq_zero_in_curBTField, map_zero])
     contradiction
-  let instPrevBTFieldIsFinType: Fintype prevBTField := prevBTResult.2.instFintype
-  let prevBTFieldCard: Fintype.card prevBTField = 2^(2^k) := prevBTResult.2.fieldFintypeCard
+  let instPrevBTFieldIsFinType: Fintype prevBTField := prevBTResult.instFintype
+  let prevBTFieldCard: Fintype.card prevBTField = 2^(2^k) := prevBTResult.fieldFintypeCard
   let instFactIrrPoly : Fact (Irreducible prevPoly) := ⟨instPrevPolyIrreducible⟩
-  let sumZeroIffEqPrevBTField : ∀ (x y : prevBTField), x + y = (0: prevBTField) ↔ x = y := by exact prevBTResult.2.sumZeroIffEq
+  let sumZeroIffEqPrevBTField : ∀ (x y : prevBTField), x + y = (0: prevBTField) ↔ x = y := by exact prevBTResult.sumZeroIffEq
 
   let curBTField := AdjoinRoot prevPoly
   let instFieldAdjoinRootOfPoly : Field curBTField := by
@@ -1501,7 +1527,7 @@ def binary_tower_inductive_step
 
   have u1_is_root := inverse_is_root_of_prevPoly (of_prev:= of prevPoly) (u:=u) (t1:=t1) (specialElementNeZero:=specialElementNeZero) (eval_prevPoly_at_root:=eval_prevPoly_at_root) (h_eval:=h_eval)
 
-  have u_plus_u1_eq_t1: u + u⁻¹ = t1 := sum_of_root_and_inverse_is_t1 (of_prev := of prevPoly) (u:=u) (t1:=t1) (specialElementNeZero:=specialElementNeZero) (eval_prevPoly_at_root:=eval_prevPoly_at_root) (sumZeroIffEq:=sumZeroIffEq)
+  have u_plus_u1_eq_t1: u + u⁻¹ = t1 := sum_of_root_and_inverse_is_t1 (u:=u) (t1:=(of prevPoly) t1) (specialElementNeZero:=specialElementNeZero) (eval_prevPoly_at_root:=eval_prevPoly_at_root) (sumZeroIffEq:=sumZeroIffEq)
 
   have linear_comb_of_prevBTField_is_in_curBTField: ∀ (a b : prevBTField), (of prevPoly) a * root prevPoly + (of prevPoly) b = (of prevPoly) a * u + (of prevPoly) b := by
     intro a b
@@ -1583,7 +1609,7 @@ def binary_tower_inductive_step
     exact sub_eq_zero.mp h_xy
 
   have prevTraceMapEvalAtRootsIs1: ∑ i ∈ Finset.range (2 ^ k), t1 ^ 2 ^ i = 1 ∧ ∑ i ∈ Finset.range (2 ^ k), t1⁻¹ ^ 2 ^ i = 1 := by
-    exact prevBTResult.2.traceMapEvalAtRootsIs1
+    exact prevBTResult.traceMapEvalAtRootsIs1
 
   have liftedPrevTraceMapEvalAtRootsIs1: ∑ i ∈ Finset.range (2 ^ k), (of prevPoly) t1 ^ 2 ^ i = 1 ∧ ∑ i ∈ Finset.range (2 ^ k), (of prevPoly t1)⁻¹ ^ 2 ^ i = 1 := by
     constructor
@@ -1612,7 +1638,7 @@ def binary_tower_inductive_step
   have h_prev_pow_card_sub_one: ∀ (x: prevBTField) (hx: x ≠ 0), x^(2^(2^k)-1) = 1 := by
     intro x hx
     calc
-      x^(2^(2^k)-1) = x^(Fintype.card prevBTField - 1) := by rw [prevBTResult.2.fieldFintypeCard]
+      x^(2^(2^k)-1) = x^(Fintype.card prevBTField - 1) := by rw [prevBTResult.fieldFintypeCard]
       _ = 1 := by exact FiniteField.pow_card_sub_one_eq_one (a:=x) (ha:=hx)
   have h_lifted_prev_pow_card_sub_one: ∀ (x: prevBTField) (hx: x ≠ 0), (of prevPoly) x^(2^(2^k)-1) = 1 := by
     intro x hx
@@ -1652,13 +1678,7 @@ def binary_tower_inductive_step
 
   let instIrreduciblePoly : Irreducible newPoly := by
     by_contra h_not_irreducible
-    -- ¬Irreducible p ↔ ∃ c₁ c₂, p.coeff 0 = c₁ * c₂ ∧ p.coeff 1 = c₁ + c₂
-    -- Step 1: set up 4 equations
-      -- c1 = au + b, c2 = cu + d (Lemma)
-      -- c1 + c2 = u
-      -- u^2 + t1 * u + 1 = 0
-      -- c1 * c2 = 1
-
+    -- Viet theorem: ¬Irreducible p ↔ ∃ c₁ c₂, p.coeff 0 = c₁ * c₂ ∧ p.coeff 1 = c₁ + c₂
     obtain ⟨c1, c2, h_mul, h_add⟩ :=
       (Monic.not_irreducible_iff_exists_add_mul_eq_coeff
         newPolyIsMonic polyInstances.nat_deg_poly_is_2).mp h_not_irreducible
@@ -1667,32 +1687,27 @@ def binary_tower_inductive_step
     rw [←coeffOfX_1, coeffOfX_1] at h_add -- u = c1 + c2
     rw [←coeffOfX_0, coeffOfX_0] at h_mul -- (1: curBTField) = c1 * c2
 
-    have c1_linear_form : ∃! p : prevBTField × prevBTField, c1 = (of prevPoly) p.1 * u + (of prevPoly) p.2 := by
-      exact unique_linear_form_of_elements_in_curBTField c1
-    have ⟨⟨a, b⟩, c1_eq⟩ := c1_linear_form -- (c1: curBTField) = (of prevPoly) a * u + (of prevPoly) b
-    have c2_linear_form : ∃! p : prevBTField × prevBTField, c2 = (of prevPoly) p.1 * u + (of prevPoly) p.2 := by
-      exact unique_linear_form_of_elements_in_curBTField c2
-    have ⟨⟨c, d⟩, c2_eq⟩ := c2_linear_form -- (c2: curBTField) = (of prevPoly) c * u + (of prevPoly) d
-    set ofa: curBTField := (of prevPoly) a
-    set ofb: curBTField := (of prevPoly) b
-    set ofc: curBTField := (of prevPoly) c
-    set ofd: curBTField := (of prevPoly) d
+    have c1_ne_zero : c1 ≠ 0 := by
+      by_contra h_c1_zero
+      rw [h_c1_zero, zero_mul] at h_mul
+      contradiction
 
-    have eq1 : c1 + c2 = u := h_add.symm -- c1 + c2 = u
-    have eq1_with_coeffs := eq1
-    rw [c1_eq.1, c2_eq.1] at eq1_with_coeffs
-    have h_c1_square: c1^2 = c1 * u + 1 := by sorry
+    have c2_is_c1_inv: c2 = c1⁻¹ := by
+      apply mul_left_cancel₀ (ha:=c1_ne_zero)
+      rw [←h_mul, mul_inv_cancel₀ (a:=c1) (h:=c1_ne_zero)]
 
-    -- Substitute linear forms into equation (1)
-    have eq1_expanded : (of prevPoly) (a + c) * u + (of prevPoly) (b + d) = u := by
-      calc
-        (of prevPoly) (a + c) * u + (of prevPoly) (b + d) = (ofa + ofc) * u + (of prevPoly) (b + d) := by rw [map_add]
-        _ = ofa * u + ofc * u + ofb + ofd := by rw [add_mul, map_add, ←add_assoc]
-        _ = (ofa * u + ofc * u + ofb) + ofd := by rw [add_assoc]
-        _ = (ofa * u + (ofc * u + ofb)) + ofd := by rw [←add_assoc]
-        _ = (ofa * u + (ofb + ofc * u)) + ofd := by rw [add_comm (a := ofb) (b := ofc * u)]
-        _ = (ofa * u + ofb) + (ofc * u + ofd) := by rw [add_assoc, add_assoc, add_assoc]
-        _ = u := by exact eq1_with_coeffs
+    have h_c1_square: c1^2 = c1 * u + 1 := by
+      have eq: c1 + c1⁻¹ = u := by
+        rw [c2_is_c1_inv] at h_add
+        exact h_add.symm
+      rw [←mul_right_inj' c1_ne_zero (b:=(c1 + c1⁻¹)) (c:=u)] at eq
+      rw [left_distrib] at eq
+      rw [←pow_two, mul_inv_cancel₀ (a:=c1) (c1_ne_zero)] at eq
+      -- theorem mul_left_inj (a : G) {b c : G} : b * a = c * a ↔ b = c :=
+      rw [← add_left_inj (a:=1)] at eq
+      rw [add_assoc] at eq
+      rw [selfSumEqZero (1: curBTField), add_zero] at eq
+      exact eq
 
     have x_pow_card: ∀ (x: curBTField), x^(2^2^(k + 1)) = x := by
       intro x
@@ -1719,19 +1734,6 @@ def binary_tower_inductive_step
       rw [←FiniteField.pow_card_sub_one_eq_one (a:=u) (ha:=specialElementNeZero)]
       rw [fieldFintypeCard]
 
-    -- have t1_pow_prevBTField_card_sub_1_eq_1 : (of prevPoly) t1^(2^2^(k+1) - 1) = 1 := by
-    --   calc
-    --     (of prevPoly) t1^(2^2^(k+1) - 1) = (of prevPoly) t1^(2^2^(k+1)) * ((of prevPoly) t1)⁻¹ := by
-    --       have two_ne_zero: 2 ≠ 0 := by norm_num
-    --       have one_lt_two: 1 < 2 := by norm_num
-    --       have one_lt_two_pow_k_plus_1: 1 < 2 ^ 2 ^ (k + 1) := Nat.one_lt_pow (hn := two_to_k_plus_1_ne_zero) (ha := one_lt_two) (n := 2^(k + 1))
-    --       have one_le_two_pow_k_plus_1: 1 ≤ 2 ^ 2 ^ (k + 1) := Nat.le_of_lt one_lt_two_pow_k_plus_1
-    --       -- lemma pow_sub₀ (a : G₀) (ha : a ≠ 0) (h : n ≤ m) : a ^ (m - n) = a ^ m * (a ^ n)⁻¹ := by
-    --       rw [pow_sub₀ (a := (of prevPoly) t1) (ha := t1_ne_zero) (h := one_le_two_pow_k_plus_1)]
-    --       rw [pow_one]
-    --     _ = t1 * ((of prevPoly) t1)⁻¹ := by rw [x_pow_card ((of prevPoly) t1)]
-    --     _ = 1 := by
-    --       exact mul_inv_cancel₀ (h := t1_ne_zero)
     rw [u_pow_card_sub_one, mul_one] at c1_pow_card_eq -- u_pow_card_eq : u = u * 1 + ∑ j ∈ Finset.range (2 ^ (k + 1)), (of prevPoly) t1 ^ (2 ^ 2 ^ (k + 1) - 2 ^ (j + 1))
     set rsum := ∑ j ∈ Finset.Icc 1 (2 ^ (k + 1)), u ^ (2 ^ 2 ^ (k + 1) - 2 ^ j) with rsum_def
     have rsum_eq_zero: rsum = 0 := by
@@ -1742,8 +1744,7 @@ def binary_tower_inductive_step
       rw [←add_assoc, neg_add_cancel, zero_add] at sum_eq_3
       exact sum_eq_3.symm
 
-    have c1_plus_inv_eq_t1: c1 + u⁻¹ = u := by sorry
-    have rsum_eq_u: rsum = u := rsum_eq_t1_square_aux (c1:=c1) (u:=u) (k:=k) (sumZeroIffEq:=sumZeroIffEq) (x_pow_card:=x_pow_card) (u_ne_zero:=specialElementNeZero) (trace_map_at_prev_root:=traceMapEvalAtRootsIs1)
+    have rsum_eq_u: rsum = u := rsum_eq_t1_square_aux (u:=u) (k:=k) (x_pow_card:=x_pow_card) (u_ne_zero:=specialElementNeZero) (trace_map_at_prev_root:=traceMapEvalAtRootsIs1)
 
     have rsum_ne_zero: rsum ≠ 0 := by
       rw [rsum_eq_u]
@@ -1752,13 +1753,17 @@ def binary_tower_inductive_step
     rw [rsum_eq_zero] at rsum_ne_zero
     contradiction
 
-  let result: BinaryTowerResult curBTField (k + 1) := {
-    vec := u ::ᵥ newElts,
+  let newVec := u ::ᵥ newElts
+  let firstElementOfVecIsSpecialElement: newVec.1.headI = u := rfl
+
+  let btResult: BinaryTowerResult curBTField (k + 1) := {
+    vec := newVec,
     instMul := instMul,
     instField := instFieldAdjoinRootOfPoly,
     instNontrivial := inferInstance,
     newPoly := newPoly,
     instInh := instInh,
+    firstElementOfVecIsSpecialElement := firstElementOfVecIsSpecialElement,
     instDomain := instDomain,
     isNotUnitPoly := instNotUnitPoly,
     instNoZeroDiv := instNoZeroDiv,
@@ -1774,7 +1779,18 @@ def binary_tower_inductive_step
     traceMapEvalAtRootsIs1 := traceMapEvalAtRootsIs1
   }
 
-  exact ⟨curBTField, result⟩
+  have u_eq_btResult_specialElement: u = btResult.specialElement := rfl
+  have t1_eq_prevBTResult_specialElement: t1 = prevBTResult.specialElement := rfl
+  rw [←mul_comm] at eval_prevPoly_at_root
+
+  let btInductiveStepResult: BinaryTowerInductiveStepResult (k:=k) (prevBTField:=prevBTField) (prevBTResult:=prevBTResult) (prevPoly:=prevBTResult.newPoly) (F:=curBTField) (instPrevBTFieldIsField:=prevBTResult.instField) := {
+    binaryTowerResult := btResult,
+    eq_adjoin := adjoinRootOfPoly
+    u_is_root := u_is_root,
+    eval_defining_poly_at_root := eval_prevPoly_at_root
+  }
+
+  exact ⟨curBTField, btInductiveStepResult⟩
 
 -- def BinaryTower (k : ℕ) : Σ' (F : Type _), BinaryTowerResult F k :=
 def BinaryTowerAux (k : ℕ) (rec : ∀ m : ℕ, m < k → Σ' (F : Type _), BinaryTowerResult F m) :
@@ -1784,6 +1800,7 @@ def BinaryTowerAux (k : ℕ) (rec : ∀ m : ℕ, m < k → Σ' (F : Type _), Bin
     let curBTField := GF(2)
     let newList : List.Vector (GF(2)) 1 := List.Vector.cons (1 : GF(2)) List.Vector.nil
     let specialElement : GF(2) := newList.1.headI
+    let firstElementOfVecIsSpecialElement: newList.1.headI = specialElement := rfl
     let specialElementIs1: specialElement = 1 := by
       unfold specialElement
       rfl
@@ -1908,6 +1925,7 @@ def BinaryTowerAux (k : ℕ) (rec : ∀ m : ℕ, m < k → Σ' (F : Type _), Bin
       degNewPolyIs2 := polyInstances.deg_poly_is_2,
       newPolyIsMonic := newPolyIsMonic,
       instInh := inferInstance,
+      firstElementOfVecIsSpecialElement := firstElementOfVecIsSpecialElement,
       instDomain := inferInstance,
       isNotUnitPoly := instNotUnitPoly,
       instNoZeroDiv := instNoZeroDiv,
@@ -1922,53 +1940,179 @@ def BinaryTowerAux (k : ℕ) (rec : ∀ m : ℕ, m < k → Σ' (F : Type _), Bin
   | k + 1 =>
     let prevBTResult := rec k (Nat.lt_succ_self k)
     let instPrevBTield := prevBTResult.2.instField
-    binary_tower_inductive_step (k:=k) (prevBTField:=prevBTResult.fst) (prevBTResult:=prevBTResult)
+    let inductive_result := binary_tower_inductive_step (k:=k) (prevBTField:=prevBTResult.fst) (prevBTResult:=prevBTResult.snd)
+    let res := ⟨ inductive_result.fst, inductive_result.snd.binaryTowerResult ⟩
+    res
+
+def BinaryTower (k : ℕ) : Σ' (F : Type _), BinaryTowerResult F k :=
+  WellFounded.fix (measure id).wf (fun k rec => BinaryTowerAux k rec) k
 
 namespace BinaryTower
 
--- @[simp]
--- def BTField (k : ℕ) := (BinaryTower k).1
+@[simp]
+def BTField (k : ℕ) := (BinaryTower k).1
 
--- @[simp]
--- instance BTFieldIsField (k : ℕ) : Field (BTField k) := (BinaryTower k).2.instField
+lemma BTField_is_BTFieldAux (k : ℕ) : BTField k = (BinaryTowerAux k (fun m hm => BinaryTower m)).1 := by
+  unfold BTField
+  rw [BinaryTower]
+  rw [WellFounded.fix_eq]
+  rfl
 
--- @[simp]
--- instance CommRing (k : ℕ) : CommRing (BTField k) := Field.toCommRing
+@[simp]
+instance BTFieldIsField (k : ℕ) : Field (BTField k) := (BinaryTower k).2.instField
 
--- @[simp]
--- instance Inhabited (k : ℕ) : Inhabited (BTField k) := (BinaryTower k).2.instInh
+@[simp]
+instance CommRing (k : ℕ) : CommRing (BTField k) := Field.toCommRing
 
--- @[simp]
--- def list (k : ℕ) : List.Vector (BTField k) (k + 1) := (BinaryTower k).2.vec
+@[simp]
+instance Inhabited (k : ℕ) : Inhabited (BTField k) := (BinaryTower k).2.instInh
 
--- @[simp]
--- def poly (k : ℕ) : Polynomial (BTField k) := (BinaryTower k).2.newPoly
+@[simp]
+instance Nontrivial (k : ℕ) : Nontrivial (BTField k) := (BinaryTower k).2.instNontrivial
 
--- @[coe]
--- theorem field_eq_adjoinRoot_poly (k : ℕ) (k_pos : k > 0) : AdjoinRoot (poly (k - 1)) = BTField k := by
---   induction k with
---   | zero => absurd k_pos ; simp
---   | succ k _ => sorry
+@[simp]
+instance BTFieldNeZero1 (k: ℕ): NeZero (1 : BTField k) := by
+  unfold BTField
+  exact @neZero_one_of_nontrivial_comm_monoid_zero (BTField k) _ (Nontrivial k)
 
--- instance coe_field_adjoinRoot (k : ℕ) (k_pos : k > 0) : Coe (AdjoinRoot (poly (k - 1))) (BTField k) where
---   coe := Eq.mp (field_eq_adjoinRoot_poly k k_pos)
+@[simp]
+instance Fintype (k : ℕ) : Fintype (BTField k) := (BinaryTower k).2.instFintype
 
--- -- -- We call the special extension field elements Z_k
--- @[simp]
--- def Z (k : ℕ) : BTField k := (list k).1.headI
+@[simp]
+def BTFieldCard (k : ℕ): Fintype.card (BTField k) = 2^(2^k) := (BinaryTower k).2.fieldFintypeCard
 
--- -- @[simp]
--- -- theorem Z_eq_adjointRoot_root (k : ℕ) (k_pos : k > 0) [HEq (AdjoinRoot (poly k)) (BTField k)] :
--- --     Z k = AdjoinRoot.root (poly k) := by
--- --   simp [Z, field_eq_adjoinRoot_poly k k_pos]
+@[simp]
+instance BTFieldIsDomain (k : ℕ) : IsDomain (BTField k) := (BinaryTower k).2.instDomain
 
--- -- @[simp]
--- -- theorem list_nonempty (k : ℕ) : (BinaryTower k).2.1 ≠ [] :=
--- --   List.ne_nil_of_length_eq_add_one (list_length k)
+@[simp]
+instance BTFieldNoZeroDiv (k : ℕ) : NoZeroDivisors (BTField k) := by
+  unfold BTField
+  infer_instance
 
--- instance polyIrreducible (n : ℕ) : Irreducible (poly n) := (BinaryTower n).2.instIrreduciblePoly
+@[simp]
+def sumZeroIffEq (k : ℕ) : ∀ (x y : BTField k), x + y = 0 ↔ x = y := (BinaryTower k).2.sumZeroIffEq
 
--- instance polyIrreducibleFact (n : ℕ) : Fact (Irreducible (poly n)) := ⟨polyIrreducible n⟩
+@[simp]
+instance BTFieldChar2 (k : ℕ): CharP (BTField k) 2 := by
+  have h_two : (2 : (BTField k)) = 0 := by
+    have h := sumZeroIffEq 1 1
+    simp only [true_iff] at h
+    exact two_eq_zero_in_char2_field (sumZeroIffEq k)
+  have cast_eq_zero_iff : ∀ x : ℕ, (x : (BTField k)) = 0 ↔ 2 ∣ x  := by
+    intro x
+    constructor
+    · intro h
+      have h_one : (1 : BTField k) ≠ 0 := (BTFieldNeZero1 k).out
+      by_cases hx : x = 0
+      · simp [hx]
+      · have : x = 2 * (x / 2) + x % 2 := (Nat.div_add_mod x 2).symm
+        rw [this, Nat.cast_add, Nat.cast_mul, Nat.cast_two, h_two, zero_mul, zero_add] at h
+        have h_mod : x % 2 < 2 := Nat.mod_lt x two_pos
+        interval_cases n : x % 2
+        · exact Nat.dvd_of_mod_eq_zero n
+        · rw [←n] at h
+          rw [n] at h
+          rw [Nat.cast_one] at h
+          contradiction
+    · intro h
+      obtain ⟨m, rfl⟩ := h
+      rw [Nat.cast_mul, Nat.cast_two, h_two]
+      norm_num
+  let res : CharP (BTField k) 2 := { cast_eq_zero_iff' := cast_eq_zero_iff }
+  exact res
+
+@[simp]
+theorem BTField_0_is_GF_2 : (BTField 0) = (GF(2)) := by
+  unfold BTField
+  rw [BinaryTower]
+  rw [WellFounded.fix_eq]
+  rfl
+
+@[simp]
+def list (k : ℕ) : List.Vector (BTField k) (k + 1) := (BinaryTower k).2.vec
+
+@[simp]
+def poly (k : ℕ) : Polynomial (BTField k) := (BinaryTower k).2.newPoly
+
+@[simp]
+def Z (k : ℕ) : BTField k := (list k).1.headI -- the special extension field elements Z_k
+
+@[coe]
+theorem field_eq_adjoinRoot_poly (k : ℕ) : AdjoinRoot (poly k) = BTField (k+1) := by
+  let prevBTResult := BinaryTower k
+  let _instPrevBTield := prevBTResult.2.instField
+  let step := binary_tower_inductive_step k prevBTResult.fst prevBTResult.snd
+  let eq := step.snd.eq_adjoin
+  exact eq
+
+instance coe_field_adjoinRoot (k : ℕ): Coe (AdjoinRoot (poly k)) (BTField (k+1)) where
+  coe := Eq.mp (field_eq_adjoinRoot_poly k)
+
+@[simp]
+theorem Z_eq_adjointRoot_root (k : ℕ): Z (k+1) = AdjoinRoot.root (poly k) := by
+  let prevBTResult := BinaryTower k
+  let _instPrevBTield := prevBTResult.2.instField
+  let step := binary_tower_inductive_step k prevBTResult.fst prevBTResult.snd
+  let eq := step.snd.u_is_root
+  exact eq
+
+lemma poly_eq (k: ℕ): poly k = (BinaryTower k).2.newPoly := rfl
+@[simp]
+
+lemma list_0: list 0 = List.Vector.cons (1 : GF(2)) List.Vector.nil := by
+  unfold list
+  rfl
+
+@[simp]
+lemma list_eq (k : ℕ):
+  list (k+1) = (Z (k+1)) ::ᵥ (list k).map (AdjoinRoot.of (poly k)) := by
+  unfold list
+  rfl
+
+lemma Z_is_special_element (k: ℕ): Z k = (BinaryTower k).2.specialElement := by
+  unfold Z
+  simp [(BinaryTower k).2.firstElementOfVecIsSpecialElement]
+
+@[simp]
+theorem traceMapEvalAtRootsIs1 (k : ℕ) : (∑ i in Finset.range (2^k), (Z k)^(2^i)) = 1 ∧ (∑ i in Finset.range (2^k), ((Z k)⁻¹)^(2^i)) = 1 := by
+  rw [Z_is_special_element]
+  exact (BinaryTower k).2.traceMapEvalAtRootsIs1
+
+@[simp]
+theorem eval_poly_at_root (k : ℕ) : (Z (k+1))^2 + (Z (k+1)) * Z k + 1 = 0 := by
+  let btResult := BinaryTower k
+  let _instPrevBTield := btResult.2.instField
+  let step := binary_tower_inductive_step k btResult.fst btResult.snd
+  let eq := step.snd.eval_defining_poly_at_root
+  rw [←Z_is_special_element] at eq
+  exact eq
+
+@[simp]
+theorem poly_form (k : ℕ) : poly k = X^2 + (C (Z k) * X + 1) := by
+  have res := (BinaryTower k).2.newPolyForm
+  rw [←poly_eq] at res
+  rw [←Z_is_special_element] at res
+  exact res
+
+@[simp]
+lemma list_length (k : ℕ) : (list k).length = k + 1 := by
+  unfold list
+  rfl
+
+@[simp]
+theorem list_nonempty (k : ℕ) : (list k).1 ≠ [] := by
+  by_contra h_empty
+  have h_len := list_length k -- h_len : (list k).length = k + 1
+  have h_len_zero := List.length_eq_zero_iff.mpr h_empty -- h_len_zero : (↑(list k)).length = 0
+  have h_len_eq : (list k).length = List.length ((list k).1) := by
+    simp [List.Vector.toList_length (list k)]
+  rw [h_len_eq, h_len_zero] at h_len
+  have : k + 1 ≠ 0 := Nat.succ_ne_zero k
+  contradiction
+
+instance polyIrreducible (n : ℕ) : Irreducible (poly n) := (BinaryTower n).2.instIrreduciblePoly
+
+instance polyIrreducibleFact (n : ℕ) : Fact (Irreducible (poly n)) := ⟨polyIrreducible n⟩
 
 -- -- Possible direction: define alternate definition of BTF as Quotient of MvPolynomial (Fin n) GF(2)
 -- -- by the ideal generated by special field elements
@@ -1983,11 +2127,8 @@ end
 def ConcreteBinaryTower (k : ℕ) :=
   match k with
   | 0 => BitVec 1
-  | k + 1 => BitVec (2 ^ (2 ^ (k - 1)))
-
+  | k + 1 => BitVec (2^k)
 
 -- Define all arithmetic operations
-
-
 
 -- Define a field isomorphism
