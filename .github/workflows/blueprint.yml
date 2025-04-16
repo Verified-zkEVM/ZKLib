@@ -43,6 +43,7 @@ jobs:
       - name: Build project
         run: ~/.elan/bin/lake build ZKLib
 
+
       - name: Build blueprint and copy to `home_page/blueprint`
         uses: xu-cheng/texlive-action@v2
         with:
@@ -68,21 +69,14 @@ jobs:
         run: |
           ~/.elan/bin/lake exe checkdecls blueprint/lean_decls
 
-      - name: Cache mathlib API docs
+      - name: Cache build artifacts and API docs
         uses: actions/cache@v4
         with:
           path: |
-            .lake/build/doc/Init
-            .lake/build/doc/Lake
-            .lake/build/doc/Lean
-            .lake/build/doc/Std
-            .lake/build/doc/Mathlib
-            .lake/build/doc/declarations
-            .lake/build/doc/find
-            .lake/build/doc/*.*
-            !.lake/build/doc/declarations/declaration-data-ZKLib*
-          key: MathlibDoc-${{ hashFiles('lake-manifest.json') }}
-          restore-keys: MathlibDoc-
+            .lake/build
+          key: LakeBuild-${{ runner.os }}-${{ hashFiles('lean-toolchain') }}-${{ hashFiles('lake-manifest.json') }}
+          # Optionally add restore-keys if needed, e.g.:
+          # restore-keys: LakeBuild-${{ runner.os }}-${{ hashFiles('lean-toolchain') }}-
 
       - name: Build project API documentation
         # Only build blueprint on push to main or manual trigger
