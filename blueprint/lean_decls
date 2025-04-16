@@ -34,8 +34,6 @@ OracleSpec.DecidableEq
 OracleSpec.FiniteRange
 OracleSpec.OracleQuery
 OracleComp
-OracleImpl
 OracleComp.evalDist
 loggingOracle
 cachingOracle
-randOracle

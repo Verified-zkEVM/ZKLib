@@ -43,6 +43,27 @@ jobs:
       - name: Build project
         run: ~/.elan/bin/lake build ZKLib
 
+      - name: Build blueprint and copy to `home_page/blueprint`
+        uses: xu-cheng/texlive-action@v2
+        with:
+          docker_image: ghcr.io/xu-cheng/texlive-full:20231201
+          run: |
+            # Install necessary dependencies and build the blueprint
+            apk update
+            apk add --update make py3-pip git pkgconfig graphviz graphviz-dev gcc musl-dev
+            git config --global --add safe.directory $GITHUB_WORKSPACE
+            git config --global --add safe.directory `pwd`
+            python3 -m venv env
+            source env/bin/activate
+            pip install --upgrade pip requests wheel
+            pip install pygraphviz --global-option=build_ext --global-option="-L/usr/lib/graphviz/" --global-option="-R/usr/lib/graphviz/"
+            pip install leanblueprint
+            leanblueprint pdf
+            mkdir -p home_page
+            cp blueprint/print/print.pdf home_page/blueprint.pdf
+            leanblueprint web
+            cp -r blueprint/web home_page/blueprint
+
       - name: Check declarations mentioned in the blueprint exist in Lean code
         run: |
           ~/.elan/bin/lake exe checkdecls blueprint/lean_decls
@@ -81,29 +102,6 @@ jobs:
             echo "The 'home_page' folder does not exist in the repository."
             echo "HOME_PAGE_EXISTS=false" >> $GITHUB_ENV
           fi
-
-      - name: Build blueprint and copy to `home_page/blueprint`
-        # Only build blueprint on push to main or manual trigger
-        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
-        uses: xu-cheng/texlive-action@v2
-        with:
-          docker_image: ghcr.io/xu-cheng/texlive-full:20231201
-          run: |
-            # Install necessary dependencies and build the blueprint
-            apk update
-            apk add --update make py3-pip git pkgconfig graphviz graphviz-dev gcc musl-dev
-            git config --global --add safe.directory $GITHUB_WORKSPACE
-            git config --global --add safe.directory `pwd`
-            python3 -m venv env
-            source env/bin/activate
-            pip install --upgrade pip requests wheel
-            pip install pygraphviz --global-option=build_ext --global-option="-L/usr/lib/graphviz/" --global-option="-R/usr/lib/graphviz/"
-            pip install leanblueprint
-            leanblueprint pdf
-            mkdir -p home_page
-            cp blueprint/print/print.pdf home_page/blueprint.pdf
-            leanblueprint web
-            cp -r blueprint/web home_page/blueprint
 
       - name: Copy API documentation to `home_page/docs`
         # Only copy docs on push to main or manual trigger
