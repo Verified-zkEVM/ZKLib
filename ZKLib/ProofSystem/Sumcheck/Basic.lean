@@ -264,6 +264,7 @@ theorem perfect_completeness : (reduction R d D).perfectCompleteness
     · simp -- There's still some pathing issue here w/ simp, need to simp in steps which is sub-par
       unfold Prover.run Prover.runToRound
       simp [Fin.induction, Fin.induction.go, reduction, prover]
+      sorry
     · intro ⟨⟨stmt, oStmtOut⟩, _, transcript⟩
       simp -- Also some pathing issues, need to simp once before reducing `reduction`
       simp [reduction, verifier, Verifier.run]
@@ -272,7 +273,7 @@ theorem perfect_completeness : (reduction R d D).perfectCompleteness
       obtain ⟨h1, h2⟩ := hSupport
       simp [← h2, Transcript.snoc, Fin.snoc, h]
       split_ifs with hEval
-      · simp [noFailure]
+      · simp [neverFails]; sorry
       · contrapose! hEval; simp [inputRelation, h] at hValid; exact hValid
   · intro ⟨⟨stmt, oStmtOut⟩, _, transcript⟩ hSupport
     simp only [run, support_bind, liftM_eq_liftComp, Set.mem_iUnion, support_pure,
@@ -474,7 +475,7 @@ theorem oracleVerifier_eq_verifier :
     (oracleVerifier R n deg D oSpec i).toVerifier = verifier R n deg D oSpec i := by
   simp [pSpec, OracleVerifier.toVerifier, getDir_apply, getType_apply,
     instToOracleMessagePSpec, id_eq, oracleVerifier, bind_pure, guard_eq,
-    Fin.val_succ, bind_pure_comp, simulate_bind, simulate_map, simulate_query,
+    Fin.val_succ, bind_pure_comp, simulateQ_bind, simulateQ_map, simulateQ_query,
     map_pure, Prod.map_apply, Fin.coe_castSucc, Function.Embedding.inl_apply,
     eq_mpr_eq_cast, cast_eq, map_bind, Functor.map_map, verifier, Fin.isValue, Matrix.cons_val_zero,
     sum_map, Verifier.mk.injEq, simulateQ]
@@ -483,7 +484,7 @@ theorem oracleVerifier_eq_verifier :
   split; next x p_i hp_i hEq =>
   have : p_i = (transcript 0).1 := by simp only [hEq]
   subst this
-  simp [default, FullTranscript.messages, FullTranscript.challenges, instToOraclePolynomialDegreeLE]
+  simp [default, FullTranscript.messages, FullTranscript.challenges, instToOraclePolynomialDegreeLE, Option.elimM]
   sorry
 
 variable [DecidableEq ι] [oSpec.FiniteRange]

@@ -200,7 +200,7 @@ theorem natDegree_finSuccEquivNth (f : MvPolynomial (Fin (n + 1)) R) :
   by_cases c : f = 0
   · rw [c, map_zero, Polynomial.natDegree_zero, degreeOf_zero]
   · rw [Polynomial.natDegree, degree_finSuccEquivNth (by simpa only [Ne])]
-    erw [WithBot.unbot'_coe, Nat.cast_id]
+    erw [WithBot.unbotD_coe, Nat.cast_id]
 
 /-- The degree of `j` in the `i`th coefficient of `finSuccEquivNth R p f` is at most the degree of
 `j.succ` in `f`. -/

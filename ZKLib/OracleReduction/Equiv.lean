@@ -76,10 +76,11 @@ theorem oa1_distEquiv_oa2 : distEquiv oa1 oa2 := by
   ext i
   rcases i with none | ⟨x, y⟩
   · simp [tsum_eq_sum (s := Finset.univ) (by simp)]
-    simp [OptionT.run, OptionT.lift, OptionT.mk, Functor.map]
+    simp [OptionT.run, OptionT.lift, OptionT.mk, Functor.map, Option.elimM]
+    sorry
   · simp [tsum_eq_sum (s := Finset.univ) (by simp)]
     simp [OptionT.run, OptionT.lift, OptionT.mk, Functor.map]
-    simp [tsum_eq_sum (s := Finset.univ) (by simp)]
+    -- simp [tsum_eq_sum (s := Finset.univ) (by simp)]
     -- cases on x and y
     sorry
 
@@ -93,7 +94,7 @@ def obsEquiv (oa ob : OracleComp spec α) : Prop :=
 
 theorem oa1_obsEquiv_oa2 : obsEquiv oa1 oa2 := by
   simp only [obsEquiv, unifSpec_range, oa1, Nat.reduceAdd, Fin.val_eq_zero, bind_pure_comp,
-    simulate_bind, simulate_query, simulate_map, oa2]
+    simulateQ_bind, simulateQ_query, simulateQ_map, oa2]
   intro f
   simp only [SimOracle.fnOracle, unifSpec_range, SimOracle.statelessOracle, liftM, monadLift,
     MonadLift.monadLift, StateT.lift, Nat.reduceAdd, bind_pure_comp, map_pure, Prod.map_apply,

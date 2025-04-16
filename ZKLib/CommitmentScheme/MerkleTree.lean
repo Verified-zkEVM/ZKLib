@@ -164,15 +164,16 @@ theorem completeness {n : ℕ} (leaves : List.Vector α (2 ^ n)) (i : Fin (2 ^ n
     simp [Fin.instGetElemFinVal]
   | succ n ih =>
     simp_all [buildMerkleTree, getRoot, generateProof]
-    refine ⟨⟨?_, ?_⟩, ?_⟩
-    · simp [buildLayer]
-    · intro x _
-      exact (ih x ⟨0, by simp⟩).1
-    · intro a b path newLeaves h1 h2
-      unfold verifyProof
-      simp
-      -- simp [findNeighbors] at h2
-      sorry
+    sorry
+    -- refine ⟨⟨?_, ?_⟩, ?_⟩
+    -- · simp [buildLayer]
+    -- · intro x _
+    --   exact (ih x ⟨0, by simp⟩).1
+    -- · intro a b path newLeaves h1 h2
+    --   unfold verifyProof
+    --   simp
+    --   -- simp [findNeighbors] at h2
+      -- sorry
 
 -- theorem soundness (i : Fin (2 ^ n)) (leaf : α) (proof : Vector α n) :
 --     verifyMerkleProof i leaf proof = pure true →

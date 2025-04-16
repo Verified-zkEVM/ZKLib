@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Ivan Sadofschi Costa, Quang Dao
 -/
 import Mathlib.Data.Finsupp.Fin
-import Mathlib.Algebra.BigOperators.Finsupp
+import Mathlib.Algebra.BigOperators.Finsupp.Fin
 
 /-!
 # Tuple operations on maps `Fin n →₀ M`

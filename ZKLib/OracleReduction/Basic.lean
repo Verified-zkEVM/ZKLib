@@ -528,7 +528,7 @@ instance [VerifierFirst pSpec] : VerifierLast pSpec where
   verifier_last' := by simp
 instance [h : ProverLast pSpec] : ProverFirst pSpec where
   prover_first' := by simpa using h.prover_last'
-instance [h : VerifierLast pSpec] : VerifierFirst pSpec where
+instance [h : VerifierFirst pSpec] : VerifierFirst pSpec where
   verifier_first' := by simpa using h.verifier_last'
 
 instance [ProverFirst pSpec] : Unique (pSpec.MessageIndex) where
@@ -548,14 +548,9 @@ instance [h : VerifierFirst pSpec] : IsEmpty (pSpec.MessageIndex) where
 instance [ProverFirst pSpec] : ∀ i, VCVCompatible (pSpec.Challenge i) := isEmptyElim
 instance [VerifierFirst pSpec] : ∀ i, ToOracle (pSpec.Message i) := isEmptyElim
 
-instance [ProverFirst pSpec] [h : ToOracle (pSpec.Message ⟨0, by simp⟩)] :
-    ∀ i, ToOracle (pSpec.Message i) | ⟨0, _⟩ => h
-instance [VerifierFirst pSpec] [h : VCVCompatible (pSpec.Challenge ⟨0, by simp⟩)] :
-    ∀ i, VCVCompatible (pSpec.Challenge i) | ⟨0, _⟩ => h
-
-instance [ProverFirst pSpec] [ToOracle (pSpec 0).2] : ∀ i, ToOracle (pSpec.Message i)
+instance [ProverFirst pSpec] [h : ToOracle (pSpec 0).2] : ∀ i, ToOracle (pSpec.Message i)
   | ⟨0, _⟩ => inferInstance
-instance [VerifierFirst pSpec] [VCVCompatible (pSpec 0).2] : ∀ i, VCVCompatible (pSpec.Challenge i)
+instance [VerifierFirst pSpec] [h : VCVCompatible (pSpec 0).2] : ∀ i, VCVCompatible (pSpec.Challenge i)
   | ⟨0, _⟩ => inferInstance
 
 end SingleMessage

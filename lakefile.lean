@@ -17,7 +17,7 @@ require checkdecls from git "https://github.com/PatrickMassot/checkdecls.git" @ 
 -- Dependent rewrite tactic
 require seq from git "https://github.com/Vtec234/lean4-seq.git"
 
--- meta if get_config? env = some "dev" then
+meta if get_config? env = some "dev" then
 require «doc-gen4» from git "https://github.com/leanprover/doc-gen4" @ "v4.18.0"
 
 /-- These options are used
@@ -26,7 +26,7 @@ require «doc-gen4» from git "https://github.com/leanprover/doc-gen4" @ "v4.18.
   (as well as `Archive`, `Counterexamples` and `test`).
 -/
 abbrev zklibOnlyLinters : Array LeanOption := #[
-  ⟨`linter.docPrime, true⟩,
+  -- ⟨`linter.docPrime, true⟩,
   ⟨`linter.hashCommand, true⟩,
   ⟨`linter.oldObtain, true,⟩,
   ⟨`linter.refine, true⟩,

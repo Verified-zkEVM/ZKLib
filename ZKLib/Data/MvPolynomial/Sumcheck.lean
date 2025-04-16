@@ -50,9 +50,9 @@ theorem peval_def (f : σ → σ₁ ⊕ σ₂) (x : σ₁ → R) (p : MvPolynomi
 theorem peval_eq_eval_sumToIter_rename (f : σ → σ₁ ⊕ σ₂) (x : σ₁ → R) (p : MvPolynomial σ R) :
     peval f x p = eval (C ∘ x) (sumToIter R σ₁ σ₂ (rename f p)) := by
   induction p using MvPolynomial.induction_on with
-  | h_C => simp [peval]
-  | h_add p q hp hq => simp only [map_add, hp, hq]
-  | h_X p s hp =>
+  | C => simp [peval]
+  | add p q hp hq => simp only [map_add, hp, hq]
+  | mul_X p s hp =>
       simp [hp]
       congr
       simp only [peval, eval₂Hom_X', comp_apply, sumToIter]

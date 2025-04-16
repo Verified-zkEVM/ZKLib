@@ -6,6 +6,7 @@ Authors: Quang Dao
 
 import Mathlib.Algebra.MvPolynomial.Degrees
 import Mathlib.Algebra.MvPolynomial.Equiv
+import Mathlib.Algebra.Group.Action.Pointwise.Finset
 import ZKLib.Data.MvPolynomial.Notation
 
 /-!
