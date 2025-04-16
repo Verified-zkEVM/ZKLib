@@ -43,6 +43,10 @@ jobs:
       - name: Build project
         run: ~/.elan/bin/lake build ZKLib
 
+      - name: Check declarations mentioned in the blueprint exist in Lean code
+        run: |
+          ~/.elan/bin/lake exe checkdecls blueprint/lean_decls
+
       - name: Cache mathlib API docs
         uses: actions/cache@v4
         with:
@@ -60,10 +64,14 @@ jobs:
           restore-keys: MathlibDoc-
 
       - name: Build project API documentation
+        # Only build blueprint on push to main or manual trigger
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
         run: |
           ~/.elan/bin/lake -R -Kenv=dev build ZKLib:docs
 
       - name: Check for `home_page` folder # this is meant to detect a Jekyll-based website
+        # Only build blueprint on push to main or manual trigger
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
         id: check_home_page
         run: |
           if [ -d home_page ]; then
@@ -96,10 +104,6 @@ jobs:
             cp blueprint/print/print.pdf home_page/blueprint.pdf
             leanblueprint web
             cp -r blueprint/web home_page/blueprint
-
-      - name: Check declarations mentioned in the blueprint exist in Lean code
-        run: |
-          ~/.elan/bin/lake exe checkdecls blueprint/lean_decls
 
       - name: Copy API documentation to `home_page/docs`
         # Only copy docs on push to main or manual trigger
