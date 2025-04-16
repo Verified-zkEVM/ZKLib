@@ -13,6 +13,8 @@ permissions:
   contents: read # Read access to repository contents
   pages: write # Write access to GitHub Pages
   id-token: write # Write access to ID tokens
+  issues: write # Write access to issues
+  pull-requests: write # Write access to pull requests
 
 jobs:
   cancel:
@@ -58,7 +60,9 @@ jobs:
           restore-keys: MathlibDoc-
 
       - name: Build project API documentation
-        run: ~/.elan/bin/lake -R -Kenv=dev build ZKLib:docs
+        run: |
+          lake update doc-gen4
+          ~/.elan/bin/lake -R -Kenv=dev build ZKLib:docs
 
       - name: Check for `home_page` folder # this is meant to detect a Jekyll-based website
         id: check_home_page
