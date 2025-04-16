@@ -3,7 +3,7 @@ name: Compile blueprint
 on:
   push:
     # branches:
-    #   - main # Trigger on pushes to the default branch
+      # - main # Trigger on pushes to ANY branch now
   workflow_dispatch: # Allow manual triggering of the workflow from the GitHub Actions interface
   pull_request:
     # branches: [main]
@@ -72,6 +72,8 @@ jobs:
           fi
 
       - name: Build blueprint and copy to `home_page/blueprint`
+        # Only build blueprint on push to main or manual trigger
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
         uses: xu-cheng/texlive-action@v2
         with:
           docker_image: ghcr.io/xu-cheng/texlive-full:20231201
@@ -97,14 +99,20 @@ jobs:
           ~/.elan/bin/lake exe checkdecls blueprint/lean_decls
 
       - name: Copy API documentation to `home_page/docs`
+        # Only copy docs on push to main or manual trigger
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
         run: cp -r .lake/build/doc home_page/docs
 
       - name: Remove unnecessary lake files from documentation in `home_page/docs`
+        # Only remove files on push to main or manual trigger
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
         run: |
           find home_page/docs -name "*.trace" -delete
           find home_page/docs -name "*.hash" -delete
 
       - name: Bundle dependencies
+        # Only bundle on push to main or manual trigger
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
         uses: ruby/setup-ruby@v1
         with:
           working-directory: home_page
@@ -112,21 +120,30 @@ jobs:
           bundler-cache: true # Enable caching for bundler
 
       - name: Build website using Jekyll
-        if: env.HOME_PAGE_EXISTS == 'true'
+        # Only build website on push to main or manual trigger, if home_page exists
+        if: ((github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch') && env.HOME_PAGE_EXISTS == 'true'
         working-directory: home_page
         run: JEKYLL_ENV=production bundle exec jekyll build # Note this will also copy the blueprint and API doc into home_page/_site
 
       - name: "Upload website (API documentation, blueprint and any home page)"
+        # Only upload artifact on push to main or manual trigger
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
         uses: actions/upload-pages-artifact@v3
         with:
           path: ${{ env.HOME_PAGE_EXISTS == 'true' && 'home_page/_site' || 'home_page/' }}
 
       - name: Deploy to GitHub Pages
+        # Only deploy on push to main or manual trigger
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
         id: deployment
         uses: actions/deploy-pages@v4
 
       - name: Make sure the API documentation cache works
+        # Only run this step related to docs on push to main or manual trigger
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
         run: mv home_page/docs .lake/build/doc
+
+        
   # lint:
   #   name: Lint Files
   #   runs-on: ubuntu-latest
