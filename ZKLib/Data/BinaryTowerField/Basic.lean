@@ -21,7 +21,8 @@ Define the binary tower field GF(2^{2^k}) as an iterated quadratic extension of 
 
 ## Main Definitions
 
-- `BinaryTower k` : the binary tower field GF(2^{2^k}) as an iterated quadratic extension of GF(2), where BinaryTower 0 = GF(2)
+- `BinaryTower k` : the binary tower field GF(2^{2^k}) as an iterated quadratic extension of GF(2),
+  where `BinaryTower 0 = GF(2)`
 
 - `ConcreteBinaryTower k` : the concrete implementation of `BinaryTower k` using `BitVec`.
 
@@ -42,7 +43,7 @@ Define the binary tower field GF(2^{2^k}) as an iterated quadratic extension of 
   Computer Science. 2014, pp. 316–325. doi: 10.1109/FOCS.2014.41.
 
 - [DP23] Diamond, Benjamin E., and Jim Posen. "Succinct arguments over towers of binary fields."
-  Cryptology ePrint Archive (2023).
+  Eurocrypt 2025.
 
 - [DP24] Diamond, Benjamin E., and Jim Posen. "Polylogarithmic Proofs for Multilinears over Binary
   Towers." Cryptology ePrint Archive (2024).
@@ -53,6 +54,8 @@ noncomputable section
 
 open Polynomial
 open AdjoinRoot
+
+#check CharP
 
 notation:10 "GF(" term:10 ")" => GaloisField term 1
 
@@ -459,14 +462,16 @@ theorem unique_linear_form_of_elements_in_adjoined_commring
     rw [Algebra.smul_def] -- p.fst • pb.gen = (algebraMap R (AdjoinRoot f) p.fst) * pb.gen
     rfl
 
-theorem two_eq_zero_in_char2_field {F : Type*} [Field F] (sumZeroIffEq : ∀ (x y : F), x + y = 0 ↔ x = y): (2 : F) = 0 := by
+theorem two_eq_zero_in_char2_field {F : Type*} [Field F]
+    (sumZeroIffEq : ∀ (x y : F), x + y = 0 ↔ x = y) : (2 : F) = 0 := by
   have char_two : (1:F) + (1:F) = 0 := by
     exact (sumZeroIffEq 1 1).mpr rfl
   have : (2:F) = (1:F) + (1:F) := by norm_num
   rw [this]
   exact char_two
 
-theorem sum_of_pow_exp_of_2 {F : Type*} [Field F] (sumZeroIffEq : ∀ (x y : F), x + y = 0 ↔ x = y) (i : ℕ) : ∀ (a b c : F) (h_sum_a_b_eq_c: a + b = c), a^(2^i) + b^(2^i) = c^(2^i) := by
+theorem sum_of_pow_exp_of_2 {F : Type*} [Field F] (sumZeroIffEq : ∀ (x y : F), x + y = 0 ↔ x = y)
+    (i : ℕ) : ∀ (a b c : F) (h_sum_a_b_eq_c: a + b = c), a^(2^i) + b^(2^i) = c^(2^i) := by
   induction i with
   | zero =>
     simp [pow_zero] -- a^1 + b^1 = a + b = c = c^1
@@ -507,7 +512,8 @@ theorem sum_of_pow_exp_of_2 {F : Type*} [Field F] (sumZeroIffEq : ∀ (x y : F),
     rw [←expand_square x y]
     rw [x_plus_y_eq_z]
 
-theorem sum_square_char2 {F : Type*} [Field F] (sumZeroIffEq : ∀ (x y : F), x + y = 0 ↔ x = y) (s : Finset ℕ) (f : ℕ → F) : (∑ j ∈ s, f j)^2 = ∑ j ∈ s, (f j)^2 := by
+theorem sum_square_char2 {F : Type*} [Field F] (sumZeroIffEq : ∀ (x y : F), x + y = 0 ↔ x = y)
+    (s : Finset ℕ) (f : ℕ → F) : (∑ j ∈ s, f j)^2 = ∑ j ∈ s, (f j)^2 := by
   induction s using Finset.induction_on with
   | empty =>
     rw [Finset.sum_empty, zero_pow (by norm_num), Finset.sum_empty]
@@ -1396,7 +1402,7 @@ theorem rsum_eq_t1_square_aux
 
 structure BinaryTowerResult (F : Type _) (k : ℕ) where
   vec       : (List.Vector F (k + 1))
-  instMul   : (Mul F)
+  -- instMul   : (Mul F)
   instField : (Field F)
   instNontrivial:(Nontrivial F)
   newPoly   : (Polynomial F)
@@ -1608,10 +1614,12 @@ def binary_tower_inductive_step
     -- Rearranging gives x = y
     exact sub_eq_zero.mp h_xy
 
-  have prevTraceMapEvalAtRootsIs1: ∑ i ∈ Finset.range (2 ^ k), t1 ^ 2 ^ i = 1 ∧ ∑ i ∈ Finset.range (2 ^ k), t1⁻¹ ^ 2 ^ i = 1 := by
+  have prevTraceMapEvalAtRootsIs1: ∑ i ∈ Finset.range (2 ^ k),
+      t1 ^ 2 ^ i = 1 ∧ ∑ i ∈ Finset.range (2 ^ k), t1⁻¹ ^ 2 ^ i = 1 := by
     exact prevBTResult.traceMapEvalAtRootsIs1
 
-  have liftedPrevTraceMapEvalAtRootsIs1: ∑ i ∈ Finset.range (2 ^ k), (of prevPoly) t1 ^ 2 ^ i = 1 ∧ ∑ i ∈ Finset.range (2 ^ k), (of prevPoly t1)⁻¹ ^ 2 ^ i = 1 := by
+  have liftedPrevTraceMapEvalAtRootsIs1: ∑ i ∈ Finset.range (2 ^ k),
+      (of prevPoly) t1 ^ 2 ^ i = 1 ∧ ∑ i ∈ Finset.range (2 ^ k), (of prevPoly t1)⁻¹ ^ 2 ^ i = 1 := by
     constructor
     · -- First part: sum of t1^(2^i)
       have h_coe: (of prevPoly) (∑ i ∈ Finset.range (2 ^ k), t1 ^ 2 ^ i) = 1 := by
@@ -1640,7 +1648,8 @@ def binary_tower_inductive_step
     calc
       x^(2^(2^k)-1) = x^(Fintype.card prevBTField - 1) := by rw [prevBTResult.fieldFintypeCard]
       _ = 1 := by exact FiniteField.pow_card_sub_one_eq_one (a:=x) (ha:=hx)
-  have h_lifted_prev_pow_card_sub_one: ∀ (x: prevBTField) (hx: x ≠ 0), (of prevPoly) x^(2^(2^k)-1) = 1 := by
+  have h_lifted_prev_pow_card_sub_one: ∀ (x: prevBTField) (hx: x ≠ 0),
+      (of prevPoly) x^(2^(2^k)-1) = 1 := by
     intro x hx
     have h1: x^(2^(2^k)-1) = 1 := h_prev_pow_card_sub_one x hx
     have h_coe: (of prevPoly) (x^(2^(2^k)-1)) = 1 := by rw [h1]; rfl
@@ -1658,12 +1667,19 @@ def binary_tower_inductive_step
       rw [map_inv₀ (f := of prevPoly) (a := t1)]
 
   have galoisAutomorphism: u^(2^(2^k)) = u⁻¹ ∧ (u⁻¹)^(2^(2^k)) = u := by
-    exact galois_automorphism_power (u:=u) (t1:=t1) (k:=k) (sumZeroIffEq:=sumZeroIffEq) (specialElementNeZero:=specialElementNeZero) (prevSpecialElementNeZero:=prevSpecialElementNeZero) (u_plus_inv_eq_t1:=u_plus_u1_eq_t1) (h_u_square:=h_u_square) (h_t1_pow:=h_t1_pow) (trace_map_roots:=liftedPrevTraceMapEvalAtRootsIs1)
+    exact galois_automorphism_power (u:=u) (t1:=t1) (k:=k) (sumZeroIffEq:=sumZeroIffEq)
+      (specialElementNeZero:=specialElementNeZero)
+      (prevSpecialElementNeZero:=prevSpecialElementNeZero)
+      (u_plus_inv_eq_t1:=u_plus_u1_eq_t1) (h_u_square:=h_u_square) (h_t1_pow:=h_t1_pow)
+      (trace_map_roots:=liftedPrevTraceMapEvalAtRootsIs1)
 
   have traceMapEvalAtRootsIs1 : (∑ i  ∈ Finset.range (2^(k+1)), u^(2^i)) = 1 ∧ (∑ i  ∈ Finset.range (2^(k+1)), (u⁻¹)^(2^i)) = 1 := by
     constructor
     ·
-      have res := lifted_trace_map_eval_at_roots_prev_BTField (u:=u) (t1:=t1) (k:=k) (sumZeroIffEq:=sumZeroIffEq) (u_plus_inv_eq_t1:=u_plus_u1_eq_t1) (galois_automorphism:=galoisAutomorphism) (trace_map_at_prev_root:=liftedPrevTraceMapEvalAtRootsIs1.1)
+      have res := lifted_trace_map_eval_at_roots_prev_BTField (u:=u) (t1:=t1) (k:=k)
+        (sumZeroIffEq:=sumZeroIffEq) (u_plus_inv_eq_t1:=u_plus_u1_eq_t1)
+        (galois_automorphism:=galoisAutomorphism)
+        (trace_map_at_prev_root:=liftedPrevTraceMapEvalAtRootsIs1.1)
       exact res
     ·
       have u1_plus_u11_eq_t1: u⁻¹ + u⁻¹⁻¹ = (of prevPoly) t1 := by
@@ -1673,7 +1689,10 @@ def binary_tower_inductive_step
       have galoisAutomorphismRev: (u⁻¹)^(2^(2^k)) = u⁻¹⁻¹ ∧ (u⁻¹⁻¹)^(2^(2^k)) = u⁻¹ := by
         rw [←u_is_inv_of_u1]
         exact ⟨galoisAutomorphism.2, galoisAutomorphism.1⟩
-      have res := lifted_trace_map_eval_at_roots_prev_BTField (u:=u⁻¹) (t1:=t1) (k:=k) (sumZeroIffEq:=sumZeroIffEq) (u_plus_inv_eq_t1:=u1_plus_u11_eq_t1) (galois_automorphism:=galoisAutomorphismRev) (trace_map_at_prev_root:=liftedPrevTraceMapEvalAtRootsIs1.1)
+      have res := lifted_trace_map_eval_at_roots_prev_BTField (u:=u⁻¹) (t1:=t1) (k:=k)
+        (sumZeroIffEq:=sumZeroIffEq) (u_plus_inv_eq_t1:=u1_plus_u11_eq_t1)
+        (galois_automorphism:=galoisAutomorphismRev)
+        (trace_map_at_prev_root:=liftedPrevTraceMapEvalAtRootsIs1.1)
       exact res
 
   let instIrreduciblePoly : Irreducible newPoly := by
@@ -1719,7 +1738,8 @@ def binary_tower_inductive_step
 
     have c1_pow_card_eq_c1:= x_pow_card c1 -- Fermat's little theorem
     have two_to_k_plus_1_ne_zero: 2^(k + 1) ≠ 0 := by norm_num
-    have c1_pow_card_eq := x_pow_exp_of_2_repr (x:=c1) (z:=u) (h_z_non_zero:=specialElementNeZero) (h_x_square:=h_c1_square) (i:=2^(k+1))
+    have c1_pow_card_eq := x_pow_exp_of_2_repr (x:=c1) (z:=u) (h_z_non_zero:=specialElementNeZero)
+      (h_x_square:=h_c1_square) (i:=2^(k+1))
     rw [c1_pow_card_eq_c1] at c1_pow_card_eq
 
     have h_1_le_fin_card: 1 ≤ Fintype.card curBTField := by
@@ -1734,7 +1754,9 @@ def binary_tower_inductive_step
       rw [←FiniteField.pow_card_sub_one_eq_one (a:=u) (ha:=specialElementNeZero)]
       rw [fieldFintypeCard]
 
-    rw [u_pow_card_sub_one, mul_one] at c1_pow_card_eq -- u_pow_card_eq : u = u * 1 + ∑ j ∈ Finset.range (2 ^ (k + 1)), (of prevPoly) t1 ^ (2 ^ 2 ^ (k + 1) - 2 ^ (j + 1))
+    rw [u_pow_card_sub_one, mul_one] at c1_pow_card_eq
+    -- u_pow_card_eq : u = u * 1 + ∑ j ∈ Finset.range (2 ^ (k + 1)),
+    --   (of prevPoly) t1 ^ (2 ^ 2 ^ (k + 1) - 2 ^ (j + 1))
     set rsum := ∑ j ∈ Finset.Icc 1 (2 ^ (k + 1)), u ^ (2 ^ 2 ^ (k + 1) - 2 ^ j) with rsum_def
     have rsum_eq_zero: rsum = 0 := by
       have sum_eq_2: -c1 + c1 = -c1 + (c1 + rsum) := (add_right_inj (a := -c1)).mpr c1_pow_card_eq
@@ -1744,7 +1766,8 @@ def binary_tower_inductive_step
       rw [←add_assoc, neg_add_cancel, zero_add] at sum_eq_3
       exact sum_eq_3.symm
 
-    have rsum_eq_u: rsum = u := rsum_eq_t1_square_aux (u:=u) (k:=k) (x_pow_card:=x_pow_card) (u_ne_zero:=specialElementNeZero) (trace_map_at_prev_root:=traceMapEvalAtRootsIs1)
+    have rsum_eq_u: rsum = u := rsum_eq_t1_square_aux (u:=u) (k:=k) (x_pow_card:=x_pow_card)
+      (u_ne_zero:=specialElementNeZero) (trace_map_at_prev_root:=traceMapEvalAtRootsIs1)
 
     have rsum_ne_zero: rsum ≠ 0 := by
       rw [rsum_eq_u]
@@ -1758,7 +1781,7 @@ def binary_tower_inductive_step
 
   let btResult: BinaryTowerResult curBTField (k + 1) := {
     vec := newVec,
-    instMul := instMul,
+    -- instMul := instMul,
     instField := instFieldAdjoinRootOfPoly,
     instNontrivial := inferInstance,
     newPoly := newPoly,
@@ -1783,7 +1806,8 @@ def binary_tower_inductive_step
   have t1_eq_prevBTResult_specialElement: t1 = prevBTResult.specialElement := rfl
   rw [←mul_comm] at eval_prevPoly_at_root
 
-  let btInductiveStepResult: BinaryTowerInductiveStepResult (k:=k) (prevBTField:=prevBTField) (prevBTResult:=prevBTResult) (prevPoly:=prevBTResult.newPoly) (F:=curBTField) (instPrevBTFieldIsField:=prevBTResult.instField) := {
+  let btInductiveStepResult: BinaryTowerInductiveStepResult (prevBTResult:=prevBTResult)
+      (prevPoly:=prevBTResult.newPoly) (F:=curBTField) := {
     binaryTowerResult := btResult,
     eq_adjoin := adjoinRootOfPoly
     u_is_root := u_is_root,
@@ -1901,7 +1925,9 @@ def BinaryTowerAux (k : ℕ) (rec : ∀ m : ℕ, m < k → Σ' (F : Type _), Bin
           exact GF_2_one_add_one_eq_zero
     let instFintype: Fintype (GF(2)) := GF_2_fintype
     let fieldFintypeCard: Fintype.card (GF(2)) = 2^(2^0) := by exact GF_2_card
-    have traceMapEvalAtRootsIs1 : (∑ i in Finset.range (2^0), specialElement^(2^i)) = 1 ∧ (∑ i in Finset.range (2^0), (specialElement⁻¹)^(2^i)) = 1 := by
+    have traceMapEvalAtRootsIs1 :
+      (∑ i ∈ .range (2^0), specialElement^(2^i)) =
+        1 ∧ (∑ i ∈ .range (2^0), (specialElement⁻¹)^(2^i)) = 1 := by
       constructor
       · -- Prove first part: (∑ i in Finset.range (2^0), specialElement^(2^i)) = 1
         rw [Nat.pow_zero] -- 2^0 = 1
@@ -1915,7 +1941,7 @@ def BinaryTowerAux (k : ℕ) (rec : ∀ m : ℕ, m < k → Σ' (F : Type _), Bin
 
     let result: BinaryTowerResult curBTField 0 :={
       vec := newList,
-      instMul := inferInstance,
+      -- instMul := inferInstance,
       instField := inferInstance,
       instNontrivial := instNontrivial,
       newPoly := newPoly,
@@ -1940,7 +1966,7 @@ def BinaryTowerAux (k : ℕ) (rec : ∀ m : ℕ, m < k → Σ' (F : Type _), Bin
   | k + 1 =>
     let prevBTResult := rec k (Nat.lt_succ_self k)
     let instPrevBTield := prevBTResult.2.instField
-    let inductive_result := binary_tower_inductive_step (k:=k) (prevBTField:=prevBTResult.fst) (prevBTResult:=prevBTResult.snd)
+    let inductive_result := binary_tower_inductive_step (prevBTResult:=prevBTResult.snd)
     let res := ⟨ inductive_result.fst, inductive_result.snd.binaryTowerResult ⟩
     res
 
@@ -1952,7 +1978,8 @@ namespace BinaryTower
 @[simp]
 def BTField (k : ℕ) := (BinaryTower k).1
 
-lemma BTField_is_BTFieldAux (k : ℕ) : BTField k = (BinaryTowerAux k (fun m hm => BinaryTower m)).1 := by
+lemma BTField_is_BTFieldAux (k : ℕ) :
+    BTField k = (BinaryTowerAux k (fun m _ => BinaryTower m)).1 := by
   unfold BTField
   rw [BinaryTower]
   rw [WellFounded.fix_eq]
@@ -2074,7 +2101,8 @@ lemma Z_is_special_element (k: ℕ): Z k = (BinaryTower k).2.specialElement := b
   simp [(BinaryTower k).2.firstElementOfVecIsSpecialElement]
 
 @[simp]
-theorem traceMapEvalAtRootsIs1 (k : ℕ) : (∑ i in Finset.range (2^k), (Z k)^(2^i)) = 1 ∧ (∑ i in Finset.range (2^k), ((Z k)⁻¹)^(2^i)) = 1 := by
+theorem traceMapEvalAtRootsIs1 (k : ℕ) :
+    (∑ i ∈ .range (2^k), (Z k)^(2^i)) = 1 ∧ (∑ i ∈ .range (2^k), ((Z k)⁻¹)^(2^i)) = 1 := by
   rw [Z_is_special_element]
   exact (BinaryTower k).2.traceMapEvalAtRootsIs1
 
@@ -2114,9 +2142,9 @@ instance polyIrreducible (n : ℕ) : Irreducible (poly n) := (BinaryTower n).2.i
 
 instance polyIrreducibleFact (n : ℕ) : Fact (Irreducible (poly n)) := ⟨polyIrreducible n⟩
 
--- -- Possible direction: define alternate definition of BTF as Quotient of MvPolynomial (Fin n) GF(2)
--- -- by the ideal generated by special field elements
--- -- What would this definition give us?
+-- -- Possible direction: define alternate definition of BTF as Quotient of
+-- `MvPolynomial (Fin n) GF(2)`
+-- by the ideal generated by special field elements. What would this definition give us?
 
 end BinaryTower
 
