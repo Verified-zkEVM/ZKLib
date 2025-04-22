@@ -33,11 +33,11 @@ inductive Expr where
 
 inductive Program where
 
-inductive Ops where
-  | arith (op : Arith) {aVal : F} {bVal : F} (a : Expr.scalar aVal) (b : Expr.scalar bVal)
-  | scale (a : Expr.scalar) (v : Expr.vector)
-  | dotProd (v1 : Expr.vector n v₁) (v2 : Expr.vector n v₂)
-example {a b : F} : Ops.arith .add a b = a := rfl
+-- inductive Ops where
+--   | arith (op : Arith) {aVal : F} {bVal : F} (a : Lit.scalar aVal) (b : Lit.scalar bVal)
+--   | scale (a : Lit.scalar) (v : Lit.vector)
+--   | dotProd (v1 : Lit.vector n v₁) (v2 : Lit.vector n v₂)
+-- example {a b : F} : Ops.arith .add a b = a := rfl
 
 -- Important: what operations should we allow
 

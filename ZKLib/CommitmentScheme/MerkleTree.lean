@@ -215,7 +215,7 @@ theorem completeness {n : ℕ} (leaves : List.Vector α (2 ^ n)) (i : Fin (2 ^ n
     --   Cache.upper_cons, Cache.leaves_cons]
     -- refine ⟨?_, ?_⟩
     -- ·
-      simp [buildLayer, simulateQ, simulateQ, implement_with_function, neverFails]
+      simp [buildLayer, simulateQ, simulateQ, implement_with_function]
       sorry
 
     -- · intro newLeaves h_newLeaves

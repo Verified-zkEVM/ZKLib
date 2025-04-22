@@ -155,10 +155,10 @@ theorem Reduction.run_transport
     {stmtIn : StmtIn} {witIn : WitIn}
     (R : Reduction pSpec oSpec StmtIn' WitIn' StmtOut' WitOut') :
       (R.transport data).run stmtIn witIn = do
-        let ⟨stmtOut, witOut, fullTranscript⟩ ←
+        let ⟨⟨prvStmtOut, witOut⟩, verStmtOut, fullTranscript⟩ ←
           R.run (data.fStmtIn stmtIn) (data.fWitIn witIn)
-        return ⟨data.fStmtOut (stmtIn, stmtOut), data.fWitOut (witIn, witOut),
-          fullTranscript⟩ := by
+        return ⟨⟨data.fStmtOut (stmtIn, prvStmtOut), data.fWitOut (witIn, witOut)⟩,
+          data.fStmtOut (stmtIn, verStmtOut), fullTranscript⟩ := by
   unfold Reduction.run
   simp [Reduction.transport, Prover.run_transport, Verifier.transport]
   sorry
@@ -168,10 +168,10 @@ theorem Reduction.runWithLog_transport
     {stmtIn : StmtIn} {witIn : WitIn}
     (R : Reduction pSpec oSpec StmtIn' WitIn' StmtOut' WitOut') :
       (R.transport data).runWithLog stmtIn witIn = do
-        let ⟨stmtOut, witOut, fullTranscript, queryLog⟩ ←
+        let ⟨⟨prvStmtOut, witOut⟩, verStmtOut, fullTranscript, queryLog⟩ ←
           R.runWithLog (data.fStmtIn stmtIn) (data.fWitIn witIn)
-        return ⟨data.fStmtOut (stmtIn, stmtOut), data.fWitOut (witIn, witOut),
-          fullTranscript, queryLog⟩ := by
+        return ⟨⟨data.fStmtOut (stmtIn, prvStmtOut), data.fWitOut (witIn, witOut)⟩,
+          data.fStmtOut (stmtIn, verStmtOut), fullTranscript, queryLog⟩ := by
   unfold Reduction.runWithLog
   simp [Reduction.transport, Prover.run_transport, Verifier.transport]
   sorry
@@ -198,7 +198,8 @@ theorem Reduction.transport_completeness
   simp
   refine probEvent_mono ?_
   intro _ _ hRelOut'
-  exact data.relOut_implied_by _ _ _ _ hRelIn hRelOut'
+  sorry
+  -- exact data.relOut_implied_by _ _ _ _ hRelIn hRelOut'
 
 /-- -/
 theorem Reduction.transport_soundness

@@ -152,10 +152,11 @@ theorem OracleVerifier.run_eq_run_verifier [∀ i, ToOracle (pSpec.Message i)] {
 @[inline, specialize]
 def Reduction.run [∀ i, VCVCompatible (pSpec.Challenge i)] (stmt : StmtIn) (wit : WitIn)
     (reduction : Reduction pSpec oSpec StmtIn WitIn StmtOut WitOut) :
-      OracleComp (oSpec ++ₒ [pSpec.Challenge]ₒ) (StmtOut × WitOut × FullTranscript pSpec) := do
-  let ⟨_, witOut, transcript⟩ ← reduction.prover.run stmt wit
+      OracleComp (oSpec ++ₒ [pSpec.Challenge]ₒ)
+        ((StmtOut × WitOut) × StmtOut × FullTranscript pSpec) := do
+  let ⟨prvStmtOut, witOut, transcript⟩ ← reduction.prover.run stmt wit
   let stmtOut ← liftM (reduction.verifier.run stmt transcript)
-  return (stmtOut, witOut, transcript)
+  return ((prvStmtOut, witOut), stmtOut, transcript)
 
 /--
   An execution of an interactive reduction on a given initial statement and witness. Consists of
@@ -166,19 +167,19 @@ def Reduction.run [∀ i, VCVCompatible (pSpec.Challenge i)] (stmt : StmtIn) (wi
 def Reduction.runWithLog [∀ i, VCVCompatible (pSpec.Challenge i)] (stmt : StmtIn) (wit : WitIn)
     (reduction : Reduction pSpec oSpec StmtIn WitIn StmtOut WitOut) :
       OracleComp (oSpec ++ₒ [pSpec.Challenge]ₒ)
-        (StmtOut × WitOut × FullTranscript pSpec ×
+        ((StmtOut × WitOut) × StmtOut × FullTranscript pSpec ×
           QueryLog (oSpec ++ₒ [pSpec.Challenge]ₒ) × QueryLog oSpec) := do
-  let ⟨_, witOut, transcript, proveQueryLog⟩ ← reduction.prover.runWithLog stmt wit
+  let ⟨prvStmtOut, witOut, transcript, proveQueryLog⟩ ← reduction.prover.runWithLog stmt wit
   let ⟨stmtOut, verifyQueryLog⟩ ←
     liftM (simulateQ loggingOracle (reduction.verifier.run stmt transcript)).run
-  return (stmtOut, witOut, transcript, proveQueryLog, verifyQueryLog)
+  return ((prvStmtOut, witOut), stmtOut, transcript, proveQueryLog, verifyQueryLog)
 
 /-- Logging the queries made by both parties do not change the output of the reduction -/
 @[simp]
 theorem Reduction.runWithLog_eq_run [∀ i, VCVCompatible (pSpec.Challenge i)]
     {stmt : StmtIn} {wit : WitIn}
     {reduction : Reduction pSpec oSpec StmtIn WitIn StmtOut WitOut} :
-      (fun ⟨stmtOut, witOut, transcript, _, _⟩ => (stmtOut, witOut, transcript)) <$>
+      (fun ⟨prvOutput, witOut, transcript, _, _⟩ => (prvOutput, witOut, transcript)) <$>
         reduction.runWithLog stmt wit = reduction.run stmt wit := by
   simp [run, runWithLog, Verifier.run, Prover.runWithLog, Prover.runWithLogToRound]
   sorry
@@ -192,13 +193,13 @@ def OracleReduction.run [∀ i, VCVCompatible (pSpec.Challenge i)] [∀ i, ToOra
     (stmt : StmtIn) (wit : WitIn) (oStmt : ∀ i, OStmtIn i)
     (reduction : OracleReduction pSpec oSpec StmtIn WitIn StmtOut WitOut OStmtIn OStmtOut) :
       OracleComp (oSpec ++ₒ [pSpec.Challenge]ₒ)
-        (StmtOut × WitOut × FullTranscript pSpec ×
+        (((StmtOut × ∀ i, OStmtOut i) × WitOut) × StmtOut × FullTranscript pSpec ×
           QueryLog (oSpec ++ₒ [pSpec.Challenge]ₒ) × QueryLog oSpec) := do
-  let ⟨⟨_, witOut, transcript⟩, proveQueryLog⟩ ←
+  let ⟨⟨prvStmtOut, witOut, transcript⟩, proveQueryLog⟩ ←
     (simulateQ loggingOracle (reduction.prover.run ⟨stmt, oStmt⟩ wit)).run
   let ⟨stmtOut, verifyQueryLog⟩ ←
     liftM (simulateQ loggingOracle (reduction.verifier.run stmt oStmt transcript)).run
-  return (stmtOut, witOut, transcript, proveQueryLog, verifyQueryLog)
+  return ((prvStmtOut, witOut), stmtOut, transcript, proveQueryLog, verifyQueryLog)
 
 -- /-- Running an oracle verifier then discarding the query list is equivalent to
 -- running a non-oracle verifier -/
@@ -259,10 +260,10 @@ theorem Reduction.run_of_prover_first [ProverOnly pSpec] (stmt : StmtIn) (wit : 
       reduction.run stmt wit = (do
         let state := reduction.prover.input stmt wit
         let ⟨msg, state⟩ ← liftComp (reduction.prover.sendMessage ⟨0, by simp⟩ state) _
-        let (_, witOut) := reduction.prover.output state
+        let (prvStmtOut, witOut) := reduction.prover.output state
         let transcript : pSpec.FullTranscript := fun i => match i with | ⟨0, _⟩ => msg
         let stmtOut ← reduction.verifier.verify stmt transcript
-        return (stmtOut, witOut, transcript)) := by
+        return ((prvStmtOut, witOut), stmtOut, transcript)) := by
   simp [Reduction.run, Verifier.run, ← liftComp_map]
   conv =>
     enter [1, 1]

@@ -5,7 +5,7 @@ Authors: Quang Dao
 -/
 
 import ZKLib.OracleReduction.Security.Basic
-import ZKLib.ProofSystem.Relation.R1CS
+import ZKLib.ProofSystem.ConstraintSystem.R1CS
 import ZKLib.Data.MvPolynomial.Multilinear
 import ZKLib.ProofSystem.Sumcheck.Basic
 -- import ZKLib.ProofSystem.Components
@@ -144,12 +144,12 @@ def proverFirstMessage : OracleProver (pSpecFirstMessage R pp) []ₒ
 
   output := fun _ => sorry
 
-def verifierFirstMessage : OracleVerifier (pSpecFirstMessage R pp) []ₒ
-    (R1CS.Statement R (sizeR1CS pp)) (R1CS.Statement R (sizeR1CS pp))
-    (R1CS.OracleStatement R (sizeR1CS pp))
-    (Sum.elim (R1CS.OracleStatement R (sizeR1CS pp)) (fun _ : Unit => WitnessMLE R pp)) where
+-- def verifierFirstMessage : OracleVerifier (pSpecFirstMessage R pp) []ₒ
+--     (R1CS.Statement R (sizeR1CS pp)) (R1CS.Statement R (sizeR1CS pp))
+--     (R1CS.OracleStatement R (sizeR1CS pp))
+--     (Sum.elim (R1CS.OracleStatement R (sizeR1CS pp)) (fun _ : Unit => WitnessMLE R pp)) where
 
-  verify := sorry
+--   verify := sorry
 
 def pSpecFirstChallenge : ProtocolSpec 1 := ![(.V_to_P, Fin pp.ℓ_m → R)]
 

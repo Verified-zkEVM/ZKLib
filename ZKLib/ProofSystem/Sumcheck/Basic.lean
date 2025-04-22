@@ -249,6 +249,12 @@ lemma liftComp_support {ι' : Type w} {superSpec : OracleSpec ι'}
   | query_bind i t oa ih => simp [ih]
   | failure => simp
 
+-- Stub lemma for now, will be available in the next VCVio update
+lemma neverFails_map_iff' (oa : OracleComp spec α) (f : α → β) :
+    neverFails (f <$> oa) ↔ neverFails oa := by
+  rw [map_eq_bind_pure_comp]
+  simp [neverFails, neverFailsWhen, Function.comp_apply, implies_true, and_true]
+
 end simp_lemmas
 
 -- set_option maxHeartbeats 1000000 in
@@ -263,8 +269,8 @@ theorem perfect_completeness : (reduction R d D).perfectCompleteness
     constructor
     · simp -- There's still some pathing issue here w/ simp, need to simp in steps which is sub-par
       unfold Prover.run Prover.runToRound
-      simp [Fin.induction, Fin.induction.go, reduction, prover]
-      sorry
+      simp [Fin.induction, Fin.induction.go, reduction, prover, neverFails_map_iff']
+      simp [neverFails, neverFailsWhen]
     · intro ⟨⟨stmt, oStmtOut⟩, _, transcript⟩
       simp -- Also some pathing issues, need to simp once before reducing `reduction`
       simp [reduction, verifier, Verifier.run]
@@ -273,22 +279,23 @@ theorem perfect_completeness : (reduction R d D).perfectCompleteness
       obtain ⟨h1, h2⟩ := hSupport
       simp [← h2, Transcript.snoc, Fin.snoc, h]
       split_ifs with hEval
-      · simp [neverFails]; sorry
+      · simp [neverFails, neverFailsWhen]
       · contrapose! hEval; simp [inputRelation, h] at hValid; exact hValid
-  · intro ⟨⟨stmt, oStmtOut⟩, _, transcript⟩ hSupport
+  · intro ⟨⟨⟨prvStmtOut, prvOStmtOut⟩, _⟩, verStmtOut, transcript⟩ hSupport
     simp only [run, support_bind, liftM_eq_liftComp, Set.mem_iUnion, support_pure,
       Set.mem_singleton_iff, Prod.eq_iff_fst_eq_snd_eq, true_and] at hSupport
-    obtain ⟨x1, hx1, ⟨x2, _⟩, hx2, ⟨⟨rfl, rfl⟩, ⟨rfl, ⟨rfl, rfl⟩⟩⟩⟩ := hSupport
+    obtain ⟨x1, hx1, ⟨x2_1, x2_2⟩, hx2, ⟨⟨⟨h2_1, h2_2⟩, _⟩, ⟨⟨h3_1, h3_2⟩, h3_3⟩⟩⟩ := hSupport
     simp only [reduction, prover, Prover.run, Prover.runToRound] at hx1
     simp at hx1
     obtain ⟨a, b, hab, hx1'⟩ := hx1
     simp only [Verifier.run, reduction, verifier] at hx2
     simp [liftComp_support, Transcript.snoc, Fin.snoc] at hx2
     obtain ⟨h1, h2, h3⟩ := hx2
-    split; rename_i hEq
+    split; rename_i stuff prvStmtOut' _ verStmtOut' trans hEq
     simp at hEq
-    obtain ⟨hStmtOut, _⟩ := hEq
-    simp [outputRelation, ← hStmtOut, ← h3]
+    obtain ⟨hPrvStmtOut, hVerStmtOut, hTranscript⟩ := hEq
+    have h4 : verStmtOut = ⟨x2_1, x2_2⟩ := Prod.ext h3_1 h3_2
+    simp [outputRelation, ← hPrvStmtOut, ← hVerStmtOut, ← h3, h3_1, h3_2, h4, h2_1, h2_2, h2]
 
 end Simpler
 
@@ -484,7 +491,8 @@ theorem oracleVerifier_eq_verifier :
   split; next x p_i hp_i hEq =>
   have : p_i = (transcript 0).1 := by simp only [hEq]
   subst this
-  simp [default, FullTranscript.messages, FullTranscript.challenges, instToOraclePolynomialDegreeLE, Option.elimM]
+  simp [default, FullTranscript.messages, FullTranscript.challenges,
+    instToOraclePolynomialDegreeLE, Option.elimM]
   sorry
 
 variable [DecidableEq ι] [oSpec.FiniteRange]
@@ -496,7 +504,8 @@ theorem perfect_completeness : OracleReduction.perfectCompleteness
     (pSpec := pSpec R deg) (oSpec := oSpec)
     (relation R n deg D i.castSucc) (relation R n deg D i.succ)
     (oracleReduction R n deg D oSpec i) := by
-  simp only [OracleReduction.perfectCompleteness, perfectCompleteness_eq_prob_one, eq_iff_iff, iff_true, probEvent_eq_one_iff, Prod.forall]
+  simp only [OracleReduction.perfectCompleteness, perfectCompleteness_eq_prob_one,
+    eq_iff_iff, iff_true, probEvent_eq_one_iff, Prod.forall]
   unfold relation oracleReduction
   -- prover verifier Reduction.run
   intro ⟨target, challenge⟩ oStmt _ hValid
@@ -637,7 +646,8 @@ variable [VCVCompatible R]
 theorem reduction_complete : (reduction R n deg).perfectCompleteness
     (relIn R n deg D) (relOut R n deg) := sorry
 
--- def stateFunction : Reduction.StateFunction (pSpec R deg n) []ₒ (relIn R n deg D) (relOut R n deg)
+-- def stateFunction : Reduction.StateFunction (pSpec R deg n) []ₒ
+--   (relIn R n deg D) (relOut R n deg)
 
 -- /-- Round-by-round knowledge soundness for the (full) sum-check protocol -/
 -- theorem reduction_sound :

@@ -40,8 +40,12 @@ variable [oSpec.FiniteRange]
   A reduction satisfies **completeness** with error `completenessError ≥ 0` and with respect to
   input relation `relIn` and output relation `relOut`, if for all valid statement-witness pair
   `(stmtIn, witIn)` for `relIn`, the execution between the honest prover and the honest verifier
-  will result in a valid pair `(stmtOut, witOut)` for `relOut`, except with probability
-  `completenessError`.
+  will result in a tuple `((prvStmtOut, witOut), stmtOut)` such that
+
+  - `relOut stmtOut witOut = True`, (the output statement-witness pair is valid) and
+  - `prvStmtOut = stmtOut`, (the output statements are the same from both prover and verifier)
+
+  except with probability `completenessError`.
 -/
 
 def completeness (relIn : StmtIn → WitIn → Prop)
@@ -51,7 +55,7 @@ def completeness (relIn : StmtIn → WitIn → Prop)
   ∀ stmtIn : StmtIn,
   ∀ witIn : WitIn,
   relIn stmtIn witIn →
-    [fun ⟨stmtOut, witOut, _⟩ => relOut stmtOut witOut
+    [fun ⟨(prvStmtOut, witOut), stmtOut, _⟩ => relOut stmtOut witOut ∧ prvStmtOut = stmtOut
     | reduction.run stmtIn witIn] ≥ 1 - completenessError
 
 /-- A reduction satisfies **perfect completeness** if it satisfies completeness with error `0`. -/
@@ -68,7 +72,7 @@ variable {relIn : StmtIn → WitIn → Prop} {relOut : StmtOut → WitOut → Pr
 theorem perfectCompleteness_eq_prob_one :
     reduction.perfectCompleteness relIn relOut ↔
       ∀ stmtIn witIn, relIn stmtIn witIn →
-        [fun ⟨stmtOut, witOut, _⟩ => relOut stmtOut witOut
+        [fun ⟨(prvStmtOut, witOut), stmtOut, _⟩ => relOut stmtOut witOut ∧ prvStmtOut = stmtOut
         | reduction.run stmtIn witIn] = 1 := by
   refine forall_congr' fun stmtIn => forall_congr' fun stmtOut => forall_congr' fun _ => ?_
   rw [ENNReal.coe_zero, tsub_zero, ge_iff_le, one_le_probEvent_iff,
@@ -123,7 +127,7 @@ def soundness (langIn : Set StmtIn) (langOut : Set StmtOut)
   ∀ prover : Prover pSpec oSpec StmtIn WitIn StmtOut WitOut,
   ∀ stmtIn ∉ langIn,
     letI reduction := Reduction.mk prover verifier
-    [fun ⟨stmtOut, _, _⟩ => stmtOut ∉ langOut
+    [fun ⟨_, stmtOut, _⟩ => stmtOut ∉ langOut
     | reduction.run stmtIn witIn] ≤ soundnessError
 
 /--
@@ -155,7 +159,7 @@ def knowledgeSoundness (relIn : StmtIn → WitIn → Prop) (relOut : StmtOut →
   ∀ witIn : WitIn,
   ∀ prover : Prover pSpec oSpec StmtIn WitIn StmtOut WitOut,
     letI reduction := Reduction.mk prover verifier
-    [fun ⟨stmtOut, witOut, transcript, proveQueryLog, _⟩ =>
+    [fun ⟨(_, witOut), stmtOut, transcript, proveQueryLog, _⟩ =>
       letI extractedWitIn := extractor stmtIn stmtOut witOut transcript proveQueryLog
       ¬ relIn stmtIn extractedWitIn ∧ relOut stmtOut witOut
     | reduction.runWithLog stmtIn witIn] ≤ knowledgeError
@@ -446,6 +450,7 @@ variable {n : ℕ} {ι : Type} {pSpec : ProtocolSpec n} {oSpec : OracleSpec ι}
     {ιₛᵢ : Type} {OStmtIn : ιₛᵢ → Type} [∀ i, ToOracle (OStmtIn i)]
     {ιₛₒ : Type} {OStmtOut : ιₛₒ → Type} [oSpec.FiniteRange]
 
+/-- Completeness of an oracle reduction is the same as for non-oracle reductions. -/
 def completeness
     (relIn : (StmtIn × ∀ i, OStmtIn i) → WitIn → Prop)
     (relOut : (StmtOut × (∀ i, OStmtOut i)) → WitOut → Prop)
@@ -453,6 +458,7 @@ def completeness
     (completenessError : ℝ≥0) : Prop :=
   Reduction.completeness relIn relOut oracleReduction.toReduction completenessError
 
+/-- Perfect completeness of an oracle reduction is the same as for non-oracle reductions. -/
 def perfectCompleteness
     (relIn : (StmtIn × ∀ i, OStmtIn i) → WitIn → Prop)
     (relOut : (StmtOut × ∀ i, OStmtOut i) → WitOut → Prop)
@@ -460,6 +466,7 @@ def perfectCompleteness
       Prop :=
   Reduction.perfectCompleteness relIn relOut oracleReduction.toReduction
 
+/-- Soundness of an oracle reduction is the same as for non-oracle reductions. -/
 def soundness
     (langIn : Set (StmtIn × ∀ i, OStmtIn i))
     (langOut : Set (StmtOut × (∀ i, OStmtOut i)))
@@ -467,12 +474,14 @@ def soundness
     (soundnessError : ℝ≥0) : Prop :=
   Reduction.soundness langIn langOut verifier.toVerifier soundnessError
 
+/-- Knowledge soundness of an oracle reduction is the same as for non-oracle reductions. -/
 def knowledgeSoundness (verifier : OracleVerifier pSpec oSpec StmtIn StmtOut OStmtIn OStmtOut)
     (relIn : (StmtIn × ∀ i, OStmtIn i) → WitIn → Prop)
     (relOut : (StmtOut × (∀ i, OStmtOut i)) → WitOut → Prop)
     (knowledgeError : ℝ≥0) : Prop :=
   Reduction.knowledgeSoundness relIn relOut verifier.toVerifier knowledgeError
 
+/-- Round-by-round soundness of an oracle reduction is the same as for non-oracle reductions. -/
 def rbrSoundness
     (langIn : Set (StmtIn × ∀ i, OStmtIn i))
     (langOut : Set (StmtOut × (∀ i, OStmtOut i)))
@@ -481,6 +490,8 @@ def rbrSoundness
     (rbrSoundnessError : pSpec.ChallengeIndex → ℝ≥0) : Prop :=
   Reduction.rbrSoundness langIn langOut verifier.toVerifier stateFunction rbrSoundnessError
 
+/-- Round-by-round knowledge soundness of an oracle reduction is the same as for non-oracle
+reductions. -/
 def rbrKnowledgeSoundness
     (relIn : (StmtIn × ∀ i, OStmtIn i) → WitIn → Prop)
     (relOut : (StmtOut × (∀ i, OStmtOut i)) → WitOut → Prop)
