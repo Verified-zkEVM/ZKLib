@@ -18,10 +18,10 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 
-title: Formally Verified SNARKs in Lean
+title: Formally Verified Cryptographic Arguments in Lean
 #email: your-email@example.com
 description:
-baseurl: "/blueprint" # the subpath of your site, e.g. /blog
+baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://verified-zkevm.github.io/ArkLib/" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username:
 github_username: quangvdao
