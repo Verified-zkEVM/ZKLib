@@ -1,7 +1,7 @@
 import Lake
 open Lake DSL
 
-/-! # Lake configuration for ZKLib
+/-! # Lake configuration for ArkLib
 
 Many of these configs are taken from mathlib
  -/
@@ -22,10 +22,10 @@ require «doc-gen4» from git "https://github.com/leanprover/doc-gen4" @ "v4.18.
 
 /-- These options are used
 * as `leanOptions`, prefixed by `` `weak``, so that `lake build` uses them;
-* as `moreServerArgs`, to set their default value in zklib
+* as `moreServerArgs`, to set their default value in arklib
   (as well as `Archive`, `Counterexamples` and `test`).
 -/
-abbrev zklibOnlyLinters : Array LeanOption := #[
+abbrev arklibOnlyLinters : Array LeanOption := #[
   -- ⟨`linter.docPrime, true⟩,
   ⟨`linter.hashCommand, true⟩,
   ⟨`linter.oldObtain, true,⟩,
@@ -39,27 +39,27 @@ abbrev zklibOnlyLinters : Array LeanOption := #[
   ⟨`linter.style.setOption, true⟩
 ]
 
-/-- These options are passed as `leanOptions` to building zklib, as well as the
+/-- These options are passed as `leanOptions` to building arklib, as well as the
 `Archive` and `Counterexamples`. (`tests` omits the first two options.) -/
-abbrev zklibLeanOptions := #[
+abbrev arklibLeanOptions := #[
     ⟨`pp.unicode.fun, true⟩, -- pretty-prints `fun a ↦ b`
     ⟨`autoImplicit, false⟩
   ] ++ -- options that are used in `lake build`
-    zklibOnlyLinters.map fun s ↦ { s with name := `weak ++ s.name }
+    arklibOnlyLinters.map fun s ↦ { s with name := `weak ++ s.name }
 
 def moreServerArgs := #[
   "-Dpp.unicode.fun=true", -- pretty-prints `fun a ↦ b`
   "-DAutoImplicit=false"
 ]
 
-package «Zklib» {
+package «Arklib» {
   -- add any package configuration options here
-  leanOptions := zklibLeanOptions
+  leanOptions := arklibLeanOptions
   -- Mathlib also enforces these linter options, which are not active by default.
-  moreServerOptions := zklibOnlyLinters
+  moreServerOptions := arklibOnlyLinters
 }
 
 @[default_target]
-lean_lib «ZKLib» {
+lean_lib «ArkLib» {
   -- add any library configuration options here
 }
