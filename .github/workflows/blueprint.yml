@@ -115,7 +115,7 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           working-directory: home_page
-          ruby-version: "3.0" # Specify Ruby version
+          ruby-version: "3.4.3" # Specify Ruby version
           bundler-cache: true # Enable caching for bundler
 
       - name: Build website using Jekyll
