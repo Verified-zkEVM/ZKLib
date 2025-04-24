@@ -6,10 +6,6 @@ layout: default # Use the theme's default layout
 usemathjax: true
 ---
 
-<!-- # Formally Verified SNARKs in Lean
-
-See [AUTHORS](/AUTHORS) for the list of ArkLib contributors, and visit the [GitHub repository](https://github.com/Verified-zkEVM/ArkLib) for more information. -->
-
 ## Useful links:
 
 *   [Zulip chat for Lean](https://leanprover.zulipchat.com/) for coordination
