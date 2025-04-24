@@ -13,8 +13,7 @@ permissions:
   contents: read
   issues: write
   pull-requests: write
-  id-token: write  # Required for uploading artifacts
-  actions: read    # Required for artifact actions
+  actions: write  # Change to write permission for artifacts
 
 jobs:
   cancel:
@@ -82,4 +81,5 @@ jobs:
           name: blueprint-artifacts
           path: |
             home_page/blueprint
-            home_page/blueprint.pdf 
+            home_page/blueprint.pdf
+          retention-days: 1  # Keep artifacts for 1 day 

@@ -15,6 +15,7 @@ permissions:
   contents: read # Read access to repository contents
   pages: write # Write access to GitHub Pages
   id-token: write # Write access to ID tokens
+  actions: read # Read access for downloading artifacts
 
 jobs:
   build_and_deploy:
@@ -34,11 +35,17 @@ jobs:
       - name: Get Mathlib cache
         run: ~/.elan/bin/lake exe cache get || true
 
-      - name: Download blueprint artifacts
-        uses: actions/download-artifact@v3
+      - name: Download artifact from triggering workflow
+        if: github.event_name == 'workflow_run'
+        uses: dawidd6/action-download-artifact@v4
         with:
+          workflow: build-blueprint.yml
           name: blueprint-artifacts
           path: home_page
+          workflow_conclusion: success
+          
+      - name: Create home_page directory if missing
+        run: mkdir -p home_page
 
       - name: Restore build cache
         uses: actions/cache/restore@v4
