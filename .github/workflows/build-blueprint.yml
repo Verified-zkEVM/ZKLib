@@ -13,7 +13,6 @@ permissions:
   contents: read
   issues: write
   pull-requests: write
-  actions: write  # Change to write permission for artifacts
 
 jobs:
   cancel:
@@ -77,9 +76,10 @@ jobs:
 
       - name: Upload blueprint artifacts
         uses: actions/upload-artifact@v3
+        # Ensure this step always runs, even if previous steps fail
+        if: always()
         with:
           name: blueprint-artifacts
           path: |
             home_page/blueprint
-            home_page/blueprint.pdf
-          retention-days: 1  # Keep artifacts for 1 day 
+            home_page/blueprint.pdf 

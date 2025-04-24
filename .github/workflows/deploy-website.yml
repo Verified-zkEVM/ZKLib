@@ -15,7 +15,6 @@ permissions:
   contents: read # Read access to repository contents
   pages: write # Write access to GitHub Pages
   id-token: write # Write access to ID tokens
-  actions: read # Read access for downloading artifacts
 
 jobs:
   build_and_deploy:
@@ -35,27 +34,20 @@ jobs:
       - name: Get Mathlib cache
         run: ~/.elan/bin/lake exe cache get || true
 
-      - name: Download artifact from triggering workflow
-        if: github.event_name == 'workflow_run'
-        uses: dawidd6/action-download-artifact@v4
+      - name: Download blueprint artifacts
+        uses: dawidd6/action-download-artifact@v3
         with:
-          workflow: build-blueprint.yml
+          workflow: Build Blueprint
+          workflow_conclusion: success
           name: blueprint-artifacts
           path: home_page
-          workflow_conclusion: success
-          
-      - name: Create home_page directory if missing
-        run: mkdir -p home_page
 
       - name: Restore build cache
-        uses: actions/cache/restore@v4
-        id: cache-restore
+        uses: actions/cache@v4
         with:
           path: |
             .lake/build
           key: LakeBuild-${{ runner.os }}-${{ hashFiles('lean-toolchain') }}
-          restore-keys: |
-            LakeBuild-${{ runner.os }}-
 
       - name: Build project API documentation
         run: |
@@ -102,15 +94,4 @@ jobs:
         uses: actions/deploy-pages@v4
 
       - name: Make sure the API documentation cache works
-        run: |
-          # Remove the existing docs directory to avoid the "cannot overwrite" error
-          rm -rf .lake/build/doc
-          # Now move the docs directory back for caching
-          cp -r home_page/docs .lake/build/
-        
-      - name: Save updated build cache with API docs
-        uses: actions/cache/save@v4
-        with:
-          path: |
-            .lake/build
-          key: LakeBuild-${{ runner.os }}-${{ hashFiles('lean-toolchain') }} 
+        run: mv home_page/docs .lake/build/doc 
