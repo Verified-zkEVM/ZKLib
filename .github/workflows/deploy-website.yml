@@ -1,0 +1,95 @@
+name: Build and Deploy Website
+
+on:
+  # Run this workflow after the blueprint build workflow completes
+  workflow_run:
+    workflows: ["Build Blueprint"]
+    branches: [main]
+    types: [completed]
+  
+  # Allow manual triggering
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read # Read access to repository contents
+  pages: write # Write access to GitHub Pages
+  id-token: write # Write access to ID tokens
+
+jobs:
+  build_and_deploy:
+    # Only run if the trigger was a manual dispatch or if the blueprint workflow succeeded
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    name: Build and Deploy Website
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch all history for all branches and tags
+
+      - name: Install elan
+        run: curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y
+
+      - name: Get Mathlib cache
+        run: ~/.elan/bin/lake exe cache get || true
+
+      - name: Download blueprint artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: blueprint-artifacts
+          path: home_page
+
+      - name: Restore build cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            .lake/build
+          key: LakeBuild-${{ runner.os }}-${{ hashFiles('lean-toolchain') }}
+
+      - name: Build project API documentation
+        run: |
+          ~/.elan/bin/lake -R -Kenv=dev build ArkLib:docs
+
+      - name: Check for `home_page` folder # this is meant to detect a Jekyll-based website
+        id: check_home_page
+        run: |
+          if [ -d home_page ]; then
+            echo "The 'home_page' folder exists in the repository."
+            echo "HOME_PAGE_EXISTS=true" >> $GITHUB_ENV
+          else
+            echo "The 'home_page' folder does not exist in the repository."
+            echo "HOME_PAGE_EXISTS=false" >> $GITHUB_ENV
+          fi
+
+      - name: Copy API documentation to `home_page/docs`
+        run: cp -r .lake/build/doc home_page/docs
+
+      - name: Remove unnecessary lake files from documentation in `home_page/docs`
+        run: |
+          find home_page/docs -name "*.trace" -delete
+          find home_page/docs -name "*.hash" -delete
+
+      - name: Bundle dependencies
+        uses: ruby/setup-ruby@v1
+        with:
+          working-directory: home_page
+          ruby-version: "3.4.3" # Specify Ruby version
+          bundler-cache: true # Enable caching for bundler
+
+      - name: Build website using Jekyll
+        if: env.HOME_PAGE_EXISTS == 'true'
+        working-directory: home_page
+        run: JEKYLL_ENV=production bundle exec jekyll build # Note this will also copy the blueprint and API doc into home_page/_site
+
+      - name: "Upload website (API documentation, blueprint and any home page)"
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ env.HOME_PAGE_EXISTS == 'true' && 'home_page/_site' || 'home_page/' }}
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Make sure the API documentation cache works
+        run: mv home_page/docs .lake/build/doc 

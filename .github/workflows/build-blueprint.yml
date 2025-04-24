@@ -1,0 +1,83 @@
+name: Build Blueprint
+
+on:
+  push:
+    # branches:
+      # - main
+  workflow_dispatch:
+  # pull_request:
+    # branches: [main]
+
+# Permissions needed for this workflow
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  cancel:
+    name: "Cancel Previous Runs"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: styfle/cancel-workflow-action@0.12.1
+        with:
+          all_but_latest: true
+          access_token: ${{ github.token }}
+
+  build_blueprint:
+    runs-on: ubuntu-latest
+    name: Build Blueprint
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch all history for all branches and tags
+
+      - name: Install elan
+        run: curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y
+
+      - name: Get Mathlib cache
+        run: ~/.elan/bin/lake exe cache get || true
+
+      - name: Build project
+        run: ~/.elan/bin/lake build ArkLib
+
+      - name: Build blueprint PDF and web version
+        uses: xu-cheng/texlive-action@v2
+        with:
+          docker_image: ghcr.io/xu-cheng/texlive-full:20231201
+          run: |
+            # Install necessary dependencies and build the blueprint
+            apk update
+            apk add --update make py3-pip git pkgconfig graphviz graphviz-dev gcc musl-dev
+            git config --global --add safe.directory $GITHUB_WORKSPACE
+            git config --global --add safe.directory `pwd`
+            python3 -m venv env
+            source env/bin/activate
+            pip install --upgrade pip requests wheel
+            pip install pygraphviz --global-option=build_ext --global-option="-L/usr/lib/graphviz/" --global-option="-R/usr/lib/graphviz/"
+            pip install leanblueprint
+            leanblueprint pdf
+            mkdir -p home_page
+            cp blueprint/print/print.pdf home_page/blueprint.pdf
+            leanblueprint web
+            cp -r blueprint/web home_page/blueprint
+
+      - name: Check declarations mentioned in the blueprint exist in Lean code
+        run: |
+          ~/.elan/bin/lake exe checkdecls blueprint/lean_decls
+
+      - name: Cache build artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            .lake/build
+          key: LakeBuild-${{ runner.os }}-${{ hashFiles('lean-toolchain') }}
+
+      - name: Upload blueprint artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: blueprint-artifacts
+          path: |
+            home_page/blueprint
+            home_page/blueprint.pdf 
