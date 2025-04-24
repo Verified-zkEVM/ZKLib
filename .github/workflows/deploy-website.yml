@@ -41,11 +41,14 @@ jobs:
           path: home_page
 
       - name: Restore build cache
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
+        id: cache-restore
         with:
           path: |
             .lake/build
           key: LakeBuild-${{ runner.os }}-${{ hashFiles('lean-toolchain') }}
+          restore-keys: |
+            LakeBuild-${{ runner.os }}-
 
       - name: Build project API documentation
         run: |
@@ -92,4 +95,15 @@ jobs:
         uses: actions/deploy-pages@v4
 
       - name: Make sure the API documentation cache works
-        run: mv home_page/docs .lake/build/doc 
+        run: |
+          # Remove the existing docs directory to avoid the "cannot overwrite" error
+          rm -rf .lake/build/doc
+          # Now move the docs directory back for caching
+          cp -r home_page/docs .lake/build/
+        
+      - name: Save updated build cache with API docs
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            .lake/build
+          key: LakeBuild-${{ runner.os }}-${{ hashFiles('lean-toolchain') }} 

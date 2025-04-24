@@ -13,6 +13,8 @@ permissions:
   contents: read
   issues: write
   pull-requests: write
+  id-token: write  # Required for uploading artifacts
+  actions: read    # Required for artifact actions
 
 jobs:
   cancel:
