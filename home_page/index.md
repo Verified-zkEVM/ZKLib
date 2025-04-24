@@ -14,3 +14,4 @@ usemathjax: true
 *   [Dependency graph](blueprint/dep_graph_document.html)
 *   [Doc pages for this repository](docs/)
 *   [GitHub](https://github.com/Verified-zkEVM/ArkLib)
+*   [GitHub](https://github.com/Verified-zkEVM/ArkLib)
