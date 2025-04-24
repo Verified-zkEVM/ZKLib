@@ -105,7 +105,7 @@ def lintStyleCli (args : Cli.Parsed) : IO UInt32 := do
   let fix := args.hasFlag "fix"
   -- Read all module names to lint.
   let mut allModuleNames := #[]
-  for s in ["ZKLib.lean"] do
+  for s in ["ArkLib.lean"] do
     allModuleNames := allModuleNames.append (← findImports s)
   -- Note: since "Batteries" is added explicitly to "Mathlib.lean", we remove it here manually.
   allModuleNames := allModuleNames.erase `Batteries

@@ -1,8 +1,8 @@
 # References
 
-This file contains paper references that inform the development of ZKLib.
+This file contains paper references that inform the development of ArkLib.
 
-**TODO:** give a comparison of ZKLib's notion of $$\mathcal{F}$$-IOR with existing definitions in the literature
+**TODO:** give a comparison of ArkLib's notion of $$\mathcal{F}$$-IOR with existing definitions in the literature
 
 Some sources:
 - Original IOP paper [BCS16]

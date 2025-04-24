@@ -17,7 +17,7 @@ For each protocol mentioned above, we aim to provide:
 
 ## Library Structure
 
-The core of our library is a mechanized theory of **$$\mathcal{F}$$-Interactive Oracle Reductions** (see [OracleReduction](ZKLib/OracleReduction)):
+The core of our library is a mechanized theory of **$$\mathcal{F}$$-Interactive Oracle Reductions** (see [OracleReduction](ArkLib/OracleReduction)):
 1. An **$$\mathcal{F}$$-IOR** is an interactive protocol between a prover and a verifier to reduce a relation $$R_1$$ on some public statement & private witness to another relation $$R_2$$.
 2. The verifier may _not_ see the messages sent by the prover in the clear, but can make oracle queries to these messages using a specified oracle interface;
   - For example, one can view the message as a vector, and query entries of that vector. Alternatively, one can view the message as a polynomial, and query for its evaluation at some given points.
@@ -27,7 +27,7 @@ The core of our library is a mechanized theory of **$$\mathcal{F}$$-Interactive 
   - The BCS transform then replaces every oracle message from the prover with a commitment to that message, and runs an opening argument for each oracle query the verifier makes to the prover's messages.
 5. For reference, $$\mathcal{F}$$-IOR is a natural notion, and related versions have appeared in various places in the literature (see [References](./References.md) for a detailed comparison). Our library takes these existing threads and formalizes them into a cohesive theory.
 
-Using the theory of $$\mathcal{F}$$-IOR, we then formalize various proof systems in [ProofSystem](ZKLib/ProofSystem).
+Using the theory of $$\mathcal{F}$$-IOR, we then formalize various proof systems in [ProofSystem](ArkLib/ProofSystem).
 
 ## Roadmap & Contributing
 

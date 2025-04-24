@@ -36,7 +36,7 @@ set -eo pipefail
 
 touch scripts/style-exceptions.txt
 
-git ls-files 'ZKLib/*.lean' | xargs ./scripts/lint-style.py "$@"
+git ls-files 'ArkLib/*.lean' | xargs ./scripts/lint-style.py "$@"
 # git ls-files 'Examples/*.lean' | xargs ./scripts/lint-style.py "$@"
 
 # 2.1 Check for executable bit on Lean files

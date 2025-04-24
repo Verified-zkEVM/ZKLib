@@ -8,7 +8,7 @@ usemathjax: true
 
 # Formally Verified SNARKs in Lean
 
-See [AUTHORS](/AUTHORS) for the list of ZKLib contributors, and visit the [GitHub repository](https://github.com/Verified-zkEVM/ZKLib) for more information.
+See [AUTHORS](/AUTHORS) for the list of ArkLib contributors, and visit the [GitHub repository](https://github.com/Verified-zkEVM/ArkLib) for more information.
 
 ## Useful links:
 
@@ -17,4 +17,4 @@ See [AUTHORS](/AUTHORS) for the list of ZKLib contributors, and visit the [GitHu
 *   [Blueprint as pdf](blueprint.pdf)
 *   [Dependency graph](blueprint/dep_graph_document.html)
 *   [Doc pages for this repository](docs/)
-*   [GitHub](https://github.com/Verified-zkEVM/ZKLib)
+*   [GitHub](https://github.com/Verified-zkEVM/ArkLib)

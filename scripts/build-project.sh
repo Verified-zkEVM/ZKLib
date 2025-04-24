@@ -1,6 +1,6 @@
 # Building the examples already builds this
-# echo "# Building ZKLib library"
-# lake build ZKLib
+# echo "# Building ArkLib library"
+# lake build ArkLib
 
 # echo "# Building Project"
 # lake build Examples

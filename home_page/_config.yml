@@ -22,10 +22,10 @@ title: Formally Verified SNARKs in Lean
 #email: your-email@example.com
 description:
 baseurl: "/blueprint" # the subpath of your site, e.g. /blog
-url: "https://verified-zkevm.github.io/ZKLib/" # the base hostname & protocol for your site, e.g. http://example.com
+url: "https://verified-zkevm.github.io/ArkLib/" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username:
 github_username: quangvdao
-repository: Verified-zkEVM/ZKLib
+repository: Verified-zkEVM/ArkLib
 
 # Build settings
 remote_theme: pages-themes/cayman@v0.2.0

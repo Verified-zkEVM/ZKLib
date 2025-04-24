@@ -1,7 +1,7 @@
 /-
-Copyright (c) 2024-2025 ZKLib Contributors. All rights reserved.
+Copyright (c) 2024-2025 ArkLib Contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: František Silváši, Julian Sutherland, Ilia Vlasov 
+Authors: František Silváši, Julian Sutherland, Ilia Vlasov
 -/
 import Mathlib.Algebra.Field.Basic
 import Mathlib.Algebra.Polynomial.Basic
@@ -12,9 +12,9 @@ import Mathlib.Tactic.FieldSimp
 
 /-- A field of characteristic ≠ 2.
 -/
-class NonBinaryField  
-  (F : Type) extends Field F where 
-  char_neq_2 : (2 : F) ≠ 0 
+class NonBinaryField
+  (F : Type) extends Field F where
+  char_neq_2 : (2 : F) ≠ 0
 
 export NonBinaryField (char_neq_2)
 
@@ -42,13 +42,13 @@ private lemma coeffs_of_comp_minus_x_pos_degree {f : Polynomial F} {n : ℕ} (h 
     (f.comp (-X)).coeff n = if Even n then f.coeff n else -f.coeff n := by
   revert n
   apply degree_pos_induction_on (h0 := h) (P := fun f => _)
-  · aesop (add simp coeff_X) 
+  · aesop (add simp coeff_X)
   · rintro _ _ _ (_ | _) <;> aesop (add simp [Nat.even_add_one, Nat.even_iff])
   · rintro _ _ _ _ (_ | _) <;> aesop
-    
+
 theorem coeffs_of_comp_minus_x {f : Polynomial F} {n : ℕ}  :
     (f.comp (-X)).coeff n = if Even n then f.coeff n else -f.coeff n := by
-    by_cases hpos : 0 < f.degree 
+    by_cases hpos : 0 < f.degree
     · rw [coeffs_of_comp_minus_x_pos_degree hpos]
     · have : f.natDegree = 0 := by aesop (add simp natDegree_pos_iff_degree_pos.symm)
       cases n <;> aesop (add simp natDegree_eq_zero)
@@ -69,7 +69,7 @@ private lemma comp_x_square_coeff_pos_deg {f : Polynomial F} {n : ℕ} (h : 0 < 
 
 theorem comp_x_square_coeff {f : Polynomial F} {n : ℕ} :
   (f.comp (X * X)).coeff n = if Even n then f.coeff (n / 2) else 0 := by
-  by_cases hpos : 0 < f.degree 
+  by_cases hpos : 0 < f.degree
   · rw [comp_x_square_coeff_pos_deg hpos]
   · obtain ⟨_, hx⟩ := show ∃ x, C x = f by
       aesop (add simp [natDegree_pos_iff_degree_pos.symm, natDegree_eq_zero])
@@ -77,4 +77,4 @@ theorem comp_x_square_coeff {f : Polynomial F} {n : ℕ} :
     have : (n + 1 + 1) / 2 = n / 2 + 1 := by omega
     aesop
 
-end   
+end
