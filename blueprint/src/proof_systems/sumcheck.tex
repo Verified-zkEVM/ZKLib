@@ -1,0 +1,61 @@
+\section{The Sum-Check Protocol}\label{sec:sumcheck}
+
+In this section, we describe the sum-check protocol~\cite{sumcheck-protocol} in a modular manner, as a running example for our approach to specifying and proving properties of oracle reductions (based on a program logic approach).
+
+The sum-check protocol, as described in the original paper and many expositions thereafter, is a
+protocol to reduce the claim that \[ \sum_{x \in \{0, 1\}^n} P(x) = c, \] where $P$ is an
+$n$-variate polynomial of certain individual degree bounds, and $c$ is some field element, to the
+claim that \[ P(r) = v, \] for some claimed value $v$ (derived from the protocol transcript), where
+$r$ is a vector of random challenges from the verifier sent during the protocol.
+
+In our language, the initial context of the sum-check protocol is the pair $(P, c)$, where $P$ is an
+oracle input and $c$ is public. The protocol proceeds in $n$ rounds of interaction, where in each
+round $i$ the prover sends a univariate polynomial $s_i$ of bounded degree and the verifier sends a
+challenge $r_i \gets \mathbb{F}$. The honest prover would compute \[ s_i(X) = \sum_{x \in \{0,
+1\}^{n - i - 1}} P(r_1, \ldots, r_{i - 1}, X, x), \] and the honest verifier would check that
+$s_i(0) + s_i(1) = s_{i - 1}(r_{i - 1})$, with the convention that $s_0(r_0) = c$.
+
+\begin{theorem}
+    The sum-check protocol is complete.
+\end{theorem}
+
+We now proceed to break down this protocol into individual message, and then specify the predicates that should hold before and after each message is exchanged.
+
+First, it is clear that we can consider each round in isolation. In fact, each round can be seen as an instantiation of the following simpler "virtual" protocol:
+\begin{enumerate}
+    \item In this protocol, the context is a pair $(p, d)$, where $p$ is now a \emph{univariate} polynomial of bounded degree. The predicate / relation is that $p(0) + p(1) = d$.
+    \item The prover first sends a univariate polynomial $s$ of the same bounded degree as $p$. In
+    the honest case, it would just send $p$ itself.
+    \item The verifier samples and sends a random challenge $r \gets \mathbb{F}$.
+    \item The verifier checks that $s(0) + s(1) = d$. The predicate on the resulting output context
+    is that $p(r) = s(r)$.
+\end{enumerate}
+
+The reason why this simpler protocol is related to a sum-check round is that we can \emph{emulate} the simpler protocol using variables in the context at the time:
+\begin{itemize}
+    \item The univariate polynomial $p$ is instantiated as $\sum_{x \in \{0, 1\}^{n - i - 1}} P(r_1, \ldots, r_{i - 1}, X, x)$.
+    \item The scalar $d$ is instantiated as $c$ if $i = 0$, and as $s_{i - 1}(r_{i - 1})$ otherwise.
+\end{itemize}
+
+It is "clear" that the simpler protocol is perfectly complete. It is sound (and since there is no
+witness, also knowledge sound) since by the Schwartz-Zippel Lemma, the probability that $p \ne s$
+and yet $p(r) = s(r)$ for a random challenge $r$ is at most the degree of $p$ over the size of the
+field.
+
+Note that there is no witness so knowledge soundness follows trivially from soundness. Moreover, we
+can define the following state function for the simpler protocol:
+\begin{enumerate}
+    \item The initial state funtion is the same as the predicate on the initial context, namely that
+    $p(0) + p(1) = d$.
+    \item The state function after the prover sends $s$ is the predicate that $p(0) + p(1) = d$ and
+    $s(0) + s(1) = d$. Essentially, we add in the verifier's check.
+    \item The state function for the output context (after the verifier sends $r$) is the predicate that $s(0) + s(1) = d$ and $p(r) = s(r)$.
+\end{enumerate}
+Seen in this light, it should be clear that the simpler protocol satisfies round-by-round soundness.
+
+In fact, we can break down this simpler protocol even more: consider the two sub-protocols that each
+consists of a single message. Then the intermediate state function is the same as the predicate on
+the intermediate context, and is given in a "strongest post-condition" style where it incorporates
+the verifier's check along with the initial predicate. We can also view the final state function as
+a form of "canonical" post-condition, that is implied by the previous predicate except with small
+probability.

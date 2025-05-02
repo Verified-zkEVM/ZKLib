@@ -1,0 +1,30 @@
+% This file makes a web version of the blueprint
+% It should include all the \usepackage needed for this version.
+% The template includes standard AMS packages.
+% It is otherwise a very minimal preamble (you should probably at least
+% add cleveref and tikz-cd).
+
+\documentclass{report}
+
+\input{macros/packages}
+
+\usepackage[showmore, dep_graph]{blueprint}
+
+\input{macros/common}
+\input{macros/web}
+
+\home{https://verified-zkevm.github.io/ArkLib/}
+\github{https://github.com/Verified-zkEVM/ArkLib}
+\dochome{https://verified-zkevm.github.io/ArkLib/docs}
+
+\title{Formally Verified Arguments of Knowledge in Lean}
+\author{}
+
+\begin{document}
+\maketitle
+\input{content}
+
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}

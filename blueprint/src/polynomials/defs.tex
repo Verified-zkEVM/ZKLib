@@ -1,0 +1,33 @@
+\section{Polynomials}\label{sec:polynomials}
+
+This section contains facts about polynomials that are used in the rest of the library, and also definitions for computable representations of polynomials.
+
+\begin{definition}[Multilinear Extension]
+    \label{def:multilinear_extension}
+    \lean{MvPolynomial.MLE}
+\end{definition}
+
+\begin{theorem}[Multilinear Extension is Unique]
+    \label{thm:multilinear_extension_unique}
+    % \lean{MLE-??}
+\end{theorem}
+
+We note that the Schwartz-Zippel Lemma is already in Mathlib.
+
+\begin{theorem}[Schwartz-Zippel Lemma]
+    \label{thm:schwartz_zippel}
+    % TODO: fill in theorem statement
+    \lean{MvPolynomial.schwartz_zippel_sum_degreeOf}
+\end{theorem}
+
+We also define the type of computable univariate \& multilinear polynomials using arrays to represent their coefficients (or dually, their evaluations at given points).
+
+\begin{definition}[Computable Univariate Polynomials]
+    \label{def:computable_univariate_polynomials}
+    \lean{UniPoly}
+\end{definition}
+
+\begin{definition}[Computable Multilinear Polynomials]
+    \label{def:computable_multilinear_polynomials}
+    \lean{MlPoly}
+\end{definition}

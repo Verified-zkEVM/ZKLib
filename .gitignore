@@ -1,0 +1,19 @@
+/.lake/
+.DS_Store
+/.ignore/
+
+# LaTeX compilation files
+*.aux
+*.paux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+*.bbl
+*.blg
+
+# LaTeX PDF files for blueprint
+# *print.pdf
+/blueprint/src/web.pdf

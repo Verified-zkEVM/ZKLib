@@ -1,0 +1,65 @@
+\section{Simple Oracle Reductions}
+
+We start by introducing a number of simple oracle reductions.
+
+\subsection{Polynomial Equality Testing}
+
+Context: two univariate polynomials $P, Q \in \mathbb{F}[X]$ of degree at most $d$, available as polynomial evaluation oracles
+
+Input relation: $P = Q$ as polynomials
+
+Protocol type: a single message of type $\mathbb{F}$ from the verifier to the prover.
+
+Honest prover: does nothing
+
+Honest verifier: checks that $P(r) = Q(r)$
+
+Output relation: $P(r) = Q(r)$
+
+Extractor: trivial since there is no witness
+
+Completenes: trivial
+
+Round-by-round state function: corresponds precisely to input and output relation
+
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+
+Round-by-round error: $d / \abs{\mathbb{F}}$
+
+Round-by-round knowledge soundness: follows from Schwartz-Zippel
+
+To summarize, we have the following judgment:
+
+\[
+    \begin{array}{c}
+        \Psi := (); \; \Theta := (P, Q); \; \Sigma := (); \; \tau := (\mathsf{V2P}, \mathbb{F}) \vdash \\[1ex]
+        \{P = Q\} \quad \left(
+        \begin{array}{l}
+            \mathcal{P} := (), \\
+            \mathcal{V} := (P,Q,r) \mapsto [P(r) \stackrel{?}{=} Q(r)], \\
+            \mathcal{E} := ()
+        \end{array}
+        \right)^{\emptyset} \quad \{\!\!\{P(r) = Q(r); \mathsf{St}_{P,Q}; \frac{d}{\abs{\mathbb{F}}}\}\!\!\}
+    \end{array}
+\]
+where $\mathsf{St}(i) = \begin{cases} P \stackrel{?}{=} Q \text{ if } i = 0 \\ P(r) \stackrel{?}{=} Q(r) \text{ if } i = 1 \end{cases}$
+
+\subsection{Batching Polynomial Evaluation Claims}
+
+Context: $n$-tuple of values $v = (v_1, \ldots, v_n) \in \mathbb{F}^n$
+
+Protocol type: one message of type $\mathbb{F}^k$ from the verifier to the prover, and another message of type $\mathbb{F}$ from the prover to the verifier
+
+Auxiliary function: a polynomial map $E : \mathbb{F}^k \to \mathbb{F}^n$
+
+Honest prover: given $r \gets \mathbb{F}^k$ from the verifier's message, computes $\langle E(r), v\rangle := E(r)_1 \cdot v_1 + \cdots + E(r)_n \cdot v_n$ and sends it to the verifier
+
+Honest verifier: checks that the received value $v'$ is equal to $\langle E(r), v\rangle$
+
+Extractor: trivial since there is no witness
+
+Security: depends on the degree \& non-degeneracy of the polynomial map $E$
+
+% State function: TODO
+
+% Round-by-round error: TODO

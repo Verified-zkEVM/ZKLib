@@ -1,0 +1,52 @@
+% In this file you should put the actual content of the blueprint.
+% It will be used both by the web and the print version.
+% It should *not* include the \begin{document}
+%
+% If you want to split the blueprint content into several files then
+% the current file can be a simple sequence of \input. Otherwise It
+% can start with a \section or \chapter for instance.
+
+\chapter{Introduction}
+
+The goal of this project is to formalize Succinct Non-Interactive Arguments of Knowledge (SNARKs) in
+Lean. Our focus is on SNARKs based on Interactive Oracle Proofs (IOPs) and variants thereof (i.e.
+Polynomial IOPs). We aim to develop a general framework for IOP-based SNARKs with verified, modular
+building blocks and transformations. This modular approach enables us to construct complex protocols
+from simpler components while ensuring correctness and soundness by construction.
+
+\chapter{Oracle Reductions}\label{chap:oracle_reductions}
+
+\input{oracle_reductions/defs}
+
+\input{oracle_reductions/composition}
+
+\chapter{Proof Systems}\label{chap:proof_systems}
+
+\input{proof_systems/simple_protocols}
+
+\input{proof_systems/sumcheck}
+
+\section{The Spartan Protocol}
+
+\section{The Ligero Polynomial Commitment Scheme}
+
+\chapter{Commitment Schemes}\label{chap:commitment_schemes}
+
+\section{Definitions}
+
+\input{commitments/merkle}
+
+% TODO: add KZG
+
+% We probably want to describe any commitment scheme with multi-round opening in the proof systems chapter (including Ligero, FRI, Hyrax, etc.)
+
+\chapter{Supporting Theories}\label{chap:supporting_theories}
+
+\input{polynomials/defs}
+
+\input{coding_theory/defs}
+
+\input{vcv/defs}
+
+\chapter{References}\label{chap:references}
+

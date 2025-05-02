@@ -1,0 +1,104 @@
+\section{The VCVio Library}\label{sec:vcvio}
+
+This library provides a formal framework for reasoning about computations that make \emph{oracle
+queries}. Many cryptographic primitives and interactive protocols use oracles to model (or simulate)
+external functionality such as random responses, coin flips, or more structured queries. The VCVio
+library "lifts" these ideas into a setting where both the abstract specification and concrete
+simulation of oracles may be studied, and their probabilistic behavior analyzed.
+
+The main ingredients of the library are as follows:
+
+\begin{definition}[Specification of Oracles]
+    \label{def:oracle_spec}
+    An oracle specification describes a collection of available oracles, each with its own input and output types. 
+    Formally, it's given by an indexed family where each oracle is specified by:
+    \begin{itemize}
+        \item A domain type (what inputs it accepts)
+        \item A range type (what outputs it can produce)
+    \end{itemize}
+    The indexing allows for potentially infinite collections of oracles, and the specification itself 
+    is agnostic to how the oracles actually behave - it just describes their interfaces.
+    \lean{OracleSpec}
+\end{definition}
+
+Some examples of oracle specifications (and their intended behavior) are as follows:
+\begin{itemize}
+    \item \verb|emptySpec|: Represents an empty set of oracles
+    \item \verb|singletonSpec|: Represents a single oracle available on a singleton index
+    \item \verb|coinSpec|: A coin flipping oracle that produces a random Boolean value
+    \item \verb|unifSpec|: A family of oracles that for every natural number $n \in \mathbb{N}$ chooses uniformly from the set $\{0, \ldots, n\}$.
+\end{itemize}
+    \lean{emptySpec, singletonSpec, coinSpec, unifSpec}
+
+We often require extra properties on the domains and ranges of oracles. For example, we may require that the domains and ranges come equipped with decidable equality \lean{OracleSpec.DecidableEq}
+or finiteness properties \lean{OracleSpec.FiniteRange}.
+
+\begin{definition}[Oracle Computation]
+    \label{def:oracle_computation}
+    An oracle computation represents a program that can make oracle queries. It can:
+    \begin{itemize}
+        \item Return a pure value without making any queries (via \texttt{pure})
+        \item Make an oracle query and continue with the response (via \texttt{queryBind})
+        \item Signal failure (via \texttt{failure})
+    \end{itemize}
+    The formal implementation uses a free monad on the inductive type of oracle queries \lean{OracleSpec.OracleQuery} wrapped in an option monad transformer (i.e. \verb|OptionT(FreeMonad(OracleQuery spec))|).
+    \lean{OracleComp}
+\end{definition}
+
+\begin{definition}[Handling Oracle Queries]
+    \label{def:handling_oracle_queries}
+    To actually run oracle computations, we need a way to handle (or implement) the oracle queries.
+    An oracle implementation consists a mapping from oracle queries to values in another monad. Depending on the monad, this may allow for various interpretations of the oracle queries.
+    \lean{QueryImpl}
+\end{definition}
+
+\begin{definition}[Probabilistic Semantics of Oracle Computations]
+    \label{def:probabilistic_semantics_of_oracle_computations}
+    We can view oracle computations as probabilistic programs by considering what happens when 
+    oracles respond uniformly at random. This gives rise to a probability distribution over possible 
+    outputs (including the possibility of failure). The semantics maps each oracle query to a 
+    uniform distribution over its possible responses.
+    \lean{OracleComp.evalDist}
+\end{definition}
+
+Once we have mapped an oracle computation to a probability distribution, we can define various associated probabilities, such as the probability of failure, or the probability of the output satisfying a given predicate (assuming it does not fail).
+
+\begin{definition}[Simulating Oracle Queries with Other Oracles]
+    \label{def:sim_oracle}
+    We can simulate complex oracles using simpler ones by providing a translation mechanism. 
+    A simulation oracle specifies how to implement queries in one specification using computations 
+    in another specification, possibly maintaining additional state information during the simulation.
+    % \lean{SimOracle.Stateful}
+\end{definition}
+
+\begin{definition}[Logging \& Caching Oracle Queries]
+    \label{def:logging_caching_oracle_queries}
+    Using the simulation framework, we can add logging and caching behaviors to oracle queries:
+    \begin{itemize}
+        \item Logging records all queries made during a computation
+        \item Caching remembers query responses and reuses them for repeated queries
+    \end{itemize}
+    These are implemented as special cases of simulation oracles.
+    \lean{loggingOracle, cachingOracle}
+\end{definition}
+
+\begin{definition}[Random Oracle]
+    \label{def:random_oracle}
+    A random oracle is implemented as a caching oracle that uses lazy sampling:
+    \begin{itemize}
+        \item On first query: generates a uniform random response and caches it
+        \item On repeated queries: returns the cached response
+    \end{itemize}
+    \lean{randomOracle}
+\end{definition}
+
+% In summary, the VCVio library consists of:
+% \begin{itemize}
+%   \item A formal specification of oracles and their inputs/outputs (\texttt{OracleSpec}).
+%   \item A monadic framework for computations that may perform oracle queries (\texttt{OracleComp}).
+%   \item Effect handlers that permit the interpretation and simulation of oracle queries via
+%         customizable implementations (\texttt{OracleImpl} and \texttt{SimOracle}).
+%   \item Denotational semantics based on probability mass functions that allow the quantitative analysis
+%         of such computations (\texttt{evalDist}, \texttt{probOutput}, \texttt{probFailure}, \texttt{probEvent}).
+%   \item Extensions for logging, caching, and random oracles to support analysis of protocols using such oracles.
+% \end{itemize}
