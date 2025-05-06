@@ -19,17 +19,19 @@ namespace Polynomial
 variable {F: Type} [NonBinaryField F]
 
 /-- The even part of a polynomial `f = a_0 + a_1 X + a_2 X² + ...`, which is the polynomial
-  `a_0 + a_2 X + a_4 X² + ...`.
 
-  Defined as `(f(X) + f(-X)) / 2`.
+  `(f(X) + f(-X)) / 2 = a_0 + a_2 X² + a_4 X⁴ + ...`.
+
+  Note that the exponents are not divided by `2`.
 -/
 noncomputable def evenPart (f : Polynomial F) : Polynomial F :=
     C (2⁻¹ : F) * (f + f.comp (-X))
 
 /-- The odd part of a polynomial `f = a_0 + a_1 X + a_2 X² + ...`, which is the polynomial
-  `a_1 X + a_3 X² + a_5 X³ + ...`.
 
-  Defined as `(f(X) - f(-X)) / (2X)`.
+  `(f(X) - f(-X)) / (2X) = a_1 + a_3 X² + a_5 X⁴ + ...`.
+
+  Note that the exponents are not divided by `2`.
 -/
 noncomputable def oddPart (f : Polynomial F) : Polynomial F :=
     C (2⁻¹ : F) * (f - f.comp (-X)) /ₘ X
