@@ -3,7 +3,9 @@ Copyright (c) 2024-2025 ArkLib Contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: František Silváši, Julian Sutherland, Ilia Vlasov
 -/
-import ArkLib.Data.FieldTheory.NonBinaryField.Basic
+import Mathlib.Algebra.Order.Ring.Nat
+import Mathlib.Algebra.Ring.Regular
+import Mathlib.Data.Finset.Image
 
 /-!
   # Definitions and lemmas related to `Finset`.
