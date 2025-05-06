@@ -25,9 +25,7 @@ open Polynomial
   "folds" the even and the odd parts of the polynomial
   with the coefficient `α`.
 -/
-noncomputable def foldα
-  (f : Polynomial F)
-  (α : F) : Polynomial F
+noncomputable def Polynomial.foldEvenOdd (f : Polynomial F) (α : F) : Polynomial F
     := (evenPart_x f) + (Polynomial.C α) * (oddPart_x f)
 
 /-- The unique linear polynomial passing through
@@ -85,7 +83,7 @@ lemma consistency_check_comp { f : Polynomial F }
     (-s₀)
     (f.eval s₀)
     (f.eval (-s₀))
-    (Polynomial.eval (s₀ ^ 2) (foldα f x₀)) = true := by
+    (Polynomial.eval (s₀ ^ 2) (foldEvenOdd f x₀)) = true := by
   aesop (add simp [
-    consistency_check, line_passing_through_a_poly, foldα, oddPart_x_eval_eq], safe (by ring)
+    consistency_check, line_passing_through_a_poly, foldEvenOdd, oddPart_x_eval_eq], safe (by ring)
   )
