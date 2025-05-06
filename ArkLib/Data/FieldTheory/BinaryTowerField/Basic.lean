@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao, Chung Thai Nguyen
 -/
 
-import ArkLib.Data.BinaryTowerField.Prelude
+import ArkLib.Data.FieldTheory.BinaryTowerField.Prelude
 
 /-!
 # Binary Tower Fields
