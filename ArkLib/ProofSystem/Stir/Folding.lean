@@ -8,24 +8,13 @@ import ArkLib.ProofSystem.Stir.ToCodingTheory.ReedSolomonCodes
 import ArkLib.ProofSystem.Stir.ToCodingTheory.ProximityBound
 import ArkLib.ProofSystem.Stir.ToCodingTheory.SmoothDom
 
-import Mathlib.FieldTheory.Finite.Basic
-import Mathlib.FieldTheory.Finite.GaloisField
-import Mathlib.Algebra.Polynomial.Basic
-import Mathlib.Data.Finset.Basic
-import Mathlib.Data.Finset.Card
-import Mathlib.Tactic.NormNum
-import Mathlib.Data.Nat.Prime.Basic
-import Mathlib.LinearAlgebra.Lagrange
-import Mathlib.Algebra.Polynomial.Basic
 import Mathlib.Algebra.MvPolynomial.Basic
 import Mathlib.Algebra.MvPolynomial.Degrees
-import Mathlib.RingTheory.MvPolynomial.Groebner
 import Mathlib.Probability.ProbabilityMassFunction.Basic
 import Mathlib.Probability.Distributions.Uniform
-import Mathlib.Data.Nat.Basic
+import Mathlib.RingTheory.MvPolynomial.Groebner
 
-import Mathlib.Data.Real.Basic
-import Mathlib.Data.Real.Sqrt
+
 
 namespace Folding
 
@@ -43,7 +32,8 @@ namespace Folding
    substitution z = x₀ and y = x₁, hence the following definition constructs
    Q ∈ 𝔽[Z,Y] with P(z,y) = Q'(z,y) * R(z,y) + Q(z,y)
 -/
-/-- Given `P, P' ∈ 𝔽[Z,Y]`, `P' ≠ 0`, computes `Q ∈ 𝔽[Z,Y]`, with `P(z,y) = Q'(z,y) * P'(z,y) + Q(z,y)` for some `Q' ∈ 𝔽[Z,Y]` -/
+/-- Given `P, P' ∈ 𝔽[Z,Y]`, `P' ≠ 0`, computes `Q ∈ 𝔽[Z,Y]`,
+with `P(z,y) = Q'(z,y) * P'(z,y) + Q(z,y)` for some `Q' ∈ 𝔽[Z,Y]` -/
 noncomputable def modBivar
     {F : Type*} [Field F]
     (P P' : MvPolynomial (Fin 2) F)
@@ -82,11 +72,13 @@ def evalBivar
   {F  : Type*} [Field F]
   (Q : MvPolynomial (Fin 2) F) (a b : F) : F := MvPolynomial.eval (Fin.cases a (fun _ ↦ b)) Q
 
-/-The STIR paper assumes that the polynomials f(.) and Q(q(.),.) are fully determined by their
-  evaluations on F, which is not necessarily true for arbitrary polynomials of degrees larger then
-  |F|. So we include an assumption in what follows that q has degree < |F| from which the uniqueness
-  of f and Q can be derived from their evaluation on F.
-  Alternativelx we could use the identify of polynomials  f(.) = Q(q(.), .) instead -/
+/-The STIR paper assumes that the polynomials f(.) and Q(q(.),.)
+are fully determined by their evaluations on F, which is not
+necessarily true for arbitrary polynomials of degrees larger
+than |F|. So we include an assumption in what follows that q
+has degree < |F| from which the uniqueness of f and Q can be
+derived from their evaluation on F. Alternatively we could use
+the identify of polynomials  f(.) = Q(q(.), .) instead -/
 /-- Fact 4.6.1 in STIR -/
 lemma exists_unique_bivariate
   {F  : Type*} [Field F] [Fintype F]
@@ -102,9 +94,9 @@ lemma exists_unique_bivariate
       -- point‑wise equality on F: f(z) = Q(q(z), z)
       (∀ z : F, Polynomial.eval z f = evalBivar Q (Polynomial.eval z q) z) ∧
   (∀ t : ℕ, f.natDegree < t * q.natDegree → MvPolynomial.degreeOf 0 Q < t):=
-
-  /- The proof can parallel `def polyQ` using the properties guranteed from MonomialOrder.div from Mathlib.RingTheory.MvPolynomial.Groebner -/
-  sorry
+  /- The proof can parallel `def polyQ` using the properties guranteed
+  from MonomialOrder.div from Mathlib.RingTheory.MvPolynomial.Groebner -/
+  by sorry
 
 /-- Fact 4.6.2 in STIR-/
 lemma degree_bound_bivariate
@@ -129,14 +121,13 @@ noncomputable def polyFold
     let hdeg_q_max : q.natDegree < Fintype.card F := sorry
   -- choose the unique bivariate lift Q
     let Q : MvPolynomial (Fin 2) F := polyQ f q
-    -- alternative: (Classical.choose (exists_unique_bivariate q hdeg_q_min hdeg_q_max f ) : MvPolynomial (Fin 2) F)
-  -- now freeze Y ↦ r, X ↦ X, using the constant‐polynomial ring‐hom `Polynomial.C`
     MvPolynomial.eval₂Hom
       (Polynomial.C : F →+* Polynomial F)
       (fun i : Fin 2 => if i = 0 then Polynomial.X else Polynomial.C r)
       Q
 
-/-- For x ∈ L^k, p_x ∈ 𝔽[X] is the degree < k polynomial where p_x(y) = f(y) for every y ∈ L such that y^k = x.-/
+/-- For x ∈ L^k, p_x ∈ 𝔽[X] is the degree < k polynomial
+where p_x(y) = f(y) for every y ∈ L such that y^k = x.-/
 noncomputable def xPoly
   {F : Type*} [Field F] [DecidableEq F]
   (L : Finset F)
@@ -183,8 +174,8 @@ lemma folding
               (fold f k r)
               (C2.code)
               (C2.nonempty)
-            ≤ δ.val } > err' F (d/k) C1.rate δ k -- Double check if this really is C1.rate not C2.rate
-
-   := by sorry
+            ≤ δ.val } > err' F (d/k) C1.rate δ k
+            -- Double check if this really is C1.rate not C2.rate
+    := by sorry
 
 end Folding

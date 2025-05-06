@@ -1,6 +1,5 @@
 import ArkLib.ProofSystem.Stir.ToCodingTheory.FracHammingDist
 import ArkLib.ProofSystem.Stir.ToCodingTheory.JohnsonBound
 import ArkLib.ProofSystem.Stir.ToCodingTheory.ProximityBound
-import ArkLib.ProofSystem.Stir.ToCodingTheory.ProximityGap
 import ArkLib.ProofSystem.Stir.ToCodingTheory.ReedSolomonCodes
 import ArkLib.ProofSystem.Stir.ToCodingTheory.SmoothDom
