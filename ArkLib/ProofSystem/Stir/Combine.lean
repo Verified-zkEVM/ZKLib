@@ -10,9 +10,7 @@ import ArkLib.ProofSystem.Stir.ToCodingTheory.ReedSolomonCodes
 
 import Mathlib.Probability.ProbabilityMassFunction.Basic
 import Mathlib.Probability.Distributions.Uniform
-import Mathlib.Data.Finset.Basic
-import Mathlib.FieldTheory.Finite.Basic
-import Mathlib.Data.Fintype.Units
+
 
 namespace Combine
 
@@ -20,17 +18,19 @@ namespace Combine
 
 /-- Geometric series formula in a field, for a unit `r : Fˣ`. -/
 lemma geometric_sum_units {F : Type*} [Field F] [DecidableEq F] (r :  Units F) (a : ℕ) :
-  -- STIR defines this for r ∈ 𝔽, but this requires 0^0=1. I think we can get away with r being invertible
   ∑ j : Fin (a + 1), (r ^ (j:ℕ) : F) =
     if r = 1 then (a + 1 : F)
     else (1 - r ^ (a + 1)) / (1 - r) := by sorry
 
-/-- Coefficients r_i as used in the definition of Combine(), r_0 := 1, r_i := r^{i + sum_{j < i}(d* - d_j)}    for i > 0  (We range 0...m-1, not 1...m as in STIR)-/
+/-- Coefficients r_i as used in the definition of Combine(),
+r_0 := 1, r_i := r^{i + sum_{j < i}(d* - d_j)}
+for i > 0  (We range 0...m-1, not 1...m as in STIR)-/
 def ri {F : Type*} [Field F] {m : ℕ} (dstar : ℕ) (degs : Fin m → ℕ) (r : F) (i : Fin m) : F :=
   if i.val = 0 then (1:F)
   else r^(i.val + (Finset.univ.filter (· < i)).sum fun j => dstar - degs j)
 
-/-- Combine(d*, r, (f_0, d_0), …, (f_{m-1}, d_{m-1}))(x) := sum_{i=0}^{m-1} r_i * f_i(x) * ( sum_{l=0}^{d* - d_i -1} (r·x)^l ) -/
+/-- Combine(d*, r, (f_0, d_0), …, (f_{m-1}, d_{m-1}))(x)
+:= sum_{i=0}^{m-1} r_i * f_i(x) * ( sum_{l=0}^{d* - d_i -1} (r·x)^l ) -/
 def combineInterm
   {F : Type*} [Field F]
   (L : Finset F)
@@ -108,7 +108,10 @@ def degreeCorrFinal
    min (1- Bstar C.rate) (1- C.rate - 1/ Fintype.card F)
 
 /--
-If the random shift `r` causes the combined function to be far from the degree-`d⋆` RS code with probability exceeding `err*`, then there is a large subset `S ⊆ L` on which each `fᵢ` agrees with a degree-`dᵢ` Reed–Solomon codeword. -/
+If the random shift `r` causes the combined function to be far from
+the degree-`d⋆` RS code with probability exceeding `err*`,
+then there is a large subset `S ⊆ L` on which each `fᵢ`
+agrees with a degree-`dᵢ` Reed–Solomon codeword. -/
 lemma combine
   {F : Type*} [Field F] [Fintype F] [DecidableEq F]
   {L : Finset F}
@@ -125,7 +128,8 @@ lemma combine
             (combineFinal dstar r fs degs hdegs)
             (Cstar.code)
             (Cstar.nonempty)
-          ≤ δ.val} > err' F dstar Cstar.rate δ (m * (dstar + 1) - ((Finset.univ : Finset (Fin m)).sum degs))) :
+          ≤ δ.val} > err' F dstar Cstar.rate δ
+          (m * (dstar + 1) - ((Finset.univ : Finset (Fin m)).sum degs))) :
     ∃ S : Finset F,
       S ⊆ L ∧
       S.card ≥ (1 - δ.val) * L.card ∧

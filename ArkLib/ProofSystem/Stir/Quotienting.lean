@@ -3,15 +3,9 @@ Copyright (c) 2025 ArkLib Contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Least Authority
 -/
-
+import ArkLib.ProofSystem.Stir.ToCodingTheory.ErrCorrCodes
 import ArkLib.ProofSystem.Stir.ToCodingTheory.FracHammingDist
 import ArkLib.ProofSystem.Stir.ToCodingTheory.ReedSolomonCodes
-
-import Mathlib.FieldTheory.Finite.Basic
-import Mathlib.Data.Finset.Basic
-import Mathlib.LinearAlgebra.Lagrange
-import Mathlib.Algebra.Polynomial.Basic
-
 
 namespace Quotienting
 
@@ -78,7 +72,8 @@ lemma quotienting
   (f : L → F)
   (Ans Fill : S → F)
   (δ : ℝ) (hδ : 0 < δ ∧ δ < 1)
-  (h : ∀ u, u ∈ C1.list f δ → ∃ (x : ↑L) (hx : x.val ∈ S), u x ≠ Ans ⟨x.val, hx⟩) :
+  (h : ∀ u, u ∈ C1.toLinearCode.toErrCorrCode.list f δ →
+  ∃ (x : ↑L) (hx : x.val ∈ S), u x ≠ Ans ⟨x.val, hx⟩) :
     (fractionalHammingDistSet (quotient F L f S Ans Fill) C2.code C2.nonempty : ℝ)
       + ((T F L f S Ans).card : ℝ) / (L.card : ℝ) > δ := by
   sorry

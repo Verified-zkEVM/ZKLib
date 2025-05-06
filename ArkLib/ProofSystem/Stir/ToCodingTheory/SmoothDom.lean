@@ -10,7 +10,8 @@ import Mathlib.Algebra.Group.Subgroup.Basic
 import Mathlib.Data.Fintype.Units
 import Mathlib.Data.Fintype.Card
 
-/-- A set L ⊆ 𝔽 is `smooth` if `|L| = 2^k` for some `k` and there exists a subgroup `H` in `𝔽^⋆` and an invertible field element `a` such that `L = a • H` -/
+/-- A set L ⊆ 𝔽 is `smooth` if `|L| = 2^k` for some `k` and there exists a subgroup `H`
+in `𝔽^⋆` and an invertible field element `a` such that `L = a • H` -/
 def smoothDom {F : Type*} [Field F] [DecidableEq F] (L : Finset F) : Prop :=
   ∃ H : Subgroup (Units F), ∃ a : Units F, ∃ k : ℕ,
     -- f : α → β, S : Set α  then  f '' S means {y : β ∣ ∃x∈S,y=f(x) }
@@ -22,9 +23,14 @@ def powDom {F : Type*} [Field F] [DecidableEq F] (L : Finset F) (k : ℕ) : Fins
   L.image fun x : F => x ^ k
 
 /-- The fiber `f⁻¹(y)` for the surjection `f : L → L^k, x → x^k` and `y ∈ L^k` -/
-def powFiber {F : Type*} [Field F] [DecidableEq F] (L : Finset F) (k : ℕ) (x : powDom L k) : Finset F :=
+def powFiber
+  {F : Type*} [Field F] [DecidableEq F]
+  (L : Finset F) (k : ℕ) (x : powDom L k) : Finset F :=
   L.filter (fun y => y ^ k = x)
 
 /-- Restrict `f : L → F` to a subset `S ⊆ L`. -/
-def restrictTo {F : Type*} [Field F] [DecidableEq F] (L : Finset F) (f : L → F) (S : Finset F) (hS : S ⊆ L) : (↑S → F) :=
+def restrictTo
+  {F : Type*} [Field F] [DecidableEq F]
+  (L : Finset F) (f : L → F)
+  (S : Finset F) (hS : S ⊆ L) : (↑S → F) :=
   fun x => f ⟨x, hS x.2⟩

@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Least Authority
 -/
 
-import Mathlib.FieldTheory.Finite.Basic
 import Mathlib.Data.Finset.Basic
 import Mathlib.Data.Real.Basic
 import Mathlib.Data.Real.Sqrt
@@ -12,9 +11,10 @@ import Mathlib.Data.Real.Sqrt
 /-- Proximity bound function -/
 noncomputable def Bstar (x: ℝ) : ℝ := Real.sqrt x
 
-/-- Proximity error function -/
+/-- Proximity error function
+ -- coerced to ENNReal, because it is exclusively used in probability inequalities and
+  we agreed to coerce ℝ → ENNReal not vice versa -/
 noncomputable def err' (F : Type*) [Fintype F] (d : ℕ) (ρ : ℝ) (δ : ℝ) (m: ℕ) : ENNReal :=
-  -- coerced to ENNReal, because it is exclusively used in probability inequalities and we agreed to coerce ℝ → ENNReal not vice versa
   ENNReal.ofReal (
   if δ ≤ (1 - ρ) / 2 then
     ((m - 1) * d) / (ρ * (Fintype.card F))

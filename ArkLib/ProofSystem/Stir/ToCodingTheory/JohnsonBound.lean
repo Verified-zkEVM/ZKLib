@@ -15,4 +15,5 @@ lemma johnson_bound
   (C : ReedSolomonCode F L d)
   (η : ℝ)
   (hη : 0 < η ∧ η < 1 - Real.sqrt C.rate) :
-    C.listDecodable (1 - Real.sqrt C.rate - η) (1 / (2 *  η * Real.sqrt C.rate)) := by sorry
+    C.toLinearCode.toErrCorrCode.listDecodable
+    (1 - Real.sqrt C.rate - η) (1 / (2 *  η * Real.sqrt C.rate)) := by sorry
