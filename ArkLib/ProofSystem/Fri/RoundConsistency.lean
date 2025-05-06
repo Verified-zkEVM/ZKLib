@@ -3,10 +3,8 @@ Copyright (c) 2024-2025 ArkLib Contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: František Silváši, Julian Sutherland, Ilia Vlasov
 -/
-import Mathlib.Tactic.FieldSimp
 
-import ArkLib.ProofSystem.Fri.AuxLemmas
-import ArkLib.ProofSystem.Fri.EvenAndOdd.Lemmas
+import ArkLib.Data.Polynomial.EvenAndOdd.Lemmas
 
 /-!
   # Round consistency check for FRI
@@ -64,7 +62,7 @@ private lemma line_passing_through_a_poly
     Polynomial.C (Polynomial.eval (s₀^2) (fₑ_x f))
       + (Polynomial.C (Polynomial.eval (s₀^2) (fₒ_x f))) * Polynomial.X  := by
   simp only [line_through_two_points, pow_two]
-  apply Aux.eq_poly_deg_one (x₁ := s₀) (x₂ := -s₀)
+  apply eq_poly_deg_one (x₁ := s₀) (x₂ := -s₀)
   · rw (occs := [1]) [f_eq_fₑ_plus_x_fₒ (f := f)]
     aesop (add simp [fₑ_x_eval_eq, fₒ_x_eval_eq], unsafe (by ring))
   · rw [fₑ_x_eval_eq, fₒ_x_eval_eq]
