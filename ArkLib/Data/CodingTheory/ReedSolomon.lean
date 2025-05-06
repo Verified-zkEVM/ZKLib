@@ -17,18 +17,16 @@ import Mathlib.Data.FinEnum
   list-decoding.
 -/
 
-
 namespace ReedSolomon
 
 open Polynomial
 
-variable {F : Type*} [Field F] [Fintype F] {n : ℕ} (domain : Fin n ↪ F)
+variable {F : Type*} [Semiring F] [Fintype F] {n : ℕ} (domain : Fin n ↪ F)
 
 def evalOnPoints : F[X] →ₗ[F] (Fin n → F) where
   toFun := fun p => fun x => p.eval (domain x)
   map_add' := fun x y => by simp; congr
   map_smul' := fun m x => by simp; congr
-
 /-- The Reed-Solomon code for polynomials of degree less than `deg` and evaluation points `points`.
   -/
 def code (deg : ℕ) : Submodule F (Fin n → F) :=
