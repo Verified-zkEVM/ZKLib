@@ -3,17 +3,12 @@ Copyright (c) 2024-2025 ArkLib Contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: František Silváši, Julian Sutherland, Ilia Vlasov
 -/
-import Mathlib.Algebra.Field.Basic
-import Mathlib.Algebra.Polynomial.Basic
-import Mathlib.Algebra.Polynomial.Degree.Definitions
 import Mathlib.Algebra.Polynomial.FieldDivision
-import Mathlib.Algebra.Polynomial.Inductions
 import Mathlib.Tactic.FieldSimp
+import Mathlib.Tactic.LinearCombination
 
-/-- A field of characteristic ≠ 2.
--/
-class NonBinaryField
-  (F : Type) extends Field F where
+/-- A type class for fields of characteristic ≠ 2, extending `Field`. -/
+class NonBinaryField (F : Type*) extends Field F where
   char_neq_2 : (2 : F) ≠ 0
 
 export NonBinaryField (char_neq_2)
@@ -76,5 +71,18 @@ theorem comp_x_square_coeff {f : Polynomial F} {n : ℕ} :
     rcases n with _ | _ | n <;> (subst hx; simp_all)
     have : (n + 1 + 1) / 2 = n / 2 + 1 := by omega
     aesop
+
+lemma eq_poly_deg_one {a b c d : F} {x₁ x₂ : F}
+  (h1 : a + b * x₁ = c + d * x₁)
+  (h2 : a + b * x₂ = c + d * x₂)
+  (h1_2 : x₁ ≠ x₂):
+  Polynomial.C a + Polynomial.C b * Polynomial.X
+    = Polynomial.C c + Polynomial.C d * Polynomial.X := by
+  by_cases h_b_d : b = d
+  · aesop
+  · exact absurd
+            (by apply mul_left_cancel₀ (sub_ne_zero_of_ne (show d ≠ b by aesop))
+                linear_combination -(1 * h1) + h2)
+            h1_2
 
 end

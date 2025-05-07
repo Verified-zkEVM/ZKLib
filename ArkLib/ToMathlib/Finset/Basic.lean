@@ -3,14 +3,9 @@ Copyright (c) 2024-2025 ArkLib Contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: František Silváši, Julian Sutherland, Ilia Vlasov
 -/
-import Mathlib.Algebra.Field.Basic
-import Mathlib.Algebra.Polynomial.Basic
-import Mathlib.Algebra.Polynomial.Degree.Definitions
-import Mathlib.Algebra.Polynomial.FieldDivision
-import Mathlib.Data.Finset.Basic
-import Mathlib.Logic.Embedding.Basic
-
-import ArkLib.ProofSystem.Fri.EvenAndOdd.ToMathlib
+import Mathlib.Algebra.Order.Ring.Nat
+import Mathlib.Algebra.Ring.Regular
+import Mathlib.Data.Finset.Image
 
 /-!
   # Definitions and lemmas related to `Finset`.

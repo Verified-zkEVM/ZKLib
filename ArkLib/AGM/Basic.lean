@@ -53,11 +53,9 @@ class Deserializable (α : Type*) where
   len : ℕ
   fromBitVec : BitVec len → Option α
 
-#leansearch "Bilinear maps?"
+-- #check LinearMap.mk₂'
 
-#check LinearMap.mk₂'
-
-#check LinearMap.BilinForm.linMulLin
+-- #check LinearMap.BilinForm.linMulLin
 
 -- #check isCyclic_of_prime_card
 
@@ -69,7 +67,7 @@ structure GroupRepresentation (prev : List G) (target : G) where
   exponents : List (ZMod p)
   hEq : (prev.zipWith (fun g a => g ^ a.val) exponents).prod = target
 
-#print GroupRepresentation
+-- #print GroupRepresentation
 
 /-- An adversary in the Algebraic Group Model (AGM) may only access group elements via handles.
 
