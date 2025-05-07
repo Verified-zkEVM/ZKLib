@@ -49,10 +49,15 @@ instance : Coe (Fin 2) Direction := ⟨directionEquivFin2.invFun⟩
 
 section Relation
 
+/-- The associated language `Set α` for a relation `α → β → Prop`. -/
 def Function.language {α β} (rel : α → β → Prop) : Set α :=
   {stmt | ∃ wit, rel stmt wit}
 
+/-- The trivial relation on Boolean statement and unit witness. -/
 def trivialRel : Bool → Unit → Prop := fun b _ => b
+
+/-- The trivial relation on Boolean statement, no oracle statements, and unit witness. -/
+def trivialOracleRel : Bool × (∀ _ : Empty, Unit) → Unit → Prop := fun ⟨b, _⟩ _ => b
 
 @[simp]
 theorem trivialRel_language : trivialRel.language = { true } := by

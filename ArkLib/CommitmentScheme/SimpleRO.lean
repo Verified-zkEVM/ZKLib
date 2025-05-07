@@ -49,8 +49,8 @@ def verify [BEq γ] (cm : γ) (v : α) (r : β) : OracleComp (ROspec α β γ) U
   let cm' ← (query (spec := ROspec α β γ) () (v, r) : OracleComp (ROspec α β γ) γ)
   guard (cm' == cm)
 
--- The trivial `ToOracle` instance for `α`
-local instance : ToOracle α where
+-- The trivial `OracleInterface` instance for `α`
+local instance : OracleInterface α where
   Query := Unit
   Response := α
   oracle := fun x _ => x

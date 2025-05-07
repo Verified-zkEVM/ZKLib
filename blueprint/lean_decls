@@ -1,5 +1,5 @@
 ProtocolSpec
-ToOracle
+OracleInterface
 ProtocolSpec.Transcript
 ProtocolSpec.Message
 ProtocolSpec.Challenge

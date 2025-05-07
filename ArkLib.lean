@@ -44,7 +44,7 @@ import ArkLib.OracleReduction.Equiv
 import ArkLib.OracleReduction.Execution
 import ArkLib.OracleReduction.Prelude
 import ArkLib.OracleReduction.Security.Basic
-import ArkLib.OracleReduction.ToOracle
+import ArkLib.OracleReduction.OracleInterface
 import ArkLib.ProofSystem.Components
 import ArkLib.ProofSystem.ConstraintSystem.IndexedLookup
 import ArkLib.ProofSystem.ConstraintSystem.Plonk

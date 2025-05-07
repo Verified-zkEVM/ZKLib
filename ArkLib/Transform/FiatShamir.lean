@@ -41,11 +41,11 @@ section Instances
 
 variable {Message : Type}
 
-instance : IsEmpty (ChallengeIndex ![(.P_to_V, Message)]) := by
-  simp [ChallengeIndex]
+instance : IsEmpty (ChallengeIdx ![(.P_to_V, Message)]) := by
+  simp [ChallengeIdx]
   infer_instance
 
-instance : Unique (MessageIndex ![(.P_to_V, Message)]) where
+instance : Unique (MessageIdx ![(.P_to_V, Message)]) where
   default := ⟨0, by simp⟩
   uniq := fun i => by ext; simp
 
@@ -58,8 +58,8 @@ end Instances
   with an input statement
   and a prior transcript to get a challenge (useful for Fiat-Shamir) -/
 @[reducible, inline, specialize]
-def instChallengeToOracleFiatShamir {pSpec : ProtocolSpec n} {i : pSpec.ChallengeIndex}
-    {StmtIn : Type} : ToOracle (pSpec.Challenge i) where
+def instChallengeOracleInterfaceFiatShamir {pSpec : ProtocolSpec n} {i : pSpec.ChallengeIdx}
+    {StmtIn : Type} : OracleInterface (pSpec.Challenge i) where
   Query := StmtIn × Transcript i.1.castSucc pSpec
   Response := pSpec.Challenge i
   oracle := fun c _ => c
@@ -72,7 +72,7 @@ the point of deriving a new challenge.
 Some variants of Fiat-Shamir takes in a salt each round. We assume that such salts are included in
 the input statement (i.e. we can always transform a given reduction into one where every round has a
 random salt). -/
-def fiatShamirSpec (pSpec : ProtocolSpec n) (StmtIn : Type) : OracleSpec pSpec.ChallengeIndex :=
+def fiatShamirSpec (pSpec : ProtocolSpec n) (StmtIn : Type) : OracleSpec pSpec.ChallengeIdx :=
   fun i => (StmtIn × Transcript i.1.succ pSpec, pSpec.Challenge i)
 
 instance {pSpec : ProtocolSpec n} {StmtIn : Type} [∀ i, VCVCompatible (pSpec.Challenge i)] :

@@ -35,15 +35,15 @@ structure Commit (oSpec : OracleSpec ι) (Data Randomness Commitment : Type) whe
   commit : Data → Randomness → OracleComp oSpec Commitment
 
 structure Opening (pSpec : ProtocolSpec n) (oSpec : OracleSpec ι) (Data : Type)
-    [O : ToOracle Data] (Randomness Commitment : Type) where
+    [O : OracleInterface Data] (Randomness Commitment : Type) where
   opening : Proof pSpec oSpec (Commitment × O.Query × O.Response) (Data × Randomness)
 
--- abbrev Statement (Data Commitment : Type) [O : ToOracle Data] :=
+-- abbrev Statement (Data Commitment : Type) [O : OracleInterface Data] :=
 --  Commitment × O.Query × O.Response
 
 -- abbrev Witness (Data Randomness : Type) := Data × Randomness
 
-structure Scheme (pSpec : ProtocolSpec n) (oSpec : OracleSpec ι) (Data : Type) [O : ToOracle Data]
+structure Scheme (pSpec : ProtocolSpec n) (oSpec : OracleSpec ι) (Data : Type) [O : OracleInterface Data]
     (Randomness Commitment : Type) extends
       Commit oSpec Data Randomness Commitment,
       Opening pSpec oSpec Data Randomness Commitment
@@ -55,7 +55,7 @@ noncomputable section
 open scoped NNReal
 
 variable {pSpec : ProtocolSpec n} [∀ i, VCVCompatible (pSpec.Challenge i)] [DecidableEq ι]
-  {oSpec : OracleSpec ι} {Data : Type} [O : ToOracle Data] {Randomness : Type} [Fintype Randomness]
+  {oSpec : OracleSpec ι} {Data : Type} [O : OracleInterface Data] {Randomness : Type} [Fintype Randomness]
   {Commitment : Type} [oSpec.FiniteRange]
 
 /-- A commitment scheme satisfies **correctness** with error `correctnessError` if for all
@@ -79,7 +79,7 @@ def perfectCorrectness (scheme : Scheme pSpec oSpec Data Randomness Commitment) 
 /-- An adversary in the (evaluation) binding game returns a commitment `cm`, a query `q`, two
   purported responses `r₁, r₂` to the query, and an auxiliary private state (to be passed to the
   malicious prover in the opening procedure). -/
-def BindingAdversary (oSpec : OracleSpec ι) (Data Commitment AuxState : Type) [O : ToOracle Data] :=
+def BindingAdversary (oSpec : OracleSpec ι) (Data Commitment AuxState : Type) [O : OracleInterface Data] :=
   OracleComp oSpec (Commitment × O.Query × O.Response × O.Response × AuxState)
 
 /-- A commitment scheme satisfies **(evaluation) binding** with error `bindingError` if for all
@@ -117,7 +117,7 @@ def StraightlineExtractor (oSpec : OracleSpec ι) (Data Commitment : Type) :=
 /-- An adversary in the extractability game is an oracle computation that returns a commitment, a
   query, a response value, and some auxiliary state (to be used in the opening procedure). -/
 def ExtractabilityAdversary (oSpec : OracleSpec ι) (Data Commitment AuxState : Type)
-    [O : ToOracle Data] :=
+    [O : OracleInterface Data] :=
   OracleComp oSpec (Commitment × O.Query × O.Response × AuxState)
 
 /-- A commitment scheme satisfies **extractability** with error `extractabilityError` if there

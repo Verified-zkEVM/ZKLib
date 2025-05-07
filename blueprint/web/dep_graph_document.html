@@ -579,7 +579,7 @@
       Definition
       </span>
       <span class="definition_thmlabel">1</span><span class="definition_thmtitle">Type Signature of an Oracle Reduction</span></div>
-    <div class="thm_thmcontent"><p>  A protocol specification \(\rho : \mathsf{PSpec}\;  n\) of an oracle reduction is parametrized by a fixed number of messages sent in total. For each step of interaction, it specifies a direction for the messsage (prover to verifier, or vice versa), and a type for the message. If a message from the prover to the verifier is further marked as oracle, then we also expect an oracle interface for that message. In Lean, we handle these oracle interfaces via the \(\mathsf{ToOracle}\) type class.  </p>
+    <div class="thm_thmcontent"><p>  A protocol specification \(\rho : \mathsf{PSpec}\;  n\) of an oracle reduction is parametrized by a fixed number of messages sent in total. For each step of interaction, it specifies a direction for the messsage (prover to verifier, or vice versa), and a type for the message. If a message from the prover to the verifier is further marked as oracle, then we also expect an oracle interface for that message. In Lean, we handle these oracle interfaces via the \(\mathsf{OracleInterface}\) type class.  </p>
 </div>
 
     <a class="latex_link" href="chap-oracle_reductions.html#def:oracle_reduction_type_signature">LaTeX</a>
@@ -591,7 +591,7 @@
         
            <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/ProtocolSpec" class="lean_decl">ProtocolSpec</a></li>
         
-           <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/ToOracle" class="lean_decl">ToOracle</a></li>
+           <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/OracleInterface" class="lean_decl">OracleInterface</a></li>
         
       </ul>
   </div>

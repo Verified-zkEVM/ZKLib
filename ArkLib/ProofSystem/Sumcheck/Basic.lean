@@ -151,13 +151,13 @@ instance : IsSingleRound (pSpec R d) where
   prover_first' := by simp [pSpec, getDir]
   verifier_last' := by simp [pSpec, getDir, Neg.neg]
 
-instance instToOracleMessagePSpec : ToOracle ((pSpec R d).Message default) := by
-  simp only [pSpec, default, getDir_apply, getType_apply, Matrix.cons_val_zero]
-  exact instToOraclePolynomialDegreeLE
+instance instOracleInterfaceMessagePSpec : OracleInterface ((pSpec R d).Message default) := by
+  simp only [pSpec, default, Matrix.cons_val_zero]
+  exact instOracleInterfacePolynomialDegreeLE
 
 instance instVCVCompatibleChallengePSpec [VCVCompatible R] :
     VCVCompatible ((pSpec R d).Challenge default) := by
-  simp only [pSpec, default, getDir_apply, getType_apply, Matrix.cons_val_one, Matrix.head_cons]
+  simp only [pSpec, Challenge, default, Matrix.cons_val_one, Matrix.head_cons]
   infer_instance
 
 def prover : OracleProver (pSpec R d) []ₒ R Unit R Unit
@@ -195,11 +195,10 @@ def reduction : Reduction (pSpec R d) []ₒ (R × (∀ i, InputOracleStatement R
 open Reduction
 open scoped NNReal
 
-instance : ∀ i, Fintype (ToOracle.Response (Challenge (pSpec R d) i)) := by
+instance : ∀ i, Fintype (OracleInterface.Response (Challenge (pSpec R d) i)) := by
   sorry
-instance : ∀ i, Inhabited (ToOracle.Response (Challenge (pSpec R d) i)) := sorry
-instance : [Challenge (pSpec R d)]ₒ.FiniteRange :=
-  ToOracle.instFiniteRangeToOracleSpecOfFintypeOfInhabitedResponse _
+instance : ∀ i, Inhabited (OracleInterface.Response (Challenge (pSpec R d) i)) := sorry
+instance : [Challenge (pSpec R d)]ₒ.FiniteRange := inferInstance
 
 instance : Nonempty []ₒ.QueryLog := by simp [QueryLog]; infer_instance
 instance : Nonempty ((pSpec R d).FullTranscript) := by
@@ -341,15 +340,15 @@ instance : IsSingleRound (pSpec R deg) where
 
 /-- Recognize that the (only) message from the prover to the verifier has type `R⦃≤ deg⦄[X]`, and
   hence can be turned into an oracle for evaluating the polynomial -/
-instance instToOracleMessagePSpec : ToOracle ((pSpec R deg).Message default) := by
-  simp only [pSpec, default, getDir_apply, getType_apply, Matrix.cons_val_zero]
-  exact instToOraclePolynomialDegreeLE
+instance instOracleInterfaceMessagePSpec : OracleInterface ((pSpec R deg).Message default) := by
+  simp only [pSpec, default, Matrix.cons_val_zero]
+  exact instOracleInterfacePolynomialDegreeLE
 
 /-- Recognize that the challenge from the verifier to the prover has type `R`, and hence can be
   sampled uniformly at random -/
 instance instVCVCompatibleChallengePSpec [VCVCompatible R] :
     VCVCompatible ((pSpec R deg).Challenge default) := by
-  simp only [pSpec, default, getDir_apply, getType_apply, Matrix.cons_val_one, Matrix.head_cons]
+  simp only [pSpec, default, Matrix.cons_val_one, Matrix.head_cons]
   infer_instance
 
 @[reducible]
@@ -480,8 +479,8 @@ variable {R : Type} [CommSemiring R] [VCVCompatible R] {n : ℕ} {deg : ℕ} {m 
 /-- The oracle verifier does the same thing as the non-oracle verifier -/
 theorem oracleVerifier_eq_verifier :
     (oracleVerifier R n deg D oSpec i).toVerifier = verifier R n deg D oSpec i := by
-  simp [pSpec, OracleVerifier.toVerifier, getDir_apply, getType_apply,
-    instToOracleMessagePSpec, id_eq, oracleVerifier, bind_pure, guard_eq,
+  simp [pSpec, OracleVerifier.toVerifier,
+    instOracleInterfaceMessagePSpec, id_eq, oracleVerifier, bind_pure, guard_eq,
     Fin.val_succ, bind_pure_comp, simulateQ_bind, simulateQ_map, simulateQ_query,
     map_pure, Prod.map_apply, Fin.coe_castSucc, Function.Embedding.inl_apply,
     eq_mpr_eq_cast, cast_eq, map_bind, Functor.map_map, verifier, Fin.isValue, Matrix.cons_val_zero,
@@ -492,7 +491,7 @@ theorem oracleVerifier_eq_verifier :
   have : p_i = (transcript 0).1 := by simp only [hEq]
   subst this
   simp [default, FullTranscript.messages, FullTranscript.challenges,
-    instToOraclePolynomialDegreeLE, Option.elimM]
+    instOracleInterfacePolynomialDegreeLE, Option.elimM]
   sorry
 
 variable [DecidableEq ι] [oSpec.FiniteRange]
@@ -512,7 +511,7 @@ theorem perfect_completeness : OracleReduction.perfectCompleteness
   simp at hValid
   constructor
   · simp [Reduction.run, Prover.run, Prover.runToRound]; sorry
-  -- simp only [pSpec, getType_apply, getDir_apply, evalDist, eq_mp_eq_cast, reduction, prover,
+  -- simp only [pSpec, evalDist, eq_mp_eq_cast, reduction, prover,
   --   proverIn, proverRound, eq_mpr_eq_cast, proverOut, verifier, Matrix.cons_val_zero,
   --   sum_map, decide_eq_true_eq, Bool.decide_or, Bool.decide_eq_true, decide_not,
   --   simulate', simulate, map_pure, bind_pure_comp, PMF.pure_bind, Function.comp_apply]
@@ -583,7 +582,7 @@ def rbrExtractor (i : Fin (n + 1)) :
 -- def rbrKnowledgeSoundness (relIn : StmtIn → WitIn → Prop) (relOut : StmtOut → WitOut → Prop)
 --     (verifier : Verifier pSpec oSpec StmtIn StmtOut)
 --     (stateFunction : StateFunction relOut.language verifier)
---     (rbrKnowledgeError : pSpec.ChallengeIndex → ℝ≥0) : Prop :=
+--     (rbrKnowledgeError : pSpec.ChallengeIdx → ℝ≥0) : Prop :=
 
 end Security
 
@@ -600,10 +599,10 @@ namespace Combined
 def pSpec : ProtocolSpec ((n + 1) * 2) :=
   fun i => if i % 2 = 0 then (.P_to_V, R⦃≤ deg⦄[X]) else (.V_to_P, R)
 
-instance : ∀ i, ToOracle ((pSpec R deg n).Message i) := fun ⟨i, hDir⟩ => by
+instance : ∀ i, OracleInterface ((pSpec R deg n).Message i) := fun ⟨i, hDir⟩ => by
   by_cases h : i % 2 = 0
   · simp [pSpec, h]; infer_instance
-  · simp [pSpec, h]; simp [MessageIndex, pSpec, h] at hDir
+  · simp [pSpec, h]; simp [MessageIdx, pSpec, h] at hDir
 
 instance [VCVCompatible R] : ∀ i, VCVCompatible ((pSpec R deg n).Challenge i) := fun ⟨i, hDir⟩ => by
   by_cases h : i % 2 = 0

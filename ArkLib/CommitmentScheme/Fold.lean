@@ -6,7 +6,7 @@ Authors: Quang Dao
 
 import ArkLib.CommitmentScheme.Basic
 import Batteries.Data.Vector.Basic
-import ArkLib.OracleReduction.ToOracle
+import ArkLib.OracleReduction.OracleInterface
 import Mathlib.Data.FinEnum
 import Mathlib.RingTheory.RootsOfUnity.PrimitiveRoots
 import ArkLib.Data.CodingTheory.ProximityGap
@@ -74,14 +74,14 @@ instance : IsSingleRound (pSpec R n) where
 
 /-- Recognize that the (only) message from the prover to the verifier has type `Vector R (2 ^ n)`,
   and hence can be turned into an oracle for evaluating the polynomial -/
-instance instToOracleMessagePSpec : ToOracle ((pSpec R n).Message default) := by
-  simp only [pSpec, default, getDir_apply, getType_apply, Matrix.cons_val_zero]
-  exact instToOracleVector
+instance instOracleInterfaceMessagePSpec : OracleInterface ((pSpec R n).Message default) := by
+  simp only [pSpec, default, Matrix.cons_val_zero, Message, getType]
+  exact instOracleInterfaceVector
 
 /-- Recognize that the challenge from the verifier to the prover has type `R`, and hence can be
   sampled uniformly at random -/
 instance instSampleableChallengePSpec : Sampleable ((pSpec R n).Challenge default) := by
-  simp only [pSpec, default, getDir_apply, getType_apply, Matrix.cons_val_one, Matrix.head_cons]
+  simp only [pSpec, default, Matrix.cons_val_one, Matrix.head_cons, Challenge, getType]
   infer_instance
 
 structure PrvState (k : Fin n) where
