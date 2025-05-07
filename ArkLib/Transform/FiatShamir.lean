@@ -59,25 +59,26 @@ end Instances
   and a prior transcript to get a challenge (useful for Fiat-Shamir) -/
 @[reducible, inline, specialize]
 def instChallengeToOracleFiatShamir {pSpec : ProtocolSpec n} {i : pSpec.ChallengeIndex}
-    {StmtIn : Type} [DecidableEq StmtIn] [h : ∀ j, DecidableEq (pSpec j).2]
-    [VCVCompatible (pSpec.Challenge i)] : ToOracle (pSpec.Challenge i) where
+    {StmtIn : Type} : ToOracle (pSpec.Challenge i) where
   Query := StmtIn × Transcript i.1.castSucc pSpec
   Response := pSpec.Challenge i
   oracle := fun c _ => c
-  query_decidableEq' := by simp [Transcript]; infer_instance
 
 /-- The oracle interface for Fiat-Shamir.
 
 This is the (inefficient) version where we hash the input statement and the entire transcript up to
-the point of deriving a new challenge. We also add in an optional salt. -/
-def fiatShamirSpec (pSpec : ProtocolSpec n) (StmtIn Salt : Type) [VCVCompatible StmtIn]
-    [VCVCompatible Salt] [∀ i, VCVCompatible (pSpec i).2] : OracleSpec pSpec.ChallengeIndex where
-  domain := fun i => StmtIn × Transcript i.1.succ pSpec × Salt
-  range := fun i => pSpec.Challenge i
-  domain_decidableEq' := inferInstance
-  range_decidableEq' := inferInstance
-  range_inhabited' := inferInstance
-  range_fintype' := inferInstance
+the point of deriving a new challenge.
+
+Some variants of Fiat-Shamir takes in a salt each round. We assume that such salts are included in
+the input statement (i.e. we can always transform a given reduction into one where every round has a
+random salt). -/
+def fiatShamirSpec (pSpec : ProtocolSpec n) (StmtIn : Type) : OracleSpec pSpec.ChallengeIndex :=
+  fun i => (StmtIn × Transcript i.1.succ pSpec, pSpec.Challenge i)
+
+instance {pSpec : ProtocolSpec n} {StmtIn : Type} [∀ i, VCVCompatible (pSpec.Challenge i)] :
+    OracleSpec.FiniteRange (fiatShamirSpec pSpec StmtIn) where
+  range_inhabited' := fun i => by simp [fiatShamirSpec, OracleSpec.range]; infer_instance
+  range_fintype' := fun i => by simp [fiatShamirSpec, OracleSpec.range]; infer_instance
 
 -- TODO: define a more efficient version where one hashes the most recent challenge along with the
 -- messages since that challenge (the first challenge is obtained by hashing the statement & the
@@ -88,7 +89,7 @@ variable {pSpec : ProtocolSpec n} {ι : Type} {oSpec : OracleSpec ι}
   (Salt : Type) [VCVCompatible Salt]
 
 def Prover.fiatShamir (P : Prover pSpec oSpec StmtIn WitIn StmtOut WitOut) :
-    NonInteractiveProver (oSpec ++ₒ fiatShamirSpec pSpec StmtIn Salt)
+    NonInteractiveProver (oSpec ++ₒ fiatShamirSpec pSpec StmtIn)
       StmtIn WitIn StmtOut WitOut (∀ i, pSpec.Message i) where
   PrvState := fun i => match i with
     | 0 => P.PrvState 0
@@ -103,7 +104,7 @@ def Prover.fiatShamir (P : Prover pSpec oSpec StmtIn WitIn StmtOut WitOut) :
   output := P.output
 
 def Verifier.fiatShamir (V : Verifier pSpec oSpec StmtIn StmtOut) :
-    NonInteractiveVerifier (oSpec ++ₒ fiatShamirSpec pSpec StmtIn Salt)
+    NonInteractiveVerifier (oSpec ++ₒ fiatShamirSpec pSpec StmtIn)
       StmtIn StmtOut (∀ i, pSpec.Message i) where
   verify := fun stmtIn messages =>
     let transcript := sorry
@@ -111,9 +112,9 @@ def Verifier.fiatShamir (V : Verifier pSpec oSpec StmtIn StmtOut) :
 
 /-- TODO: change `unifSpec` to something more appropriate (maybe a `CryptographicSponge`) -/
 def Reduction.fiatShamir (R : Reduction pSpec oSpec StmtIn WitIn StmtOut WitOut) :
-    NonInteractiveReduction (oSpec ++ₒ fiatShamirSpec pSpec StmtIn Salt)
+    NonInteractiveReduction (oSpec ++ₒ fiatShamirSpec pSpec StmtIn)
       StmtIn WitIn StmtOut WitOut (∀ i, pSpec.Message i) :=
-  ⟨R.prover.fiatShamir Salt, R.verifier.fiatShamir Salt⟩
+  ⟨R.prover.fiatShamir, R.verifier.fiatShamir⟩
 
 section Security
 
@@ -121,12 +122,12 @@ noncomputable section
 
 open scoped NNReal
 
-variable [DecidableEq ι]
+variable [DecidableEq ι] [oSpec.FiniteRange] [∀ i, VCVCompatible (pSpec.Challenge i)]
 
 theorem fiatShamir_completeness (relIn : StmtIn → WitIn → Prop) (relOut : StmtOut → WitOut → Prop)
     (completenessError : ℝ≥0) (R : Reduction pSpec oSpec StmtIn WitIn StmtOut WitOut) :
   R.completeness relIn relOut completenessError →
-    (R.fiatShamir Salt).completeness relIn relOut completenessError := sorry
+    (R.fiatShamir).completeness relIn relOut completenessError := sorry
 
 -- TODO: state-restoration (knowledge) soundness implies (knowledge) soundness after Fiat-Shamir
 

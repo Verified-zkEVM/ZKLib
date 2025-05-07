@@ -5,7 +5,6 @@ import ArkLib.CommitmentScheme.MerkleTree
 import ArkLib.CommitmentScheme.SimpleRO
 import ArkLib.CommitmentScheme.Tensor
 import ArkLib.CommitmentScheme.Trivial
-import ArkLib.Data.BinaryTowerField
 import ArkLib.Data.CodingTheory.Basic
 import ArkLib.Data.CodingTheory.ProximityGap
 import ArkLib.Data.CodingTheory.ReedMuller
@@ -27,7 +26,6 @@ import ArkLib.Data.Math.HList
 import ArkLib.Data.Math.Operations
 import ArkLib.Data.MlPoly.Basic
 import ArkLib.Data.MlPoly.Equiv
-import ArkLib.Data.MlPoly.Multivariate
 import ArkLib.Data.MvPolynomial.Degrees
 import ArkLib.Data.MvPolynomial.Interpolation
 import ArkLib.Data.MvPolynomial.Multilinear
@@ -36,12 +34,10 @@ import ArkLib.Data.MvPolynomial.Sumcheck
 import ArkLib.Data.Polynomial.EvenAndOdd
 import ArkLib.Data.Probability.Instances
 import ArkLib.Data.Probability.Notation
-import ArkLib.Data.Probability.SPMF
-import ArkLib.Data.UniPoly.Basic-old
+import ArkLib.Data.UniPoly.BasicOld
 import ArkLib.Data.UniPoly.Basic
 import ArkLib.Data.UniPoly.PolynomialReflection
 import ArkLib.OracleReduction.Basic
-import ArkLib.OracleReduction.BasicNew
 import ArkLib.OracleReduction.Composition.Sequential
 import ArkLib.OracleReduction.Composition.Virtual
 import ArkLib.OracleReduction.Equiv
@@ -50,16 +46,13 @@ import ArkLib.OracleReduction.Prelude
 import ArkLib.OracleReduction.Security.Basic
 import ArkLib.OracleReduction.ToOracle
 import ArkLib.ProofSystem.Components
-import ArkLib.ProofSystem.ConstraintSystem
 import ArkLib.ProofSystem.ConstraintSystem.IndexedLookup
 import ArkLib.ProofSystem.ConstraintSystem.Plonk
 import ArkLib.ProofSystem.ConstraintSystem.R1CS
 import ArkLib.ProofSystem.DSL
-import ArkLib.ProofSystem.Fri
 import ArkLib.ProofSystem.Fri.RoundConsistency
 import ArkLib.ProofSystem.Plonk.Basic
 import ArkLib.ProofSystem.Spartan.Basic
-import ArkLib.ProofSystem.Spartan.Sparse
 import ArkLib.ProofSystem.Sumcheck.Basic
 import ArkLib.ToMathlib.Finset.Basic
 import ArkLib.ToMathlib.Finsupp.Fin
