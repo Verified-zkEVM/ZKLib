@@ -301,10 +301,9 @@ theorem rbr_knowledge_soundness {d : ℕ} (h : OracleInterface.distanceLE OState
       (relIn OStatement)
       (relOut OStatement)
       (verifier oSpec OStatement)
-      (stateFunction oSpec OStatement)
       (fun _ => (d : ℝ≥0) / (Fintype.card (Query OStatement) : ℝ≥0)) := by
   unfold OracleReduction.rbrKnowledgeSoundness Reduction.rbrKnowledgeSoundness
-  refine ⟨extractor oSpec OStatement, ?_⟩
+  refine ⟨stateFunction oSpec OStatement, extractor oSpec OStatement, ?_⟩
   intro ⟨_, oracles⟩ _ rbrP i
   have : i = ⟨0, by simp⟩ := by aesop
   subst i
