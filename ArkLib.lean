@@ -34,8 +34,8 @@ import ArkLib.Data.MvPolynomial.Sumcheck
 import ArkLib.Data.Polynomial.EvenAndOdd
 import ArkLib.Data.Probability.Instances
 import ArkLib.Data.Probability.Notation
-import ArkLib.Data.UniPoly.BasicOld
 import ArkLib.Data.UniPoly.Basic
+import ArkLib.Data.UniPoly.BasicOld
 import ArkLib.Data.UniPoly.PolynomialReflection
 import ArkLib.OracleReduction.Basic
 import ArkLib.OracleReduction.Composition.Sequential
