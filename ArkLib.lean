@@ -42,9 +42,10 @@ import ArkLib.OracleReduction.Composition.Sequential
 import ArkLib.OracleReduction.Composition.Virtual
 import ArkLib.OracleReduction.Equiv
 import ArkLib.OracleReduction.Execution
+import ArkLib.OracleReduction.OracleInterface
 import ArkLib.OracleReduction.Prelude
 import ArkLib.OracleReduction.Security.Basic
-import ArkLib.OracleReduction.OracleInterface
+import ArkLib.OracleReduction.VectorIOR
 import ArkLib.ProofSystem.Components
 import ArkLib.ProofSystem.ConstraintSystem.IndexedLookup
 import ArkLib.ProofSystem.ConstraintSystem.Plonk
