@@ -53,14 +53,20 @@ section Relation
 def Function.language {α β} (rel : α → β → Prop) : Set α :=
   {stmt | ∃ wit, rel stmt wit}
 
-/-- The trivial relation on Boolean statement and unit witness. -/
-def trivialRel : Bool → Unit → Prop := fun b _ => b
+/-- The trivial relation on Boolean statement and unit witness, which outputs the Boolean (i.e.
+  accepts or rejects). -/
+def acceptRejectRel : Bool → Unit → Prop := fun b _ => b
 
 /-- The trivial relation on Boolean statement, no oracle statements, and unit witness. -/
-def trivialOracleRel : Bool × (∀ _ : Empty, Unit) → Unit → Prop := fun ⟨b, _⟩ _ => b
+def acceptRejectOracleRel : Bool × (∀ _ : Empty, Unit) → Unit → Prop := fun ⟨b, _⟩ _ => b
 
 @[simp]
-theorem trivialRel_language : trivialRel.language = { true } := by
-  unfold Function.language trivialRel; simp
+theorem acceptRejectRel_language : acceptRejectRel.language = { true } := by
+  unfold Function.language acceptRejectRel; simp
+
+@[simp]
+theorem acceptRejectOracleRel_language :
+    acceptRejectOracleRel.language = { ⟨true, isEmptyElim⟩ } := by
+  unfold Function.language acceptRejectOracleRel; simp; ext; aesop
 
 end Relation
