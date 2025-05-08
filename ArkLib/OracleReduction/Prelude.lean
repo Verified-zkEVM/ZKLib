@@ -20,10 +20,14 @@ instance instDecidableEqOption {α : Type*} [DecidableEq α] :
 
 /-- `VCVCompabible` is a type class for types that are finite, inhabited, and have decidable
   equality. These instances are needed when the type is used as the range of some `OracleSpec`. -/
-class VCVCompatible (α : Type) extends Fintype α, Inhabited α where
+class VCVCompatible (α : Type*) extends Fintype α, Inhabited α where
   [type_decidableEq' : DecidableEq α]
 
-instance {α : Type} [VCVCompatible α] : DecidableEq α := VCVCompatible.type_decidableEq'
+instance {α : Type*} [VCVCompatible α] : DecidableEq α := VCVCompatible.type_decidableEq'
+
+instance {α : Type*} {n : ℕ} [VCVCompatible α] : VCVCompatible (Fin n → α) where
+
+instance {α : Type*} {n : ℕ} [VCVCompatible α] : VCVCompatible (Vector α n) := sorry
 
 /-- `Sampleable` extends `VCVCompabible` with `SelectableType` -/
 class Sampleable (α : Type) extends VCVCompatible α, SelectableType α
@@ -49,13 +53,24 @@ instance : Coe (Fin 2) Direction := ⟨directionEquivFin2.invFun⟩
 
 section Relation
 
+/-- The associated language `Set α` for a relation `α → β → Prop`. -/
 def Function.language {α β} (rel : α → β → Prop) : Set α :=
   {stmt | ∃ wit, rel stmt wit}
 
-def trivialRel : Bool → Unit → Prop := fun b _ => b
+/-- The trivial relation on Boolean statement and unit witness, which outputs the Boolean (i.e.
+  accepts or rejects). -/
+def acceptRejectRel : Bool → Unit → Prop := fun b _ => b
+
+/-- The trivial relation on Boolean statement, no oracle statements, and unit witness. -/
+def acceptRejectOracleRel : Bool × (∀ _ : Empty, Unit) → Unit → Prop := fun ⟨b, _⟩ _ => b
 
 @[simp]
-theorem trivialRel_language : trivialRel.language = { true } := by
-  unfold Function.language trivialRel; simp
+theorem acceptRejectRel_language : acceptRejectRel.language = { true } := by
+  unfold Function.language acceptRejectRel; simp
+
+@[simp]
+theorem acceptRejectOracleRel_language :
+    acceptRejectOracleRel.language = { ⟨true, isEmptyElim⟩ } := by
+  unfold Function.language acceptRejectOracleRel; simp; ext; aesop
 
 end Relation

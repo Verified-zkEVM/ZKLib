@@ -30,8 +30,8 @@ We now go into more details on these objects.
 
 \begin{definition}[Type Signature of an Oracle Reduction]
     \label{def:oracle_reduction_type_signature}
-    A protocol specification $\rho : \mathsf{PSpec}\; n$ of an oracle reduction is parametrized by a fixed number of messages sent in total. For each step of interaction, it specifies a direction for the messsage (prover to verifier, or vice versa), and a type for the message. If a message from the prover to the verifier is further marked as oracle, then we also expect an oracle interface for that message. In Lean, we handle these oracle interfaces via the $\mathsf{ToOracle}$ type class.
-    \lean{ProtocolSpec, ToOracle}
+    A protocol specification $\rho : \mathsf{PSpec}\; n$ of an oracle reduction is parametrized by a fixed number of messages sent in total. For each step of interaction, it specifies a direction for the messsage (prover to verifier, or vice versa), and a type for the message. If a message from the prover to the verifier is further marked as oracle, then we also expect an oracle interface for that message. In Lean, we handle these oracle interfaces via the $\mathsf{OracleInterface}$ type class.
+    \lean{ProtocolSpec, OracleInterface}
 \end{definition}
 
 \begin{definition}[Context]\label{def:context}

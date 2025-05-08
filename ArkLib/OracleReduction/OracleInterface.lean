@@ -10,9 +10,16 @@ import Mathlib.Algebra.Polynomial.Roots
 -- import ArkLib.Data.MlPoly.Basic
 
 /-!
-  # Definitions and Instances for `ToOracle`
+  # Definitions and Instances for `OracleInterface`
 
-  We define `ToOracle` and give instances for the following:
+  We define `OracleInterface`, which is a type class that augments a type with an oracle interface
+  for that type. The interface specifies the type of queries, the type of responses, and the
+  oracle's behavior for a given underlying element of the type.
+
+  `OracleInterface` is used to restrict the verifier's access to the input oracle statements and the
+  prover's messages in an interactive oracle reduction (see `Basic.lean`).
+
+  We define `OracleInterface` instances for common types:
 
   - Univariate and multivariate polynomials. These instances turn polynomials into oracles for which
     one can query at a point, and the response is the evaluation of the polynomial on that point.
@@ -107,32 +114,33 @@ def liftRightNil {ι : Type} {σ : Type} (oSpec : OracleSpec ι) :
 
 end SimOracle
 
-/-- `ToOracle` is a type class that provides an oracle interface for a type `Message`. It
+/-- `OracleInterface` is a type class that provides an oracle interface for a type `Message`. It
     consists of a query type `Query`, a response type `Response`, and a function `oracle` that
     transforms a message `m : Message` into a function `Query → Response`. -/
 @[ext]
-class ToOracle (Message : Type) where
+class OracleInterface (Message : Type) where
   Query : Type
   Response : Type
   oracle : Message → Query → Response
 
-namespace ToOracle
+namespace OracleInterface
 
 open SimOracle
 
-def toOracleSpec {ι : Type} (v : ι → Type) [O : ∀ i, ToOracle (v i)] :
+/-- Converts an indexed type family of oracle interfaces into an oracle specification. -/
+def toOracleSpec {ι : Type} (v : ι → Type) [O : ∀ i, OracleInterface (v i)] :
     OracleSpec ι := fun i => ((O i).Query, (O i).Response)
 
-notation "[" term "]ₒ" => toOracleSpec term
+@[inherit_doc] notation "[" term "]ₒ" => toOracleSpec term
 
-instance {ι : Type} (v : ι → Type) [O : ∀ i, ToOracle (v i)]
+instance {ι : Type} (v : ι → Type) [O : ∀ i, OracleInterface (v i)]
     [h : ∀ i, DecidableEq (Query (v i))]
     [h' : ∀ i, DecidableEq (Response (v i))] :
     [v]ₒ.DecidableEq where
   domain_decidableEq' := h
   range_decidableEq' := h'
 
-instance {ι : Type} (v : ι → Type) [O : ∀ i, ToOracle (v i)]
+instance {ι : Type} (v : ι → Type) [O : ∀ i, OracleInterface (v i)]
     [h : ∀ i, Fintype (Response (v i))]
     [h' : ∀ i, Inhabited (Response (v i))] :
     [v]ₒ.FiniteRange where
@@ -140,56 +148,59 @@ instance {ι : Type} (v : ι → Type) [O : ∀ i, ToOracle (v i)]
   range_inhabited' := h'
 
 @[reducible, inline]
-instance {ι₁ : Type} {T₁ : ι₁ → Type} [∀ i, ToOracle (T₁ i)]
-    {ι₂ : Type} {T₂ : ι₂ → Type} [∀ i, ToOracle (T₂ i)] : ∀ i, ToOracle (Sum.elim T₁ T₂ i) :=
+instance {ι₁ : Type} {T₁ : ι₁ → Type} [∀ i, OracleInterface (T₁ i)]
+    {ι₂ : Type} {T₂ : ι₂ → Type} [∀ i, OracleInterface (T₂ i)] :
+    ∀ i, OracleInterface (Sum.elim T₁ T₂ i) :=
   fun i => match i with
     | .inl i => by dsimp; infer_instance
     | .inr i => by dsimp; infer_instance
 
-def append {ι₁ : Type} {T₁ : ι₁ → Type} [∀ i, ToOracle (T₁ i)]
-    {ι₂ : Type} {T₂ : ι₂ → Type} [∀ i, ToOracle (T₂ i)] : OracleSpec (ι₁ ⊕ ι₂) :=
+def append {ι₁ : Type} {T₁ : ι₁ → Type} [∀ i, OracleInterface (T₁ i)]
+    {ι₂ : Type} {T₂ : ι₂ → Type} [∀ i, OracleInterface (T₂ i)] : OracleSpec (ι₁ ⊕ ι₂) :=
   [Sum.elim T₁ T₂]ₒ
 
 /-- Combines multiple oracle specifications into a single oracle by routing queries to the
       appropriate underlying oracle. Takes:
     - A base oracle specification `oSpec`
-    - An indexed type family `T` with `ToOracle` instances
+    - An indexed type family `T` with `OracleInterface` instances
     - Values of that type family
   Returns a stateless oracle that routes queries to the appropriate underlying oracle. -/
 def simOracle {ι : Type} (oSpec : OracleSpec ι) {ι' : Type} {T : ι' → Type}
-    [∀ i, ToOracle (T i)] (t : (i : ι') → T i) : SimOracle.Stateless (oSpec ++ₒ [T]ₒ) oSpec :=
+    [∀ i, OracleInterface (T i)] (t : (i : ι') → T i) :
+    SimOracle.Stateless (oSpec ++ₒ [T]ₒ) oSpec :=
   SimOracle.statelessOracle _ _ (fun i q => oracle (t i) q)
 
 /-- Combines multiple oracle specifications into a single oracle by routing queries to the
       appropriate underlying oracle. Takes:
     - A base oracle specification `oSpec`
-    - Two indexed type families `T₁` and `T₂` with `ToOracle` instances
+    - Two indexed type families `T₁` and `T₂` with `OracleInterface` instances
     - Values of those type families
   Returns a stateless oracle that routes queries to the appropriate underlying oracle. -/
 def simOracle2 {ι : Type} (oSpec : OracleSpec ι)
-    {ι₁ : Type} {T₁ : ι₁ → Type} [∀ i, ToOracle (T₁ i)]
-    {ι₂ : Type} {T₂ : ι₂ → Type} [∀ i, ToOracle (T₂ i)]
+    {ι₁ : Type} {T₁ : ι₁ → Type} [∀ i, OracleInterface (T₁ i)]
+    {ι₂ : Type} {T₂ : ι₂ → Type} [∀ i, OracleInterface (T₂ i)]
     (t₁ : ∀ i, T₁ i) (t₂ : ∀ i, T₂ i) : SimOracle.Stateless (oSpec ++ₒ ([T₁]ₒ ++ₒ [T₂]ₒ)) oSpec :=
   SimOracle.statelessOracle _ _ (fun i q => match i with
     | .inl i => oracle (t₁ i) q
     | .inr i => oracle (t₂ i) q)
 
 open Finset in
-/-- A message type together with a `ToOracle` instance is said to have **oracle distance** (at most)
-      `d` if for any two distinct messages, there is at most `d` queries that distinguish them, i.e.
+/-- A message type together with a `OracleInterface` instance is said to have **oracle distance**
+  (at most) `d` if for any two distinct messages, there is at most `d` queries that distinguish
+  them, i.e.
 
-      `#{q | ToOracle.oracle a q = ToOracle.oracle b q} ≤ d`.
+  `#{q | OracleInterface.oracle a q = OracleInterface.oracle b q} ≤ d`.
 
-    This property corresponds to the distance of a code, when the oracle instance is to encode the
-    message and the query is a position of the codeword. In particular, it applies to
-    `(Mv)Polynomial`. -/
-def distanceLE (Message : Type) [O : ToOracle Message]
+  This property corresponds to the distance of a code, when the oracle instance is to encode the
+  message and the query is a position of the codeword. In particular, it applies to
+  `(Mv)Polynomial`. -/
+def distanceLE (Message : Type) [O : OracleInterface Message]
     [Fintype (O.Query)] [DecidableEq (O.Response)] (d : ℕ) : Prop :=
-  ∀ a b : Message, a ≠ b → #{q | ToOracle.oracle a q = ToOracle.oracle b q} ≤ d
+  ∀ a b : Message, a ≠ b → #{q | OracleInterface.oracle a q = OracleInterface.oracle b q} ≤ d
 
-end ToOracle
+end OracleInterface
 
-/-! ## `ToOracle` Instances -/
+/-! ## `OracleInterface` Instances -/
 section Polynomial
 
 open Polynomial MvPolynomial
@@ -198,28 +209,28 @@ variable {R : Type} [CommSemiring R] {d : ℕ} {σ : Type}
 
 /-- Univariate polynomials can be accessed via evaluation queries. -/
 @[reducible, inline]
-instance instToOraclePolynomial : ToOracle R[X] where
+instance instOracleInterfacePolynomial : OracleInterface R[X] where
   Query := R
   Response := R
   oracle := fun poly point => poly.eval point
 
 /-- Univariate polynomials with degree at most `d` can be accessed via evaluation queries. -/
 @[reducible, inline]
-instance instToOraclePolynomialDegreeLE : ToOracle (R⦃≤ d⦄[X]) where
+instance instOracleInterfacePolynomialDegreeLE : OracleInterface (R⦃≤ d⦄[X]) where
   Query := R
   Response := R
   oracle := fun ⟨poly, _⟩ point => poly.eval point
 
 /-- Univariate polynomials with degree less than `d` can be accessed via evaluation queries. -/
 @[reducible, inline]
-instance instToOraclePolynomialDegreeLT : ToOracle (R⦃< d⦄[X]) where
+instance instOracleInterfacePolynomialDegreeLT : OracleInterface (R⦃< d⦄[X]) where
   Query := R
   Response := R
   oracle := fun ⟨poly, _⟩ point => poly.eval point
 
 /-- Multivariate polynomials can be accessed via evaluation queries. -/
 @[reducible, inline]
-instance instToOracleMvPolynomial : ToOracle (R[X σ]) where
+instance instOracleInterfaceMvPolynomial : OracleInterface (R[X σ]) where
   Query := σ → R
   Response := R
   oracle := fun poly point => eval point poly
@@ -227,12 +238,12 @@ instance instToOracleMvPolynomial : ToOracle (R[X σ]) where
 /-- Multivariate polynomials with individual degree at most `d` can be accessed via evaluation
 queries. -/
 @[reducible, inline]
-instance instToOracleMvPolynomialDegreeLE : ToOracle (R⦃≤ d⦄[X σ]) where
+instance instOracleInterfaceMvPolynomialDegreeLE : OracleInterface (R⦃≤ d⦄[X σ]) where
   Query := σ → R
   Response := R
   oracle := fun ⟨poly, _⟩ point => eval point poly
 
-instance [Fintype σ] [DecidableEq σ] [Fintype R] : Fintype (ToOracle.Query (R⦃≤ d⦄[X σ])) :=
+instance [Fintype σ] [DecidableEq σ] [Fintype R] : Fintype (OracleInterface.Query (R⦃≤ d⦄[X σ])) :=
   inferInstanceAs (Fintype (σ → R))
 
 end Polynomial
@@ -245,8 +256,8 @@ variable {R : Type} [CommRing R] {d : ℕ} [Fintype R] [DecidableEq R] [IsDomain
 
 -- TODO: golf this theorem
 @[simp]
-theorem distanceLE_polynomial_degreeLT : ToOracle.distanceLE (R⦃< d⦄[X]) (d - 1) := by
-  simp [ToOracle.distanceLE, instToOraclePolynomialDegreeLT, mem_degreeLT]
+theorem distanceLE_polynomial_degreeLT : OracleInterface.distanceLE (R⦃< d⦄[X]) (d - 1) := by
+  simp [OracleInterface.distanceLE, instOracleInterfacePolynomialDegreeLT, mem_degreeLT]
   intro p hp p' hp' hNe
   have : ∀ q ∈ Finset.univ, p.eval q = p'.eval q ↔ q ∈ (p - p').roots := by
     intro q _
@@ -274,8 +285,8 @@ theorem distanceLE_polynomial_degreeLT : ToOracle.distanceLE (R⦃< d⦄[X]) (d 
     intro a; simp [Multiset.count_filter, Multiset.count_univ]
     aesop
 
-theorem distanceLE_polynomial_degreeLE : ToOracle.distanceLE (R⦃≤ d⦄[X]) d := by
-  simp [ToOracle.distanceLE, instToOraclePolynomialDegreeLE, mem_degreeLE]
+theorem distanceLE_polynomial_degreeLE : OracleInterface.distanceLE (R⦃≤ d⦄[X]) d := by
+  simp [OracleInterface.distanceLE, instOracleInterfacePolynomialDegreeLE, mem_degreeLE]
   intro a ha b hb hNe
   simp [Finset.card_filter_le_iff]
   intro s hs
@@ -293,8 +304,10 @@ theorem distanceLE_polynomial_degreeLE : ToOracle.distanceLE (R⦃≤ d⦄[X]) d
   obtain ⟨x, hMem, hx⟩ := this
   exact ⟨x, hMem, fun h => by simp_all⟩
 
-theorem distanceLE_mvPolynomial_degreeLE {σ : Type} [Fintype σ] [DecidableEq σ] : ToOracle.distanceLE (R⦃≤ d⦄[X σ]) (Fintype.card σ * d) := by
-  simp [ToOracle.distanceLE, instToOracleMvPolynomialDegreeLE, MvPolynomial.mem_restrictDegree]
+theorem distanceLE_mvPolynomial_degreeLE {σ : Type} [Fintype σ] [DecidableEq σ] :
+    OracleInterface.distanceLE (R⦃≤ d⦄[X σ]) (Fintype.card σ * d) := by
+  simp [OracleInterface.distanceLE, instOracleInterfaceMvPolynomialDegreeLE,
+    MvPolynomial.mem_restrictDegree]
   intro a ha b hb hNe
   sorry
 
@@ -305,19 +318,19 @@ section Vector
 variable {n : ℕ} {α : Type}
 
 /-- Vectors of the form `Fin n → α` can be accessed via queries on their indices. -/
-instance instToOracleForallFin : ToOracle (Fin n → α) where
+instance instOracleInterfaceForallFin : OracleInterface (Fin n → α) where
   Query := Fin n
   Response := α
   oracle := fun vec i => vec i
 
 /-- Vectors of the form `List.Vector α n` can be accessed via queries on their indices. -/
-instance instToOracleListVector : ToOracle (List.Vector α n) where
+instance instOracleInterfaceListVector : OracleInterface (List.Vector α n) where
   Query := Fin n
   Response := α
   oracle := fun vec i => vec[i]
 
 /-- Vectors of the form `Vector α n` can be accessed via queries on their indices. -/
-instance instToOracleVector : ToOracle (Vector α n) where
+instance instOracleInterfaceVector : OracleInterface (Vector α n) where
   Query := Fin n
   Response := α
   oracle := fun vec i => vec[i]
@@ -328,7 +341,7 @@ section Test
 
 variable {ι : Type} {spec : OracleSpec ι} {R : Type} [CommSemiring R]
 
-open Polynomial ToOracle SimOracle OracleSpec in
+open Polynomial OracleInterface SimOracle OracleSpec in
 theorem poly_query_list_mapM {m : ℕ} (D : Fin m ↪ R) (p : R[X]) :
     simulateQ (simOracle spec (fun _ : Unit => p))
       (List.finRange m |>.mapM (fun i => query (spec := [fun _ : Unit => R[X]]ₒ) () (D i)))
