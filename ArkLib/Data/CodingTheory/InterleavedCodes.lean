@@ -21,7 +21,7 @@ open Classical LinearCodes
 noncomputable section
 
 /-!
-Definition of a `κ`-interleaved code `IC` of a linear code `LC` over a semiring `F`.
+Definition of an interleaved code `IC` of a linear code `LC` over a semiring.
 Definition of distances for interleaved codes and statement for the relation between the minimal
 distance of an interleaved code and its underlying linear code.
 Statements of proximity results for Reed Solomon codes
@@ -39,7 +39,7 @@ abbrev MatrixSubmodule.{u} (κ ι : ℕ) (F : Type u) [Semiring F] : Type u :=
   Submodule F (Matrix (Fin κ) (Fin ι) F)
 
 /--
-The data needed to construct an interleaved code
+The data needed to construct an interleaved code.
 -/
 structure InterleavedCode (κ ι : ℕ) (F : Type*) [Semiring F] where
   MF : MatrixSubmodule κ ι F
@@ -54,28 +54,37 @@ def InterleavedCode.isInterleaved (IC : InterleavedCode κ ι F) :=
 def LawfulInterleavedCode.{u} (κ ι : ℕ) (F : Type u) [Semiring F] :=
   { IC : InterleavedCode κ ι F // IC.isInterleaved }
 
+/--
+The module of matrices whose rows belong to a linear code.
+-/
 def matrixSubmoduleOfLinearCode (κ : ℕ) (LC : LinearCode ι F) : MatrixSubmodule κ ι F :=
   Submodule.span F { V | ∀ i, V i ∈ LC }
 
 def codeOfLinearCode (κ : ℕ) (LC : LinearCode ι F) : InterleavedCode κ ι F :=
   { MF := matrixSubmoduleOfLinearCode κ LC, LC := LC }
 
+/--
+The module of matrices whose rows belong to a linear code is in fact an interleaved code.
+-/
 lemma isInterleaved_codeOfLinearCode : (codeOfLinearCode κ LC).isInterleaved := by sorry
 
 def lawfulInterleavedCodeOfLinearCode (κ : ℕ) (LC : LinearCode ι F) : LawfulInterleavedCode κ ι F :=
   ⟨codeOfLinearCode κ LC, isInterleaved_codeOfLinearCode⟩
 
 /--
-distance between codewords `U` and `V` in a `κ`-interleaved code.
+Distance between codewords of an interleaved code.
  -/
 def distCodewords (U V : Matrix (Fin κ) (Fin ι) F) : ℕ :=
-  (Matrices.neqCols U V).card
+  (Matrix.neqCols U V).card
 
 /--
 `Δ(U,V)` is the distance codewords `U` and `V` of a `κ`-interleaved code `IC`.
 -/
 notation "Δ(" U "," V ")" => distCodewords U V
 
+/--
+The minimal distance of an interleaved code.
+-/
 def minDist (IC : MatrixSubmodule κ ι F) : ℕ :=
   sInf { d : ℕ | ∃ U ∈ IC, ∃ V ∈ IC, distCodewords U V = d }
 
@@ -85,7 +94,7 @@ def minDist (IC : MatrixSubmodule κ ι F) : ℕ :=
 notation "Δ" IC => minDist IC
 
 /--
-The distance from a `κ x ι` matrix `U` to the closest word in a `κ`-interleaved code `IC`.
+The distance from a matrix to the closest word in an interleaved code.
 -/
 def distToCode (U : Matrix (Fin κ) (Fin ι) F) (IC : MatrixSubmodule κ ι F) : ℕ :=
  sInf { d : ℕ | ∃ V ∈ IC, distCodewords U V = d }
@@ -95,6 +104,10 @@ def distToCode (U : Matrix (Fin κ) (Fin ι) F) (IC : MatrixSubmodule κ ι F) :
 -/
 notation "Δ(" U "," IC ")" => distToCode U IC
 
+/--
+The minimal distance of an interleaved code is the same as
+the minimal distance of its underlying linear code.
+-/
 lemma minDistL_eq_minDist {IC : LawfulInterleavedCode κ ι F} :
   LinearCodes.minDist IC.1.LC = minDist IC.1.MF := by sorry
 
@@ -111,24 +124,24 @@ local instance : Fintype F := Fintype.ofFinite F
 /--
 Lemma 4.3 Ligero
 -/
-lemma distInterleavedCodeToCodeLB
+lemma dist_interleavedCode_to_code_LB
   {IC : LawfulInterleavedCode κ ι F} {U : Matrix (Fin κ) (Fin ι) F} {e : ℕ}
   (hF: Fintype.card F ≥ e)
   (he : (e : ℚ) ≤ (codeDist (IC.1.LC : Set (Fin ι → F)) / 3)) (hU : e < Δ(U,IC.1.MF)) :
-  ∃ v ∈ Matrices.rowSpan U , e < distFromCode v IC.1.LC := sorry
+  ∃ v ∈ Matrix.rowSpan U , e < distFromCode v IC.1.LC := sorry
 
 namespace ProximityToRS
 
 /--
-The set of points on an affine line between `u` and `v`, which are within distance `e`
-from an RS code of degree less than `deg` and and evaluation points `α`.
+The set of points on an affine line, which are within distance `e`
+from a Reed-Solomon code.
 -/
 def closePtsOnAffineLine (u v : Fin ι → F) (deg : ℕ) (α : Fin ι ↪ F) (e : ℕ) : Set (Fin ι → F) :=
   {x : Fin _ → F | x ∈ Affine.line u v ∧ distFromCode x (ReedSolomon.code α deg) ≤ e}
 
 /--
-The number of points on an affine line between `u` and `v`, which are within distance `e`
-from an RS code of degree less than `deg` and and evaluation points `α`.
+The number of points on an affine line between, which are within distance `e`
+from a Reed-Solomon code.
 -/
 def numberOfClosePts (u v : Fin ι → F) (deg : ℕ) (α : Fin ι ↪ F)
   (e : ℕ) : ℕ :=
@@ -146,10 +159,10 @@ lemma e_leq_dist_over_3 {deg : ℕ} {α : Fin ι ↪ F} {e : ℕ} {u v : Fin ι 
 /--
 Lemma 4.5 Ligero
 -/
-lemma probOfBadPts {deg : ℕ} {α : Fin ι ↪ F} {e : ℕ} {U : Matrix (Fin κ) (Fin ι) F}
+lemma badPts_prob {deg : ℕ} {α : Fin ι ↪ F} {e : ℕ} {U : Matrix (Fin κ) (Fin ι) F}
   (he : (e : ℚ) < (ι - deg + 1 / 3))
   (hU : e < Δ(U, matrixSubmoduleOfLinearCode κ (ReedSolomon.code α deg))) :
-  (PMF.uniformOfFintype (Matrices.rowSpan U)).toOuterMeasure
+  (PMF.uniformOfFintype (Matrix.rowSpan U)).toOuterMeasure
     { w | distFromCode (n := Fin ι) (R := F) w (ReedSolomon.code α deg) ≤ e }
   ≤ (ι - deg + 1)/(Fintype.card F) := by
   sorry

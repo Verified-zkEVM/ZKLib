@@ -8,7 +8,7 @@ import Mathlib.InformationTheory.Hamming
 import Mathlib.Analysis.Normed.Field.Lemmas
 
 /-!
-proved definitions of relative Hamming distance and related notions for a linear code `LC`,
+Proved definitions of relative Hamming distance and related notions for a linear code `LC`,
 including corner cases.
 -/
 open Classical
@@ -19,34 +19,33 @@ variable {ι : Type*} [Fintype ι]
          {C : Set (ι → F)}
 
 @[simp]
-lemma zero_lt_card [Nonempty ι] : 0 < Fintype.card ι := by have := Fintype.card_ne_zero (α := ι); omega
+lemma Fintype.zero_lt_card [Nonempty ι] : 0 < Fintype.card ι := by
+  have := Fintype.card_ne_zero (α := ι); omega
 
 abbrev LinearCode.{u, v} (ι : Type u) (F : Type v) [Semiring F] : Type (max u v)
   := Submodule F (ι → F)
 
 noncomputable section
 
-namespace RelativeHamming
-
 section
 
 variable [Nonempty ι]
 
 /--
-  relative Hamming distance between vectors `u` and `v`.
+relative Hamming distance between two vectors.
 -/
-def dist (u v : ι → F) : ℚ :=
+def relHammingDist (u v : ι → F) : ℚ :=
   (hammingDist u v : ℚ) / (Fintype.card ι : ℚ)
 
 @[simp]
-lemma relHammingDist_le_one : dist u v ≤ 1 := by
-  unfold dist
+lemma relHammingDist_le_one : relHammingDist u v ≤ 1 := by
+  unfold relHammingDist
   rw [div_le_iff₀ (by simp)]
   simp [hammingDist_le_card_fintype]
 
 @[simp]
-lemma zero_le_relHammingDist : 0 ≤ dist u v := by
-  unfold dist
+lemma zero_le_relHammingDist : 0 ≤ relHammingDist u v := by
+  unfold relHammingDist
   rw [le_div_iff₀ (by simp)]
   simp
 
@@ -55,21 +54,21 @@ end
 /--
 `δᵣ(u,v)` denotes the relative Hamming distance between vectors `u` and `v`.
 -/
-notation "δᵣ(" u ", " v ")" => dist u v
+notation "δᵣ(" u ", " v ")" => relHammingDist u v
 
 /--
 the range of the relative Hamming distance function.
 -/
-def distRange (ι : Type*) [Fintype ι] : Set ℚ :=
+def relHammingDistRange (ι : Type*) [Fintype ι] : Set ℚ :=
   { d : ℚ | ∃ d' : ℕ, d' ≤ Fintype.card ι ∧ d = d' / Fintype.card ι }
 
 @[simp]
-lemma relHammingDist_mem_relHammingDistRange : δᵣ(u, v) ∈ distRange ι :=
+lemma relHammingDist_mem_relHammingDistRange : δᵣ(u, v) ∈ relHammingDistRange ι :=
   ⟨hammingDist _ _, Finset.card_filter_le _ _, rfl⟩
 
 @[simp]
-lemma finite_relHammingDistRange [Nonempty ι] : (distRange ι).Finite := by
-  simp only [distRange, ← Set.finite_coe_iff, Set.coe_setOf]
+lemma finite_relHammingDistRange [Nonempty ι] : (relHammingDistRange ι).Finite := by
+  simp only [relHammingDistRange, ← Set.finite_coe_iff, Set.coe_setOf]
   exact
     finite_iff_exists_equiv_fin.2
       ⟨Fintype.card ι + 1,
@@ -85,7 +84,7 @@ lemma finite_relHammingDistRange [Nonempty ι] : (distRange ι).Finite := by
 lemma finite_offDiag [Finite F] : C.offDiag.Finite := Set.Finite.offDiag (Set.toFinite _)
 
 /--
-The set of possible distances between distinct codewords of `C`.
+The set of possible distances between distinct codewords in a given code.
 -/
 def d_C (C : Set (ι → F)) : Set ℚ :=
   { d : ℚ | ∃ p ∈ Set.offDiag C, δᵣ(p.1, p.2) = d }
@@ -93,7 +92,7 @@ def d_C (C : Set (ι → F)) : Set ℚ :=
 section
 
 @[simp]
-lemma d_C_subset_relHammingDistRange : d_C C ⊆ distRange ι :=
+lemma d_C_subset_relHammingDistRange : d_C C ⊆ relHammingDistRange ι :=
   λ _ _ ↦ by aesop (add simp d_C)
 
 @[simp]
@@ -103,10 +102,10 @@ lemma finite_d_C [Nonempty ι] : (d_C C).Finite :=
 end
 
 /--
-relative Hamming Distance of a code `C`.
+relative Hamming distance of a code.
 -/
-def minDistCode [Nonempty ι] (C : Set (ι → F)) : ℚ :=
-  have : Fintype (d_C C) := @Fintype.ofFinite _ finite_d_C
+def minRelHammingDistCode [Nonempty ι] (C : Set (ι → F)) : ℚ :=
+  haveI : Fintype (d_C C) := @Fintype.ofFinite _ finite_d_C
   if h : (d_C C).Nonempty
   then (d_C C).toFinset.min' (Set.toFinset_nonempty.2 h)
   else 0
@@ -114,7 +113,7 @@ def minDistCode [Nonempty ι] (C : Set (ι → F)) : ℚ :=
 /--
 `δᵣ C` denotes the minimum relative Hamming distance of a code `C`
 -/
-notation "δᵣ" C => minDistCode C
+notation "δᵣ" C => minRelHammingDistCode C
 
 /--
 `d_w` is the set of values of relHamming distance between a vector `w` and codewords `c ∈ C`.
@@ -123,7 +122,7 @@ def d_w (w : ι → F) (C : Set (ι → F)) : Set ℚ :=
   { d : ℚ | ∃ c ∈ C, c ≠ w ∧ δᵣ(w, c) = d }
 
 @[simp]
-lemma d_w_subset_relHammingDistRange : d_w w C ⊆ distRange ι :=
+lemma d_w_subset_relHammingDistRange : d_w w C ⊆ relHammingDistRange ι :=
   λ d h ↦ by aesop (add simp d_w)
 
 @[simp]
@@ -133,28 +132,27 @@ lemma finite_d_w [Nonempty ι] : (d_w w C).Finite :=
 instance [Nonempty ι] : Fintype (d_w w C) := @Fintype.ofFinite _ finite_d_w
 
 /--
-relative Hamming distance between a vector `w` and a code `C`.
+The relative Hamming distance from a vector to a code.
 -/
-def distToCode [Nonempty ι] (w : ι → F) (C : Set (ι → F)) : ℚ :=
+def relHammingDistToCode [Nonempty ι] (w : ι → F) (C : Set (ι → F)) : ℚ :=
   if h : (d_w w C).Nonempty
   then (d_w w C).toFinset.min' (Set.toFinset_nonempty.2 h)
   else 0
 
 /--
-`δᵣ(w,C)` denotes the relative Hamming distance between a vector `w` and a code `C`
+`δᵣ(w,C)` denotes the relative Hamming distance between a vector `w` and a code `C`.
 -/
-notation "δᵣ(" w ", " C ")" => distToCode w C
+notation "δᵣ(" w ", " C ")" => relHammingDistToCode w C
 
 @[simp]
-lemma zero_mem_RelHammingDistRange : 0 ∈ distRange ι := by use 0; simp
+lemma zero_mem_RelHammingDistRange : 0 ∈ relHammingDistRange ι := by use 0; simp
 
 @[simp]
 lemma relHammingDistToCode_mem_relHammingDistRange [Nonempty ι] :
-  δᵣ(c, C) ∈ distRange ι := by
-  unfold distToCode
+  δᵣ(c, C) ∈ relHammingDistRange ι := by
+  unfold relHammingDistToCode
   split_ifs
   · exact Set.mem_of_subset_of_mem (s₁ := (d_w c C).toFinset) (by simp) (Finset.min'_mem _ _)
   · simp
 
-end RelativeHamming
 end

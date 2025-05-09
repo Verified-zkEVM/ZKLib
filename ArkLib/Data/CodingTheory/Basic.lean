@@ -192,7 +192,7 @@ theorem codeDist'_eq_codeDist : ‖C‖₀'.toNat = ‖C‖₀ := by
 /-- Computable version of the distance from a vector `u` to a code `C`, assuming `C` is a `Fintype`.
   -/
 def distFromCode' (C : Set (n → R)) [Fintype C] (u : n → R) : ℕ∞ :=
-  Finset.min <| (@Finset.univ C _).image (fun v => hammingDist u v.1)
+Finset.min <| (@Finset.univ C _).image (fun v => hammingDist u v.1)
 
 notation "Δ₀'(" u ", " C ")" => distFromCode' C u
 
