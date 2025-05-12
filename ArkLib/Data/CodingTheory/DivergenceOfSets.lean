@@ -28,12 +28,12 @@ def d_U [Nonempty ι] (U V : Set (ι → F)) : Set ℚ :=
 
 @[simp]
 lemma d_U_subset_relHammingDistRange [Nonempty ι] :
-d_U U C ⊆ RelativeHamming.distRange ι :=
+d_U U C ⊆ relHammingDistRange ι :=
   λ _ _ ↦ by aesop (add simp d_U)
 
 @[simp]
 lemma finite_d_U [Nonempty ι] : (d_U U V).Finite :=
-  Set.Finite.subset RelativeHamming.finite_relHammingDistRange d_U_subset_relHammingDistRange
+  Set.Finite.subset finite_relHammingDistRange d_U_subset_relHammingDistRange
 
 /--
 divergence of an arbitrary set `U` from an arbitrary set `V`.

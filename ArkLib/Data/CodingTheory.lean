@@ -2,6 +2,7 @@ import ArkLib.Data.CodingTheory.Basic
 import ArkLib.Data.CodingTheory.DivergenceOfSets
 import ArkLib.Data.CodingTheory.InterleavedCodes
 import ArkLib.Data.CodingTheory.LinearCodes
+import ArkLib.Data.CodingTheory.ListDecodability
 import ArkLib.Data.CodingTheory.ProximityGap
 import ArkLib.Data.CodingTheory.Prelims
 import ArkLib.Data.CodingTheory.ReedMuller

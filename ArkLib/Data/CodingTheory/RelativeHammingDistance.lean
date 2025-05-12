@@ -22,9 +22,6 @@ variable {ι : Type*} [Fintype ι]
 lemma Fintype.zero_lt_card [Nonempty ι] : 0 < Fintype.card ι := by
   have := Fintype.card_ne_zero (α := ι); omega
 
-abbrev LinearCode.{u, v} (ι : Type u) (F : Type v) [Semiring F] : Type (max u v)
-  := Submodule F (ι → F)
-
 noncomputable section
 
 section
