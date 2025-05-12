@@ -22,8 +22,10 @@ namespace ReedSolomon
 
 open Polynomial
 
-variable {F : Type*} [Field F] [Fintype F] {n : ℕ} (domain : Fin n ↪ F)
+variable {F : Type*} [Semiring F] {n : ℕ} (domain : Fin n ↪ F)
 
+/-- The evaluation of a polynomial at a set of points specified by `domain : Fin n ↪ F`, as a linear
+  map. -/
 def evalOnPoints : F[X] →ₗ[F] (Fin n → F) where
   toFun := fun p => fun x => p.eval (domain x)
   map_add' := fun x y => by simp; congr
@@ -46,11 +48,5 @@ def checkMatrix (deg : ℕ) : Matrix (Fin (n - deg)) (Fin n) F :=
 --   simp [codeByGenMatrix, code]
 --   rw [LinearMap.range_eq_map]
 --   sorry
-
-#check LinearMap.range_eq_map
-
-#check Basis
-
-#check Matrix.vandermonde
 
 end ReedSolomon
