@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Least Authority
 -/
 
-import ArkLib.ProofSystem.Whir.ToCodingTheory.ReedSolomonCodes
+import ArkLib.ProofSystem.Stir.ToCodingTheory.ReedSolomonCodes
 
 import Mathlib.Data.Real.Sqrt
 
