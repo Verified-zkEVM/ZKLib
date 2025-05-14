@@ -27,7 +27,7 @@ noncomputable def bitExpo (i : ℕ ): (Fin m) →₀ ℕ :=
     (by intro j hj; simpa using hj)
 
 /-- The linear map that maps univariate polynomials of degree < 2ᵐ onto
-    a degree wise linear m-variate polynomial, sending
+    degree wise linear m-variate polynomials, sending
     aᵢ Xᶦ ↦ aᵢ ∏ⱼ Xⱼ^(bitⱼ(i)), where bitⱼ(i) is the j-th binary digit of i. -/
 noncomputable def linearMvExtension:
   Polynomial.degreeLT F (2 ^ m) →ₗ[F] MvPolynomial (Fin m) F where
@@ -55,12 +55,12 @@ noncomputable def powAlgHom :
   MvPolynomial (Fin m) F →ₐ[F] Polynomial F :=
    aeval fun j => Polynomial.X ^ (2 ^ (j : ℕ))
 
-/- The linear map optained by forgetting the multiplicative commutativity-/
+/- The linear map optained by forgetting the multiplicative structure-/
 noncomputable def powContraction :
   MvPolynomial (Fin m) F →ₗ[F] Polynomial F :=
   powAlgHom.toLinearMap
 
-/-- the pow-evaluated m-variate polynomial -/
+/-- the pow-evaluation od an m-variate polynomial -/
 noncomputable def powContracted
   (p: MvPolynomial (Fin m) F) : Polynomial F :=
     powContraction.toFun p
