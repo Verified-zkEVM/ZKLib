@@ -26,11 +26,14 @@ noncomputable def bitExpo (i : ℕ ): (Fin m) →₀ ℕ :=
     (fun j => if Nat.testBit i j.1 then 1 else 0)
     (by intro j hj; simpa using hj)
 
+-- TODO: Make this
+--    (p : Polynomial.degreeLT F (2 ^ m)) →ₗ[F] MvPolynomial (Fin m) F
+
 /-- The linear map that maps univariate polynomials of degree < 2ᵐ onto
     degree wise linear m-variate polynomials, sending
-    aᵢ Xᶦ ↦ aᵢ ∏ⱼ Xⱼ^(bitⱼ(i)), where bitⱼ(i) is the j-th binary digit of i. -/
+    aᵢ Xᶦ ↦ aᵢ ∏ⱼ Xⱼ^(bitⱼ(i)), where bitⱼ(i) is the j-th binary digit of (i mod 2ᵐ ). -/
 noncomputable def linearMvExtension:
-  Polynomial.degreeLT F (2 ^ m) →ₗ[F] MvPolynomial (Fin m) F where
+  Polynomial F →ₗ[F] MvPolynomial (Fin m) F where
     -- p(X) = aᵢ Xᶦ ↦ aᵢ ∏ⱼ Xⱼ^(bitⱼ(i))
     toFun p := (p : Polynomial F).sum fun i a =>
       MvPolynomial.monomial (bitExpo i)  a
@@ -66,9 +69,10 @@ noncomputable def powContracted
     powContraction.toFun p
 
 /- Evaluating m-variate polynomials on (X^(2⁰), ... , X^(2ᵐ⁻¹) ) is
-   right inverse to linear multivariate extensions -/
-lemma powContraction_is_right_inverse_to_linearMvExtension
+   right inverse to linear multivariate extensions on F^(< 2ᵐ)[X]
+lemma powContraction_is_right_inverse_to_linearMvExtension (m: ℕ )
   (p : Polynomial.degreeLT F (2^m)) :
-  powContraction (linearMvExtension p) = (p : Polynomial F) := by sorry
+  powContraction (linearMvExtension (p : Polynomial F)) = (p : Polynomial F) := by sorry
+-/
 
 end LinearMvExtension

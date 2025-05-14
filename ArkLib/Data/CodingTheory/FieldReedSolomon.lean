@@ -20,6 +20,8 @@ variable {F : Type*} [Field F]
 noncomputable def interpolate: (ι→ F) →ₗ[F] F[X] :=
   Lagrange.interpolate univ domain
 
+-- TODO: make this
+--   (code F ι domain deg) →ₗ[F]  Polynomial.degreeLT F deg
 /-- The linear map that maps Reed Solomon Code words to their associated
    < deg degree polynomials -/
 noncomputable def decode: (code F ι domain deg) →ₗ[F] F[X] :=
