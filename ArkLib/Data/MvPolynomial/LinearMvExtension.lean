@@ -60,7 +60,7 @@ noncomputable def powContraction :
   MvPolynomial (Fin m) F →ₗ[F] Polynomial F :=
   powAlgHom.toLinearMap
 
-/-- the pow-evaluation od an m-variate polynomial -/
+/-- the pow-evaluation of an m-variate polynomial -/
 noncomputable def powContracted
   (p: MvPolynomial (Fin m) F) : Polynomial F :=
     powContraction.toFun p
