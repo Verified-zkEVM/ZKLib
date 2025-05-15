@@ -15,31 +15,42 @@ variable {F : Type*} [Field F]
          {domain : ι ↪ F}  -- domain is the set of word, where codes are a subset
          {deg : ℕ}
 
-/-- The linear map that maps functions `f: ι→ F` to degree < n polynomials p,
+/-- The linear map that maps functions `f: ι→ F` to degree < |ι| polynomials p,
     such that p(x) = f(x) for all x ∈ ι -/
-noncomputable def interpolate: (ι→ F) →ₗ[F] F[X] :=
+private noncomputable def interpolate : (ι → F) →ₗ[F] F[X] :=
   Lagrange.interpolate univ domain
 
--- TODO: make this
---   (code F ι domain deg) →ₗ[F]  Polynomial.degreeLT F deg
-/-- The linear map that maps Reed Solomon Code words to their associated
-   < deg degree polynomials -/
+/-- The linear map that maps a Reed Solomon code to its associated polynomial -/
 noncomputable def decode: (code F ι domain deg) →ₗ[F] F[X] :=
     domRestrict (interpolate (domain := domain)) (code F ι domain deg)
 
-/-- the decoded degree < deg polynomial of a Reed Solomon code `c` -/
-noncomputable def decoded
-  (c : code F ι domain deg) : F[X] :=
-    decode.toFun c
+/- Reed Solomon codes are decoded into degree < deg polynomials-/
+lemma decoded_polynomial_lt_deg (c : code F ι domain deg) :
+  decode c ∈ (degreeLT F deg : Submodule F F[X]) := by sorry
+
+/-- The linear map that maps a Reed Solomon code to its associated polynomial
+    of degree < deg -/
+noncomputable def decodeLT : (code F ι domain deg) →ₗ[F] (Polynomial.degreeLT F deg) :=
+  LinearMap.codRestrict
+    (Polynomial.degreeLT F deg)
+    decode
+    (fun c => decoded_polynomial_lt_deg c)
 
 -- Should be in LinearCodes.lean
-noncomputable def rate (_C : code F ι domain deg) : ℝ := deg / (Fintype.card ι)
+noncomputable def rate (_c : code F ι domain deg) : ℝ := deg / (Fintype.card ι)
 
 
 -- TODO: This should be in ReedSolomon.lean
 -- Nethermind provided conflicting definitions for LinarCodes
 -- This is for the one in ArkLib.Data.CodingTheory.RelativeHammingDistance
-def toLinearCode : LinearCode ι F :=
+def toLinearCode (_cw : code F ι domain deg) : LinearCode ι F :=
   code F ι domain deg
+
+
+variable (cw : code F ι domain deg)
+#check decode cw
+#check decodeLT cw
+#check rate cw
+#check toLinearCode cw
 
 end FieldRSC

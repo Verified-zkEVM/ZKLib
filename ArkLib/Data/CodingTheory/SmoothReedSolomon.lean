@@ -10,26 +10,23 @@ import ArkLib.Data.MvPolynomial.LinearMvExtension
 section SmoothRSC
 
 /-! Smooth Reed Solomon Codes are Reed Solomon Codes defined over Smooth Domains.
-    Their decodes associated univariate polynomial can be translated into
+    Their decoded associated univariate polynomial can be translated into
     a degree wise linear multivariate polynomial -/
 
-open Polynomial Finset ReedSolomon LinearMap SmoothIndex
+open ReedSolomon SmoothIndex LinearMvExtension
 
 variable {F : Type*} [Field F]
-         {m : ℕ }
-         {ι : Finset F} [Smooth ι m] [DecidableEq ι]
+         {m : ℕ} -- Smooth RSC deg = 2^m
+         {ι : Finset F} [Smooth ι m] [DecidableEq ι] -- Actual Smooth domain
          {domain : ι ↪ F}  -- domain is the set of word, where codes are a subset
-         {deg : ℕ}
 
 /-- The linear map that maps Smooth Reed Solomon Code words with domain size 2^m
     to their associated degree wise linear m-variate polynomial  -/
-noncomputable def mVdecode
-  : (code F ι domain deg) →ₗ[F] MvPolynomial (Fin m) F :=
-  LinearMvExtension.linearMvExtension.comp decode
+noncomputable def mVdecode: (code F ι domain (2^m)) →ₗ[F] MvPolynomial (Fin m) F :=
+  linearMvExtension.comp decodeLT
 
-/-- the decoded degree wise linear m-variate polynomial of a Smooth Reed Solomon code `c` -/
-noncomputable def mVdecoded
-  (c : code F ι domain deg) : MvPolynomial (Fin m) F :=
-    mVdecode.toFun c
+-- Test
+variable (cw : code F ι domain (2^m))
+#check mVdecode cw
 
 end SmoothRSC
