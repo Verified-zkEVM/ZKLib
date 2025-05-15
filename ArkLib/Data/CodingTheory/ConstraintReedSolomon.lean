@@ -38,18 +38,15 @@ def constraint
   (σ : F): Prop :=
     ∑ b ∈  hypercube , w.eval (toWeightAssignment f b) = σ
 
-/-- All the RS‐codewords of degree `< deg` that satisfy the weight‐constraint `w, σ`. -/
+/-- All Smooth that satisfy the onstraint for given `w` and `σ`. -/
 def constraintCode
-  (m : ℕ )
+  {m : ℕ}
   (F : Type*) [Field F] [DecidableEq F]
   (ι : Finset F) [Smooth ι m] [DecidableEq ι]
   (domain : ι ↪ F) [DecidableEq (ι ↪ F)]
-  (deg : ℕ)
   (w : MvPolynomial (Fin (m+1)) F)
-  (σ : F) :=
-    {c : code F ι domain deg // constraint  (mVdecode c) w σ}
-
-namespace ConstraintCode
+  (σ : F):=
+    {c : code F ι domain (2^m) // constraint  (mVdecode c) w σ}
 
 variable
          (m: ℕ)
@@ -60,12 +57,7 @@ variable
          (w : MvPolynomial (Fin (m+1)) F)
          (σ : F)
 
-example (c : code F ι domain deg) : constraint (mVdecode c) w σ := sorry
-
-#check constraintCode m F ι domain deg w σ
-
-variable  (cw : constraintCode m F ι domain deg w σ)
-
-end ConstraintCode
+#check constraintCode F ι domain w σ
+variable  (cw : constraintCode F ι domain w σ)
 
 end ConstraintReedSolomon
