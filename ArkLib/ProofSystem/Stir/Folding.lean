@@ -18,7 +18,7 @@ import Mathlib.RingTheory.MvPolynomial.Groebner
 open SmoothIndex Polynomial ReedSolomon LinearMap
 
 namespace Folding
-variable {m n : ℕ}
+variable {n : ℕ}
          {F : Type*} [Field F]
          {ι : Finset F}
 
@@ -178,7 +178,7 @@ lemma folding
   (C1 : code F ι₁ domain₁ degree)
   (C2 : code F ι₂ domain₂ (degree / k)) (f : ι₁ → F)
   (δ : ℚ) (hδPos: δ > 0) (hδLt : δ < foldingRange C1 f) :
-    (PMF.uniformOfFintype F).toOuterMeasure { r |
+    (PMF.uniformOfFintype F).toOuterMeasure { r : F |
             δᵣ((fold f k r),C2) ≤ δ} > err' F (degree/k) (rate C1) δ k
             -- Double check if this really is C1.rate not C2.rate
     := by sorry
