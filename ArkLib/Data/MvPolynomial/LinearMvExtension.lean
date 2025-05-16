@@ -61,11 +61,13 @@ lemma powContraction_is_right_inverse_to_linearMvExtension (m: ℕ )
   (p : Polynomial.degreeLT F (2^m)) :
     powContraction.comp linearMvExtension p  = p  := by sorry
 
-
+section
 -- Test
 variable  (m : ℕ ) (p : Polynomial.degreeLT F (2^m) ) (q: MvPolynomial (Fin m) F)
 
 #check linearMvExtension p
 #check powContraction q
+
+end
 
 end LinearMvExtension
