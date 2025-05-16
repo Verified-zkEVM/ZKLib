@@ -8,7 +8,7 @@ import Mathlib.Algebra.Group.Subgroup.Basic
 import Mathlib.Data.Fintype.Units
 import Mathlib.Data.Fintype.Card
 
-namespace SmoothIndex
+namespace SmoothDomain
 
 variable {F: Type*} [Semiring F] {ι : Finset F}
 
@@ -55,4 +55,4 @@ variable {F : Type*} [Semiring F] [DecidableEq F] (ι₁ : Finset F) (dom : ι�
 #check fiber (pow dom k) y
 
 
-end SmoothIndex
+end SmoothDomain
