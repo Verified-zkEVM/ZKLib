@@ -10,6 +10,8 @@ section ConstraintReedSolomon
 
 open ReedSolomon SmoothIndex Finset
 
+-- TODO: There are hypercubes already in ArkLib. Use them
+
 /-- The boolens `{0,1}` sitting inside any field `F`. -/
 def boolF {F : Type*} [Field F] [DecidableEq F] : Finset F := {0, 1}
 

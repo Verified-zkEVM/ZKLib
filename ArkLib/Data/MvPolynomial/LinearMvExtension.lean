@@ -26,9 +26,6 @@ noncomputable def bitExpo (i : ℕ ): (Fin m) →₀ ℕ :=
     (fun j => if Nat.testBit i j.1 then 1 else 0)
     (by intro j hj; simpa using hj)
 
--- TODO: Make this
---    (p : Polynomial.degreeLT F (2 ^ m)) →ₗ[F] MvPolynomial (Fin m) F
-
 /-- The linear map that maps univariate polynomials of degree < 2ᵐ onto
     degree wise linear m-variate polynomials, sending
     aᵢ Xᶦ ↦ aᵢ ∏ⱼ Xⱼ^(bitⱼ(i)), where bitⱼ(i) is the j-th binary digit of (i mod 2ᵐ ). -/

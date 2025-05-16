@@ -17,16 +17,16 @@ open ReedSolomon SmoothIndex LinearMvExtension
 
 variable {F : Type*} [Field F]
          {m : ℕ} -- Smooth RSC deg = 2^m
-         {ι : Finset F} [Smooth ι m] [DecidableEq ι] -- Actual Smooth domain
+         {ι : Finset F} [DecidableEq ι]   -- Actual Smooth domain
          {domain : ι ↪ F}  -- domain is the set of word, where codes are a subset
 
 /-- The linear map that maps Smooth Reed Solomon Code words with domain size 2^m
     to their associated degree wise linear m-variate polynomial  -/
-noncomputable def mVdecode: (code F ι domain (2^m)) →ₗ[F] MvPolynomial (Fin m) F :=
+noncomputable def mVdecode [Smooth ι m]: (code F ι domain (2^m)) →ₗ[F] MvPolynomial (Fin m) F :=
   linearMvExtension.comp decodeLT
 
 -- Test
 variable (cw : code F ι domain (2^m))
-#check mVdecode cw
+--#check mVdecode cw
 
 end SmoothRSC
