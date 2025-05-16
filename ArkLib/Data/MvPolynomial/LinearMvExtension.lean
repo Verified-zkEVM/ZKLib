@@ -28,9 +28,9 @@ noncomputable def bitExpo (i : ℕ ): (Fin m) →₀ ℕ :=
 
 /-- The linear map that maps univariate polynomials of degree < 2ᵐ onto
     degree wise linear m-variate polynomials, sending
-    aᵢ Xᶦ ↦ aᵢ ∏ⱼ Xⱼ^(bitⱼ(i)), where bitⱼ(i) is the j-th binary digit of i. -/
+    aᵢ Xᶦ ↦ aᵢ ∏ⱼ Xⱼ^(bitⱼ(i)), where bitⱼ(i) is the j-th binary digit of (i mod 2ᵐ ). -/
 noncomputable def linearMvExtension:
-  Polynomial.degreeLT F (2 ^ m) →ₗ[F] MvPolynomial (Fin m) F where
+  Polynomial.degreeLT F (2^m) →ₗ[F] MvPolynomial (Fin m) F where
     -- p(X) = aᵢ Xᶦ ↦ aᵢ ∏ⱼ Xⱼ^(bitⱼ(i))
     toFun p := (p : Polynomial F).sum fun i a =>
       MvPolynomial.monomial (bitExpo i)  a
@@ -41,11 +41,6 @@ noncomputable def linearMvExtension:
       rintro c p
       simp [Polynomial.sum_smul_index] -- For some reason simp doesn't close this
       sorry
-
-/-- the linearized m-variate polynomial -/
-noncomputable def linearMvExtended
-  (p : Polynomial.degreeLT F (2 ^ m)) : MvPolynomial (Fin m) F :=
-    linearMvExtension.toFun p
 
 /-- The Semiring morphism that maps m-variate polynomials onto univariate
     polynomials by evaluating them at (X^(2⁰), ... , X^(2ᵐ⁻¹) ) , i.e. sending
@@ -60,15 +55,17 @@ noncomputable def powContraction :
   MvPolynomial (Fin m) F →ₗ[F] Polynomial F :=
   powAlgHom.toLinearMap
 
-/-- the pow-evaluation of an m-variate polynomial -/
-noncomputable def powContracted
-  (p: MvPolynomial (Fin m) F) : Polynomial F :=
-    powContraction.toFun p
-
 /- Evaluating m-variate polynomials on (X^(2⁰), ... , X^(2ᵐ⁻¹) ) is
-   right inverse to linear multivariate extensions -/
-lemma powContraction_is_right_inverse_to_linearMvExtension
+   right inverse to linear multivariate extensions on F^(< 2ᵐ)[X]  -/
+lemma powContraction_is_right_inverse_to_linearMvExtension (m: ℕ )
   (p : Polynomial.degreeLT F (2^m)) :
-  powContraction (linearMvExtension p) = (p : Polynomial F) := by sorry
+    powContraction.comp linearMvExtension p  = p  := by sorry
+
+
+-- Test
+variable  (m : ℕ ) (p : Polynomial.degreeLT F (2^m) ) (q: MvPolynomial (Fin m) F)
+
+#check linearMvExtension p
+#check powContraction q
 
 end LinearMvExtension

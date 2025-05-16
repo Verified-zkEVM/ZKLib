@@ -21,6 +21,7 @@ import ArkLib.Data.FieldTheory.NonBinaryField.Basic
 import ArkLib.Data.FieldTheory.NonBinaryField.Goldilocks
 import ArkLib.Data.FieldTheory.NonBinaryField.Mersenne
 import ArkLib.Data.FieldTheory.NonBinaryField.Secp256k1
+import ArkLib.Data.Fin.Basic
 import ArkLib.Data.Math.Fin
 import ArkLib.Data.Math.HList
 import ArkLib.Data.Math.Operations
