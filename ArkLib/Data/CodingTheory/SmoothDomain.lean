@@ -50,8 +50,12 @@ def fiber [DecidableEq F]
 section
 --Test
 
-variable {F : Type*} [Semiring F] [DecidableEq F] (ι₁ : Finset F) (dom : ι₁ ↪ F) (k : ℕ)
-(y : indexPow ι₁ k)
+variable  {F : Type*} [Semiring F] [DecidableEq F]
+          (ι₁ : Finset F)
+          (dom : ι₁ ↪ F)
+          (k : ℕ)
+          (y : indexPow ι₁ k)
+
 #check dom
 #check pow dom k
 #check fiber (pow dom k) y
