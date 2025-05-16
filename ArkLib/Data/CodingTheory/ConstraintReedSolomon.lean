@@ -51,7 +51,7 @@ def constraintCode
   (m : ℕ)
   (w : MvPolynomial (Fin (m+1)) F)
   (σ : F):=
-    {sc : smoothCode F ι domain k m // weightConstraint  (mVdecode sc) w σ}
+    {sc : smoothCode F ι domain k m | weightConstraint  (mVdecode sc) w σ}
 
 
 section ConstraintReedSolomon
