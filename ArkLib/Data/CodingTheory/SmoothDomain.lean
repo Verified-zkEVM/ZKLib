@@ -30,7 +30,7 @@ abbrev indexPow [DecidableEq F] (ι : Finset F) (k : ℕ) : Finset F :=
   ι.image (fun x => x ^ k)
 
 /-- The k-th power domain `ιᵏ ↪ F` for a given domain `ι ↪ F`. -/
-def domainPow [DecidableEq F]
+def pow [DecidableEq F]
   (_domain : ι ↪ F)
   (k : ℕ) : indexPow ι k ↪ F :=
     Function.Embedding.subtype fun y => y ∈ indexPow ι k
@@ -41,7 +41,7 @@ abbrev powFiber
   ι.filter (fun x => x^ k = y)
 
 /-- The fiber domain `f⁻¹(y) ↪ F` for the surjection `f : ι → ιᵏ, x → xᵏ` and `y ∈ ιᵏ`. -/
-def domainPowFiber [DecidableEq F]
+def fiber [DecidableEq F]
   {k : ℕ}
   (_domainPow : indexPow ι k ↪ F )
   (y : indexPow ι k): powFiber ι k y ↪ F :=
@@ -51,8 +51,8 @@ def domainPowFiber [DecidableEq F]
 variable {F : Type*} [Semiring F] [DecidableEq F] (ι₁ : Finset F) (dom : ι₁ ↪ F) (k : ℕ)
 (y : indexPow ι₁ k)
 #check dom
-#check domainPow dom k
-#check domainPowFiber (domainPow dom k) y
+#check pow dom k
+#check fiber (pow dom k) y
 
 
 end SmoothIndex
