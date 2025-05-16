@@ -10,13 +10,12 @@ import Mathlib.Data.Fintype.Card
 
 namespace SmoothIndex
 
-variable {F: Type*} [Semiring F]
+variable {F: Type*} [Semiring F] {ι : Finset F}
 
 /-- A domain `ι ↪ F` is `smooth`, if `ι ⊆ F`, `|ι| = 2^m` for some `m` and
     there exists a subgroup `H` in the group of units `Rˣ`
     and an invertible element `a ∈ R` such that `ι = a • H` -/
 class Smooth
-  {ι : Finset F}
   (domain : ι ↪ F) -- For ι : Finset F, this is the identity embedding
   (m : ℕ ) where
     H           : Subgroup (Units F)
@@ -32,7 +31,6 @@ abbrev indexPow [DecidableEq F] (ι : Finset F) (k : ℕ) : Finset F :=
 
 /-- The k-th power domain `ιᵏ ↪ F` for a given domain `ι ↪ F`. -/
 def domainPow [DecidableEq F]
-  {ι : Finset F}
   (_domain : ι ↪ F)
   (k : ℕ) : indexPow ι k ↪ F :=
     Function.Embedding.subtype fun y => y ∈ indexPow ι k
@@ -44,7 +42,6 @@ abbrev powFiber
 
 /-- The fiber domain `f⁻¹(y) ↪ F` for the surjection `f : ι → ιᵏ, x → xᵏ` and `y ∈ ιᵏ`. -/
 def domainPowFiber [DecidableEq F]
-  {ι : Finset F}
   {k : ℕ}
   (_domainPow : indexPow ι k ↪ F )
   (y : indexPow ι k): powFiber ι k y ↪ F :=
