@@ -6,9 +6,10 @@ Authors: Least Authority
 
 import ArkLib.Data.CodingTheory.SmoothReedSolomon
 
-section ConstraintReedSolomon
+namespace ReedSolomon
 
-open ReedSolomon SmoothIndex Finset
+
+open ReedSolomon SmoothDomain Finset
 
 -- TODO: There are hypercubes already in ArkLib. Use them
 
@@ -23,7 +24,7 @@ def hypercube
 /-- Auxiliary function to assign values to the weight polynomial variables:
     index `0` ↦ `p.eval b`, index `j+1` ↦ `b j`. -/
 private def toWeightAssignment
-  {F : Type*} [Field F] [DecidableEq F]
+  {F : Type*} [Field F]
   {m : ℕ}
   (p : MvPolynomial (Fin m) F)
   (b : Fin m → F) : Fin (m+1) → F
@@ -31,8 +32,8 @@ private def toWeightAssignment
     | ⟨j+1, hj⟩   => b ⟨j, by simpa using hj⟩
 
 /-- constraint is true, if ∑_{b ∈ {0,1}^m} w(f(b),b) = σ for given
-    m-variate polynomial `f`and (m+1)-variate polynomial `w`-/
-def constraint
+    m-variate polynomial `f`and `(m+1)`-variate polynomial `w`-/
+def weightConstraint
   {F : Type*} [Field F] [DecidableEq F]
   {m : ℕ}
   (f : MvPolynomial (Fin m) F)
@@ -40,26 +41,51 @@ def constraint
   (σ : F): Prop :=
     ∑ b ∈  hypercube , w.eval (toWeightAssignment f b) = σ
 
-/-- All Smooth that satisfy the onstraint for given `w` and `σ`. -/
+/-- Constraint Reed Solomon codes are smooth codes that satisfy the
+    weight constraint for given `w` and `σ`. -/
 def constraintCode
-  {m : ℕ}
   (F : Type*) [Field F] [DecidableEq F]
-  (ι : Finset F) [Smooth ι m] [DecidableEq ι]
-  (domain : ι ↪ F) [DecidableEq (ι ↪ F)]
+  (ι : Finset F) [DecidableEq ι]
+  (domain : ι ↪ F)
+  (k : ℕ) [Smooth domain k]
+  (m : ℕ)
   (w : MvPolynomial (Fin (m+1)) F)
   (σ : F):=
-    {c : code F ι domain (2^m) // constraint  (mVdecode c) w σ}
+    {sc : smoothCode F ι domain k m // weightConstraint  (mVdecode sc) w σ}
 
-variable
-         (m: ℕ)
-         (F : Type*) [Field F] [DecidableEq F]
-        (ι : Finset F) [Smooth ι m] [DecidableEq ι]
-        (domain : ι ↪ F) [DecidableEq (ι ↪ F)]
-        (deg : ℕ)
-         (w : MvPolynomial (Fin (m+1)) F)
-         (σ : F)
 
-#check constraintCode F ι domain w σ
-variable  (cw : constraintCode F ι domain w σ)
+section ConstraintReedSolomon
+
+variable  {F : Type*} [Field F] [DecidableEq F]
+          {ι : Finset F} [DecidableEq ι]
+          {domain : ι ↪ F}
+          {k : ℕ} [Smooth domain k]
+          {m : ℕ}
+          {w : MvPolynomial (Fin (m+1)) F}
+          {σ : F}
+
+/-- Forget the weight constrain. -/
+noncomputable def toSmoothCode
+  (cc : constraintCode F ι domain k m w σ) : smoothCode F ι domain k m :=
+    cc.val
+
+section --Test
+
+variable  (F : Type*) [Field F] [DecidableEq F]
+          (ι : Finset F) [DecidableEq ι]
+          (domain : ι ↪ F)
+          (k : ℕ) [Smooth domain k]
+          (m : ℕ)
+          (w : MvPolynomial (Fin (m+1)) F)
+          (σ : F)
+          (cc : constraintCode F ι domain k m w σ)
+
+#check constraintCode F ι domain k m w σ
+#check cc
+#check mVdecode (toSmoothCode cc)
+
+end
 
 end ConstraintReedSolomon
+
+end ReedSolomon
