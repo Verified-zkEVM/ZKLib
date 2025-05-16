@@ -14,10 +14,10 @@ open ReedSolomon SmoothDomain Finset
 -- TODO: There are hypercubes already in ArkLib. Use them
 
 /-- The boolens `{0,1}` sitting inside any field `F`. -/
-def boolF {F : Type*} [Field F] [DecidableEq F] : Finset F := {0, 1}
+private def boolF {F : Type*} [Field F] [DecidableEq F] : Finset F := {0, 1}
 
 /-- The binary `m`‐dimensional cube `{0,1}^m` as a `Finset (Fin m → F)`. -/
-def hypercube
+private def hypercube
   {F : Type*} [Field F] [DecidableEq F]
   {m : ℕ}: Finset (Fin m → F) := Fintype.piFinset fun _ => boolF
 
@@ -41,8 +41,8 @@ def weightConstraint
   (σ : F): Prop :=
     ∑ b ∈  hypercube , w.eval (toWeightAssignment f b) = σ
 
-/-- Constraint Reed Solomon codes are smooth codes that satisfy the
-    weight constraint for given `w` and `σ`. -/
+/-- Constraint Reed Solomon codes are smooth codes who's decoded m-variate
+    polynomial satisfies the weight constraint for given `w` and `σ`. -/
 def constraintCode
   (F : Type*) [Field F] [DecidableEq F]
   (ι : Finset F) [DecidableEq ι]
