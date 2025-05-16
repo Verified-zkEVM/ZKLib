@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Least Authority
 -/
 
-import ArkLib.ProofSystem.Stir.IOPP
+import ArkLib.OracleReduction.VectorIOR
 import ArkLib.ProofSystem.Stir.ToCodingTheory.ProximityBound
 import ArkLib.ProofSystem.Stir.ToCodingTheory.ReedSolomonCodes
 import ArkLib.ProofSystem.Stir.ToCodingTheory.SmoothDom
@@ -13,7 +13,7 @@ open Finset
 open scoped BigOperators NNReal
 
 
-namespace Reduction
+namespace VectorIOP
 
 variable {F : Type*} [Field F] [Fintype F] [DecidableEq F]
 
@@ -58,24 +58,44 @@ def predFin {n : ℕ} (i : Fin (n + 1)) (h : i.val ≠ 0) : Fin (n + 1) :=
     have hpred : Nat.pred i.val < i.val := Nat.pred_lt h
     exact Nat.lt_trans hpred i.isLt⟩
 
-/-- Max of `ε_fold`, `ε_fin`, all `ε_out` and `ε_shift`.  Uses `max'` so
-no `OrderBot ℝ≥0` instance is required. -/
-noncomputable def maxErrors {M : ℕ}
-    (ε_fold ε_fin : ℝ≥0) (ε_out ε_shift : Fin (M + 1) → ℝ≥0) : ℝ≥0 :=
-  (insert ε_fold
-    (insert ε_fin
-      ((univ : Finset (Fin (M + 1))).image ε_out ∪
-       (univ : Finset (Fin (M + 1))).image ε_shift))).max' (by simp)
-
-
 open OracleComp OracleSpec ProtocolSpec
 
 section STIR
 variable {n : ℕ} {ι : Type}
 
+structure Statement
+  (F : Type)[Field F][Fintype F][DecidableEq F]
+  (L : Finset F)(d : ℕ) where
+  eval : L -> F
+
+
+@[reducible]
+def OStmtOut (F : Type) (L : Finset F) (ιₛ : Type) : ιₛ → Type :=
+  fun _ => L → F
+
+instance instStirOraclePerIndex
+  {F : Type} [Field F] [Fintype F] [DecidableEq F]
+  {L : Finset F} {ιₛ : Type} :
+  ∀ _ : ιₛ, OracleInterface (L → F) :=
+  fun _ => {
+    Query := {x // x ∈ L}
+    Response := F
+    oracle := fun f q => f q
+  }
+
+def stirRelation
+  {F : Type} [Field F] [Fintype F] [DecidableEq F]
+  {L : Finset F} {d : ℕ} {ιₛ : Type}
+  (C : ReedSolomonCode F L d) (δ : ℝ)
+  : (Statement F L d × ∀ _ : ιₛ, L → F) → Unit → Prop :=
+  fun ⟨stmt, _oracles⟩ _ =>
+    ∀ c ∈ C.code, fractionalHammingDist stmt.eval c ≥ δ
+
+
+
 /-- **STIR main theorem** -/
 theorem STIR
-  {F : Type*} [Field F] [Fintype F] [DecidableEq F]
+  {F : Type} [Field F] [Fintype F] [DecidableEq F] [VCVCompatible F]
   {L : Finset F} (hsmooth : smoothDom L)
   {d : ℕ} (hd : ∃ m, d = 2 ^ m)
   (C : ReedSolomonCode F L d) (secpar : ℕ)
@@ -84,26 +104,30 @@ theorem STIR
   (hF : Fintype.card F ≥
         secpar * 2 ^ secpar * d^2 * L.card^(7/2) /
         Real.log (1 / C.rate))
-  (pSpec : ProtocolSpec n) (oSpec : OracleSpec ι)
-  [∀ i, VCVCompatible (pSpec.Challenge i)] [oSpec.FiniteRange]
-  [∀ i, ToOracle (pSpec.Message i)]
-  (StmtIn WitIn : Type)
-  {ιₛₒ : Type} (OStmtOut : ιₛₒ → Type) [∀ i, ToOracle (OStmtOut i)]
-  (ε_sound : ℝ≥0) (ε_rbr : pSpec.ChallengeIndex → ℝ≥0) :
-  ∃ π : IOPP pSpec oSpec StmtIn WitIn OStmtOut ε_sound ε_rbr,
-    ε_rbr < 1 / 2 ^ secpar :=
+  (vPSpec : ProtocolSpec.VectorSpec n)
+  (oSpec : OracleSpec ι) [oSpec.FiniteRange]
+  {ιₛ : Type}
+  [OracleInterface (L → F)]
+  (ε_rbr : vPSpec.ChallengeIdx → ℝ≥0) :
+  ∃ π : VectorIOP vPSpec F oSpec (Statement F L d) Unit (OStmtOut F L ιₛ),
+    IsSecureWithGap (stirRelation C 0)
+                    (stirRelation C δ)
+                    ε_rbr π :=
 by
   sorry
+
 end STIR
 
 
 section RBR
 open Finset BigOperators
 variable {n : ℕ} {ι : Type}
-variable {F : Type*} [Field F] [Fintype F] [DecidableEq F] {d : ℕ}
+
 
 /-- **Round-by-round soundness of the STIR IOPP**-/
 theorem stir_rbr_soundness
+    {F : Type} [Field F] [Fintype F] [DecidableEq F] [VCVCompatible F]
+    {d : ℕ}{L : Finset F} (hsmooth : smoothDom L)
     {M : ℕ} (P : Params F M) {f : F → F}
     {i : Fin (M + 1)} (C : Code (P := P) (d := d) i) (s : ℕ)
     (dist : Distances M)
@@ -125,15 +149,14 @@ theorem stir_rbr_soundness
       ∀ {j : Fin (M + 1)}, j ≠ 0 →
         (C.codeᵢ j).toLinearCode.toErrCorrCode.listDecodable
           (dist.δ j) (dist.l j))
-    (pSpec : ProtocolSpec n) (oSpec : OracleSpec ι)
-    [∀ j, VCVCompatible (pSpec.Challenge j)] [oSpec.FiniteRange]
-    [∀ j, ToOracle (pSpec.Message j)]
-    (StmtIn WitIn : Type)
-    {ιₛₒ : Type} (OStmtOut : ιₛₒ → Type) [∀ j, ToOracle (OStmtOut j)]
+    (vPSpec : ProtocolSpec.VectorSpec n)
+    -- [∀ j, VCVCompatible (vPSpec.ChallengeIdx j)][∀ j, OracleInterface (vPSpec.MessageIdx j)]
+    (oSpec : OracleSpec ι) [oSpec.FiniteRange]
+    {ιₛ : Type} [OracleInterface (L → F)]
     (ε_fold : ℝ≥0) (ε_out : Fin (M + 1) → ℝ≥0)
     (ε_shift : Fin (M + 1) → ℝ≥0) (ε_fin : ℝ≥0)
-    (ε_sound : ℝ≥0) (ε_rbr : pSpec.ChallengeIndex → ℝ≥0) :
-    ∃ π : IOPP pSpec oSpec StmtIn WitIn OStmtOut ε_sound ε_rbr,
+    (ε_sound : ℝ≥0) (ε_rbr : vPSpec.ChallengeIdx → ℝ≥0) :
+    ∃ π : VectorIOP vPSpec F oSpec (Statement F L d) Unit (OStmtOut F L ιₛ),
       ε_fold ≤ (err' F ((degreeᵢ d P 0) / P.k 0) (rateᵢ d P 0)
                  (dist.δ 0) (P.k 0)).toReal ∧
       (∀ {j : Fin (M + 1)} (hⱼ : j.val ≠ 0),
@@ -148,11 +171,10 @@ theorem stir_rbr_soundness
             (dist.δ j) (P.t jPred) + s).toReal +
           (err' F ((degreeᵢ d P j) / P.k j)
             (rateᵢ d P j) (dist.δ j) (P.k j)).toReal) ∧
-        ε_fin ≤ (1 - dist.δ M) ^ (P.t M) ∧
-        ε_rbr = fun _ => maxErrors ε_fold ε_fin ε_out ε_shift :=
+        ε_fin ≤ (1 - dist.δ M) ^ (P.t M) :=
 by
   sorry
 
 end RBR
 
-end Reduction
+end VectorIOP
