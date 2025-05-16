@@ -53,8 +53,7 @@ def constraintCode
   (σ : F):=
     {sc : smoothCode F ι domain k m | weightConstraint  (mVdecode sc) w σ}
 
-
-section ConstraintReedSolomon
+namespace ConstraintReedSolomon
 
 variable  {F : Type*} [Field F] [DecidableEq F]
           {ι : Finset F} [DecidableEq ι]
@@ -80,6 +79,7 @@ variable  (F : Type*) [Field F] [DecidableEq F]
           (σ : F)
           (cc : constraintCode F ι domain k m w σ)
 
+
 #check constraintCode F ι domain k m w σ
 #check cc
 #check mVdecode (toSmoothCode cc)
@@ -87,5 +87,58 @@ variable  (F : Type*) [Field F] [DecidableEq F]
 end
 
 end ConstraintReedSolomon
+
+
+/-- Multi-constraint Reed Solomon codes are smooth codes who's decoded m-variate
+    polynomial satisfies the `t` weight constraints for given `w₀,...,wₜ₋₁` and
+    `σ₀,...,σₜ₋₁`. -/
+def multiConstraintCode
+  (F : Type*) [Field F] [DecidableEq F]
+  (ι : Finset F) [DecidableEq ι]
+  (domain : ι ↪ F)
+  (k : ℕ) [Smooth domain k]
+  (m : ℕ)
+  (t : ℕ)
+  (w : Fin t → MvPolynomial (Fin (m+1)) F)
+  (σ : Fin t → F) :
+  Set (smoothCode F ι domain k m) :=
+    { sc | ∀ i : Fin t, weightConstraint (mVdecode sc) (w i) (σ i) }
+
+namespace MultiConstraintReedSolomon
+
+variable  {F : Type*} [Field F] [DecidableEq F]
+          {ι : Finset F} [DecidableEq ι]
+          {domain : ι ↪ F}
+          {k : ℕ} [Smooth domain k]
+          {m : ℕ}
+          {t : ℕ}
+          {w : Fin t → MvPolynomial (Fin (m+1)) F}
+          {σ : Fin t → F}
+
+/-- Forget all weight constraints. -/
+noncomputable def toSmoothCode
+  (cc : multiConstraintCode F ι domain k m t w σ) : smoothCode F ι domain k m :=
+    cc.val
+
+section
+
+variable  (F : Type*) [Field F] [DecidableEq F]
+          (ι : Finset F) [DecidableEq ι]
+          (domain : ι ↪ F)
+          (k : ℕ) [Smooth domain k]
+          (m : ℕ)
+          (t : ℕ)
+          (w : Fin t → MvPolynomial (Fin (m+1)) F)
+          (σ : Fin t → F)
+          (mcc : multiConstraintCode F ι domain k m t w σ)
+
+#check multiConstraintCode F ι domain k m t w σ
+#check mcc
+#check mVdecode (toSmoothCode mcc)
+
+end
+
+end MultiConstraintReedSolomon
+
 
 end ReedSolomon
