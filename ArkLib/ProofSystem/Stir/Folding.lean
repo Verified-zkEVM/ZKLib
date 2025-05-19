@@ -5,6 +5,7 @@ Authors: Least Authority
 -/
 
 import ArkLib.Data.CodingTheory.FieldReedSolomon
+import ArkLib.Data.CodingTheory.ListDecodeability
 import ArkLib.Data.CodingTheory.ProximityBound
 import ArkLib.Data.CodingTheory.RelativeHammingDistance
 import ArkLib.Data.CodingTheory.SmoothDomain
@@ -15,11 +16,11 @@ import Mathlib.Probability.ProbabilityMassFunction.Basic
 import Mathlib.Probability.Distributions.Uniform
 import Mathlib.RingTheory.MvPolynomial.Groebner
 
-open SmoothIndex Polynomial ReedSolomon LinearMap Finset
+open SmoothDomain Polynomial ReedSolomon LinearMap Finset ListDecodable
 
 namespace Folding
 variable {n : ℕ}
-         {F : Type*} [Field F] [Fintype F]
+         {F : Type } [Field F] [Fintype F]
          {ι : Finset F} {domain : ι → F}
 
 /-! Section 4.4 in https://eprint.iacr.org/2024/390.pdf -/
@@ -149,17 +150,23 @@ noncomputable def fold
 
 /-- min{∆(f, RSC[F, L, d]), 1 − B^⋆(ρ)} -/
 noncomputable def foldingRange
-  {domain : ι ↪ F} {degree : ℕ} (C : code F ι domain degree) (f : ι → F) : ℝ :=
-    min (δᵣ(f,C)) (1 - Bstar (rate C))
+   (degree : ℕ) [Nonempty ι] (domain : ι ↪ F) (f : ι → F)  : ℝ :=
+    let C : Set (ι → F) := code F ι domain degree
+    min δᵣ(f, C) (1 - Bstar (rate degree ι))
 
 lemma folding
-  [DecidableEq F] (domain : ι ↪ F) (f : ι → F)
-  (k : ℕ) (x : indexPow ι k) {degree : ℕ}
-  (C1 : code F ι domain degree)
-  (C2 : code F (indexPow ι k) (pow domain k) (degree / k))
-  (δ : ℚ) (hδPos: δ > 0) (hδLt : δ < foldingRange C1 f) :
-    (PMF.uniformOfFintype F).toOuterMeasure { r : F |
-            δᵣ((fold domain f k r),C2) ≤ δ} > err' F (degree/k) (rate C1) δ k
-    := by sorry
+  [DecidableEq F] [Nonempty ι]
+  (domain : ι ↪ F) (f : ι → F) (k : ℕ) (x : indexPow ι k)
+  [Nonempty {x : F // x ∈ indexPow ι k}]
+  {degree : ℕ} (δ : ℚ) (hδPos : δ > 0)
+  (hδLt : δ < foldingRange degree domain f) :
+  (PMF.uniformOfFintype F).toOuterMeasure { r : F |
+    δᵣ((fold domain f k r), ↑(code F (indexPow ι k) (pow domain k) (degree / k))) ≤ δ
+  } > err' F (degree / k) (rate degree ι) δ k :=
+by sorry
+
+
+
+
 
 end Folding
