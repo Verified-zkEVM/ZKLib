@@ -12,12 +12,15 @@ import Mathlib.Probability.ProbabilityMassFunction.Basic
 import Mathlib.Probability.Distributions.Uniform
 import Mathlib.Data.Fintype.Basic
 
+
 open ReedSolomon ListDecodable Finset
 namespace OutOfDomSmpl
 variable {F : Type*} [Field F] [Fintype F] [DecidableEq F]
-         {ι : Finset F} {domain : ι ↪ F}
+         {ι : Finset F} {domain : ι ↪ F} {degree : ℕ}
 
 /-! Section 4.3 in https://eprint.iacr.org/2024/390.pdf -/
+
+def toCode (LC : LinearCode ι F) : Code ι F := LC
 
 def domainComplement (ι : Finset F) : Finset F :=
   Finset.univ \ ι
@@ -25,29 +28,36 @@ def domainComplement (ι : Finset F) : Finset F :=
 /-- Pr_{r₀, …, rₛ₋ ₁  ← 𝔽\L} [∃ distinct u, u′ ∈ List(f, d, δ) :
 ∀ i ∈ [0...s-1], u(r_i) = u′(r_i)] -/
 noncomputable def listDecodingCollisionProbability
-  {degree : ℕ} (C : code F ι domain degree) (f : ι → F)
-  (δ : ℝ) (s : ℕ) (h_nonempty : Nonempty (domainComplement ι))  : ENNReal :=
+  (C : code F ι domain degree) (f : ι → F) (δ : ℝ) (s : ℕ)
+  (h_nonempty : Nonempty (domainComplement ι))  : ENNReal :=
   (PMF.uniformOfFintype (Fin s → domainComplement ι)).toOuterMeasure { r |
-    ∃ (u u' : (relHammingBall (toLinearCode C) f δ)),
-        u.val ≠ u'.val ∧ -- both u and u' lie within δ of some target f
-      -- their interpolating polynomials agree on each sampled r_i
-        ∀ i : Fin s,
-        (decode ↑u).eval (r i).val = (decode ↑u').eval (r i).val
+    ∃ (u u' : code F ι domain degree),
+    -- ∃ (u u' : (relHammingBall (toLinearCode C) f δ)),
+      u.val ≠ u'.val ∧ -- both u and u' lie within δ of some target f
+      u.val ∈ relHammingBall (toCode (toLinearCode C)) f δ ∧
+      u'.val ∈ relHammingBall (toCode (toLinearCode C)) f δ ∧
+    -- their interpolating polynomials agree on each sampled r_i
+      ∀ i : Fin s,
+        (decode u).eval (r i).val = (decode u').eval (r i).val
   }
 
 lemma out_of_dom_smpl_1
-  {degree : ℕ} (C : code F ι domain degree)
+  (C : code F ι domain degree)
   (δ l : ℝ) (s : ℕ) (f : ι → F)
-  (h_decodable : listDecodable (toLinearCode C) δ l) :
+  (h_decodable : listDecodable (toCode (toLinearCode C)) δ l)
+  (h_nonempty : Nonempty (domainComplement ι)) :
   listDecodingCollisionProbability C f δ s h_nonempty ≤
-    (l.choose 2) * ((degree - 1) / (Fintype.card F - ι.card))^s := by sorry
+    (ENNReal.ofReal (l * (l-1) / 2)) * ((degree - 1) / (Fintype.card F - ι.card))^s
+  := by sorry
 
 lemma out_of_dom_smpl_2
-  {degree : ℕ} (f : ι → F)
+  (f : ι → F)
   (C : code F ι domain degree)
   (δ l : ℝ) (s : ℕ)
-  (h_decodable : listDecodable (toLinearCode C) δ l) :
+  (h_decodable : listDecodable (toCode (toLinearCode C)) δ l)
+  (h_nonempty : Nonempty (domainComplement ι)) :
   listDecodingCollisionProbability C f δ s h_nonempty ≤
-    (l^2 / 2) * (degree / (Fintype.card F - ι.card))^s := by sorry
+    (ENNReal.ofReal (l^2 / 2)) * (degree / (Fintype.card F - ι.card))^s
+  := by sorry
 
 end OutOfDomSmpl

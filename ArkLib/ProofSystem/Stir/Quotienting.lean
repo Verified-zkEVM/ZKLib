@@ -55,11 +55,12 @@ noncomputable def disagreementSet (f : ι → F) (S : Finset F) (Ans : S → F) 
 
 
 /- Quotienting Lemma-/
-lemma quotienting [DecidableEq F] {degree : ℕ} {domain : ι ↪ F} (S : Finset F) (hS_lt : S.card < degree) (r : F)
+lemma quotienting [DecidableEq F] {degree : ℕ} {domain : ι ↪ F}
+  (S : Finset F) (hS_lt : S.card < degree) (r : F)
   (C1 : code F ι domain degree) (C2 : code F ι domain (degree - S.card))
   (f : ι → F) (Ans Fill : S → F) (δ : ℝ) (hδPos : δ > 0) (hδLt : δ < 1)
-  (h : ∀ u, u ∈ (relHammingBall (toLinearCode C1) f δ) →
-    ∃ (x : ι) (hx : x.val ∈ S), (decode ↑u).eval x.val ≠ Ans ⟨x.val, hx⟩) :
+  (h : ∀ u : code F ι domain degree, u.val ∈ (relHammingBall (toLinearCode C1) f δ) →
+    ∃ (x : ι) (hx : x.val ∈ S), (decode u).eval x.val ≠ Ans ⟨x.val, hx⟩) :
     δᵣ((funcQuotient F ι f S Ans Fill), C2) +
       ((disagreementSet F ι f S Ans).card : ℝ) / (ι.card : ℝ) > δ := by
   sorry
