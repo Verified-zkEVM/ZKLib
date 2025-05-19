@@ -7,12 +7,6 @@ Authors: Least Authority
 import ArkLib.Data.CodingTheory.RelativeHammingDistance
 import ArkLib.Data.Probability.Notation
 
-import Mathlib.FieldTheory.Finite.Basic
-import Mathlib.Data.Finset.Basic
-import Mathlib.Data.Real.Basic
-import Mathlib.Probability.ProbabilityMassFunction.Basic
-import Mathlib.Probability.Distributions.Uniform
-
 structure Generator
   {F : Type*} [Semiring F]
   {ι : Type*} [Fintype ι]
@@ -26,11 +20,10 @@ structure Generator
 namespace ProximityGenerator
 
 variable {F : Type*} [Field F] [Fintype F] [DecidableEq F]
-         {ι : Type*} [Fintype ι] [DecidableEq ι]
+         {ι : Type*} [Fintype ι] [DecidableEq ι] [Nonempty ι]
 
 
 def proximity_property
-  [Nonempty ι]
   {l : ℕ}
   {C : LinearCode ι F}
   (G : Generator C l)
@@ -47,15 +40,15 @@ def proximity_property
    more frequently than the error bound `G.err δ`, then each function `fᵢ` coincides with
    some codeword on at least a `(1 - δ)` fraction of the evaluaton points.-/
 def isProximityGenerator
-  [Nonempty ι]
-  {l : ℕ} {C : LinearCode ι F}
+  {l : ℕ}
+  {C : LinearCode ι F}
   (G : Generator C l)
   : Prop :=
-  ∀ (f : Fin l → ι → F)
-    (δ : {δ : ℝ // 0 < δ ∧ δ < 1 - G.BStar}),
-    Pr_{r ← F}[ (proximity_property G f δ) r ] > G.err δ →
-    ∃ S : Finset ι,
-      S.card ≥ (1 - (δ : ℝ)) * (Fintype.card ι) ∧
-      ∀ i : Fin l, ∃ u : C, ∀ x ∈ S, f i x = u.val x
+    ∀ (f : Fin l → ι → F)
+      (δ : {δ : ℝ // 0 < δ ∧ δ < 1 - G.BStar}),
+      Pr_{r ← F}[ (proximity_property G f δ) r ] > G.err δ →
+        ∃ S : Finset ι,
+          S.card ≥ (1 - (δ : ℝ)) * (Fintype.card ι) ∧
+          ∀ i : Fin l, ∃ u ∈ C, ∀ x ∈ S, f i x = u x
 
 end ProximityGenerator

@@ -54,7 +54,6 @@ variable (cw : code F ι domain deg)
 
 #check decode cw
 #check decodeLT cw
-#check rate cw
 #check toLinearCode cw
 
 end
