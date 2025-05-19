@@ -5,23 +5,13 @@ Authors: Least Authority
 -/
 
 import ArkLib.Data.CodingTheory.RelativeHammingDistance
+import ArkLib.Data.Probability.Notation
 
 import Mathlib.FieldTheory.Finite.Basic
 import Mathlib.Data.Finset.Basic
 import Mathlib.Data.Real.Basic
 import Mathlib.Probability.ProbabilityMassFunction.Basic
 import Mathlib.Probability.Distributions.Uniform
-
-noncomputable def Pr {α : Type _} (P : α → Prop)
-  [Fintype α] [DecidableEq α] [Nonempty α] : ENNReal :=
-  (PMF.uniformOfFintype α).toOuterMeasure { r | P r }
-
-notation (priority := high) "Pr_{" x " ← " A "}" "[" P "]" =>
-  Pr (fun (x : A) => P)
-
-example {α : Type _} [Semiring α] [Fintype α] [DecidableEq α]
-    (predicate : α → Prop) (ERR : ENNReal) :
-    Pr_{r ← α}[predicate r] > ERR := by sorry
 
 structure Generator
   {F : Type*} [Semiring F]
@@ -33,33 +23,21 @@ structure Generator
     err    : {δ : ℝ // 0 < δ ∧ δ < 1 - BStar} → ENNReal
 
 
-namespace Generator
+namespace ProximityGenerator
 
 variable {F : Type*} [Field F] [Fintype F] [DecidableEq F]
          {ι : Type*} [Fintype ι] [DecidableEq ι]
 
 
-def proximityBad
+def proximity_property
   [Nonempty ι]
-  {l : ℕ} {C : LinearCode ι F}
+  {l : ℕ}
+  {C : LinearCode ι F}
   (G : Generator C l)
   (f : Fin l → ι → F)
   (δ : {δ // 0 < δ ∧ δ < 1 - G.BStar})
   : F → Prop
     | r => δᵣ(fun x => ∑ j : Fin l, (G.Smpl r) j • f j x, C ) ≤ δ.val
-
-def isProximityGenerator
-  [Nonempty ι]
-  {l : ℕ} {C : LinearCode ι F}
-  (G : Generator C l)
-  : Prop :=
-  ∀ (f : Fin l → ι → F)
-    (δ : {δ : ℝ // 0 < δ ∧ δ < 1 - G.BStar}),
-    Pr_{r ← F}[ (proximityBad G f δ) r ] > G.err δ →
-    ∃ S : Finset ι,
-      S.card ≥ (1 - (δ : ℝ)) * (Fintype.card ι) ∧
-      ∀ i : Fin l, ∃ u : C, ∀ x ∈ S, f i x = u.val x
-
 
 /- A generator `G`is a `proximity generator` if for every list of functions
    `f₁,…,fₗ : ι → F` and every admissible radius `δ` the following holds true:
@@ -67,54 +45,17 @@ def isProximityGenerator
    if a linear combination `\sum rᵢ·fᵢ` with random coefficients `rᵢ` drawn according
    to `G.Smpl` lands within fractional Hamming distance `δ` of the code `C`
    more frequently than the error bound `G.err δ`, then each function `fᵢ` coincides with
-   some codeword on at least a `(1 - δ)` fraction of the evaluaton points.
+   some codeword on at least a `(1 - δ)` fraction of the evaluaton points.-/
 def isProximityGenerator
-    [Nonempty ι]
-    {l : ℕ}
-    {C : LinearCode ι F}
-    (G : Generator C l) : Prop :=
-      ∀ (f : Fin l → ι → F) (δ : {δ : ℝ // 0 < δ ∧ δ < 1 - G.BStar}),
-      ((PMF.uniformOfFintype F).toOuterMeasure
-        { r | δᵣ((fun x ↦ ∑ j : Fin l, (G.Smpl r) j • (f j x)), C ) ≤ δ.val} ) >
-        G.err δ →
-        ∃ S : Finset ι,
-          (S.card ≥ (1 - (δ : ℝ)) * (Fintype.card ι))
-          ∧ ∀ i : Fin l, ∃ u : C, ∀ x ∈ S,  f i x = u.val x
--/
-end Generator
+  [Nonempty ι]
+  {l : ℕ} {C : LinearCode ι F}
+  (G : Generator C l)
+  : Prop :=
+  ∀ (f : Fin l → ι → F)
+    (δ : {δ : ℝ // 0 < δ ∧ δ < 1 - G.BStar}),
+    Pr_{r ← F}[ (proximity_property G f δ) r ] > G.err δ →
+    ∃ S : Finset ι,
+      S.card ≥ (1 - (δ : ℝ)) * (Fintype.card ι) ∧
+      ∀ i : Fin l, ∃ u : C, ∀ x ∈ S, f i x = u.val x
 
-
-
-
-
-
--- now this works because under the hood
---   PrUnif F (fun r => P r)
--- becomes
---   Pr (uniformOfFintype F) (fun x=>P (x:α))
-
-/-
-\begin{definition}[Proximity generator]\label{def:proximity-generator}
-Let $\mathcal{C}\subseteq\mathbb{F}^{n}$ be a linear code.
-We say that $\operatorname{Gen}$ is a \emph{proximity generator} for $\mathcal{C}$
-with proximity bound $B$ and error $\operatorname{err}$ if the following implication
-holds for every tuple of functions $f_{1},\dots ,f_{\ell}:[n]\to\mathbb{F}$ and every
-$\delta\in (0,1-B(\mathcal{C},\ell))$.
-If
-\[
-  \Pr_{(r_{1},\dots ,r_{\ell})\;\gets\;\operatorname{Gen}(\ell)}
-  \!\Bigl[
-      \Delta\!\Bigl(\textstyle\sum_{i\in[\ell]} r_{i}\cdot f_{i},\; \mathcal{C}\Bigr)
-      \le \delta
-  \Bigr]
-  > \operatorname{err}(\mathcal{C},\ell,\delta),
-\]
-then there exists a set $S\subseteq[n]$ with $|S|\ge (1-\delta)\,n$ such that
-\[
-  \forall i\in[\ell]\; \exists\,u\in\mathcal{C}\;\text{ with }\;
-        \forall x\in S,\; f_{i}(x)=u(x).
-\]
-\end{definition}
-
-
--/
+end ProximityGenerator

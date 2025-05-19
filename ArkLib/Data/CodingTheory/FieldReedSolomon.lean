@@ -8,6 +8,8 @@ import ArkLib.Data.CodingTheory.RelativeHammingDistance
 
 namespace ReedSolomon
 
+noncomputable def mockRate (deg : ℕ) (ι : Type*)  [Fintype ι]: ℝ := deg / (Fintype.card ι)
+
 section FieldRSC
 
 open Polynomial Finset ReedSolomon LinearMap
