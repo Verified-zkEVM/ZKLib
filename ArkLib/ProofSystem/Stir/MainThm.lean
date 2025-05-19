@@ -137,16 +137,16 @@ theorem stir_rbr_soundness
     {h_nonempty: ∀ i : Fin (M + 1), Nonempty (P.ι i)}
     {i : Fin (M + 1)} (C : Code d P i) (s : ℕ)
     (dist : Distances M)
-    (h_not_code : f₀ ∉ toCode (toLinearCode (C.codeᵢ 0)))
+    (h_not_code : f₀ ∉ toCode (toLinearCode ↑(C.codeᵢ 0)))
     (hδ₀Pos : 0 < dist.δ 0)
-    (hδ₀Lt : dist.δ 0 ≤ δᵣ((f₀), toCode (toLinearCode (C.codeᵢ 0))) ∧
+    (hδ₀Lt : dist.δ 0 ≤ δᵣ((f₀), toCode (toLinearCode ↑(C.codeᵢ 0))) ∧
       dist.δ 0 < (1 - Bstar (rateᵢ d P 0)))
     (hδᵢ : ∀ {j : Fin (M + 1)}, j ≠ 0 → 0 < dist.δ j ∧
         dist.δ j < (1 - rateᵢ d P j - 1 / (P.ι j).card) ∧
         dist.δ j < (1 - Bstar (rateᵢ d P j)))
     (h_list :
       ∀ {j : Fin (M + 1)}, j ≠ 0 →
-        listDecodable (toCode (toLinearCode (C.codeᵢ j))) (dist.δ j) (dist.l j))
+        listDecodable (toCode (toLinearCode ↑(C.codeᵢ j))) (dist.δ j) (dist.l j))
     (vPSpec : ProtocolSpec.VectorSpec n)
     (oSpec : OracleSpec ι) [oSpec.FiniteRange]
     {ιₛ : Type} [OracleInterface (ι → F)]

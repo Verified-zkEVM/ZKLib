@@ -85,18 +85,17 @@ the degree `d⋆` RS code with probability exceeding `err*`,
 then there is a large subset `S ⊆ L` on which each `fᵢ`
 agrees with a degree `dᵢ` Reed–Solomon codeword. -/
 lemma combine
-  {dstar m : ℕ} {ι : Finset F} {domain : ι ↪ F} {L : Finset ι}
-  {Cstar : code F ι domain dstar} (fs : Fin m → ι → F)
-  (degs : Fin m → ℕ) (hdegs : ∀ i, degs i ≤ dstar)
+  {dstar m : ℕ} {ι : Finset F} {domain : ι ↪ F} {L : Finset ι} [Nonempty ι]
+  (fs : Fin m → ι → F) (degs : Fin m → ℕ) (hdegs : ∀ i, degs i ≤ dstar)
   (δ : ℝ) (hδPos : δ > 0) (hδLt : δ < combineRange ι dstar)
   (hProb : (PMF.uniformOfFintype F).toOuterMeasure
-              { r | δᵣ((combineFinal domain dstar r fs degs hdegs), Cstar) ≤ δ} >
+              { r | δᵣ((combineFinal domain dstar r fs degs hdegs), ↑(code F ι domain dstar)) ≤ δ} >
                 err' F dstar (rate dstar ι) δ (m * (dstar + 1) - ∑ i, degs i)) :
     ∃ S : Finset ι,
       S ⊆ L ∧
       S.card ≥ (1 - δ) * L.card ∧
       ∀ i : Fin m, ∃ u : (ι → F),
-      u ∈ (code F ι domain (degs i)) ∧
+      u ∈ ↑(code F ι domain (degs i)) ∧
       ∀ x : ι, x ∈ S → fs i x = u x := by sorry
 
 end Combine
