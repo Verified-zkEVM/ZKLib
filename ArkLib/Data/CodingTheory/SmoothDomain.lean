@@ -8,22 +8,22 @@ import Mathlib.Algebra.Group.Subgroup.Basic
 import Mathlib.Data.Fintype.Units
 import Mathlib.Data.Fintype.Card
 
-namespace SmoothIndex
+namespace SmoothDomain
 
 variable {F: Type*} [Semiring F] {ι : Finset F}
 
-/-- A domain `ι ↪ F` is `smooth`, if `ι ⊆ F`, `|ι| = 2^m` for some `m` and
+/-- A domain `ι ↪ F` is `smooth`, if `ι ⊆ F`, `|ι| = 2^k` for some `k` and
     there exists a subgroup `H` in the group of units `Rˣ`
     and an invertible element `a ∈ R` such that `ι = a • H` -/
 class Smooth
   (domain : ι ↪ F) -- For ι : Finset F, this is the identity embedding
-  (m : ℕ ) where
+  (k : ℕ ) where
     H           : Subgroup (Units F)
     a           : Units F
     h_coset     : (ι : Set F)
                   -- f : α → β, S : Set α  then  f '' S means {y : β ∣ ∃x∈S,y=f(x) }
                   = (fun h : Units F => (a : F) * (h : F)) '' (H : Set (Units F)) -- L = a • H
-    h_card_pow2 : ι.card = 2 ^ m
+    h_card_pow2 : ι.card = 2 ^ k
 
 /-- The `k`-th power of `ι ⊆ F`, i.e the set `ιᵏ := {xᵏ | x ∈ ι }. -/
 abbrev indexPow [DecidableEq F] (ι : Finset F) (k : ℕ) : Finset F :=
@@ -47,12 +47,19 @@ def fiber [DecidableEq F]
   (y : indexPow ι k): powFiber ι k y ↪ F :=
     Function.Embedding.subtype fun z => z ∈ powFiber ι k y
 
+section
 --Test
-variable {F : Type*} [Semiring F] [DecidableEq F] (ι₁ : Finset F) (dom : ι₁ ↪ F) (k : ℕ)
-(y : indexPow ι₁ k)
+
+variable  {F : Type*} [Semiring F] [DecidableEq F]
+          (ι₁ : Finset F)
+          (dom : ι₁ ↪ F)
+          (k : ℕ)
+          (y : indexPow ι₁ k)
+
 #check dom
 #check pow dom k
 #check fiber (pow dom k) y
 
+end
 
-end SmoothIndex
+end SmoothDomain

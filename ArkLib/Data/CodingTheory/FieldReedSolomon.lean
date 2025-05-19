@@ -6,6 +6,8 @@ Authors: Least Authority
 import ArkLib.Data.CodingTheory.ReedSolomon
 import ArkLib.Data.CodingTheory.RelativeHammingDistance
 
+namespace ReedSolomon
+
 section FieldRSC
 
 open Polynomial Finset ReedSolomon LinearMap
@@ -48,11 +50,17 @@ noncomputable def rate (_c : code F ι domain deg) : ℝ := deg / (Fintype.card 
 def toLinearCode (_cw : code F ι domain deg) : LinearCode ι F :=
   code F ι domain deg
 
+section
 -- Test
 variable (cw : code F ι domain deg)
+
 #check decode cw
 #check decodeLT cw
 #check rate cw
 #check toLinearCode cw
 
+end
+
 end FieldRSC
+
+end ReedSolomon
