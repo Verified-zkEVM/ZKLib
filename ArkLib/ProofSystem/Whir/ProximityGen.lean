@@ -12,6 +12,17 @@ import Mathlib.Data.Real.Basic
 import Mathlib.Probability.ProbabilityMassFunction.Basic
 import Mathlib.Probability.Distributions.Uniform
 
+noncomputable def Pr {α : Type _} (P : α → Prop)
+  [Fintype α] [DecidableEq α] [Nonempty α] : ENNReal :=
+  (PMF.uniformOfFintype α).toOuterMeasure { r | P r }
+
+notation (priority := high) "Pr_{" x " ← " A "}" "[" P "]" =>
+  Pr (fun (x : A) => P)
+
+example {α : Type _} [Semiring α] [Fintype α] [DecidableEq α]
+    (predicate : α → Prop) (ERR : ENNReal) :
+    Pr_{r ← α}[predicate r] > ERR := by sorry
+
 structure Generator
   {F : Type*} [Semiring F]
   {ι : Type*} [Fintype ι]
@@ -27,29 +38,60 @@ namespace Generator
 variable {F : Type*} [Field F] [Fintype F] [DecidableEq F]
          {ι : Type*} [Fintype ι] [DecidableEq ι]
 
+
+def proximityBad
+  [Nonempty ι]
+  {l : ℕ} {C : LinearCode ι F}
+  (G : Generator C l)
+  (f : Fin l → ι → F)
+  (δ : {δ // 0 < δ ∧ δ < 1 - G.BStar})
+  : F → Prop
+    | r => δᵣ(fun x => ∑ j : Fin l, (G.Smpl r) j • f j x, C ) ≤ δ.val
+
+def isProximityGenerator
+  [Nonempty ι]
+  {l : ℕ} {C : LinearCode ι F}
+  (G : Generator C l)
+  : Prop :=
+  ∀ (f : Fin l → ι → F)
+    (δ : {δ : ℝ // 0 < δ ∧ δ < 1 - G.BStar}),
+    Pr_{r ← F}[ (proximityBad G f δ) r ] > G.err δ →
+    ∃ S : Finset ι,
+      S.card ≥ (1 - (δ : ℝ)) * (Fintype.card ι) ∧
+      ∀ i : Fin l, ∃ u : C, ∀ x ∈ S, f i x = u.val x
+
+
 /- A generator `G`is a `proximity generator` if for every list of functions
-   `f₁,…,f_ℓ : ι → F` and every admissible radius `δ` the following holds true:
+   `f₁,…,fₗ : ι → F` and every admissible radius `δ` the following holds true:
 
    if a linear combination `\sum rᵢ·fᵢ` with random coefficients `rᵢ` drawn according
    to `G.Smpl` lands within fractional Hamming distance `δ` of the code `C`
    more frequently than the error bound `G.err δ`, then each function `fᵢ` coincides with
-   some codeword on at least a `(1 - δ)` fraction of the evaluaton points. -/
+   some codeword on at least a `(1 - δ)` fraction of the evaluaton points.
 def isProximityGenerator
+    [Nonempty ι]
     {l : ℕ}
     {C : LinearCode ι F}
     (G : Generator C l) : Prop :=
       ∀ (f : Fin l → ι → F) (δ : {δ : ℝ // 0 < δ ∧ δ < 1 - G.BStar}),
       ((PMF.uniformOfFintype F).toOuterMeasure
-        { r | fractionalHammingDistSet
-          (λ x ↦ ∑ j : Fin l, (G.Smpl r) j • (f j x))
-          C.words
-          C.toErrCorrCode.nonempty ≤ δ.val} ) >
+        { r | δᵣ((fun x ↦ ∑ j : Fin l, (G.Smpl r) j • (f j x)), C ) ≤ δ.val} ) >
         G.err δ →
         ∃ S : Finset ι,
-          (S.card ≥ (1 - (δ : ℝ)) * (Fintype.card ι)) ∧
-          ∀ i : Fin l, ∃ u ∈ C.words, ∀ x ∈ S, f i x = u x
-
+          (S.card ≥ (1 - (δ : ℝ)) * (Fintype.card ι))
+          ∧ ∀ i : Fin l, ∃ u : C, ∀ x ∈ S,  f i x = u.val x
+-/
 end Generator
+
+
+
+
+
+
+-- now this works because under the hood
+--   PrUnif F (fun r => P r)
+-- becomes
+--   Pr (uniformOfFintype F) (fun x=>P (x:α))
 
 /-
 \begin{definition}[Proximity generator]\label{def:proximity-generator}
