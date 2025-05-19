@@ -7,26 +7,47 @@ import ArkLib.Data.CodingTheory.FieldReedSolomon
 import ArkLib.Data.CodingTheory.SmoothDomain
 import ArkLib.Data.MvPolynomial.LinearMvExtension
 
+namespace ReedSolomon
+
+open ReedSolomon SmoothDomain LinearMvExtension
+
+/-- Smooth Reed Solomon Codes are Reed Solomon Codes defined over Smooth Domains, such that
+    their decoded univariate polynomials are of degree < 2ᵐ for some m ∈ ℕ. -/
+def smoothCode
+  (F : Type*) [Field F]
+  (ι : Finset F) [DecidableEq ι]
+  (domain : ι ↪ F)
+  (k : ℕ) [Smooth domain k]
+  (m : ℕ): Submodule F (ι → F) :=
+    code F ι domain (2^m)
+
 section SmoothRSC
 
-/-! Smooth Reed Solomon Codes are Reed Solomon Codes defined over Smooth Domains.
-    Their decoded associated univariate polynomial can be translated into
-    a degree wise linear multivariate polynomial -/
-
-open ReedSolomon SmoothIndex LinearMvExtension
-
 variable {F : Type*} [Field F]
-         {m : ℕ} -- Smooth RSC deg = 2^m
-         {ι : Finset F} [DecidableEq ι]   -- Actual Smooth domain
-         {domain : ι ↪ F}  -- domain is the set of word, where codes are a subset
+          {ι : Finset F} [DecidableEq ι]
+          {domain : ι ↪ F}
+          {k : ℕ} [Smooth domain k]
+          {m : ℕ}
 
-/-- The linear map that maps Smooth Reed Solomon Code words with domain size 2^m
-    to their associated degree wise linear m-variate polynomial  -/
-noncomputable def mVdecode [Smooth ι m]: (code F ι domain (2^m)) →ₗ[F] MvPolynomial (Fin m) F :=
+/-- The linear map that maps Smooth Reed Solomon Code words
+    to their decoded degree wise linear `m`-variate polynomial  -/
+noncomputable def mVdecode : (smoothCode F ι domain k m) →ₗ[F] MvPolynomial (Fin m) F :=
   linearMvExtension.comp decodeLT
 
--- Test
-variable (cw : code F ι domain (2^m))
---#check mVdecode cw
+section -- Test
+
+variable (F : Type*) [Field F] (ι : Finset F) [DecidableEq ι]
+         (domain : ι ↪ F) (k : ℕ) [Smooth domain k]
+         (m : ℕ)
+         (c : code F ι domain m)
+         (sc : smoothCode F ι domain k m)
+
+#check c
+#check sc
+#check mVdecode sc
+
+end
 
 end SmoothRSC
+
+end ReedSolomon
