@@ -50,7 +50,11 @@ def toLinearCode (_cw : code F ι domain deg) : LinearCode ι F :=
 
 section
 -- Test
-variable (cw : code F ι domain deg)
+variable (cw : code F ι domain deg) (lw: LinearCode ι F) (w : lw)
+
+#check cw
+#check lw
+#check w
 
 #check decode cw
 #check decodeLT cw

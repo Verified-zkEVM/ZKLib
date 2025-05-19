@@ -23,16 +23,15 @@ noncomputable def rSGenerator
   {F : Type*} [Field F] [Fintype F] [DecidableEq F]
   {ι : Type*} [Fintype ι] [DecidableEq ι] [Nonempty ι]
   (domain : ι ↪ F)
-  (deg l : ℕ)
-  : Generator (code F ι domain deg) l where
+  (deg l : ℕ) : Generator (code F ι domain deg) l where
     Smpl  := rSSmpl l
-    BStar := Real.sqrt (mockRate deg ι )
+    BStar := Real.sqrt (rate deg ι )
     err   := fun δ => ENNReal.ofReal (
-      if δ ≤ (1 - (mockRate deg ι)) / 2 then
-        ((deg - 1) * 2^deg) / ((mockRate deg ι) * Fintype.card F )
+      if δ ≤ (1 - (rate deg ι)) / 2 then
+        ((deg - 1) * 2^deg) / ((rate deg ι) * Fintype.card F )
       else
-        let min_val := min (1 - (Real.sqrt (mockRate deg ι)) - δ )
-                                           ((Real.sqrt (mockRate deg ι)) / 20)
+        let min_val := min (1 - (Real.sqrt (rate deg ι)) - δ )
+                                           ((Real.sqrt (rate deg ι)) / 20)
         ((deg - 1) * (2^deg)^2) / ((Fintype.card F) * (2 * min_val)^7)
       )
 lemma proximity_gap
