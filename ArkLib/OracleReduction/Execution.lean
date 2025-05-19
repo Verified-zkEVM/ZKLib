@@ -43,7 +43,7 @@ section Execution
 
 variable {n : ℕ} {ι : Type} {pSpec : ProtocolSpec n} {oSpec : OracleSpec ι}
   {StmtIn WitIn StmtOut WitOut : Type}
-  {ιₛᵢ : Type} {OStmtIn : ιₛᵢ → Type} [Oₛᵢ : ∀ i, ToOracle (OStmtIn i)]
+  {ιₛᵢ : Type} {OStmtIn : ιₛᵢ → Type} [Oₛᵢ : ∀ i, OracleInterface (OStmtIn i)]
   {ιₛₒ : Type} {OStmtOut : ιₛₒ → Type}
 
 /--
@@ -122,23 +122,23 @@ def Verifier.run (stmt : StmtIn) (transcript : FullTranscript pSpec)
   of queries made by the verifier.
 -/
 @[inline, specialize]
-def OracleVerifier.run [Oₘ : ∀ i, ToOracle (pSpec.Message i)]
+def OracleVerifier.run [Oₘ : ∀ i, OracleInterface (pSpec.Message i)]
     (stmt : StmtIn) (oStmtIn : ∀ i, OStmtIn i) (transcript : FullTranscript pSpec)
     (verifier : OracleVerifier pSpec oSpec StmtIn StmtOut OStmtIn OStmtOut) :
       OracleComp oSpec StmtOut := do
-  let f := ToOracle.simOracle2 oSpec oStmtIn transcript.messages
+  let f := OracleInterface.simOracle2 oSpec oStmtIn transcript.messages
   let stmtOut ← simulateQ f (verifier.verify stmt transcript.challenges)
   return stmtOut
 
 /-- Running an oracle verifier then discarding the query list is equivalent to
 running a non-oracle verifier -/
 @[simp]
-theorem OracleVerifier.run_eq_run_verifier [∀ i, ToOracle (pSpec.Message i)] {stmt : StmtIn}
+theorem OracleVerifier.run_eq_run_verifier [∀ i, OracleInterface (pSpec.Message i)] {stmt : StmtIn}
     {transcript : FullTranscript pSpec} {oStmt : ∀ i, OStmtIn i}
     {verifier : OracleVerifier pSpec oSpec StmtIn StmtOut OStmtIn OStmtOut} :
       verifier.run stmt oStmt transcript =
         Prod.fst <$> verifier.toVerifier.run ⟨stmt, oStmt⟩ transcript := by
-  simp only [run, getType_apply, bind_pure, Verifier.run, toVerifier, eq_mpr_eq_cast,
+  simp only [run, bind_pure, Verifier.run, toVerifier, eq_mpr_eq_cast,
     bind_pure_comp, Functor.map_map, id_map']
 
 /--
@@ -189,8 +189,8 @@ theorem Reduction.runWithLog_eq_run [∀ i, VCVCompatible (pSpec.Challenge i)]
   the prover's messages and to the shared oracle.
 -/
 @[inline, specialize]
-def OracleReduction.run [∀ i, VCVCompatible (pSpec.Challenge i)] [∀ i, ToOracle (pSpec.Message i)]
-    (stmt : StmtIn) (wit : WitIn) (oStmt : ∀ i, OStmtIn i)
+def OracleReduction.run [∀ i, VCVCompatible (pSpec.Challenge i)]
+    [∀ i, OracleInterface (pSpec.Message i)] (stmt : StmtIn) (wit : WitIn) (oStmt : ∀ i, OStmtIn i)
     (reduction : OracleReduction pSpec oSpec StmtIn WitIn StmtOut WitOut OStmtIn OStmtOut) :
       OracleComp (oSpec ++ₒ [pSpec.Challenge]ₒ)
         (((StmtOut × ∀ i, OStmtOut i) × WitOut) × StmtOut × FullTranscript pSpec ×
@@ -206,7 +206,7 @@ def OracleReduction.run [∀ i, VCVCompatible (pSpec.Challenge i)] [∀ i, ToOra
 -- @[simp]
 -- theorem OracleReduction.run_eq_run_reduction [DecidableEq ι]
 --     [∀ i, VCVCompatible (pSpec.Challenge i)]
---     [∀ i, ToOracle (pSpec.Message i)] {stmt : StmtIn} {wit : WitIn}
+--     [∀ i, OracleInterface (pSpec.Message i)] {stmt : StmtIn} {wit : WitIn}
 --     {oracleReduction : OracleReduction pSpec oSpec StmtIn WitIn StmtOut WitOut OStmt} :
 --       Prod.snd <$> oracleReduction.run stmt wit = oracleReduction.toReduction.run stmt wit := by
 --   simp [OracleReduction.run, Reduction.run, OracleReduction.toReduction, OracleVerifier.run,

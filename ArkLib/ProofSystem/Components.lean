@@ -33,14 +33,16 @@ open OracleSpec OracleComp OracleQuery
 namespace SendWitness
 
 variable {ι : Type} (oSpec : OracleSpec ι) (Statement Witness : Type)
-  {ιₛᵢ : Type} (OStatement : ιₛᵢ → Type) [∀ i, ToOracle (OStatement i)]
-  (WitEquiv : Type) [ToOracle WitEquiv] (equiv : Witness ≃ WitEquiv)
+  {ιₛᵢ : Type} (OStatement : ιₛᵢ → Type) [∀ i, OracleInterface (OStatement i)]
+  (WitEquiv : Type) [OracleInterface WitEquiv] (equiv : Witness ≃ WitEquiv)
 
 @[reducible]
 def pSpec : ProtocolSpec 1 := ![(.P_to_V, WitEquiv)]
 
--- TODO: figure out why `ToOracle` & `VCVCompatible` instances cannot be automatically synthesized
-instance : ∀ i, ToOracle ((pSpec WitEquiv).Message i) | ⟨0, _⟩ => by simp; infer_instance
+-- TODO: figure out why `OracleInterface` & `VCVCompatible` instances cannot be automatically
+-- synthesized
+instance : ∀ i, OracleInterface ((pSpec WitEquiv).Message i)
+  | ⟨0, _⟩ => by dsimp; infer_instance
 instance : ∀ i, VCVCompatible ((pSpec WitEquiv).Challenge i) | ⟨0, h⟩ => nomatch h
 
 def prover : OracleProver (pSpec WitEquiv) oSpec Statement Witness Statement Unit
@@ -56,7 +58,7 @@ def prover : OracleProver (pSpec WitEquiv) oSpec Statement Witness Statement Uni
 def verifier : OracleVerifier (pSpec WitEquiv) oSpec Statement Statement
     OStatement (OStatement ⊕ᵥ (fun _ : Unit => WitEquiv)) where
   verify := fun stmt _ => pure stmt
-  embed := by simp [pSpec, ProtocolSpec.MessageIndex]; sorry
+  embed := by simp [pSpec, ProtocolSpec.MessageIdx]; sorry
   hEq := sorry
 
 def oracleReduction : OracleReduction (pSpec WitEquiv) oSpec Statement Witness Statement Unit
@@ -92,12 +94,13 @@ namespace SameOracle
 -/
 
 variable {ι : Type} (oSpec : OracleSpec ι) (Statement : Type)
-  {ιₛᵢ : Type} [Unique ιₛᵢ] (OStatement : ιₛᵢ → Type) [∀ i, ToOracle (OStatement i)]
+  {ιₛᵢ : Type} [Unique ιₛᵢ] (OStatement : ιₛᵢ → Type) [inst : ∀ i, OracleInterface (OStatement i)]
 
 @[reducible]
 def pSpec : ProtocolSpec 1 := ![(.P_to_V, OStatement default)]
 
-instance : ∀ i, ToOracle ((pSpec OStatement).Message i) | ⟨0, _⟩ => by simp; infer_instance
+instance : ∀ i, OracleInterface ((pSpec OStatement).Message i)
+  | ⟨0, _⟩ => by dsimp; infer_instance
 instance : ∀ i, VCVCompatible ((pSpec OStatement).Challenge i) | ⟨0, h⟩ => nomatch h
 
 /--
@@ -122,7 +125,7 @@ def prover : OracleProver (pSpec OStatement) oSpec Statement Unit Unit Unit
 variable (rel : Statement × (∀ i, OStatement i) → Prop)
   (relComp : Statement → OracleComp [OStatement]ₒ Unit)
   -- (rel_eq : ∀ stmt oStmt, rel stmt oStmt ↔
-  --   (ToOracle.simOracle []ₒ (ToOracle.oracle oStmt)).run = oStmt)
+  --   (OracleInterface.simOracle []ₒ (OracleInterface.oracle oStmt)).run = oStmt)
 
 /--
 The verifier checks that the relationship `rel oldStmt newStmt` holds.
@@ -167,24 +170,25 @@ end SameOracle
 
 namespace RandomQuery
 
-open ToOracle
+open OracleInterface
 
 /-!
 3. - There is no witness nor public statement. There are two `OStatement`s, `a` and `b`,
      of the same type. The relation is `a = b`.
-   - The verifier samples random `q : ToOracle.Query` for that type and sends it to the prover.
+   - The verifier samples random `q : OracleInterface.Query` for that type and sends it to the prover.
    - The verifier does not do any checks.
    - The final relation is that `a` and `b` are equal at that query.
 -/
 
-variable {ι : Type} (oSpec : OracleSpec ι) (OStatement : Type) [ToOracle OStatement]
-  [VCVCompatible (Query OStatement)]
+variable {ι : Type} (oSpec : OracleSpec ι) (OStatement : Type) [OracleInterface OStatement]
+  [inst : VCVCompatible (Query OStatement)]
 
 @[reducible]
 def pSpec : ProtocolSpec 1 := ![(.V_to_P, Query OStatement)]
 
-instance : ∀ i, ToOracle ((pSpec OStatement).Message i) | ⟨0, h⟩ => nomatch h
-instance : ∀ i, VCVCompatible ((pSpec OStatement).Challenge i) | ⟨0, _⟩ => by simp; infer_instance
+instance : ∀ i, OracleInterface ((pSpec OStatement).Message i) | ⟨0, h⟩ => nomatch h
+@[reducible, simp] instance : ∀ i, VCVCompatible ((pSpec OStatement).Challenge i)
+  | ⟨0, _⟩ => by dsimp [pSpec, ProtocolSpec.Challenge]; exact inst
 
 /--
 The prover is trivial: it has no messages to send.  It only receives the verifier’s challenge `q`.
@@ -208,13 +212,13 @@ def prover : OracleProver (pSpec OStatement) oSpec Unit Unit
 
 /--
 The verifier queries both `a` and `b` at the random point `q`.
-We check `ToOracle.oracle a q = ToOracle.oracle b q`.
+We check `OracleInterface.oracle a q = OracleInterface.oracle b q`.
 -/
 def verifier : OracleVerifier (pSpec OStatement) oSpec Unit (Query OStatement)
     (fun _ : Fin 2 => OStatement) (fun _ : Fin 2 => OStatement) where
 
   verify := fun _ chal => do
-    let q : ToOracle.Query OStatement := chal ⟨0, rfl⟩
+    let q : OracleInterface.Query OStatement := chal ⟨0, rfl⟩
     -- let resp ← liftM <| query
     --   (spec := (oSpec ++ₒ ([fun x ↦ OStatement]ₒ ++ₒ [(pSpec OStatement).Message]ₒ)))
     --   (Sum.inr <| Sum.inl (0 : Fin 2)) q
@@ -241,10 +245,10 @@ def relIn : (Unit × (∀ _ : Fin 2, OStatement)) → Unit → Prop := fun ⟨()
 
 /--
 The final relation states that if the verifier’s single query was `q`, then
-`a` and `b` agree on that `q`, i.e. `ToOracle.oracle a q = ToOracle.oracle b q`.
+`a` and `b` agree on that `q`, i.e. `OracleInterface.oracle a q = OracleInterface.oracle b q`.
 -/
 def relOut : ((Query OStatement) × (∀ _ : Fin 2, OStatement)) → Unit → Prop :=
-  fun ⟨q, oStmt⟩ () => ToOracle.oracle (oStmt 0) q = ToOracle.oracle (oStmt 1) q
+  fun ⟨q, oStmt⟩ () => OracleInterface.oracle (oStmt 0) q = OracleInterface.oracle (oStmt 1) q
 
 variable [oSpec.FiniteRange]
 
@@ -258,7 +262,7 @@ theorem completeness : OracleReduction.perfectCompleteness
 --   oracles 0 = oracles 1
 
 -- def langOut : Set ((Query OStatement) × (∀ _ : Fin 2, OStatement)) := setOf fun ⟨q, oracles⟩ =>
---   ToOracle.oracle (oracles 0) q = ToOracle.oracle (oracles 1) q
+--   OracleInterface.oracle (oracles 0) q = OracleInterface.oracle (oracles 1) q
 
 def stateFunction : Reduction.StateFunction
     (relIn OStatement).language (relOut OStatement).language
@@ -267,7 +271,7 @@ def stateFunction : Reduction.StateFunction
   | 0 => fun ⟨_, oracles⟩ _ => oracles 0 = oracles 1
   | 1 => fun ⟨_, oracles⟩ chal =>
     let q : Query OStatement := by simpa [pSpec] using chal ⟨0, by aesop⟩
-    ToOracle.oracle (oracles 0) q = ToOracle.oracle (oracles 1) q
+    OracleInterface.oracle (oracles 0) q = OracleInterface.oracle (oracles 1) q
   fn_empty := fun stmt hStmt => by simp_all [relIn, Function.language]
   fn_next := fun i hDir ⟨stmt, oStmt⟩ tr h => by simp_all
   fn_full := fun ⟨stmt, oStmt⟩ tr h => by
@@ -282,22 +286,24 @@ def extractor : (i : Fin 2) → @Reduction.RBRExtractor _ _ (pSpec OStatement) o
   fun _ _ _ _ => ()
 
 -- The key fact governing the soundness of this reduction is a property of the form
--- `∀ a b : OStatement, a ≠ b → #{q | ToOracle.oracle a q = ToOracle.oracle b q} ≤ d`.
+-- `∀ a b : OStatement, a ≠ b → #{q | OracleInterface.oracle a q = OracleInterface.oracle b q} ≤ d`.
 -- In other words, the oracle instance has distance at most `d`.
 
 variable [Fintype (Query OStatement)] [DecidableEq (Response OStatement)]
 
+instance : Fintype ((pSpec OStatement).Challenge ⟨0, by simp⟩) := by
+  dsimp [pSpec, ProtocolSpec.Challenge]; infer_instance
+
 open NNReal
 
-theorem rbr_knowledge_soundness {d : ℕ} (h : ToOracle.distanceLE OStatement d) :
+theorem rbr_knowledge_soundness {d : ℕ} (h : OracleInterface.distanceLE OStatement d) :
     OracleReduction.rbrKnowledgeSoundness
       (relIn OStatement)
       (relOut OStatement)
       (verifier oSpec OStatement)
-      (stateFunction oSpec OStatement)
       (fun _ => (d : ℝ≥0) / (Fintype.card (Query OStatement) : ℝ≥0)) := by
   unfold OracleReduction.rbrKnowledgeSoundness Reduction.rbrKnowledgeSoundness
-  refine ⟨extractor oSpec OStatement, ?_⟩
+  refine ⟨stateFunction oSpec OStatement, extractor oSpec OStatement, ?_⟩
   intro ⟨_, oracles⟩ _ rbrP i
   have : i = ⟨0, by simp⟩ := by aesop
   subst i

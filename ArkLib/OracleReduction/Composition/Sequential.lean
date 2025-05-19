@@ -255,11 +255,11 @@ theorem take_append_left (T : FullTranscript pSpec₁) (T' : FullTranscript pSpe
 
 def fst (T : FullTranscript (pSpec₁ ++ₚ pSpec₂)) : FullTranscript pSpec₁ :=
   fun i => by
-    simpa only [getType_apply, ProtocolSpec.append, Fin.append_left] using T (Fin.castAdd n i)
+    simpa [ProtocolSpec.append, Fin.append_left] using T (Fin.castAdd n i)
 
 def snd (T : FullTranscript (pSpec₁ ++ₚ pSpec₂)) : FullTranscript pSpec₂ :=
   fun i => by
-    simpa only [getType_apply, ProtocolSpec.append, Fin.append_right] using T (Fin.natAdd m i)
+    simpa [ProtocolSpec.append, Fin.append_right] using T (Fin.natAdd m i)
 
 @[simp]
 theorem append_fst (T₁ : FullTranscript pSpec₁) (T₂ : FullTranscript pSpec₂) :
@@ -275,16 +275,16 @@ theorem append_snd (T₁ : FullTranscript pSpec₁) (T₂ : FullTranscript pSpec
 
 end FullTranscript
 
-def MessageIndex.inl (i : MessageIndex pSpec₁) : MessageIndex (pSpec₁ ++ₚ pSpec₂) :=
-  ⟨Fin.castAdd n i.1, by simpa only [getDir_apply, Fin.append_left] using i.2⟩
+def MessageIdx.inl (i : MessageIdx pSpec₁) : MessageIdx (pSpec₁ ++ₚ pSpec₂) :=
+  ⟨Fin.castAdd n i.1, by simpa only [Fin.append_left] using i.2⟩
 
-def MessageIndex.inr (i : MessageIndex pSpec₂) : MessageIndex (pSpec₁ ++ₚ pSpec₂) :=
-  ⟨Fin.natAdd m i.1, by simpa only [getDir_apply, Fin.append_right] using i.2⟩
+def MessageIdx.inr (i : MessageIdx pSpec₂) : MessageIdx (pSpec₁ ++ₚ pSpec₂) :=
+  ⟨Fin.natAdd m i.1, by simpa only [Fin.append_right] using i.2⟩
 
 @[simps!]
-def MessageIndex.sumEquiv :
-    MessageIndex pSpec₁ ⊕ MessageIndex pSpec₂ ≃ MessageIndex (pSpec₁ ++ₚ pSpec₂) where
-  toFun := Sum.elim (MessageIndex.inl) (MessageIndex.inr)
+def MessageIdx.sumEquiv :
+    MessageIdx pSpec₁ ⊕ MessageIdx pSpec₂ ≃ MessageIdx (pSpec₁ ++ₚ pSpec₂) where
+  toFun := Sum.elim (MessageIdx.inl) (MessageIdx.inr)
   invFun := fun ⟨i, h⟩ => by
     by_cases hi : i < m
     · simp [ProtocolSpec.append, Fin.append, Fin.addCases, hi] at h
@@ -293,22 +293,22 @@ def MessageIndex.sumEquiv :
       exact Sum.inr ⟨⟨i - m, by omega⟩, h⟩
   left_inv := fun i => by
     rcases i with ⟨⟨i, isLt⟩, h⟩ | ⟨⟨i, isLt⟩, h⟩ <;>
-    simp [MessageIndex.inl, MessageIndex.inr, h, isLt]
+    simp [MessageIdx.inl, MessageIdx.inr, h, isLt]
   right_inv := fun ⟨i, h⟩ => by
     by_cases hi : i < m <;>
-    simp [MessageIndex.inl, MessageIndex.inr, hi]
+    simp [MessageIdx.inl, MessageIdx.inr, hi]
     congr; omega
 
-def ChallengeIndex.inl (i : ChallengeIndex pSpec₁) : ChallengeIndex (pSpec₁ ++ₚ pSpec₂) :=
-  ⟨Fin.castAdd n i.1, by simpa only [getDir_apply, Fin.append_left] using i.2⟩
+def ChallengeIdx.inl (i : ChallengeIdx pSpec₁) : ChallengeIdx (pSpec₁ ++ₚ pSpec₂) :=
+  ⟨Fin.castAdd n i.1, by simpa only [Fin.append_left] using i.2⟩
 
-def ChallengeIndex.inr (i : ChallengeIndex pSpec₂) : ChallengeIndex (pSpec₁ ++ₚ pSpec₂) :=
-  ⟨Fin.natAdd m i.1, by simpa only [getDir_apply, Fin.append_right] using i.2⟩
+def ChallengeIdx.inr (i : ChallengeIdx pSpec₂) : ChallengeIdx (pSpec₁ ++ₚ pSpec₂) :=
+  ⟨Fin.natAdd m i.1, by simpa only [Fin.append_right] using i.2⟩
 
 @[simps!]
-def ChallengeIndex.sumEquiv :
-    ChallengeIndex pSpec₁ ⊕ ChallengeIndex pSpec₂ ≃ ChallengeIndex (pSpec₁ ++ₚ pSpec₂) where
-  toFun := Sum.elim (ChallengeIndex.inl) (ChallengeIndex.inr)
+def ChallengeIdx.sumEquiv :
+    ChallengeIdx pSpec₁ ⊕ ChallengeIdx pSpec₂ ≃ ChallengeIdx (pSpec₁ ++ₚ pSpec₂) where
+  toFun := Sum.elim (ChallengeIdx.inl) (ChallengeIdx.inr)
   invFun := fun ⟨i, h⟩ => by
     by_cases hi : i < m
     · simp [ProtocolSpec.append, Fin.append, Fin.addCases, hi] at h
@@ -317,10 +317,10 @@ def ChallengeIndex.sumEquiv :
       exact Sum.inr ⟨⟨i - m, by omega⟩, h⟩
   left_inv := fun i => by
     rcases i with ⟨⟨i, isLt⟩, h⟩ | ⟨⟨i, isLt⟩, h⟩ <;>
-    simp [ChallengeIndex.inl, ChallengeIndex.inr, h, isLt]
+    simp [ChallengeIdx.inl, ChallengeIdx.inr, h, isLt]
   right_inv := fun ⟨i, h⟩ => by
     by_cases hi : i < m <;>
-    simp [ChallengeIndex.inl, ChallengeIndex.inr, hi]
+    simp [ChallengeIdx.inl, ChallengeIdx.inr, hi]
     congr; omega
 
 end ProtocolSpec
@@ -343,8 +343,9 @@ instance [h₁ : ∀ i, Sampleable (pSpec₁.Challenge i)] [h₂ : ∀ i, Sample
 
 /-- If two protocols' messages have oracle representations, then their concatenation's messages also
     have oracle representations. -/
-instance [O₁ : ∀ i, ToOracle (pSpec₁.Message i)] [O₂ : ∀ i, ToOracle (pSpec₂.Message i)] :
-    ∀ i, ToOracle ((pSpec₁ ++ₚ pSpec₂).Message i) := fun ⟨⟨i, isLt⟩, h⟩ => by
+instance [O₁ : ∀ i, OracleInterface (pSpec₁.Message i)]
+    [O₂ : ∀ i, OracleInterface (pSpec₂.Message i)] :
+    ∀ i, OracleInterface ((pSpec₁ ++ₚ pSpec₂).Message i) := fun ⟨⟨i, isLt⟩, h⟩ => by
   dsimp [ProtocolSpec.append, ProtocolSpec.getDir, Fin.append, Fin.addCases,
     Fin.castLT, Fin.subNat, Fin.cast] at h ⊢
   by_cases h' : i < m <;> simp [h'] at h ⊢
@@ -359,20 +360,22 @@ instance instSubSpecOfProtocolSpecAppendChallenge :
     SubSpec ([pSpec₁.Challenge]ₒ ++ₒ [pSpec₂.Challenge]ₒ) ([(pSpec₁ ++ₚ pSpec₂).Challenge]ₒ) where
   monadLift | query i t => match i with
     | Sum.inl j => by
-      simpa [OracleSpec.append, OracleSpec.range, ToOracle.toOracleSpec, ChallengeIndex.inl,
-        instChallengeToOracle] using query (spec := [(pSpec₁ ++ₚ pSpec₂).Challenge]ₒ) j.inl ()
+      simpa [OracleSpec.append, OracleSpec.range, OracleInterface.toOracleSpec, ChallengeIdx.inl,
+        instChallengeOracleInterface] using
+      query (spec := [(pSpec₁ ++ₚ pSpec₂).Challenge]ₒ) j.inl ()
     | Sum.inr j => by
-      simpa [OracleSpec.append, OracleSpec.range, ToOracle.toOracleSpec, ChallengeIndex.inr,
-        instChallengeToOracle] using query (spec := [(pSpec₁ ++ₚ pSpec₂).Challenge]ₒ) j.inr ()
+      simpa [OracleSpec.append, OracleSpec.range, OracleInterface.toOracleSpec, ChallengeIdx.inr,
+        instChallengeOracleInterface] using
+      query (spec := [(pSpec₁ ++ₚ pSpec₂).Challenge]ₒ) j.inr ()
   -- evalDist_toFun' := fun i q => by
   --   cases i with
   --   | inl j =>
   --     simp only [eq_mp_eq_cast, id_eq]
   --     have : [(pSpec₁ ++ₚ pSpec₂).Challenge]ₒ.range j.inl =
   --       ([pSpec₁.Challenge]ₒ ++ₒ [pSpec₂.Challenge]ₒ).range (Sum.inl j) := by
-  --       simp [OracleSpec.append, ChallengeIndex.inl, instChallengeToOracle]
+  --       simp [OracleSpec.append, ChallengeIdx.inl, instChallengeOracleInterface]
   --     rw [evalDist_cast _ this, evalDist_query, evalDist_query]
-  --     simp [OracleSpec.append, ChallengeIndex.inl, instChallengeToOracle]
+  --     simp [OracleSpec.append, ChallengeIdx.inl, instChallengeOracleInterface]
   --     refine cast_eq_iff_heq.mpr ((PMF.heq_iff (by simp [this])).mpr ?_)
   --     intro x
   --     simp only [PMF.map_apply, PMF.uniformOfFintype_apply, Fin.append_left]
@@ -382,9 +385,9 @@ instance instSubSpecOfProtocolSpecAppendChallenge :
   --     simp only [eq_mp_eq_cast, id_eq]
   --     have : [(pSpec₁ ++ₚ pSpec₂).Challenge]ₒ.range j.inr =
   --       ([pSpec₁.Challenge]ₒ ++ₒ [pSpec₂.Challenge]ₒ).range (Sum.inr j) := by
-  --       simp [OracleSpec.append, ChallengeIndex.inr, instChallengeToOracle]
+  --       simp [OracleSpec.append, ChallengeIdx.inr, instChallengeOracleInterface]
   --     rw [evalDist_cast _ this, evalDist_query, evalDist_query]
-  --     simp [OracleSpec.append, ChallengeIndex.inr, instChallengeToOracle]
+  --     simp [OracleSpec.append, ChallengeIdx.inr, instChallengeOracleInterface]
   --     refine cast_eq_iff_heq.mpr ((PMF.heq_iff (by simp [this])).mpr ?_)
   --     intro x
   --     simp only [PMF.map_apply, PMF.uniformOfFintype_apply, Fin.append_right]
@@ -511,10 +514,10 @@ def Reduction.append (R₁ : Reduction pSpec₁ oSpec Stmt₁ Wit₁ Stmt₂ Wit
   prover := Prover.append R₁.prover R₂.prover
   verifier := Verifier.append R₁.verifier R₂.verifier
 
-variable [Oₘ₁ : ∀ i, ToOracle (pSpec₁.Message i)] [Oₘ₂ : ∀ i, ToOracle (pSpec₂.Message i)]
-  {ιₛ₁ : Type} {OStmt₁ : ιₛ₁ → Type} [Oₛ₁ : ∀ i, ToOracle (OStmt₁ i)]
-  {ιₛ₂ : Type} {OStmt₂ : ιₛ₂ → Type} [Oₛ₂ : ∀ i, ToOracle (OStmt₂ i)]
-  {ιₛ₃ : Type} {OStmt₃ : ιₛ₃ → Type} [Oₛ₃ : ∀ i, ToOracle (OStmt₃ i)]
+variable [Oₘ₁ : ∀ i, OracleInterface (pSpec₁.Message i)] [Oₘ₂ : ∀ i, OracleInterface (pSpec₂.Message i)]
+  {ιₛ₁ : Type} {OStmt₁ : ιₛ₁ → Type} [Oₛ₁ : ∀ i, OracleInterface (OStmt₁ i)]
+  {ιₛ₂ : Type} {OStmt₂ : ιₛ₂ → Type} [Oₛ₂ : ∀ i, OracleInterface (OStmt₂ i)]
+  {ιₛ₃ : Type} {OStmt₃ : ιₛ₃ → Type} [Oₛ₃ : ∀ i, OracleInterface (OStmt₃ i)]
 
 open Function Embedding in
 def OracleVerifier.append (V₁ : OracleVerifier pSpec₁ oSpec Stmt₁ Stmt₂ OStmt₁ OStmt₂)
@@ -525,13 +528,13 @@ def OracleVerifier.append (V₁ : OracleVerifier pSpec₁ oSpec Stmt₁ Stmt₂ 
   embed := .trans V₂.embed <|
     .trans (.sumMap V₁.embed (.refl _)) <|
     .trans (Equiv.sumAssoc _ _ _).toEmbedding <|
-    .sumMap (.refl _) MessageIndex.sumEquiv.toEmbedding
+    .sumMap (.refl _) MessageIdx.sumEquiv.toEmbedding
 
   hEq := fun i => by
     rcases h : V₂.embed i with j | j
     · rcases h' : V₁.embed j with k | k <;>
-      simp [h, h', V₁.hEq j, V₂.hEq i, MessageIndex.inl]
-    · simp [h, V₂.hEq i, MessageIndex.inr]
+      simp [h, h', V₁.hEq j, V₂.hEq i, MessageIdx.inl]
+    · simp [h, V₂.hEq i, MessageIdx.inr]
 
 def OracleReduction.append (R₁ : OracleReduction pSpec₁ oSpec Stmt₁ Wit₁ Stmt₂ Wit₂ OStmt₁ OStmt₂)
     (R₂ : OracleReduction pSpec₂ oSpec Stmt₂ Wit₂ Stmt₃ Wit₃ OStmt₂ OStmt₃) :
@@ -614,8 +617,8 @@ instance [h : ∀ i, ∀ j, Sampleable ((pSpec i).Challenge j)] :
 
 /-- If two protocols' messages have oracle representations, then their concatenation's messages also
     have oracle representations. -/
-instance [O : ∀ i, ∀ j, ToOracle ((pSpec i).Message j)] :
-    ∀ i, ToOracle ((compose m n pSpec).Message i) := fun ⟨⟨i, isLt⟩, h⟩ => by
+instance [O : ∀ i, ∀ j, OracleInterface ((pSpec i).Message j)] :
+    ∀ i, OracleInterface ((compose m n pSpec).Message i) := fun ⟨⟨i, isLt⟩, h⟩ => by
   dsimp [ProtocolSpec.compose, ProtocolSpec.getDir, Fin.append, Fin.addCases,
     Fin.castLT, Fin.subNat, Fin.cast] at h ⊢
   sorry

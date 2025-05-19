@@ -9,7 +9,7 @@ import Mathlib.Data.Real.Basic
 import Mathlib.Data.Real.Sqrt
 
 /-- Proximity bound function -/
-noncomputable def Bstar (x: ℝ) : ℝ := Real.sqrt x
+noncomputable def Bstar (x: ℝ) : ℝ := x.sqrt
 
 /-- Proximity error function
  -- coerced to ENNReal, because it is exclusively used in probability inequalities and

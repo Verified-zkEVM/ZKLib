@@ -3,60 +3,56 @@ Copyright (c) 2025 ArkLib Contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Least Authority
 -/
-import ArkLib.ProofSystem.Stir.ToCodingTheory.ErrCorrCodes
-import ArkLib.ProofSystem.Stir.ToCodingTheory.ReedSolomonCodes
+
+import ArkLib.Data.CodingTheory.FieldReedSolomon
+import ArkLib.Data.CodingTheory.ListDecodeability
+import ArkLib.Data.CodingTheory.RelativeHammingDistance
 
 import Mathlib.Probability.ProbabilityMassFunction.Basic
 import Mathlib.Probability.Distributions.Uniform
 import Mathlib.Data.Fintype.Basic
 
 
+open ReedSolomon ListDecodable Finset
 namespace OutOfDomSmpl
+variable {F : Type*} [Field F] [Fintype F] [DecidableEq F]
+         {ι : Finset F} {domain : ι ↪ F} {degree : ℕ}
 
 /-! Section 4.3 in https://eprint.iacr.org/2024/390.pdf -/
 
+def domainComplement (ι : Finset F) : Finset F :=
+  Finset.univ \ ι
 
 /-- Pr_{r₀, …, rₛ₋ ₁  ← 𝔽\L} [∃ distinct u, u′ ∈ List(f, d, δ) :
 ∀ i ∈ [0...s-1], u(r_i) = u′(r_i)] -/
 noncomputable def listDecodingCollisionProbability
-  {F : Type*} [Field F] [Fintype F] [DecidableEq F]
-  {L : Finset F}
-  {d : ℕ}
-  (C : ReedSolomonCode F L d)
-  (δ : ℝ)
-  (s : ℕ)
-  (h_nonempty : Nonempty C.domainComplement) : ENNReal :=
-  (PMF.uniformOfFintype (Fin s → C.domainComplement)).toOuterMeasure { r |
-    ∃ (u u' : ↥C.code),
-      u.val ≠ u'.val ∧
-      -- both u and u' lie within δ of some target f
-      u.val ∈ C.toLinearCode.toErrCorrCode.list u.val δ ∧
-      u'.val ∈ C.toLinearCode.toErrCorrCode.list u.val δ ∧
-      -- their interpolating polynomials agree on each sampled r_i
+  (f : ι → F) (δ : ℝ) (s : ℕ)
+  (h_nonempty : Nonempty (domainComplement ι))  : ENNReal :=
+  (PMF.uniformOfFintype (Fin s → domainComplement ι)).toOuterMeasure { r |
+    ∃ (u u' : code F ι domain degree),
+    -- ∃ (u u' : (relHammingBall (toLinearCode C) f δ)),
+      u.val ≠ u'.val ∧ -- both u and u' lie within δ of some target f
+      u.val ∈ relHammingBall ↑(code F ι domain degree) f δ ∧
+      u'.val ∈ relHammingBall ↑(code F ι domain degree) f δ ∧
+    -- their interpolating polynomials agree on each sampled r_i
       ∀ i : Fin s,
-        (C.poly u).eval (r i).val = (C.poly u').eval (r i).val
+        (decode u).eval (r i).val = (decode u').eval (r i).val
   }
 
 lemma out_of_dom_smpl_1
-  {F : Type*} [Field F] [Fintype F] [DecidableEq F]
-  {L : Finset F}
-  {d : ℕ}
-  (C : ReedSolomonCode F L d)
-  (δ : ℝ)
-  (l s : ℕ)
-  (h_decodable : C.toLinearCode.toErrCorrCode.listDecodable δ l) :
-  listDecodingCollisionProbability C δ s C.domain_complement_nonempty ≤
-    (l.choose 2) * ((d - 1) / (Fintype.card F - L.card))^s := by sorry
+  (δ l : ℝ) (s : ℕ) (f : ι → F) (h_nonempty : Nonempty (domainComplement ι))
+  (h_decodable : listDecodable ↑(code F ι domain degree) δ l) :
+  listDecodingCollisionProbability f δ s h_nonempty ≤
+    (ENNReal.ofReal (l * (l-1) / 2)) * ((degree - 1) / (Fintype.card F - ι.card))^s
+  := by sorry
 
 lemma out_of_dom_smpl_2
-  {F : Type*} [Field F] [Fintype F] [DecidableEq F]
-  {L : Finset F}
-  {d : ℕ}
-  (C : ReedSolomonCode F L d)
-  (δ : ℝ)
-  (l s : ℕ)
-  (h_decodable : C.toLinearCode.toErrCorrCode.listDecodable δ l) :
-  listDecodingCollisionProbability C δ s C.domain_complement_nonempty ≤
-    (l^2 / 2) * (d / (Fintype.card F - L.card))^s := by sorry
+  (f : ι → F)
+  (δ l : ℝ) (s : ℕ)
+  (h_decodable : listDecodable ↑(code F ι domain degree) δ l)
+  (h_nonempty : Nonempty (domainComplement ι)) :
+  listDecodingCollisionProbability f δ s h_nonempty ≤
+    (ENNReal.ofReal (l^2 / 2)) * (degree / (Fintype.card F - ι.card))^s
+  := by sorry
 
 end OutOfDomSmpl

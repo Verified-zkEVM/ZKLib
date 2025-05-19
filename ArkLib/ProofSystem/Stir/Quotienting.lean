@@ -3,79 +3,65 @@ Copyright (c) 2025 ArkLib Contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Least Authority
 -/
-import ArkLib.ProofSystem.Stir.ToCodingTheory.ErrCorrCodes
-import ArkLib.ProofSystem.Stir.ToCodingTheory.FracHammingDist
-import ArkLib.ProofSystem.Stir.ToCodingTheory.ReedSolomonCodes
+import ArkLib.Data.CodingTheory.FieldReedSolomon
+import ArkLib.Data.CodingTheory.ListDecodeability
+import ArkLib.Data.CodingTheory.RelativeHammingDistance
+
+open ReedSolomon ListDecodable
 
 namespace Quotienting
+variable {n : ℕ}
+         (F : Type*) [Field F] [Fintype F] [DecidableEq F]
+         (ι : Finset F)
 
-/-- PolyAns S Ans is the unique interpolating polynomial of degree < |S|
-   with PolyAns(s) = Ans(s) for each s ∈ S.
+/-- ansPoly S Ans is the unique interpolating polynomial of degree < |S|
+    with Ans'(s) = Ans(s) for each s ∈ S.
 
-  Note: For S=∅ we get PolyAns(x) = 0 (the zero polynomial) -/
-noncomputable def ansPoly
-  (F : Type*) [Field F] [Fintype F] [DecidableEq F]
-  (S : Finset F)
-  (Ans : S → F) : Polynomial F :=
+    Note: For S=∅ we get Ans'(x) = 0 (the zero polynomial) -/
+noncomputable def ansPoly (S : Finset F) (Ans : S → F) : Polynomial F :=
   Lagrange.interpolate S.attach (fun i => (i : F)) Ans
 
 /-- VanishingPoly is the vanishing polynomial on S, i.e. the unique polynomial of degree |S|+1
-   that is 0 at each s ∈ S and is not the zero polynomial. I.e V(X) = ∏(s ∈ S) (X - s). -/
-noncomputable def vanishingPoly
-  (F : Type*) [Field F] [Fintype F] [DecidableEq F]
-  (S : Finset F) : Polynomial F :=
-  ∏ s in S, (Polynomial.X - Polynomial.C s)
+    that is 0 at each s ∈ S and is not the zero polynomial. That is V(X) = ∏(s ∈ S) (X - s). -/
+noncomputable def vanishingPoly (S : Finset F) : Polynomial F :=
+  ∏ s ∈ S, (Polynomial.X - Polynomial.C s)
 
-noncomputable def polyQuotient
-  {F : Type*} [Field F] [Fintype F] [DecidableEq F]
-  {d : ℕ}
-  (f : Polynomial F) (hf : f.degree < d)
-  (S : Finset F) (hS : S.card < d) : Polynomial F :=
-    let pAns := ansPoly F S (fun s => f.eval s)
-    let pV   := vanishingPoly F S
-    (f - pAns) / pV
+/-- funcQuotient is the quotient function that outputs
+    if x ∈ S,  Fill(x).
+    else       (f(x) - Ans'(x)) / V(x).
+    Note here that, V(x) = 0 ∀ x ∈ S, otherwise V(x) ≠ 0. -/
+noncomputable def funcQuotient (f : ι → F) (S : Finset F) (Ans Fill : S → F) : ι → F :=
+  fun x =>
+    if hx : x.val ∈ S then Fill ⟨x.val, hx⟩ -- if x ∈ S,  Fill(x).
+    else (f x - (ansPoly F S Ans).eval x.val) / (vanishingPoly F S).eval x.val
+    -- else, (f(x) - Ans'(x)) / V(x).
 
-noncomputable def quotient
-  (F : Type*) [Field F] [Fintype F] [DecidableEq F]
-  (L : Finset F)
-  (f : L → F)
-  (S : Finset F)
-  (Ans : S → F)
-  (Fill : S → F)
-  : L → F :=
-    let pAns := ansPoly F S Ans
-    let pV   := vanishingPoly F S
-    fun x =>
-      if hx : x.val ∈ S then
-        Fill ⟨x.val, hx⟩
-      else
-        (f x - pAns.eval x.val) / pV.eval x.val
+/-- polyQuotient is the polynomial derived from the polynomials fPoly, Ans' and V, where
+    Ans' is a polynomial s.t. Ans'(x) = fPoly(x) for x ∈ S, and
+    V is the vanishing polynomial on S as before.
+    Then, polyQuotient = (fPoly - Ans') / V, where
+    polyQuotient.degree < (fPoly.degree - ι.card) -/
+noncomputable def polyQuotient {degree : ℕ} (S : Finset F) (fPoly : Polynomial F)
+(hPoly : fPoly.degree < degree) : Polynomial F :=
+  (fPoly - (ansPoly F S (fun s => fPoly.eval s))) / (vanishingPoly F S)
 
-/-- We define the set T(f,L,S,Ans) as the set of all points x ∈ L that lie in S such that
-  the AnsPoly disagrees with f. Formally: T := { x ∈ L | x ∈ S ∧ AnsPoly x ≠ f x }. -/
-noncomputable def T
-  (F : Type*) [Field F] [Fintype F] [DecidableEq F]
-  (L : Finset F)
-  (f : L → F)
-  (S : Finset F)
-  (Ans : S → F) : Finset F :=
-  (L.attach.filter (λ x ↦ (ansPoly F S Ans).eval x.val ≠ f x)).image Subtype.val
+/-- We define the set disagreementSet(f,ι,S,Ans) as the set of all points x ∈ ι that lie in S
+such that the Ans' disagrees with f, we have
+disagreementSet := { x ∈ L | x ∈ S ∧ AnsPoly x ≠ f x }. -/
+noncomputable def disagreementSet (f : ι → F) (S : Finset F) (Ans : S → F) : Finset F :=
+  (ι.attach.filter (λ x ↦ (ansPoly F S Ans).eval x.val ≠ f x)).image Subtype.val
+
+
+
 
 /- Quotienting Lemma-/
-lemma quotienting
-  {F : Type*} [Field F] [Fintype F] [DecidableEq F]
-  {L : Finset F}
-  {d : ℕ}
-  (S : Finset F) (hS_lt : S.card < d)
-  (C1 : ReedSolomonCode F L d)
-  (C2 : ReedSolomonCode F L (d - S.card))
-  (f : L → F)
-  (Ans Fill : S → F)
-  (δ : ℝ) (hδ : 0 < δ ∧ δ < 1)
-  (h : ∀ u, u ∈ C1.toLinearCode.toErrCorrCode.list f δ →
-  ∃ (x : ↑L) (hx : x.val ∈ S), u x ≠ Ans ⟨x.val, hx⟩) :
-    (fractionalHammingDistSet (quotient F L f S Ans Fill) C2.code C2.nonempty : ℝ)
-      + ((T F L f S Ans).card : ℝ) / (L.card : ℝ) > δ := by
+lemma quotienting [DecidableEq F] {degree : ℕ} {domain : ι ↪ F} [Nonempty ι]
+  (S : Finset F) (hS_lt : S.card < degree) (r : F)
+  (f : ι → F) (Ans Fill : S → F) (δ : ℝ) (hδPos : δ > 0) (hδLt : δ < 1)
+  (h : ∀ u : code F ι domain degree, u.val ∈ (relHammingBall ↑(code F ι domain degree) f δ) →
+    ∃ (x : ι) (hx : x.val ∈ S), (decode u).eval x.val ≠ Ans ⟨x.val, hx⟩) :
+    δᵣ((funcQuotient F ι f S Ans Fill), ↑(code F ι domain (degree - S.card))) +
+      ((disagreementSet F ι f S Ans).card : ℝ) / (ι.card : ℝ) > δ := by
   sorry
 
 end Quotienting

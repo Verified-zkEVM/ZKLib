@@ -47,15 +47,15 @@ variable {n : ℕ}
 namespace ProtocolSpec
 
 /-- Switch the type of prover's messages in a protocol specification. -/
-def renameMessage (pSpec : ProtocolSpec n) (NewMessage : pSpec.MessageIndex → Type) :
+def renameMessage (pSpec : ProtocolSpec n) (NewMessage : pSpec.MessageIdx → Type) :
     ProtocolSpec n := fun i =>
   if h : (pSpec i).1 = Direction.P_to_V then
     ⟨(pSpec i).1, NewMessage ⟨i, h⟩⟩
   else pSpec i
 
 -- def BCSTransform (pSpec : ProtocolSpec n)
---     {queries : List ((i : pSpec.MessageIndex) × (pSpec.Message i))}
-  --   (pSpecCom : ∀ i, ProtocolSpec (nCom i)) (CommType : pSpec.MessageIndex → Type) :
+--     {queries : List ((i : pSpec.MessageIdx) × (pSpec.Message i))}
+  --   (pSpecCom : ∀ i, ProtocolSpec (nCom i)) (CommType : pSpec.MessageIdx → Type) :
   --     ProtocolSpec (n + ∑ i, nCom i) :=
   -- .append (pSpec.renameMessage CommType) (sorry)
 
@@ -64,13 +64,13 @@ end ProtocolSpec
 namespace OracleReduction
 
 variable {pSpec : ProtocolSpec n} {ι : Type} {oSpec : OracleSpec ι}
-    [Oₘ : ∀ i, ToOracle (pSpec.Message i)]
+    [Oₘ : ∀ i, OracleInterface (pSpec.Message i)]
 
-variable {nCom : pSpec.MessageIndex → ℕ} {pSpecCom : ∀ i, ProtocolSpec (nCom i)}
-    {Randomness : pSpec.MessageIndex → Type} {CommitmentType : pSpec.MessageIndex → Type}
+variable {nCom : pSpec.MessageIdx → ℕ} {pSpecCom : ∀ i, ProtocolSpec (nCom i)}
+    {Randomness : pSpec.MessageIdx → Type} {CommitmentType : pSpec.MessageIdx → Type}
 
 variable {StmtIn StmtOut WitIn WitOut : Type}
-    {ιₛᵢ : Type} {OStmtIn : ιₛᵢ → Type} [Oₛᵢ : ∀ i, ToOracle (OStmtIn i)]
+    {ιₛᵢ : Type} {OStmtIn : ιₛᵢ → Type} [Oₛᵢ : ∀ i, OracleInterface (OStmtIn i)]
     {ιₛₒ : Type} {OStmtOut : ιₛₒ → Type}
 
 -- def BCSTransform (reduction : OracleReduction pSpec oSpec StmtIn StmtOut WitIn WitOut OStmtIn OStmtOut) :

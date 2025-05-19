@@ -22,23 +22,26 @@ namespace ReedSolomon
 
 open Polynomial
 
-variable {F : Type*} [Field F] [Fintype F] {n : ℕ} (domain : Fin n ↪ F)
+variable (F : Type*) [Semiring F] (ι : Type*) (domain : ι ↪ F)
 
-def evalOnPoints : F[X] →ₗ[F] (Fin n → F) where
+/-- The evaluation of a polynomial at a set of points specified by `domain : ι ↪ F`, as a linear
+  map. -/
+def evalOnPoints : F[X] →ₗ[F] (ι → F) where
   toFun := fun p => fun x => p.eval (domain x)
   map_add' := fun x y => by simp; congr
   map_smul' := fun m x => by simp; congr
 
-/-- The Reed-Solomon code for polynomials of degree less than `deg` and evaluation points `points`.
+/-- The Reed-Solomon code for polynomials of degree less than `deg` and evaluation points `domain`.
   -/
-def code (deg : ℕ) : Submodule F (Fin n → F) :=
-  (Polynomial.degreeLT F deg).map (evalOnPoints domain)
+def code (deg : ℕ) : Submodule F (ι → F) :=
+  (Polynomial.degreeLT F deg).map (evalOnPoints F ι domain)
 
-/-- The generator matrix of the Reed-Solomon code of degree `deg` and evaluation points `points`. -/
-def genMatrix (deg : ℕ) : Matrix (Fin deg) (Fin n) F :=
+/-- The generator matrix of the Reed-Solomon code of degree `deg` and evaluation points `domain`. -/
+def genMatrix (deg : ℕ) : Matrix (Fin deg) ι F :=
   .of (fun i j => domain j ^ (i : ℕ))
 
-def checkMatrix (deg : ℕ) : Matrix (Fin (n - deg)) (Fin n) F :=
+/-- The (parity)-check matrix of the Reed-Solomon code, assuming `ι` is finite. -/
+def checkMatrix (deg : ℕ) [Fintype ι] : Matrix (Fin (Fintype.card ι - deg)) ι F :=
   sorry
 
 -- theorem code_by_genMatrix (deg : ℕ) :
@@ -46,11 +49,5 @@ def checkMatrix (deg : ℕ) : Matrix (Fin (n - deg)) (Fin n) F :=
 --   simp [codeByGenMatrix, code]
 --   rw [LinearMap.range_eq_map]
 --   sorry
-
-#check LinearMap.range_eq_map
-
-#check Basis
-
-#check Matrix.vandermonde
 
 end ReedSolomon

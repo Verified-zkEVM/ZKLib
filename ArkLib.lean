@@ -21,6 +21,7 @@ import ArkLib.Data.FieldTheory.NonBinaryField.Basic
 import ArkLib.Data.FieldTheory.NonBinaryField.Goldilocks
 import ArkLib.Data.FieldTheory.NonBinaryField.Mersenne
 import ArkLib.Data.FieldTheory.NonBinaryField.Secp256k1
+import ArkLib.Data.Fin.Basic
 import ArkLib.Data.Math.Fin
 import ArkLib.Data.Math.HList
 import ArkLib.Data.Math.Operations
@@ -42,9 +43,10 @@ import ArkLib.OracleReduction.Composition.Sequential
 import ArkLib.OracleReduction.Composition.Virtual
 import ArkLib.OracleReduction.Equiv
 import ArkLib.OracleReduction.Execution
+import ArkLib.OracleReduction.OracleInterface
 import ArkLib.OracleReduction.Prelude
 import ArkLib.OracleReduction.Security.Basic
-import ArkLib.OracleReduction.ToOracle
+import ArkLib.OracleReduction.VectorIOR
 import ArkLib.ProofSystem.Components
 import ArkLib.ProofSystem.ConstraintSystem.IndexedLookup
 import ArkLib.ProofSystem.ConstraintSystem.Plonk
