@@ -51,12 +51,16 @@ disagreementSet := { x ∈ L | x ∈ S ∧ AnsPoly x ≠ f x }. -/
 noncomputable def disagreementSet (f : ι → F) (S : Finset F) (Ans : S → F) : Finset F :=
   (ι.attach.filter (λ x ↦ (ansPoly F S Ans).eval x.val ≠ f x)).image Subtype.val
 
+
+
+
 /- Quotienting Lemma-/
-lemma quotienting {degree : ℕ} {domain : ι ↪ F} (S : Finset F) (hS_lt : S.card < degree)
-  (C1 : code F ι domain degree) (C2 : code F ι domain (degree - S.card)) (C : Code ι F)
+lemma quotienting [DecidableEq F] {degree : ℕ} {domain : ι ↪ F}
+  (S : Finset F) (hS_lt : S.card < degree) (r : F)
+  (C1 : code F ι domain degree) (C2 : code F ι domain (degree - S.card))
   (f : ι → F) (Ans Fill : S → F) (δ : ℝ) (hδPos : δ > 0) (hδLt : δ < 1)
-  (h : ∀ u, u ∈ (relHammingBall C f δ) →
-  ∃ (x : ι) (hx : x.val ∈ S), u x ≠ Ans ⟨x.val, hx⟩) :
+  (h : ∀ u : code F ι domain degree, u.val ∈ (relHammingBall (toLinearCode C1) f δ) →
+    ∃ (x : ι) (hx : x.val ∈ S), (decode u).eval x.val ≠ Ans ⟨x.val, hx⟩) :
     δᵣ((funcQuotient F ι f S Ans Fill), C2) +
       ((disagreementSet F ι f S Ans).card : ℝ) / (ι.card : ℝ) > δ := by
   sorry
