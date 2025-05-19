@@ -8,6 +8,8 @@ import ArkLib.Data.CodingTheory.RelativeHammingDistance
 
 namespace ReedSolomon
 
+noncomputable def rate (deg : ℕ) (ι : Type*)  [Fintype ι]: ℝ := deg / (Fintype.card ι)
+
 section FieldRSC
 
 open Polynomial Finset ReedSolomon LinearMap
@@ -40,10 +42,6 @@ noncomputable def decodeLT : (code F ι domain deg) →ₗ[F] (Polynomial.degree
     decode
     (fun c => decoded_polynomial_lt_deg c)
 
--- Should be in LinearCodes.lean
-noncomputable def rate (_c : code F ι domain deg) : ℝ := deg / (Fintype.card ι)
-
-
 -- TODO: This should be in ReedSolomon.lean
 -- Nethermind provided conflicting definitions for LinarCodes
 -- This is for the one in ArkLib.Data.CodingTheory.RelativeHammingDistance
@@ -52,11 +50,14 @@ def toLinearCode (_cw : code F ι domain deg) : LinearCode ι F :=
 
 section
 -- Test
-variable (cw : code F ι domain deg)
+variable (cw : code F ι domain deg) (lw: LinearCode ι F) (w : lw)
+
+#check cw
+#check lw
+#check w
 
 #check decode cw
 #check decodeLT cw
-#check rate cw
 #check toLinearCode cw
 
 end

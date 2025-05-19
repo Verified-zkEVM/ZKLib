@@ -81,6 +81,6 @@ noncomputable def Pr {α : Type _} (P : α → Prop)
 notation (priority := high) "Pr_{" x " ← " A "}" "[" P "]" =>
   Pr (fun (x : A) => P)
 
-example {α : Type _} [Semiring α] [Fintype α] [DecidableEq α]
+example {α : Type _} [Semiring α] [Fintype α] [DecidableEq α] [Nonempty α]
     (predicate : α → Prop) (ERR : ENNReal) :
     Pr_{r ← α}[predicate r] > ERR := by sorry
