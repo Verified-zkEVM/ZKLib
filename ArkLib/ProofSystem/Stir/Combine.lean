@@ -17,7 +17,7 @@ open scoped BigOperators NNReal
 
 namespace Combine
 variable {m n : ℕ}
-         {F : Type*} [Field F] [DecidableEq F]
+         {F : Type*} [Field F] [Fintype F] [DecidableEq F]
          {ι : Type*} [Fintype ι] {domain : ι ↪ F}
 
 /-! Section 4.5 in https://eprint.iacr.org/2024/390.pdf -/
@@ -76,9 +76,8 @@ def degreeCorrFinal
 
 /-- δ ∈ (0, min {1 − B⋆(ρ), 1 − ρ − 1/|L|}) -/
  noncomputable def combineRange
-  {F : Type*} [Field F] [Fintype F] [DecidableEq F] {degree : ℕ} {domain : ι ↪ F}
-  (C : code F ι domain degree) : ℝ :=
-   min (1- Bstar (rate C)) (1- (rate C) - 1/ Fintype.card F)
+  {F : Type*} [Fintype F] (ι : Finset F) (degree : ℕ) : ℝ :=
+    min (1- Bstar (rate degree ι)) (1- (rate degree ι) - 1/ Fintype.card F)
 
 /--
 If the random shift `r` causes the combined function to be far from
@@ -86,14 +85,13 @@ the degree `d⋆` RS code with probability exceeding `err*`,
 then there is a large subset `S ⊆ L` on which each `fᵢ`
 agrees with a degree `dᵢ` Reed–Solomon codeword. -/
 lemma combine
-  {F : Type*} [Field F] [Fintype F] [DecidableEq F] {dstar m : ℕ}
-  {domain : ι ↪ F} {L : Finset ι}
+  {dstar m : ℕ} {ι : Finset F} {domain : ι ↪ F} {L : Finset ι}
   {Cstar : code F ι domain dstar} (fs : Fin m → ι → F)
   (degs : Fin m → ℕ) (hdegs : ∀ i, degs i ≤ dstar)
-  (δ : ℚ) (hδPos : δ > 0) (hδLt : δ < combineRange Cstar)
+  (δ : ℝ) (hδPos : δ > 0) (hδLt : δ < combineRange ι dstar)
   (hProb : (PMF.uniformOfFintype F).toOuterMeasure
               { r | δᵣ((combineFinal domain dstar r fs degs hdegs), Cstar) ≤ δ} >
-                err' F dstar (rate Cstar) δ (m * (dstar + 1) - ∑ i, degs i)) :
+                err' F dstar (rate dstar ι) δ (m * (dstar + 1) - ∑ i, degs i)) :
     ∃ S : Finset ι,
       S ⊆ L ∧
       S.card ≥ (1 - δ) * L.card ∧
