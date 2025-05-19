@@ -8,7 +8,7 @@ import ArkLib.Data.CodingTheory.RelativeHammingDistance
 
 namespace ReedSolomon
 
-noncomputable def mockRate (deg : ℕ) (ι : Type*)  [Fintype ι]: ℝ := deg / (Fintype.card ι)
+noncomputable def rate (deg : ℕ) (ι : Type*)  [Fintype ι]: ℝ := deg / (Fintype.card ι)
 
 section FieldRSC
 
@@ -41,10 +41,6 @@ noncomputable def decodeLT : (code F ι domain deg) →ₗ[F] (Polynomial.degree
     (Polynomial.degreeLT F deg)
     decode
     (fun c => decoded_polynomial_lt_deg c)
-
--- Should be in LinearCodes.lean
-noncomputable def rate (_c : code F ι domain deg) : ℝ := deg / (Fintype.card ι)
-
 
 -- TODO: This should be in ReedSolomon.lean
 -- Nethermind provided conflicting definitions for LinarCodes
