@@ -7,48 +7,51 @@ Authors: Least Authority
 import ArkLib.Data.CodingTheory.RelativeHammingDistance
 import ArkLib.Data.Probability.Notation
 
-structure Generator
-  {F : Type*} [Semiring F]
-  {ι : Type*} [Fintype ι]
-  (C : LinearCode ι F)
-  (l : ℕ) where
-    Smpl   : F → (Fin l → F)
-    BStar  : ℝ
-    err    : {δ : ℝ // 0 < δ ∧ δ < 1 - BStar} → ENNReal
+namespace Generator
 
+variable  {F : Type*} [Semiring F] [Fintype F] [DecidableEq F]
+          {ι : Type*} [Fintype ι] [Nonempty ι]
 
-namespace ProximityGenerator
-
-variable {F : Type*} [Field F] [Fintype F] [DecidableEq F]
-         {ι : Type*} [Fintype ι] [DecidableEq ι] [Nonempty ι]
-
-
-def proximity_property
+/-- For `l` functions `fᵢ : ι → 𝔽`, distance `δ`, generator function `GenFun: 𝔽 → 𝔽ˡ`and linear
+    code `C` the predicate `linear_comb_in_distance(r)` is true, if the linear
+    combination f := ∑ⱼ GenFun(r)ⱼ⬝fⱼ is within relative Hamming distance `δ` to the linear
+    code `C`.  -/
+def linear_comb_in_distance
   {l : ℕ}
-  {C : LinearCode ι F}
-  (G : Generator C l)
   (f : Fin l → ι → F)
-  (δ : {δ // 0 < δ ∧ δ < 1 - G.BStar})
-  : F → Prop
-    | r => δᵣ(fun x => ∑ j : Fin l, (G.Smpl r) j • f j x, C ) ≤ δ.val
+  (δ : ℝ )
+  (GenFun : F → Fin l → F)
+  (C : LinearCode ι F): F → Prop
+    | r => δᵣ( (fun x => ∑ j : Fin l, (GenFun r j) • f j x) , C ) ≤ δ
 
-/- A generator `G`is a `proximity generator` if for every list of functions
-   `f₁,…,fₗ : ι → F` and every admissible radius `δ` the following holds true:
 
-   if a linear combination `\sum rᵢ·fᵢ` with random coefficients `rᵢ` drawn according
-   to `G.Smpl` lands within fractional Hamming distance `δ` of the code `C`
-   more frequently than the error bound `G.err δ`, then each function `fᵢ` coincides with
-   some codeword on at least a `(1 - δ)` fraction of the evaluaton points.-/
-def isProximityGenerator
-  {l : ℕ}
-  {C : LinearCode ι F}
-  (G : Generator C l)
-  : Prop :=
+/-- A proximity generator for a linear code `C`  -/
+structure ProximityGenerator
+  (F : Type*) [Semiring F] [Fintype F] [DecidableEq F]
+  (ι : Type*) [Fintype ι] [Nonempty ι] where
+  -- Underlying linear code
+  C         : LinearCode ι F
+  -- Number of functions to combine
+  l         : ℕ
+  -- Generator function maps sampled randomness `r : 𝔽 ` to `l`-tuples of field elements
+  GenFun    : F → Fin l → F
+  -- Distance threshold parameter
+  BStar     : ℝ
+  -- Error function bounding the probability of hitting within distance `δ`
+  err       : ℝ → ENNReal
+  /- Proximity:
+      For all `l`-tuples of functions `fᵢ : ι → 𝔽` and distance parameter `δ ∈ (0, 1-BStar)`:
+
+      If the probability that `linear_comb_in_distance(r)` is true for uniformly random
+      sampled  `r ← 𝔽 ` exceeds `err(δ)`, then there exists a  subset `S ⊆ ι ` of size
+      `|S| ≥ (1-δ)⬝|ι|`) on which each `fᵢ` agrees with some codeword in `C`. -/
+  proximity:
     ∀ (f : Fin l → ι → F)
-      (δ : {δ : ℝ // 0 < δ ∧ δ < 1 - G.BStar}),
-      Pr_{r ← F}[ (proximity_property G f δ) r ] > G.err δ →
+      (δ : NNReal)
+      (_hδ : δ < 1 - BStar) ,
+      Pr_{r ← F}[ (linear_comb_in_distance f δ GenFun C) r ] > err δ →
         ∃ S : Finset ι,
-          S.card ≥ (1 - (δ : ℝ)) * (Fintype.card ι) ∧
+          S.card ≥ (1 - (δ : ℝ)) * Fintype.card ι ∧
           ∀ i : Fin l, ∃ u ∈ C, ∀ x ∈ S, f i x = u x
 
-end ProximityGenerator
+end Generator

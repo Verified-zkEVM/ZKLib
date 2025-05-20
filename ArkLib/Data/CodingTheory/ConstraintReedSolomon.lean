@@ -53,6 +53,19 @@ def constraintCode
   (σ : F):=
     {sc : smoothCode F ι domain k m | weightConstraint  (mVdecode sc) w σ}
 
+def constraintCode1
+  (F : Type*) [Field F] [DecidableEq F]
+  (ι : Finset F) [DecidableEq ι]
+  (domain : ι ↪ F)
+  (k m : ℕ) [Smooth domain k]
+  (w : MvPolynomial (Fin (m+1)) F)
+  (σ : F)
+  : Set (ι → F) :=
+{ f |
+    ∃ (h : f ∈ smoothCode F ι domain k m),
+      weightConstraint (mVdecode (⟨f, h⟩ : smoothCode F ι domain k m)) w σ }
+
+
 namespace ConstraintReedSolomon
 
 variable  {F : Type*} [Field F] [DecidableEq F]
