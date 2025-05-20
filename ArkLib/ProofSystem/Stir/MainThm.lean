@@ -66,7 +66,7 @@ def predFin {n : ℕ} (i : Fin (n + 1)) (h : i.val ≠ 0) : Fin (n + 1) :=
 open OracleComp OracleSpec ProtocolSpec
 
 section STIR
-variable {n : ℕ} {ι : Type}
+variable {n : ℕ}
 
 structure Statement
   (F : Type)[Field F][Fintype F][DecidableEq F]
@@ -126,7 +126,7 @@ end STIR
 
 section RBR
 open Finset BigOperators
-variable {n : ℕ} {ι : Type}
+variable {n : ℕ}
 
 
 /-- **Round-by-round soundness of the STIR IOPP**-/
