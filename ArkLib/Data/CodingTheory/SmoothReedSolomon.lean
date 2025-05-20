@@ -38,8 +38,9 @@ section -- Test
 
 variable (F : Type*) [Field F] (ι : Finset F) [DecidableEq ι]
          (domain : ι ↪ F) (k : ℕ) [Smooth domain k]
+         (deg : ℕ)
          (m : ℕ)
-         (c : code F ι domain m)
+         (c : code F ι domain deg)
          (sc : smoothCode F ι domain k m)
 
 #check c

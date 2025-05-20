@@ -5,39 +5,42 @@ Authors: Least Authority
 -/
 
 import ArkLib.ProofSystem.Whir.ProximityGen
-import ArkLib.Data.CodingTheory.FieldReedSolomon
-
-namespace RSGenerator
-
-open ReedSolomon ProximityGenerator
+import ArkLib.Data.CodingTheory.SmoothReedSolomon
+import ArkLib.Data.CodingTheory.SmoothDomain
 
 /-! Reed Solomon codes (over fields ?) have proximity generators -/
 
-/-- `Fin l → F: α ↦ (1, α, α², … , α^(l-1))` -/
-def rSSmpl
-  {F : Type*} [Field F]
-  (l : ℕ)
-  (x : F) : Fin l → F := fun i => x ^ (i : ℕ)
 
-noncomputable def rSGenerator
-  {F : Type*} [Field F] [Fintype F] [DecidableEq F]
-  {ι : Type*} [Fintype ι] [DecidableEq ι] [Nonempty ι]
+namespace RSGenerator
+
+open ReedSolomon Generator SmoothDomain
+
+/- Smooth Reed Solomon codes C:= RSC[F,L,d] have proximity generators for any given `l: ℕ`
+   with generator function Gen(l) : 𝔽 → 𝔽ˡ ; α → (1,α, α², …, αˡ⁻¹),
+   Bstar(C,l):= √ρ
+   err(C,l,δ) :=  (l-1)2ᵐ for δ in (0, (1-ρ)/ (2|𝔽|))
+                  (l-1)+2²ᵐ7(|F|(2 min{1-√ρ-δ, √ρ/20})⁷)  -/
+noncomputable def reedSolomonProximityGen
+  {F : Type*} [Field F]  [Fintype F] [DecidableEq F]
+  {ι : Finset F} [DecidableEq ι] [Nonempty ι]
+  (l : ℕ)
   (domain : ι ↪ F)
-  (deg l : ℕ) : Generator (code F ι domain deg) l where
-    Smpl  := rSSmpl l
-    BStar := Real.sqrt (rate deg ι )
-    err   := fun δ => ENNReal.ofReal (
-      if δ ≤ (1 - (rate deg ι)) / 2 then
-        ((deg - 1) * 2^deg) / ((rate deg ι) * Fintype.card F )
-      else
-        let min_val := min (1 - (Real.sqrt (rate deg ι)) - δ )
-                                           ((Real.sqrt (rate deg ι)) / 20)
-        ((deg - 1) * (2^deg)^2) / ((Fintype.card F) * (2 * min_val)^7)
-      )
-lemma proximity_gap
-  (F : Type*) [Field F] [Fintype F] [DecidableEq F]
-  (ι : Type*) [Fintype ι] [DecidableEq ι] [Nonempty ι]
-  (domain : ι ↪ F)
-  (deg l : ℕ) : isProximityGenerator (rSGenerator domain deg l) := sorry
+  (k : ℕ) [Smooth domain k]
+  (m : ℕ)
+  : ProximityGenerator F ι :=
+    let ρ := 2^m / (Fintype.card ι)
+    { C      :=  smoothCode F ι domain k m,
+      l      := l,
+      GenFun := fun r j => r ^ (j : ℕ),
+      BStar  := Real.sqrt ρ ,
+      err   := fun δ => ENNReal.ofReal (
+        if δ ≤ (1 - ρ) / 2 then
+          ((l- 1) * 2^m) / (ρ  * Fintype.card F )
+        else
+          let min_val := min (1 - (Real.sqrt ρ) - δ ) ((Real.sqrt ρ) / 20)
+          ((l - 1) * (2^(2* m))) / ((Fintype.card F) * (2 * min_val)^7)
+      ),
+      proximity := by sorry -- Proof will be analog to the proximity gap lemma proof
+    }
 
 end RSGenerator
