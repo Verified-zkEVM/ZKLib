@@ -6,7 +6,6 @@ Authors: Least Authority
 
 import ArkLib.ProofSystem.Whir.ProximityGen
 import ArkLib.Data.CodingTheory.SmoothReedSolomon
-import ArkLib.Data.CodingTheory.SmoothDomain
 
 /-! Reed Solomon codes (over fields ?) have proximity generators -/
 
