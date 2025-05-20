@@ -102,8 +102,7 @@ def stirRelation
 theorem STIR
   {F : Type} [Field F] [Fintype F] [DecidableEq F] [VCVCompatible F]
   {ι : Finset F} [Nonempty ι]
-  {domain : ι ↪ F} {degree : ℕ} (hd : ∃ m, degree = 2 ^ m)
-  (C : code F ι domain degree) (secpar : ℕ)
+  {domain : ι ↪ F} {degree : ℕ} (hd : ∃ m, degree = 2 ^ m) (secpar : ℕ)
   (δ : ℝ) (hδ0 : 0 < δ) (hδub : δ < 1 - 1.05 * Real.sqrt (degree / ι.card))
   (k : ℕ) (hk : ∃ m, k = 2 ^ m) (hk4 : 4 ≤ k)
   [hsmooth : Smooth domain k]-- ι is a smooth domain
