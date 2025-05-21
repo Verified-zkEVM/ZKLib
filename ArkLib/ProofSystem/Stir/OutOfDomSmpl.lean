@@ -19,7 +19,6 @@ variable {F : Type*} [Field F] [Fintype F] [DecidableEq F]
          {ι : Finset F}
 
 /-! Section 4.3 in https://eprint.iacr.org/2024/390.pdf -/
-def toCode (LC : LinearCode ι F) : Code ι F := LC
 
 def domainComplement (ι : Finset F) : Finset F :=
   Finset.univ \ ι
@@ -41,16 +40,18 @@ noncomputable def listDecodingCollisionProbability
   }
 
 lemma out_of_dom_smpl_1
-  (δ l : ℝ) (s : ℕ) (f : ι → F) (degree : ℕ) (domain : ι ↪ F)
-  (h_decodable : listDecodable (toCode (toLinearCode ↑(code F ι domain degree))) δ l)
+  {δ l : ℝ} {s : ℕ} {f : ι → F} {degree : ℕ} {domain : ι ↪ F}
+  (C : Set (ι → F)) (hC : C = code F ι domain degree)
+  (h_decodable : listDecodable ↑C δ l)
   (h_nonempty : Nonempty (domainComplement ι))  :
   listDecodingCollisionProbability f δ s degree domain h_nonempty ≤
     (ENNReal.ofReal (l * (l-1) / 2)) * ((degree - 1) / (Fintype.card F - ι.card))^s
   := by sorry
 
 lemma out_of_dom_smpl_2
-  (δ l : ℝ) (s : ℕ) (f : ι → F) (degree : ℕ) (domain : ι ↪ F)
-  (h_decodable : listDecodable (toCode (toLinearCode ↑(code F ι domain degree))) δ l)
+  {δ l : ℝ} {s : ℕ} {f : ι → F} {degree : ℕ} {domain : ι ↪ F}
+  (C : Set (ι → F)) (hC : C = code F ι domain degree)
+  (h_decodable : listDecodable ↑C δ l)
   (h_nonempty : Nonempty (domainComplement ι)) :
   listDecodingCollisionProbability f δ s degree domain h_nonempty ≤
     (ENNReal.ofReal (l^2 / 2)) * (degree / (Fintype.card F - ι.card))^s
