@@ -360,7 +360,8 @@ theorem compose_append {m : ℕ} {n : Fin (m + 1) → ℕ} {pSpec : ∀ i, Proto
   refine Fin.dfoldl_congr ?_ ?_ ?_
   · intro j; congr 1; sorry
     -- apply Finset.sum_image
-  · intro j a; simp only [Fin.val_succ, Int.Nat.cast_ofNat_Int, cast_eq_root_cast,
+  · intro j a;
+    simp only [Fin.val_succ, Int.Nat.cast_ofNat_Int, cast_eq_root_cast,
     Fin.coe_castSucc, cast_cast]; sorry
   · simp [cast_eq_root_cast]
 

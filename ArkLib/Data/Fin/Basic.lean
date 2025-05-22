@@ -19,6 +19,44 @@ import SEq.Tactic.DepRewrite
 
 universe u v w
 
+/-- A type class for dependent / custom casts -/
+class DepCast (α : Sort*) (β : α → Sort*) where
+  dcast : ∀ {a a' : α}, a = a' → β a → β a'
+
+/-- A type class for dependent / custom casts -/
+class DepCast₂ (α : Sort*) (β : α → Sort*) (γ : (a : α) → β a → Sort*) extends DepCast α β where
+  dcast₂ : ∀ {a a' : α} {b : β a} {b' : β a'},
+    (ha : a = a') → (dcast ha b = b') → γ a b → γ a' b'
+
+/-- A type class for dependent / custom casts -/
+class DepCast₃ (α : Sort*) (β : α → Sort*) (γ : (a : α) → β a → Sort*)
+    (δ : (a : α) → (b : β a) → γ a b → Sort*) extends DepCast₂ α β γ where
+  dcast₃ : ∀ {a a' : α} {b : β a} {b' : β a'} {c : γ a b} {c' : γ a' b'},
+    (ha : a = a') → (hb : dcast ha b = b') → (hc : dcast₂ ha hb c = c') → δ a b c → δ a' b' c'
+
+/-- Dependent version of `cast`. -/
+def dcast {α : Sort*} {β : α → Sort*} {a a' : α} (h : a = a') (b : β a) : β a' :=
+  cast (congrArg β h) b
+
+def dcast₂ {α : Sort*} {β : α → Sort*} {γ : (a : α) → β a → Sort*}
+    {a a' : α} {b : β a} {b' : β a'} (ha : a = a') (hb : dcast ha b = b')
+    (c : γ a b) : γ a' b' := by
+  refine cast ?_ c
+  subst ha
+  simp [dcast] at hb
+  subst hb
+  rfl
+
+instance {α : Sort*} {β : α → Sort*} : DepCast α β where
+  dcast h := dcast h
+
+instance : DepCast Nat Fin where
+  dcast h := Fin.cast h
+
+theorem Fin.cast_eq_dcast {m n : ℕ} (h : m = n) (a : Fin m) :
+    Fin.cast h a = dcast h a := by
+  simp only [cast_eq_cast, dcast]
+
 -- We may need special naming for these objects `FinTuple` and `FinVec`
 -- in order to consolidate a pattern that we find in this development
 -- i.e. `ProtocolSpec` is a `FinVec`, `(Full)Transcript` is a `FinTuple`, and so on
@@ -578,10 +616,6 @@ end OptionEquivPrime
 
 section Fold
 
--- def Fin.dfoldl.{u_1} : (n : ℕ) →
---   (α : Fin (n + 1) → Type u_1) → ((i : Fin n) → α i.castSucc → α i.succ) → α 0 → α (last n) :=
--- fun n α f init ↦ dfoldlM n α f init
-
 theorem dfoldl_congr {n : ℕ} {α α' : Fin (n + 1) → Type _}
     {f : (i : Fin n) → α i.castSucc → α i.succ}
     {f' : (i : Fin n) → α' i.castSucc → α' i.succ} {init : α 0} {init' : α' 0}
@@ -595,6 +629,22 @@ theorem dfoldl_congr {n : ℕ} {α α' : Fin (n + 1) → Type _}
   subst hf'
   subst hinit
   rfl
+
+-- theorem dfoldl_congr_dcast {n : ℕ} {σ : Type*} {γ : σ → Type*} [DepCast σ γ]
+--     {s : Fin (n + 1) → σ}
+--     {α α' : (i : Fin (n + 1)) → γ (s i)}
+--     {f : (i : Fin n) → α i.castSucc → α i.succ}
+--     {f' : (i : Fin n) → α' i.castSucc → α' i.succ} {init : α 0} {init' : α' 0}
+--     (hα : ∀ i, α i = α' i) (hf : ∀ i a, f i a = (cast (hα _).symm (f' i (cast (hα _) a))))
+--     (hinit : init = cast (hα 0).symm init') :
+--       dfoldl n α f init = cast (hα (last n)).symm (dfoldl n α' f' init') := by
+--   have hα' : α = α' := funext hα
+--   subst hα'
+--   simp_all
+--   have hf' : f = f' := funext₂ hf
+--   subst hf'
+--   subst hinit
+--   rfl
 
 end Fold
 
