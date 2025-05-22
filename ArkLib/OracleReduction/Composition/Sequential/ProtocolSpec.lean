@@ -13,30 +13,6 @@ import ArkLib.OracleReduction.Basic
 This file collects all definitions and theorems about sequentially composing `ProtocolSpec`s and
 their associated data. -/
 
-section find_home
-
-theorem cast_eq_cast_iff {α β γ : Sort _} {h : α = γ} {h' : β = γ} {a : α} {b : β} :
-    cast h a = cast h' b ↔ a = cast (h'.trans h.symm) b := by subst h'; subst h; simp
-
-theorem cast_symm {α β : Sort _} {h : α = β} {a : α} {b : β} :
-    cast h a = b ↔ a = cast h.symm b := by
-  subst h; simp
-
-theorem congrArg₃ {α β γ δ : Sort*} {f : α → β → γ → δ} {a a' : α} {b b' : β} {c c' : γ}
-    (h : a = a') (h' : b = b') (h'' : c = c') : f a b c = f a' b' c' := by
-  subst h; subst h'; subst h''; rfl
-
-theorem congrArg₄ {α β γ δ ε : Sort*} {f : α → β → γ → δ → ε} {a a' : α} {b b' : β} {c c' : γ}
-    {d d' : δ} (h : a = a') (h' : b = b') (h'' : c = c') (h''' : d = d') :
-      f a b c d = f a' b' c' d' := by
-  subst h; subst h'; subst h''; subst h'''; rfl
-
--- theorem Fin.root_cast_tuple_if_eq {m n : ℕ} {α : Sort*} {u : Fin m → α} {v : Fin n → α}
---     (h' : HEq u v) : m = n := by
---   subst h
-
-end find_home
-
 namespace ProtocolSpec
 
 /-! ### Restriction of Protocol Specifications & Transcripts -/
@@ -357,7 +333,7 @@ theorem compose_append {m : ℕ} {n : Fin (m + 1) → ℕ} {pSpec : ∀ i, Proto
   unfold Function.comp Fin.castSucc Fin.castAdd Fin.castLE Fin.last Fin.succ
   simp only [Fin.val_zero, Fin.zero_eta, append_cast_left', append_left_cancel_iff]
   rw [cast_eq_root_cast]
-  refine Fin.dfoldl_congr ?_ ?_ ?_
+  refine Fin.dfoldl_congr_indexed ?_ ?_ ?_
   · intro j; congr 1; sorry
     -- apply Finset.sum_image
   · intro j a;
