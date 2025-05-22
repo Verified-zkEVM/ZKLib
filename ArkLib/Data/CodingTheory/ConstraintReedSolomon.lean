@@ -42,7 +42,13 @@ def weightConstraint
     ∑ b ∈  hypercube , w.eval (toWeightAssignment f b) = σ
 
 /-- Constraint Reed Solomon codes are smooth codes who's decoded m-variate
-    polynomial satisfies the weight constraint for given `w` and `σ`. -/
+    polynomial satisfies the weight constraint for given `w` and `σ`.
+
+    The following definition returns a subset of smooth ReedSolomon codes
+    satisfying the weight constraint. This version is currently incompatible with
+    the usage of upstream definitions such as relative Hamming distance or
+    listdecodable, hence commented for the time being.
+
 def constraintCode
   (F : Type*) [Field F] [DecidableEq F]
   (ι : Finset F) [DecidableEq ι]
@@ -53,7 +59,9 @@ def constraintCode
   (σ : F):=
     {sc : smoothCode F ι domain k m | weightConstraint  (mVdecode sc) w σ}
 
-def constraintCode1
+    Alternatively, we are using the following version that returns a Set (ι -> F). -/
+
+def constraintCode
   (F : Type*) [Field F] [DecidableEq F]
   (ι : Finset F) [DecidableEq ι]
   (domain : ι ↪ F)
