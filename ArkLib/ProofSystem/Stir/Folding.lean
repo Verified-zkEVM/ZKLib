@@ -6,9 +6,9 @@ Authors: Least Authority
 
 import ArkLib.Data.CodingTheory.FieldReedSolomon
 import ArkLib.Data.CodingTheory.ListDecodeability
-import ArkLib.Data.CodingTheory.ProximityBound
 import ArkLib.Data.CodingTheory.RelativeHammingDistance
 import ArkLib.Data.CodingTheory.SmoothDomain
+import ArkLib.ProofSystem.Stir.ProximityBound
 
 import Mathlib.Algebra.MvPolynomial.Basic
 import Mathlib.Algebra.MvPolynomial.Degrees

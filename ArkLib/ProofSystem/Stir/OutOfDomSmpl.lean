@@ -16,7 +16,7 @@ import Mathlib.Data.Fintype.Basic
 open ReedSolomon ListDecodable Finset
 namespace OutOfDomSmpl
 variable {F : Type*} [Field F] [Fintype F] [DecidableEq F]
-         {ι : Finset F} {domain : ι ↪ F} {degree : ℕ}
+         {ι : Finset F}
 
 /-! Section 4.3 in https://eprint.iacr.org/2024/390.pdf -/
 
@@ -26,8 +26,8 @@ def domainComplement (ι : Finset F) : Finset F :=
 /-- Pr_{r₀, …, rₛ₋ ₁  ← 𝔽\L} [∃ distinct u, u′ ∈ List(f, d, δ) :
 ∀ i ∈ [0...s-1], u(r_i) = u′(r_i)] -/
 noncomputable def listDecodingCollisionProbability
-  (f : ι → F) (δ : ℝ) (s : ℕ)
-  (h_nonempty : Nonempty (domainComplement ι))  : ENNReal :=
+  (f : ι → F) (δ : ℝ) (s : ℕ) (degree : ℕ) (domain : ι ↪ F)
+  (h_nonempty : Nonempty (domainComplement ι)) : ENNReal :=
   (PMF.uniformOfFintype (Fin s → domainComplement ι)).toOuterMeasure { r |
     ∃ (u u' : code F ι domain degree),
     -- ∃ (u u' : (relHammingBall (toLinearCode C) f δ)),
@@ -40,18 +40,20 @@ noncomputable def listDecodingCollisionProbability
   }
 
 lemma out_of_dom_smpl_1
-  (δ l : ℝ) (s : ℕ) (f : ι → F) (h_nonempty : Nonempty (domainComplement ι))
-  (h_decodable : listDecodable ↑(code F ι domain degree) δ l) :
-  listDecodingCollisionProbability f δ s h_nonempty ≤
+  {δ l : ℝ} {s : ℕ} {f : ι → F} {degree : ℕ} {domain : ι ↪ F}
+  (C : Set (ι → F)) (hC : C = code F ι domain degree)
+  (h_decodable : listDecodable ↑C δ l)
+  (h_nonempty : Nonempty (domainComplement ι))  :
+  listDecodingCollisionProbability f δ s degree domain h_nonempty ≤
     (ENNReal.ofReal (l * (l-1) / 2)) * ((degree - 1) / (Fintype.card F - ι.card))^s
   := by sorry
 
 lemma out_of_dom_smpl_2
-  (f : ι → F)
-  (δ l : ℝ) (s : ℕ)
-  (h_decodable : listDecodable ↑(code F ι domain degree) δ l)
+  {δ l : ℝ} {s : ℕ} {f : ι → F} {degree : ℕ} {domain : ι ↪ F}
+  (C : Set (ι → F)) (hC : C = code F ι domain degree)
+  (h_decodable : listDecodable ↑C δ l)
   (h_nonempty : Nonempty (domainComplement ι)) :
-  listDecodingCollisionProbability f δ s h_nonempty ≤
+  listDecodingCollisionProbability f δ s degree domain h_nonempty ≤
     (ENNReal.ofReal (l^2 / 2)) * (degree / (Fintype.card F - ι.card))^s
   := by sorry
 

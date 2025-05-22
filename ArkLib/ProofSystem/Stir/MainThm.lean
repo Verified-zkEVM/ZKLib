@@ -7,12 +7,12 @@ Authors: Least Authority
 
 import ArkLib.Data.CodingTheory.FieldReedSolomon
 import ArkLib.Data.CodingTheory.ListDecodeability
-import ArkLib.Data.CodingTheory.ProximityBound
 import ArkLib.Data.CodingTheory.RelativeHammingDistance
 import ArkLib.Data.CodingTheory.SmoothDomain
 import ArkLib.OracleReduction.VectorIOR
+import ArkLib.ProofSystem.Stir.ProximityBound
 
-open Finset ReedSolomon VectorIOP ListDecodable
+open Finset ReedSolomon VectorIOP ListDecodable SmoothDomain
 open scoped BigOperators NNReal
 
 
@@ -66,7 +66,7 @@ def predFin {n : ℕ} (i : Fin (n + 1)) (h : i.val ≠ 0) : Fin (n + 1) :=
 open OracleComp OracleSpec ProtocolSpec
 
 section STIR
-variable {n : ℕ} {ι : Type}
+variable {n : ℕ}
 
 structure Statement
   (F : Type)[Field F][Fintype F][DecidableEq F]
@@ -90,22 +90,22 @@ instance instStirOraclePerIndex
 
 def stirRelation
   {F : Type} [Field F] [Fintype F] [DecidableEq F]
-  {ι : Finset F} {degree : ℕ} {ιₛ : Type} (domain : ι ↪ F) (δ : ℝ)
+  {ι : Finset F} [Nonempty ι] {degree : ℕ} {ιₛ : Type} (domain : ι ↪ F) (δ : ℝ)
   : (Statement F ι degree × ∀ _ : ιₛ, ι → F) → Unit → Prop :=
   let C := code F ι domain degree
   fun ⟨stmt, _oracles⟩ _ =>
-    ∀ c ∈ C, δᵣ(stmt.eval, c) ≥ δ
+    δᵣ(stmt.eval, ↑C) ≥ δ
 
 
 
 /-- **STIR main theorem** -/
 theorem STIR
   {F : Type} [Field F] [Fintype F] [DecidableEq F] [VCVCompatible F]
-  {ι : Finset F} -- ι is a smooth domain
-  {domain : ι ↪ F} {degree : ℕ} (hd : ∃ m, degree = 2 ^ m)
-  (C : code F ι domain degree) (secpar : ℕ)
+  {ι : Finset F} [Nonempty ι]
+  {domain : ι ↪ F} {degree : ℕ} (hd : ∃ m, degree = 2 ^ m) (secpar : ℕ)
   (δ : ℝ) (hδ0 : 0 < δ) (hδub : δ < 1 - 1.05 * Real.sqrt (degree / ι.card))
   (k : ℕ) (hk : ∃ m, k = 2 ^ m) (hk4 : 4 ≤ k)
+  [hsmooth : Smooth domain k]-- ι is a smooth domain
   (hF : Fintype.card F ≥
         secpar * 2 ^ secpar * degree^2 * ι.card^(7/2) /
         Real.log (1 / rate degree ι))
@@ -126,13 +126,13 @@ end STIR
 
 section RBR
 open Finset BigOperators
-variable {n : ℕ} {ι : Type}
+variable {n : ℕ}
 
 
 /-- **Round-by-round soundness of the STIR IOPP**-/
 theorem stir_rbr_soundness
     {F : Type} [Field F] [Fintype F] [DecidableEq F] [VCVCompatible F]
-    {d : ℕ} {ι : Finset F} [Nonempty ι] -- ι is a smooth domain
+    {d k : ℕ} {ι : Finset F} [hsmooth : Smooth domain k] -- ι is a smooth domain
     {M : ℕ} (P : Params F M) {f₀ : (P.ι 0) → F}
     {h_nonempty: ∀ i : Fin (M + 1), Nonempty (P.ι i)}
     {i : Fin (M + 1)} (C : Code d P i) (s : ℕ)
