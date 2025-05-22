@@ -135,6 +135,14 @@ def PlainMessage (i : pSpec.PlainMessageIdx) := pSpec.Message i.1
 @[reducible, inline, specialize]
 def OracleMessage (i : pSpec.OracleMessageIdx) := pSpec.Message i.1
 
+/-- The type of all messages in a protocol specification -/
+@[reducible, inline, specialize]
+def Messages : Type := ∀ i, pSpec.Message i
+
+/-- The type of all challenges in a protocol specification -/
+@[reducible, inline, specialize]
+def Challenges : Type := ∀ i, pSpec.Challenge i
+
 -- TODO: re-define `OracleReduction` to depend on these oracle interfaces
 -- Currently, we assume that _all_ messages are available as oracles in an oracle reduction
 
@@ -322,7 +330,7 @@ structure OracleVerifier (pSpec : ProtocolSpec n) (oSpec : OracleSpec ι)
   public-coin protocols). Returns the output statement `StmtOut` within an `OracleComp` that has
   access to external oracles `oSpec`, input statement oracles `OStmtIn`, and prover message
   oracles `pSpec.Message`. -/
-  verify : StmtIn → (∀ i, pSpec.Challenge i) →
+  verify : StmtIn → pSpec.Challenges →
     OracleComp (oSpec ++ₒ ([OStmtIn]ₒ ++ₒ [pSpec.Message]ₒ)) StmtOut
 
   /-- An embedding that specifies how each output oracle statement (indexed by `ιₛₒ`) is derived.
@@ -374,7 +382,6 @@ def toVerifier : Verifier pSpec oSpec (StmtIn × ∀ i, OStmtIn i) (StmtOut × (
 def numQueries (stmt : StmtIn) (challenges : ∀ i, pSpec.Challenge i)
     (verifier : OracleVerifier pSpec oSpec StmtIn StmtOut OStmtIn OStmtOut) :
   OracleComp (oSpec ++ₒ ([OStmtIn]ₒ ++ₒ [pSpec.Message]ₒ)) ℕ := sorry
-
 
 /-- A **non-adaptive** oracle verifier is an oracle verifier that makes a **fixed** list of queries
     to the input oracle statements and the prover's messages. These queries can depend on the input

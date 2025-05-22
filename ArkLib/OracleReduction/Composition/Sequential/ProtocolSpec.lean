@@ -5,7 +5,7 @@ Authors: Quang Dao
 -/
 
 import ArkLib.Data.Fin.Basic
-import Batteries.Data.Fin.Fold
+import ArkLib.ToMathlib.BigOperators.Fin
 import ArkLib.OracleReduction.Basic
 
 /-! # Sequential Composition of Protocol Specifications
@@ -30,6 +30,10 @@ theorem congrArg₄ {α β γ δ ε : Sort*} {f : α → β → γ → δ → ε
     {d d' : δ} (h : a = a') (h' : b = b') (h'' : c = c') (h''' : d = d') :
       f a b c d = f a' b' c' d' := by
   subst h; subst h'; subst h''; subst h'''; rfl
+
+-- theorem Fin.root_cast_tuple_if_eq {m n : ℕ} {α : Sort*} {u : Fin m → α} {v : Fin n → α}
+--     (h' : HEq u v) : m = n := by
+--   subst h
 
 end find_home
 
@@ -229,12 +233,24 @@ def snoc {pSpec : ProtocolSpec n} {NextMessage : Type}
         FullTranscript (pSpec ++ₚ .mkSingle dir NextMessage) :=
   append T fun _ => msg
 
+@[simp]
 theorem take_append_left (T : FullTranscript pSpec₁) (T' : FullTranscript pSpec₂) :
-    ((T ++ₜ T').take m (Nat.le_add_right m n)) =
-      T.cast (by omega) (by simp [ProtocolSpec.append]) := by
+    (T ++ₜ T').take m (Nat.le_add_right m n) =
+      T.cast rfl (by simp [ProtocolSpec.append]) := by
   ext i
   simp [take, append, ProtocolSpec.append, Fin.castLE, Fin.addCases', Fin.addCases,
     FullTranscript.cast]
+
+@[simp]
+theorem rtake_append_right (T : FullTranscript pSpec₁) (T' : FullTranscript pSpec₂) :
+    (T ++ₜ T').rtake n (Nat.le_add_left n m) =
+      T'.cast rfl (by simp [ProtocolSpec.append]) := by
+  ext i
+  simp [rtake, append, ProtocolSpec.append, Fin.castLE, Fin.addCases', Fin.addCases,
+    Fin.natAdd, Fin.subNat, FullTranscript.cast]
+  have : m + n - n + i.val - m = i.val := by omega
+  rw! (castMode := .all) [this]
+  simp [_root_.cast_eq_cast_iff, eqRec_eq_cast]
 
 /-- The first half of a transcript for a concatenated protocol -/
 def fst (T : FullTranscript (pSpec₁ ++ₚ pSpec₂)) : FullTranscript pSpec₁ :=
@@ -307,5 +323,63 @@ def ChallengeIdx.sumEquiv :
     by_cases hi : i < m <;>
     simp [ChallengeIdx.inl, ChallengeIdx.inr, hi]
     congr; omega
+
+/-- Composition of a family of `ProtocolSpec`s, indexed by `i : Fin (m + 1)`.
+
+Defined by (dependent) folding over `Fin`. -/
+def compose (m : ℕ) (n : Fin (m + 1) → ℕ) (pSpec : ∀ i, ProtocolSpec (n i)) :
+    ProtocolSpec (∑ i, n i) :=
+  cast (by have : Fin.last m = ⊤ := rfl; rw [this, Finset.Iic_top])
+    (Fin.dfoldl m (fun i => ProtocolSpec (∑ j ≤ i, n j))
+      (fun i acc => cast (Fin.sum_Iic_succ i).symm (acc ++ₚ pSpec i.succ))
+        (cast (Fin.sum_Iic_zero).symm (pSpec 0)))
+
+@[simp]
+theorem compose_zero {n : ℕ} {pSpec : ProtocolSpec n} :
+    compose 0 (fun _ => n) (fun _ => pSpec) = pSpec := by
+  simp [compose]
+
+set_option maxHeartbeats 1000000
+/-- Composition and append -/
+theorem compose_append {m : ℕ} {n : Fin (m + 1) → ℕ} {pSpec : ∀ i, ProtocolSpec (n i)} (i : Fin m) :
+    compose (i + 1) (Fin.take (i + 1 + 1) (by omega) n) (Fin.take (i + 1 + 1) (by omega) pSpec) =
+      cast (by simp [Fin.sum_univ_castSucc]; congr)
+        (compose i (Fin.take (i + 1) (by omega) n) (Fin.take (i + 1) (by omega) pSpec)
+          ++ₚ pSpec i.succ) := by
+  simp only [id_eq, Fin.take_apply, compose, cast_eq_self, Fin.dfoldl_succ_last, Fin.succ_last,
+    Nat.succ_eq_add_one, Function.comp_apply, cast_trans, append_cast_left, cast_eq_cast_iff]
+  unfold Function.comp Fin.castSucc Fin.castAdd Fin.castLE Fin.last Fin.succ
+  simp only [Fin.val_zero, Fin.zero_eta, append_cast_left', append_left_cancel_iff]
+  rw [cast_eq_root_cast]
+  refine Fin.dfoldl_congr ?_ ?_ ?_
+  · intro j; congr 1; sorry
+    -- apply Finset.sum_image
+  · intro j a; simp [cast_eq_root_cast]; sorry
+  · simp [cast_eq_root_cast]
+  -- unfold compose
+  -- induction m with
+  -- | zero => exact Fin.elim0 i
+  -- | succ m ih =>
+  --   induction i using Fin.induction with
+  --   | zero => simp only [Fin.val_zero, Fin.dfoldl_zero, cast_eq_self]
+  --   | succ i ih =>
+  --     simp only [Fin.val_succ, Fin.dfoldl_succ_last, Fin.val_last, Function.comp_apply,
+  --       Fin.coe_castSucc, cast_eq_self, cast_trans]
+  --     simp only [Fin.coe_castSucc] at ih
+  --     unfold Function.comp Fin.castSucc Fin.castAdd Fin.castLE Fin.last Fin.succ
+  --     simp only [cast_trans, cast_eq_cast_iff, append_cast_left', append_left_cancel_iff]
+
+/-- Composition of a family of `FullTranscript`s, indexed by `i : Fin (m + 1)`. -/
+def FullTranscript.compose (m : ℕ) (n : Fin (m + 1) → ℕ) (pSpec : ∀ i, ProtocolSpec (n i))
+    (T : ∀ i, FullTranscript (pSpec i)) : FullTranscript (compose m n pSpec) :=
+  FullTranscript.cast (by simp) (by congr)
+    (Fin.dfoldl m
+      (fun i => FullTranscript (ProtocolSpec.compose i
+        (Fin.take (i + 1) (by omega) n) (Fin.take (i + 1) (by omega) pSpec)))
+      (fun i acc => by
+        refine FullTranscript.cast ?_ ?_ (acc ++ₜ (T i.succ))
+        · simp [Fin.take]; rw (occs := [2]) [Fin.sum_univ_castSucc]; congr
+        · simp [compose_append])
+      (FullTranscript.cast (by simp) (by congr) (T 0)))
 
 end ProtocolSpec

@@ -20,6 +20,9 @@ import ArkLib.OracleReduction.Security.Basic
   2. Then, we define the general composition of `m + 1` reductions, indexed by `i : Fin (m + 1)`, by
      iterating the concatenation of two reductions.
 
+  For the definitions of composition for `ProtocolSpec` and their associated functions, see
+  `ProtocolSpec.lean`.
+
   We also prove that the composition of reductions preserve all completeness & soundness properties
   of the reductions being composed.
 -/
@@ -292,63 +295,6 @@ def OracleReduction.append (R₁ : OracleReduction pSpec₁ oSpec Stmt₁ Wit₁
   verifier := OracleVerifier.append R₁.verifier R₂.verifier
 
 section GeneralComposition
-
-namespace ProtocolSpec
-
-/-- Composition of a family of `ProtocolSpec`s, indexed by `i : Fin (m + 1)`. -/
-def compose (m : ℕ) (n : Fin (m + 1) → ℕ) (pSpec : ∀ i, ProtocolSpec (n i)) :
-    ProtocolSpec (∑ i, n i) := sorry
-  -- cast (by rw [Finset.Iic_top])
-  --   (Fin.dfoldl m (fun i => ProtocolSpec (∑ j ≤ i, n j))
-  --     (fun i acc => cast (Fin.sum_Iic_succ i).symm (acc ++ₚ pSpec i.succ))
-  --       (cast (Fin.sum_Iic_zero).symm (pSpec 0)))
-
-@[simp]
-theorem compose_zero {n : ℕ} {pSpec : ProtocolSpec n} :
-    compose 0 (fun _ => n) (fun _ => pSpec) = pSpec := sorry
-
-set_option maxHeartbeats 1000000
-theorem compose_append {m : ℕ} {n : Fin (m + 1) → ℕ} {pSpec : ∀ i, ProtocolSpec (n i)} (i : Fin m) :
-    compose (i + 1) (Fin.take (i + 2) (by omega) n) (Fin.take (i + 2) (by omega) pSpec) =
-      cast (by simp [Fin.sum_univ_castSucc]; congr)
-        (compose i (Fin.take (i + 1) (by omega) n) (Fin.take (i + 1) (by omega) pSpec)
-          ++ₚ pSpec i.succ) := by
-  -- simp only [id_eq, Fin.take_apply, compose, cast_eq_self, Fin.dfoldl_succ_last, Fin.succ_last,
-  --   Nat.succ_eq_add_one, Function.comp_apply, cast_trans, append_cast_left, cast_eq_cast_iff]
-  -- unfold Function.comp Fin.castSucc Fin.castAdd Fin.castLE Fin.last Fin.succ
-  -- simp only [Fin.val_zero, Fin.zero_eta]
-  -- simp only [append_cast_left', append_left_cancel_iff]
-  -- funext x
-  -- unfold cast Fin.cast Function.comp ProtocolSpec
-  -- simp only
-  sorry
-  -- unfold compose
-  -- induction m with
-  -- | zero => exact Fin.elim0 i
-  -- | succ m ih =>
-  --   induction i using Fin.induction with
-  --   | zero => simp only [Fin.val_zero, Fin.dfoldl_zero, cast_eq_self]
-  --   | succ i ih =>
-  --     simp only [Fin.val_succ, Fin.dfoldl_succ_last, Fin.val_last, Function.comp_apply,
-  --       Fin.coe_castSucc, cast_eq_self, cast_trans]
-  --     simp only [Fin.coe_castSucc] at ih
-  --     unfold Function.comp Fin.castSucc Fin.castAdd Fin.castLE Fin.last Fin.succ
-  --     simp only [cast_trans, cast_eq_cast_iff, append_cast_left', append_left_cancel_iff]
-
-/-- Composition of a family of `FullTranscript`s, indexed by `i : Fin (m + 1)`. -/
-def FullTranscript.compose (m : ℕ) (n : Fin (m + 1) → ℕ) (pSpec : ∀ i, ProtocolSpec (n i))
-    (T : ∀ i, FullTranscript (pSpec i)) : FullTranscript (compose m n pSpec) := by
-  simpa using Fin.dfoldl m
-      (fun i => FullTranscript (ProtocolSpec.compose i
-        (Fin.take (i + 1) (by omega) n) (Fin.take (i + 1) (by omega) pSpec)))
-      (fun i acc => by
-        have := acc ++ₜ (T i.succ)
-        unfold FullTranscript at this ⊢
-        simp [Fin.castSucc] at this
-        simp [compose_append]
-        -- refine FullTranscript.cast ?_ this
-        sorry)
-    (by stop exact T 0)
 
 section Instances
 

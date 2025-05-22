@@ -8,6 +8,7 @@ import Mathlib.Algebra.Order.Ring.Nat
 import Mathlib.Algebra.Order.Sub.Basic
 import Mathlib.Algebra.Polynomial.Eval.Defs
 import Mathlib.Data.Fin.Tuple.Take
+import Batteries.Data.Fin.Fold
 import SEq.Tactic.DepRewrite
 
 /-!
@@ -476,8 +477,11 @@ def modSum {m : ℕ} {n : Fin m → ℕ} (k : Fin (∑ j, n j)) : Fin (n (divSum
     exact hk⟩
 
 open Finset in
-/-- Equivalence between `(i : Fin m) × Fin (n i)` and `Fin (∑ i, n i)`. -/
-def finSigmaFinEquiv {m : ℕ} {n : Fin m → ℕ} : (i : Fin m) × Fin (n i) ≃ Fin (∑ i, n i) :=
+/-- Equivalence between `(i : Fin m) × Fin (n i)` and `Fin (∑ i, n i)`.
+
+Put this as the prime version since it already exists in mathlib (though with a different definition
+that's not def'eq to this one). -/
+def finSigmaFinEquiv' {m : ℕ} {n : Fin m → ℕ} : (i : Fin m) × Fin (n i) ≃ Fin (∑ i, n i) :=
   .ofRightInverseOfCardLE (le_of_eq <| by simp_rw [Fintype.card_sigma, Fintype.card_fin])
     (fun ⟨i, j⟩ => ⟨∑ k, n (Fin.castLE i.isLt.le k) + j, by
       have hi : i.val + 1 + (m - i.val - 1) = m := by omega
@@ -500,14 +504,15 @@ def finSigmaFinEquiv {m : ℕ} {n : Fin m → ℕ} : (i : Fin m) × Fin (n i) �
         exact Nat.add_sub_cancel' (Fin.sum_le_of_divSum?_eq_some (Option.some_get _).symm))
 
 @[simp]
-theorem finSigmaFinEquiv_apply {m : ℕ} {n : Fin m → ℕ} (k : (i : Fin m) × Fin (n i)) :
-    (finSigmaFinEquiv k : ℕ) = ∑ i : Fin k.1, n (Fin.castLE k.1.isLt.le i) + k.2 := rfl
+theorem finSigmaFinEquiv'_apply {m : ℕ} {n : Fin m → ℕ} (k : (i : Fin m) × Fin (n i)) :
+    (finSigmaFinEquiv' k : ℕ) = ∑ i : Fin k.1, n (Fin.castLE k.1.isLt.le i) + k.2 := rfl
 
-theorem finSigmaFinEquiv_pair {m : ℕ} {n : Fin m → ℕ} (i : Fin m) (k : Fin (n i)) :
-    (finSigmaFinEquiv ⟨i, k⟩ : ℕ) = ∑ j, n (Fin.castLE i.isLt.le j) + k := by
-  simp only [finSigmaFinEquiv, ↓reduceDIte, Equiv.ofRightInverseOfCardLE_apply]
+theorem finSigmaFinEquiv'_pair {m : ℕ} {n : Fin m → ℕ} (i : Fin m) (k : Fin (n i)) :
+    (finSigmaFinEquiv' ⟨i, k⟩ : ℕ) = ∑ j, n (Fin.castLE i.isLt.le j) + k := by
+  simp only [finSigmaFinEquiv', ↓reduceDIte, Equiv.ofRightInverseOfCardLE_apply]
 
 end FinSigmaFinEquiv
+
 section Join
 
 variable {a : Fin n → ℕ} {α : (i : Fin n) → (j : Fin (a i)) → Sort*}
@@ -535,6 +540,28 @@ def finSuccEquivNth' (i : Fin n) : Fin n ≃ Option (Fin (n - 1)) := by
   exact Equiv.trans (Equiv.cast (congrArg _ this)) (finSuccEquiv' (Fin.cast this i))
 
 end OptionEquivPrime
+
+section Fold
+
+-- def Fin.dfoldl.{u_1} : (n : ℕ) →
+--   (α : Fin (n + 1) → Type u_1) → ((i : Fin n) → α i.castSucc → α i.succ) → α 0 → α (last n) :=
+-- fun n α f init ↦ dfoldlM n α f init
+
+theorem dfoldl_congr {n : ℕ} {α α' : Fin (n + 1) → Type _}
+    {f : (i : Fin n) → α i.castSucc → α i.succ}
+    {f' : (i : Fin n) → α' i.castSucc → α' i.succ} {init : α 0} {init' : α' 0}
+    (hα : ∀ i, α i = α' i) (hf : ∀ i a, f i a = (cast (hα _).symm (f' i (cast (hα _) a))))
+    (hinit : init = cast (hα 0).symm init') :
+      dfoldl n α f init = cast (hα (last n)).symm (dfoldl n α' f' init') := by
+  have hα' : α = α' := funext hα
+  subst hα'
+  simp_all
+  have hf' : f = f' := funext₂ hf
+  subst hf'
+  subst hinit
+  rfl
+
+end Fold
 
 section Lift
 
