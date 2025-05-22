@@ -5,9 +5,8 @@ Authors: Least Authority
 -/
 
 import ArkLib.Data.CodingTheory.FieldReedSolomon
-import ArkLib.Data.CodingTheory.ProximityBound
 import ArkLib.Data.CodingTheory.RelativeHammingDistance
-
+import ArkLib.ProofSystem.Stir.ProximityBound
 
 import Mathlib.Probability.ProbabilityMassFunction.Basic
 import Mathlib.Probability.Distributions.Uniform
