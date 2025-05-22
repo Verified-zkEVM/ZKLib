@@ -223,21 +223,22 @@ structure SRProver (pSpec : ProtocolSpec n) (oSpec : OracleSpec ι)
 -- def SRProver.run
 --     (prover : SRProver pSpec oSpec StmtIn WitIn StmtOut WitOut)
 --     (stmtIn : StmtIn) (witIn : WitIn) :
---     OracleComp (oSpec ++ₒ challengeOracle' pSpec (Statement := Statement))
---     (pSpec.FullTranscript × QueryLog (oSpec ++ₒ challengeOracle' pSpec (Statement := Statement)))
+--     OracleComp (oSpec ++ₒ challengeOracle' pSpec StmtIn)
+--     (StmtOut × WitOut × pSpec.FullTranscript ×
+--       QueryLog (oSpec ++ₒ challengeOracle' pSpec StmtIn))
 -- := do
 --   let ⟨state, stmt, transcript⟩ ← prover.stateRestorationQuery stmtIn
 --   return ⟨transcript, state⟩
 
 -- /-- State-restoration soundness -/
 -- def srSoundness (verifier : Verifier pSpec oSpec StmtIn StmtOut)
---     [RelIn : Relation Statement Witness] (SRSoundnessError : ENNReal) : Prop :=
---   ∀ stmtIn ∉ RelIn.language,
---   ∀ witIn : Witness,
---   ∀ SRProver : StateRestorationProver pSpec oSpec,
---     let protocol := Reduction.mk (Witness := Witness)
---       SRProver.toProver verifier
---     sorry
+--     (langIn : Set StmtIn) (langOut : Set StmtOut) (SRSoundnessError : ENNReal) : Prop :=
+--   ∀ stmtIn ∉ langIn,
+--   ∀ witIn : WitIn,
+--   ∀ SRProver : SRProver pSpec oSpec StmtIn WitIn StmtOut WitOut,
+--     let ⟨_, witOut, transcript, queryLog⟩ ← (simulateQ ... (SRProver.run stmtIn witIn)).run
+--     let stmtOut ← verifier.run stmtIn transcript
+--     return stmtOut ∉ langOut
 
 end StateRestoration
 

@@ -1,5 +1,5 @@
 import ArkLib.OracleReduction.Basic
-import ArkLib.Data.Math.Fin
+import ArkLib.Data.Fin.Basic
 
 /-!
   # Execution Semantics of Interactive Oracle Reductions

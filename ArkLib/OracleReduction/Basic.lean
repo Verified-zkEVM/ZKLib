@@ -317,11 +317,24 @@ structure OracleVerifier (pSpec : ProtocolSpec n) (oSpec : OracleSpec ι)
     {ιₛᵢ : Type} (OStmtIn : ιₛᵢ → Type) [Oₛᵢ : ∀ i, OracleInterface (OStmtIn i)]
     {ιₛₒ : Type} (OStmtOut : ιₛₒ → Type) where
 
+  /-- The core verification logic. Takes the input statement `stmtIn` and all verifier challenges
+  `challenges` (which are determined outside this function, typically by sampling for
+  public-coin protocols). Returns the output statement `StmtOut` within an `OracleComp` that has
+  access to external oracles `oSpec`, input statement oracles `OStmtIn`, and prover message
+  oracles `pSpec.Message`. -/
   verify : StmtIn → (∀ i, pSpec.Challenge i) →
     OracleComp (oSpec ++ₒ ([OStmtIn]ₒ ++ₒ [pSpec.Message]ₒ)) StmtOut
 
+  /-- An embedding that specifies how each output oracle statement (indexed by `ιₛₒ`) is derived.
+  It maps an index `i : ιₛₒ` to either an index `j : ιₛᵢ` (meaning `OStmtOut i` comes from
+  `OStmtIn j`) or an index `k : pSpec.MessageIdx` (meaning `OStmtOut i` comes from the
+  prover's message `pSpec.Message k`). This enforces that output oracles are a subset of
+  input oracles or received prover messages. -/
   embed : ιₛₒ ↪ ιₛᵢ ⊕ pSpec.MessageIdx
 
+  /-- A proof term ensuring that the type of each `OStmtOut i` matches the type of the
+    corresponding source oracle statement (`OStmtIn j` or `pSpec.Message k`) as determined
+    by the `embed` mapping. -/
   hEq : ∀ i, OStmtOut i = match embed i with
     | Sum.inl j => OStmtIn j
     | Sum.inr j => pSpec.Message j

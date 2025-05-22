@@ -5,7 +5,7 @@ Authors: Quang Dao
 -/
 
 import VCVio
-import ArkLib.Data.Math.Operations
+import ArkLib.Data.Math.Basic
 import ArkLib.CommitmentScheme.Basic
 import Mathlib.Data.Vector.Snoc
 

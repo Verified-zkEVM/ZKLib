@@ -5,8 +5,8 @@ Authors: Quang Dao
 -/
 
 import ArkLib.OracleReduction.Security.Basic
-import ArkLib.OracleReduction.Composition.Sequential
-import ArkLib.Data.Math.Fin
+import ArkLib.OracleReduction.Composition.Sequential.Basic
+import ArkLib.Data.Fin.Basic
 
 /-!
 # The Sum-check Protocol

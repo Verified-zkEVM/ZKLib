@@ -6,7 +6,7 @@ Authors: Quang Dao
 
 import Mathlib.Algebra.Tropical.Basic
 import Mathlib.RingTheory.Polynomial.Basic
-import ArkLib.Data.Math.Operations
+import ArkLib.Data.Math.Basic
 
 /-!
   # Computable Univariate Polynomials
