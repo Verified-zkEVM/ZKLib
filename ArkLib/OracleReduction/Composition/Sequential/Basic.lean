@@ -300,8 +300,8 @@ section Instances
 
 variable {m : ℕ} {n : Fin (m + 1) → ℕ} {pSpec : ∀ i, ProtocolSpec (n i)}
 
-/-- If two protocols have sampleable challenges, then their concatenation also has sampleable
-  challenges. -/
+/-- If all protocols have sampleable challenges, then the challenges of their sequential
+  composition also have sampleable challenges. -/
 instance [h : ∀ i, ∀ j, Sampleable ((pSpec i).Challenge j)] :
     ∀ j, Sampleable ((compose m n pSpec).Challenge j) := fun ⟨⟨i, isLt⟩, h⟩ => by
   dsimp [ProtocolSpec.compose, Fin.append, Fin.addCases, Fin.castLT, Fin.subNat, Fin.cast] at h ⊢
@@ -310,8 +310,8 @@ instance [h : ∀ i, ∀ j, Sampleable ((pSpec i).Challenge j)] :
   -- · exact h₁ ⟨⟨i, by omega⟩, h⟩
   -- · exact h₂ ⟨⟨i - m, by omega⟩, h⟩
 
-/-- If two protocols' messages have oracle representations, then their concatenation's messages also
-    have oracle representations. -/
+/-- If all protocols' messages have oracle interfaces, then the messages of their sequential
+  composition also have oracle interfaces. -/
 instance [O : ∀ i, ∀ j, OracleInterface ((pSpec i).Message j)] :
     ∀ i, OracleInterface ((compose m n pSpec).Message i) := fun ⟨⟨i, isLt⟩, h⟩ => by
   dsimp [ProtocolSpec.compose, ProtocolSpec.getDir, Fin.append, Fin.addCases,
@@ -330,53 +330,51 @@ instance [O : ∀ i, ∀ j, OracleInterface ((pSpec i).Message j)] :
 
 end Instances
 
-end ProtocolSpec
-
 def Prover.compose (m : ℕ) (n : Fin (m + 1) → ℕ) (pSpec : ∀ i, ProtocolSpec (n i))
     (Stmt : Fin (m + 2) → Type) (Wit : Fin (m + 2) → Type)
-    (P : ∀ i, Prover (pSpec i) oSpec (Stmt i.castSucc) (Wit i.castSucc) (Stmt i.succ)
-      (Wit i.succ)) :
+    (P : (i : Fin (m + 1)) → Prover (pSpec i) oSpec (Stmt i.castSucc) (Wit i.castSucc)
+      (Stmt i.succ) (Wit i.succ)) :
       Prover (ProtocolSpec.compose m n pSpec) oSpec (Stmt 0) (Wit 0) (Stmt (Fin.last (m + 1)))
         (Wit (Fin.last (m + 1))) :=
   Fin.dfoldl m
     (fun i => Prover
       (ProtocolSpec.compose i (Fin.take (i + 1) (by omega) n) (Fin.take (i + 1) (by omega) pSpec))
         oSpec (Stmt 0) (Wit 0) (Stmt i.succ) (Wit i.succ))
-    (fun i acc => by
-      convert Prover.append acc (P i.succ)
+    (fun i Pacc => by
+      convert Prover.append Pacc (P i.succ)
       · simp [Fin.sum_univ_castSucc, Fin.last, Fin.succ]
       · simp [ProtocolSpec.compose_append, ProtocolSpec.cast_eq_root_cast])
-    (by stop simpa using P 0)
+    (by simpa using P 0)
 
 def Verifier.compose (m : ℕ) (n : Fin (m + 1) → ℕ) (pSpec : ∀ i, ProtocolSpec (n i))
     (Stmt : Fin (m + 2) → Type)
-    (V : ∀ i, Verifier (pSpec i) oSpec (Stmt i.castSucc) (Stmt i.succ)) :
+    (V : (i : Fin (m + 1)) → Verifier (pSpec i) oSpec (Stmt i.castSucc) (Stmt i.succ)) :
       Verifier (ProtocolSpec.compose m n pSpec) oSpec (Stmt 0) (Stmt (Fin.last (m + 1))) :=
   Fin.dfoldl m
     (fun i => Verifier
       (ProtocolSpec.compose i (Fin.take (i + 1) (by omega) n) (Fin.take (i + 1) (by omega) pSpec))
         oSpec (Stmt 0) (Stmt i.succ))
-    (fun i acc => by
-      convert Verifier.append acc (V i.succ)
+    (fun i Vacc => by
+      convert Verifier.append Vacc (V i.succ)
       · simp [Fin.sum_univ_castSucc, Fin.last, Fin.succ]
       · simp [ProtocolSpec.compose_append, ProtocolSpec.cast_eq_root_cast])
-    (by stop simpa using V 0)
+    (by simpa using V 0)
 
 def Reduction.compose (m : ℕ) (n : Fin (m + 1) → ℕ) (pSpec : ∀ i, ProtocolSpec (n i))
     (Stmt : Fin (m + 2) → Type) (Wit : Fin (m + 2) → Type)
-    (R : ∀ i, Reduction (pSpec i) oSpec (Stmt i.castSucc) (Wit i.castSucc) (Stmt i.succ)
-      (Wit i.succ)) :
+    (R : (i : Fin (m + 1)) → Reduction (pSpec i) oSpec (Stmt i.castSucc) (Wit i.castSucc)
+      (Stmt i.succ) (Wit i.succ)) :
       Reduction (ProtocolSpec.compose m n pSpec) oSpec (Stmt 0) (Wit 0) (Stmt (Fin.last (m + 1)))
         (Wit (Fin.last (m + 1))) :=
   Fin.dfoldl m
     (fun i => Reduction
       (ProtocolSpec.compose i (Fin.take (i + 1) (by omega) n) (Fin.take (i + 1) (by omega) pSpec))
         oSpec (Stmt 0) (Wit 0) (Stmt i.succ) (Wit i.succ))
-    (fun i acc => by
-      convert Reduction.append acc (R i.succ)
+    (fun i Racc => by
+      convert Reduction.append Racc (R i.succ)
       · simp [Fin.sum_univ_castSucc, Fin.last, Fin.succ]
       · simp [ProtocolSpec.compose_append, ProtocolSpec.cast_eq_root_cast])
-    (by stop simpa using R 0)
+    (by simpa using R 0)
 
 end GeneralComposition
 
@@ -458,7 +456,12 @@ theorem completeness_compose
     (completenessError : Fin (m + 1) → ℝ≥0)
     (h : ∀ i, (R i).completeness (rel i.castSucc) (rel i.succ) (completenessError i)) :
       (Reduction.compose m n pSpec Stmt Wit R).completeness (rel 0) (rel (Fin.last (m + 1)))
-        (∑ i, completenessError i) := sorry
+        (∑ i, completenessError i) := by
+  induction m with
+  | zero =>
+    simp_all; convert h 0; sorry
+  | succ m ih =>
+    sorry
 
 
 end GeneralComposition
