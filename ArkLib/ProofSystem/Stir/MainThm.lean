@@ -7,10 +7,10 @@ Authors: Least Authority
 
 import ArkLib.Data.CodingTheory.FieldReedSolomon
 import ArkLib.Data.CodingTheory.ListDecodeability
-import ArkLib.Data.CodingTheory.ProximityBound
 import ArkLib.Data.CodingTheory.RelativeHammingDistance
 import ArkLib.Data.CodingTheory.SmoothDomain
 import ArkLib.OracleReduction.VectorIOR
+import ArkLib.ProofSystem.Stir.ProximityBound
 
 open Finset ReedSolomon VectorIOP ListDecodable SmoothDomain
 open scoped BigOperators NNReal
