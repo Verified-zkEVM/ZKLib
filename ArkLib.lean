@@ -57,7 +57,6 @@ import ArkLib.ProofSystem.Plonk.Basic
 import ArkLib.ProofSystem.Spartan.Basic
 import ArkLib.ProofSystem.Sumcheck.Basic
 import ArkLib.ProofSystem.Stir
-import ArkLib.ProofSystem.Whir
 import ArkLib.ToMathlib.Finset.Basic
 import ArkLib.ToMathlib.Finsupp.Fin
 import ArkLib.ToMathlib.MvPolynomial.Equiv
