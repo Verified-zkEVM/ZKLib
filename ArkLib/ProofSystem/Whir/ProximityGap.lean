@@ -39,7 +39,7 @@ noncomputable def reedSolomonProximityGen
           let min_val := min (1 - (NNReal.sqrt ρ) - δ ) ((NNReal.sqrt ρ) / 20)
           ((l - 1) * (2^(2* m))) / ((Fintype.card F) * (2 * min_val)^7)
       ),
-      proximity := by sorry -- Proof will be analog to the proximity gap lemma proof
+      proximity := by sorry
     }
 
 end RSGenerator

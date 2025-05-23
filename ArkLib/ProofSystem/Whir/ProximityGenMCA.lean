@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Least Authority
 -/
 
+import ArkLib.Data.CodingTheory.SmoothReedSolomon
 import ArkLib.Data.CodingTheory.RelativeHammingDistance
 import ArkLib.Data.Probability.Notation
 import ArkLib.ProofSystem.Whir.ProximityGen
@@ -11,8 +12,8 @@ import ArkLib.ProofSystem.Whir.ProximityGen
 
 namespace CorrelatedAgreement
 
-open NNReal Generator
-variable  {F : Type*} [Semiring F] [Fintype F] [DecidableEq F]
+open NNReal Generator ReedSolomon SmoothDomain
+variable  {F : Type*} [Field F] [Fintype F] [DecidableEq F]
           {ι : Type*} [Fintype ι] [Nonempty ι]
 
 /-- For `l` functions `fᵢ : ι → 𝔽`, distance `δ`, generator function `GenFun: 𝔽 → 𝔽ˡ`and linear
@@ -29,22 +30,61 @@ def proximityCondition {l : ℕ} (f : Fin l → ι → F) (δ : ℝ≥0) (GenFun
       ∃ u ∈ C, ∀ s ∈ S, u s = ∑ j : Fin l, GenFun r j • f j s ∧
       ∃ i : Fin l, ∀ u' ∈ C, ∀ s ∈ S, u' s ≠ f i s
 
-/-- Let `C` be a linear code, then Gen is a proximity generator with mutual correlated agreement
-    if for `l` functions `fᵢ : ι → F` and distance `δ`, `proximityCondition(r)` is true.
-
-    Definition 4.9 -/
+/-- Definition 4.9
+  Let `C` be a linear code, then Gen is a proximity generator with mutual correlated agreement
+  if for `l` functions `fᵢ : ι → F` and distance `δ`, `proximityCondition(r)` is true. -/
 noncomputable def proximityGenMCA (Gen : ProximityGenerator ι F)
   (BStar : ℝ≥0) (errStar : ℝ≥0 → ℝ≥0) :=
     ∀ (f : Fin Gen.l → ι → F) (δ : ℝ≥0) (_hδ : δ < 1 - BStar),
     Pr_{r ← F} [ (proximityCondition f δ Gen.GenFun Gen.C) r ] > errStar δ
 
-/--Let `C` be a linear code with minimum distance `δ_C`, `Gen` be a proximity generator for C
-   with parameters `B` and `err`, then Gen has mutual correlated agreement with proximity bound with
-   `BStar = min {1 - δ_C/2, B}` and `errStar = err`.
-
-   Lemma 4.10-/
+/--Lemma 4.10
+  Let `C` be a linear code with minimum distance `δ_C`, `Gen` be a proximity generator for C
+  with parameters `B` and `err`, then Gen has mutual correlated agreement with proximity bound with
+  `BStar = min {1 - δ_C/2, B}` and `errStar = err`. -/
 lemma mutual_corr_agreement (Gen : ProximityGenerator ι F) (BStar : ℝ≥0) (errStar : ℝ≥0 → ℝ≥0)
   (h: proximityGenMCA Gen BStar errStar) (C : Set (ι → F)) (hC : C = Gen.C) :
   BStar < min (1 - (δᵣ C) / 2 : ℝ) Gen.B
   ∧
   errStar = Gen.err := by sorry
+
+/--Corollary 4.11
+  Let `rsC` be a (smooth) ReedSolomon Code with rate `ρ`, then the function
+  `Gen(l,α)={1,α,..,α ^ l-1}` is a proximity generator for Gen with mutual
+  correlated agreement with
+    BStar = (1+ρ) / 2
+    errStar = (l-1)•2^m / ρ•|F|.
+
+  function `Gen(l,α)={1,α,..,α ^ l-1}`-/
+noncomputable def genₐ (α : F) (l : ℕ) : F → Fin l → F :=
+  fun _ j => α ^ (j : ℕ)
+
+/--the proximity generator `Genₐ` for smooth ReedSolomon codes wrt function
+`Gen(l,α)={1,α,..,α ^ l-1}`-/
+noncomputable def ProximityGeneratorₐ
+  (ι : Finset F) [Nonempty ι] (Gen : ProximityGenerator ι F) (α : F)
+  (domain : ι ↪ F) (m : ℕ) (k : ℕ) [Smooth domain k] :
+  ProximityGenerator ι F :=
+  {
+    C := smoothCode F ι domain k m,
+    l := Gen.l,
+    GenFun := genₐ α Gen.l,
+    B := Gen.B,
+    err := Gen.err,
+    proximity := by
+      intro f δ hδ hprob
+      sorry
+  }
+/--Corollary 4.11
+  Let `C` be a smooth ReedSolomon code with rate `ρ`, then `Genₐ` is the proximity generator with
+  mutual correlated agreement with bounds
+    BStar = (1-ρ) / 2
+    errStar = (l-1)•2^m / ρ•|F|. -/
+lemma mutual_corr_agreement_rsc (ι : Finset F) [Nonempty ι] (Gen Genₐ: ProximityGenerator ι F)
+  (α : F) (domain : ι ↪ F) (m k : ℕ) [Smooth domain k] (BStar ρ : ℝ≥0) (errStar : ℝ≥0 → ℝ≥0)
+  (hGen : Genₐ = ProximityGeneratorₐ ι Gen α domain m k)
+  (h : proximityGenMCA Genₐ BStar errStar)
+  (hrate : ρ = (2^m : ℝ≥0) / (Fintype.card ι)) :
+  BStar = (1 - ρ) / 2 ∧
+  errStar = fun _ => (Genₐ.l - 1) • 2^m / ρ • (Fintype.card F : ℝ≥0)
+  := by sorry
