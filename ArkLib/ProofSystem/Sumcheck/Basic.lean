@@ -572,7 +572,7 @@ def stateFunction (i : Fin (n + 1)) : StateFunction (pSpec := pSpec R deg) (oSpe
 
 /-- Trivial extractor since witness is `Unit` -/
 def rbrExtractor (i : Fin (n + 1)) :
-    @RBRExtractor _ _ (pSpec R deg) oSpec (Statement R n i.castSucc) Unit i := fun _ _ _ => ()
+    @RBRExtractor _ (pSpec R deg) _ oSpec (Statement R n i.castSucc) Unit i := fun _ _ _ => ()
 
 -- /-- Round-by-round knowledge soundness theorem for sumcheck -/
 -- theorem rbr_knowledge_soundness : OracleReduction.rbrKnowledgeSoundness
