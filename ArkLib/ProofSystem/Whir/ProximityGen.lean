@@ -7,8 +7,10 @@ Authors: Least Authority
 import ArkLib.Data.CodingTheory.RelativeHammingDistance
 import ArkLib.Data.Probability.Notation
 
+
 namespace Generator
 
+open NNReal
 variable  {F : Type*} [Semiring F] [Fintype F] [DecidableEq F]
           {ι : Type*} [Fintype ι] [Nonempty ι]
 
@@ -17,18 +19,14 @@ variable  {F : Type*} [Semiring F] [Fintype F] [DecidableEq F]
     combination f := ∑ⱼ GenFun(r)ⱼ⬝fⱼ is within relative Hamming distance `δ` to the linear
     code `C`.  -/
 def linear_comb_in_distance
-  {l : ℕ}
-  (f : Fin l → ι → F)
-  (δ : ℝ )
-  (GenFun : F → Fin l → F)
-  (C : LinearCode ι F): F → Prop
-    | r => δᵣ( (fun x => ∑ j : Fin l, (GenFun r j) • f j x) , C ) ≤ δ
+  {l : ℕ} (f : Fin l → ι → F) (δ : ℝ≥0) (GenFun : F → Fin l → F) (C : LinearCode ι F): F → Prop
+    | r => δᵣ( (fun x => ∑ j : Fin l, (GenFun r j) • f j x) , C ) ≤ (δ : ℝ)
 
 
-/-- A proximity generator for a linear code `C`  -/
+/-- A proximity generator for a linear code `C`, Definition 4.7 -/
 structure ProximityGenerator
-  (F : Type*) [Semiring F] [Fintype F] [DecidableEq F]
-  (ι : Type*) [Fintype ι] [Nonempty ι] where
+  (ι : Type*) [Fintype ι] [Nonempty ι]
+  (F : Type*) [Semiring F] [Fintype F] [DecidableEq F] where
   -- Underlying linear code
   C         : LinearCode ι F
   -- Number of functions to combine
@@ -36,9 +34,9 @@ structure ProximityGenerator
   -- Generator function maps sampled randomness `r : 𝔽 ` to `l`-tuples of field elements
   GenFun    : F → Fin l → F
   -- Distance threshold parameter
-  BStar     : ℝ
+  B         : ℝ≥0
   -- Error function bounding the probability of hitting within distance `δ`
-  err       : ℝ → ENNReal
+  err       : ℝ≥0 → ℝ≥0
   /- Proximity:
       For all `l`-tuples of functions `fᵢ : ι → 𝔽` and distance parameter `δ ∈ (0, 1-BStar)`:
 
@@ -47,11 +45,11 @@ structure ProximityGenerator
       `|S| ≥ (1-δ)⬝|ι|`) on which each `fᵢ` agrees with some codeword in `C`. -/
   proximity:
     ∀ (f : Fin l → ι → F)
-      (δ : NNReal)
-      (_hδ : δ < 1 - BStar) ,
+      (δ : ℝ≥0)
+      (_hδ : δ < 1 - B) ,
       Pr_{r ← F}[ (linear_comb_in_distance f δ GenFun C) r ] > err δ →
         ∃ S : Finset ι,
-          S.card ≥ (1 - (δ : ℝ)) * Fintype.card ι ∧
+          S.card ≥ (1 - δ) * Fintype.card ι ∧
           ∀ i : Fin l, ∃ u ∈ C, ∀ x ∈ S, f i x = u x
 
 end Generator

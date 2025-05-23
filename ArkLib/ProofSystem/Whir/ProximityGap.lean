@@ -12,7 +12,7 @@ import ArkLib.Data.CodingTheory.SmoothReedSolomon
 
 namespace RSGenerator
 
-open ReedSolomon Generator SmoothDomain
+open ReedSolomon Generator SmoothDomain NNReal
 
 /- Smooth Reed Solomon codes C:= RSC[F,L,d] have proximity generators for any given `l: ℕ`
    with generator function Gen(l) : 𝔽 → 𝔽ˡ ; α → (1,α, α², …, αˡ⁻¹),
@@ -26,17 +26,17 @@ noncomputable def reedSolomonProximityGen
   (domain : ι ↪ F)
   (k : ℕ) [Smooth domain k]
   (m : ℕ)
-  : ProximityGenerator F ι :=
-    let ρ := 2^m / (Fintype.card ι)
-    { C      :=  smoothCode F ι domain k m,
+  : ProximityGenerator ι F :=
+    let ρ : ℝ≥0 := (2^m : ℝ≥0) / (Fintype.card ι)
+    { C      := smoothCode F ι domain k m,
       l      := l,
       GenFun := fun r j => r ^ (j : ℕ),
-      BStar  := Real.sqrt ρ ,
-      err   := fun δ => ENNReal.ofReal (
+      B  := NNReal.sqrt ρ ,
+      err    := fun δ => (
         if δ ≤ (1 - ρ) / 2 then
           ((l- 1) * 2^m) / (ρ  * Fintype.card F )
         else
-          let min_val := min (1 - (Real.sqrt ρ) - δ ) ((Real.sqrt ρ) / 20)
+          let min_val := min (1 - (NNReal.sqrt ρ) - δ ) ((NNReal.sqrt ρ) / 20)
           ((l - 1) * (2^(2* m))) / ((Fintype.card F) * (2 * min_val)^7)
       ),
       proximity := by sorry -- Proof will be analog to the proximity gap lemma proof
