@@ -82,6 +82,16 @@ theorem dcast_fun {γ : (a : α) → β a → Sort*} {f : (b : β a) → γ a b}
   rw! [dcast_eq]
   exact dcast_eq.symm
 
+-- TODO: figure out the most general form of these composition / naturality theorems
+
+theorem dcast_fun₂ {a₁ a₂ a₁' a₂' : α} {h₁ : a₁ = a₁'} {h₂ : a₂ = a₂'} {f : α → α → α}
+    {g : (a₁ : α) → (a₂ : α) → β a₁ → β a₂ → β (f a₁ a₂)} {b₁ : β a₁} {b₂ : β a₂} :
+    dcast (by cases h₁; cases h₂; rfl) (g a₁ a₂ b₁ b₂) = g a₁' a₂' (dcast h₁ b₁) (dcast h₂ b₂) := by
+  cases h₁; cases h₂; simp
+
+theorem dcast_eq_root_cast (h : a = a') : dcast h b = _root_.cast (congrArg β h) b := by
+  cases h; simp
+
 end DepCast
 
 /-- `DepCast₂` is a type class for custom cast operations on a doubly-indexed type family `γ a b`,
@@ -285,9 +295,5 @@ instance instDepCast : DepCast Nat Fin where
 theorem cast_eq_dcast {m n : ℕ} (h : m = n) (a : Fin m) :
     Fin.cast h a = dcast h a := by
   simp only [cast_eq_cast, dcast]
-
--- instance instDepCastForall {α : Sort*} : DepCast Nat (fun _ => α) where
---   dcast h := fun a => Fin.cast h a
---   dcast_id := by simp only [Fin.cast_refl, implies_true]
 
 end Fin

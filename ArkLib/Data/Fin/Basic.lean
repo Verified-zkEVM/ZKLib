@@ -9,7 +9,6 @@ import Mathlib.Algebra.Order.Sub.Basic
 import Mathlib.Algebra.Polynomial.Eval.Defs
 import Mathlib.Data.Fin.Tuple.Take
 import Batteries.Data.Fin.Fold
-import SEq.Tactic.DepRewrite
 import ArkLib.Data.Math.DepCast
 
 /-!
@@ -597,26 +596,42 @@ theorem dfoldl_congr {n : ℕ}
   subst hinit
   rfl
 
-/-- Congruence for `dfoldl` whose type vectors are indexed by `ι` and have a custom cast operator -/
+/-- Congruence for `dfoldl` whose type vectors are indexed by `ι` and have a `DepCast` instance
+
+Note that we put `cast` (instead of `dcast`) in the theorem statement for easier matching,
+but `dcast` inside the hypotheses for downstream proving. -/
 theorem dfoldl_congr_dcast {n : ℕ}
     {ι : Type v} {α α' : Fin (n + 1) → ι} {β : ι → Type u} [DepCast ι β]
     {f : (i : Fin n) → β (α i.castSucc) → β (α i.succ)}
     {f' : (i : Fin n) → β (α' i.castSucc) → β (α' i.succ)}
     {init : β (α 0)} {init' : β (α' 0)}
     (hα : ∀ i, α i = α' i)
-    (hf : ∀ i a, f i a = (DepCast.dcast (hα _).symm (f' i (DepCast.dcast (hα _) a))))
-    (hinit : init = DepCast.dcast (hα 0).symm init') :
-      dfoldl n (β ∘ α) f init =
-        DepCast.dcast (hα (last n)).symm (dfoldl n (β ∘ α') f' init') := by
+    (hf : ∀ i a, f i a = (dcast (hα _).symm (f' i (dcast (hα _) a))))
+    (hinit : init = dcast (hα 0).symm init') :
+      dfoldl n (fun i => β (α i)) f init =
+        cast (by have := funext hα; subst this; simp) (dfoldl n (fun i => β (α' i)) f' init') := by
   have hα' : α = α' := funext hα
-  subst hα'
-  simp_all only [dcast_id, comp_apply]
+  cases hα'
+  simp_all [dcast_id, comp_apply]
+  simp at hf
   have hf' : f = f' := funext₂ hf
-  subst hf'
-  subst hinit
+  cases hf'
+  cases hinit
   rfl
 
--- theorem dfoldl_congr_indexed₂ {n : ℕ}
+/-- Distribute `dcast` inside `dfoldl`. Requires the minimal condition of `α = α'` -/
+theorem dfoldl_dcast {ι : Type v} {β : ι → Type u} [DepCast ι β]
+    {n : ℕ} {α α' : Fin (n + 1) → ι}
+    {f : (i : Fin n) → β (α i.castSucc) → β (α i.succ)} {init : β (α 0)}
+    (hα : ∀ i, α i = α' i) :
+      dcast (hα (last n)) (dfoldl n (fun i => β (α i)) f init) =
+        dfoldl n (fun i => β (α' i))
+          (fun i a => dcast (hα _) (f i (dcast (hα _).symm a))) (dcast (hα 0) init) := by
+  have hα' : α = α' := funext hα
+  subst hα'
+  simp_all [dcast_id, comp_apply]
+
+-- theorem dfoldl_dcast₂ {n : ℕ}
 --     {ι₁ : Type v} {ι₂ : ι₁ → Type w} {α α' : Fin (n + 1) → (i : ι₁) → ι₂ i}
 --     {β : (i : ι₁) → ι₂ i → Type u}
 --     {f : (i : Fin n) → β (α i.castSucc) → β (α i.succ) (ι₂ (α i.succ))}
