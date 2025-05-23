@@ -69,6 +69,33 @@ end find_home
 
 open ProtocolSpec
 
+section Cast
+
+-- Dependent casts across `ProtocolSpec`s for the `(Oracle)Prover`, `(Oracle)Verifier`, and
+-- `(Oracle)Reduction` types
+
+/-- To cast the verifier, we only need to cast the transcript. -/
+def Verifier.cast {m n : ℕ} {pSpec : ProtocolSpec m} {pSpec' : ProtocolSpec n}
+    {ι : Type} {oSpec : OracleSpec ι} {StmtIn StmtOut : Type}
+    (h : m = n) (hSpec : dcast h pSpec = pSpec')
+    (V : Verifier pSpec oSpec StmtIn StmtOut) :
+    Verifier pSpec' oSpec StmtIn StmtOut where
+  verify := fun stmt transcript => V.verify stmt (dcast₂ h.symm (dcast_symm h hSpec) transcript)
+
+@[simp]
+def Verifier.cast_id {n} {pSpec : ProtocolSpec n}
+    {ι : Type} {oSpec : OracleSpec ι} {StmtIn StmtOut : Type}
+    (V : Verifier pSpec oSpec StmtIn StmtOut) :
+      V.cast rfl rfl = V := by
+  ext; simp [Verifier.cast]
+
+instance instDepCast₂Verifier {ι : Type} {oSpec : OracleSpec ι} {StmtIn StmtOut : Type} :
+    DepCast₂ Nat ProtocolSpec (fun _ pSpec => Verifier pSpec oSpec StmtIn StmtOut) where
+  dcast₂ := Verifier.cast
+  dcast₂_id := by intros; funext; simp
+
+end Cast
+
 variable {m n : ℕ} {pSpec₁ : ProtocolSpec m} {pSpec₂ : ProtocolSpec n} {ι : Type} [DecidableEq ι]
     {oSpec : OracleSpec ι} {Stmt₁ Wit₁ Stmt₂ Wit₂ Stmt₃ Wit₃ : Type}
 
@@ -343,7 +370,7 @@ def Prover.compose (m : ℕ) (n : Fin (m + 1) → ℕ) (pSpec : ∀ i, ProtocolS
     (fun i Pacc => by
       convert Prover.append Pacc (P i.succ)
       · simp [Fin.sum_univ_castSucc, Fin.last, Fin.succ]
-      · simp [ProtocolSpec.compose_append, ProtocolSpec.cast_eq_root_cast])
+      · simp [ProtocolSpec.compose_append, dcast_eq_root_cast])
     (by simpa using P 0)
 
 def Verifier.compose (m : ℕ) (n : Fin (m + 1) → ℕ) (pSpec : ∀ i, ProtocolSpec (n i))
@@ -355,9 +382,9 @@ def Verifier.compose (m : ℕ) (n : Fin (m + 1) → ℕ) (pSpec : ∀ i, Protoco
       (ProtocolSpec.compose i (Fin.take (i + 1) (by omega) n) (Fin.take (i + 1) (by omega) pSpec))
         oSpec (Stmt 0) (Stmt i.succ))
     (fun i Vacc => by
-      convert Verifier.append Vacc (V i.succ)
+      refine dcast₂ (self := instDepCast₂Verifier) ?_ ?_ (Vacc.append (V i.succ))
       · simp [Fin.sum_univ_castSucc, Fin.last, Fin.succ]
-      · simp [ProtocolSpec.compose_append, ProtocolSpec.cast_eq_root_cast])
+      · simp [ProtocolSpec.compose_append, dcast_eq_root_cast])
     (by simpa using V 0)
 
 def Reduction.compose (m : ℕ) (n : Fin (m + 1) → ℕ) (pSpec : ∀ i, ProtocolSpec (n i))
@@ -373,7 +400,7 @@ def Reduction.compose (m : ℕ) (n : Fin (m + 1) → ℕ) (pSpec : ∀ i, Protoc
     (fun i Racc => by
       convert Reduction.append Racc (R i.succ)
       · simp [Fin.sum_univ_castSucc, Fin.last, Fin.succ]
-      · simp [ProtocolSpec.compose_append, ProtocolSpec.cast_eq_root_cast])
+      · simp [ProtocolSpec.compose_append, dcast_eq_root_cast])
     (by simpa using R 0)
 
 end GeneralComposition

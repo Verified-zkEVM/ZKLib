@@ -23,6 +23,7 @@ import ArkLib.Data.FieldTheory.NonBinaryField.Mersenne
 import ArkLib.Data.FieldTheory.NonBinaryField.Secp256k1
 import ArkLib.Data.Fin.Basic
 import ArkLib.Data.Math.Basic
+import ArkLib.Data.Math.DepCast
 import ArkLib.Data.Math.HList
 import ArkLib.Data.MlPoly.Basic
 import ArkLib.Data.MlPoly.Equiv

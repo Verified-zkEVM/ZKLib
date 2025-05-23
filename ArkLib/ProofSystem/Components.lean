@@ -281,7 +281,7 @@ def stateFunction : Reduction.StateFunction
     simp [hSupp.1, hSupp.2, h]
 
 /-- The extractor is trivial since the output witness is `Unit`. -/
-def extractor : (i : Fin 2) → @Reduction.RBRExtractor _ _ (pSpec OStatement) oSpec
+def extractor : (i : Fin 2) → @Reduction.RBRExtractor _ (pSpec OStatement) _ oSpec
     (Unit × ((i : Fin 2) → (fun _ ↦ OStatement) i)) Unit i :=
   fun _ _ _ _ => ()
 

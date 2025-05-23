@@ -128,8 +128,8 @@ open Reduction in
 def StraightlineExtractor.transport
     (data : TransportData StmtIn WitIn StmtOut WitOut StmtIn' WitIn' StmtOut' WitOut')
     (dataInv : TransportDataInv StmtIn WitIn StmtOut WitOut StmtIn' WitIn' StmtOut' WitOut')
-    (E : @StraightlineExtractor _ _ pSpec oSpec StmtIn' WitIn' StmtOut' WitOut') :
-      @StraightlineExtractor _ _ pSpec oSpec StmtIn WitIn StmtOut WitOut :=
+    (E : @StraightlineExtractor _ pSpec _ oSpec StmtIn' WitIn' StmtOut' WitOut') :
+      @StraightlineExtractor _ pSpec _ oSpec StmtIn WitIn StmtOut WitOut :=
   fun stmtIn stmtOut witOut fullTranscript queryLog =>
     let stmtIn' := data.fStmtIn stmtIn
     let stmtOut' := dataInv.fStmtOutInv stmtOut
