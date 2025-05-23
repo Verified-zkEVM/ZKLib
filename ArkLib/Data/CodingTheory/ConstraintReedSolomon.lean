@@ -42,8 +42,13 @@ def weightConstraint
     ∑ b ∈  hypercube , w.eval (toWeightAssignment f b) = σ
 
 /-- Constraint Reed Solomon codes are smooth codes who's decoded m-variate
-    polynomial satisfies the weight constraint for given `w` and `σ`. -/
-def constraintCode
+    polynomial satisfies the weight constraint for given `w` and `σ`.
+
+    The following definition returns a subset of smooth ReedSolomon codes
+    satisfying the weight constraint. This version can be used when we require
+    the decoded multivariate polynomial from an underlying smooth codeword.-/
+
+def constraintCodesetSC
   (F : Type*) [Field F] [DecidableEq F]
   (ι : Finset F) [DecidableEq ι]
   (domain : ι ↪ F)
@@ -53,7 +58,9 @@ def constraintCode
   (σ : F):=
     {sc : smoothCode F ι domain k m | weightConstraint  (mVdecode sc) w σ}
 
-def constraintCode1
+/--Alternatively, the following definition returns a Set (ι -> F). -/
+
+def constraintCode
   (F : Type*) [Field F] [DecidableEq F]
   (ι : Finset F) [DecidableEq ι]
   (domain : ι ↪ F)
@@ -78,7 +85,7 @@ variable  {F : Type*} [Field F] [DecidableEq F]
 
 /-- Forget the weight constrain. -/
 noncomputable def toSmoothCode
-  (cc : constraintCode F ι domain k m w σ) : smoothCode F ι domain k m :=
+  (cc : constraintCodesetSC F ι domain k m w σ) : smoothCode F ι domain k m :=
     cc.val
 
 section --Test
@@ -90,10 +97,10 @@ variable  (F : Type*) [Field F] [DecidableEq F]
           (m : ℕ)
           (w : MvPolynomial (Fin (m+1)) F)
           (σ : F)
-          (cc : constraintCode F ι domain k m w σ)
+          (cc : constraintCodesetSC F ι domain k m w σ)
 
 
-#check constraintCode F ι domain k m w σ
+#check constraintCodesetSC F ι domain k m w σ
 #check cc
 #check mVdecode (toSmoothCode cc)
 
