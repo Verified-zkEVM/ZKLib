@@ -264,9 +264,129 @@ variable [Finite R]
 
 open Fintype
 
+def projection (S : Finset n) (w : n → R) : S → R :=
+  fun i => w i.val
+
+omit [Finite R] in theorem projection_injective
+    (C : Set (n → R))
+    (nontriv: ‖C‖₀ ≥ 1)
+    (S : Finset n)
+    (hS : card S = card n - (‖C‖₀ - 1))
+    (u v : n → R)
+    (hu : u ∈ C)
+    (hv : v ∈ C) : projection S u = projection S v → u = v := by
+  intro proj_agree
+  by_contra hne
+
+  have hdiff : hammingDist u v ≥ ‖C‖₀ := by
+    simp [codeDist]
+    refine Nat.sInf_le ?_
+    refine Set.mem_setOf.mpr ?_
+    use u
+    refine exists_and_left.mp ?_
+    use v
+
+  let D := {i : n | u i ≠ v i}
+
+  have hD : card D = hammingDist u v := by
+    simp
+    exact rfl
+
+  have hagree : ∀ i ∈ S, u i = v i := by
+    intros i hi
+    let i' : {x // x ∈ S} := ⟨i, hi⟩
+    have close: u i' = v i' := by
+      apply congr_fun at proj_agree
+      apply proj_agree
+    exact close
+
+  have hdisjoint : D ∩ S = ∅ := by
+    by_contra hinter
+    have hinter' : (D ∩ S).Nonempty := by
+      exact Set.nonempty_iff_ne_empty.mpr hinter
+    apply Set.inter_nonempty.1 at hinter'
+    obtain ⟨x, hx_in_D, hx_in_S⟩ := hinter'
+    apply hagree at hx_in_S
+    contradiction
+
+  let diff : Set n := {i : n | ¬i ∈ S}
+
+  have hsub : D ⊆ diff  := by
+    unfold diff
+    refine Set.subset_setOf.mpr ?_
+    intro x hxd
+    solve_by_elim
+
+  have hcard_compl : @card diff (ofFinite diff) = ‖C‖₀ - 1 := by
+    unfold diff
+    simp at *
+    rw[hS]
+    have stronger : ‖C‖₀ ≤ card n := by
+      apply codeDist_le_card
+    omega
+
+  have hsizes: card D ≤ @card diff (ofFinite diff) := by
+    exact @Set.card_le_card _ _ _ _ (ofFinite diff) hsub
+
+  rw[hcard_compl, hD] at hsizes
+  omega
+
 /-- **Singleton bound** for arbitrary codes -/
 theorem singleton_bound (C : Set (n → R)) :
-    (ofFinite C).card ≤ (ofFinite R).card ^ (card n - ‖C‖₀ + 1) := sorry
+    (ofFinite C).card ≤ (ofFinite R).card ^ (card n - (‖C‖₀ - 1)) := by
+
+  by_cases non_triv : ‖C‖₀ ≥ 1
+  · -- there exists some projection S of the desired size
+    have ax_proj: ∃ (S : Finset n), card S = card n - (‖C‖₀ - 1) := by
+      let instexists := Finset.le_card_iff_exists_subset_card
+         (α := n)
+         (s := @Fintype.elems n _)
+         (n := card n - (‖C‖₀ - 1))
+      have some: card n - (‖C‖₀ - 1) ≤ card n := by
+        omega
+      obtain ⟨t, ht⟩ := instexists.1 some
+      exists t
+      simp
+      exact And.right ht
+    obtain ⟨S, hS⟩ := ax_proj
+
+    -- project C by only looking at indices in S
+    let Cproj := Set.image (projection S) C
+
+    -- The size of C is upper bounded by the size of its projection,
+    -- because the projection is injective
+    have C_le_Cproj: @card C (ofFinite C) ≤ @card Cproj (ofFinite Cproj) := by
+      apply @Fintype.card_le_of_injective C Cproj
+        (ofFinite C)
+        (ofFinite Cproj)
+        (Set.imageFactorization (projection S) C)
+      refine Set.imageFactorization_injective_iff.mpr ?_
+      intro u hu v hv heq
+
+      apply projection_injective (nontriv := non_triv) (S := S) (u := u) (v := v) <;>
+        assumption
+
+    -- The size of Cproj itself is sufficiently bounded by its type
+    have Cproj_le_type_card :
+    @card Cproj (ofFinite Cproj) ≤ @card R (ofFinite R) ^ (card n - (‖C‖₀ - 1)) := by
+      let card_fun := @card_fun S R (Classical.typeDecidableEq S) _ (ofFinite R)
+      rw[hS] at card_fun
+      rw[← card_fun]
+
+      let huniv := @set_fintype_card_le_univ (S → R) ?_ Cproj (ofFinite Cproj)
+      exact huniv
+
+    apply le_trans (b := @card Cproj (ofFinite Cproj)) <;>
+      assumption
+  · simp at non_triv
+    rw[non_triv]
+    simp only [zero_tsub, tsub_zero]
+
+    let card_fun := @card_fun n R (Classical.typeDecidableEq n) _ (ofFinite R)
+    rw[← card_fun]
+
+    let huniv := @set_fintype_card_le_univ (n → R) ?_ C (ofFinite C)
+    exact huniv
 
 variable [DivisionRing R]
 
