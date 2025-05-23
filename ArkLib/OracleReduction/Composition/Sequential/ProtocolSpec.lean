@@ -296,11 +296,8 @@ theorem compose_append {m : ℕ} {n : Fin (m + 1) → ℕ} {pSpec : ∀ i, Proto
   refine congrArg (· ++ₚ pSpec i.succ) ?_
   rw [dcast_eq_root_cast]
   refine Fin.dfoldl_congr_dcast ?_ ?_ ?_
-  · intro j
-    have : (⟨j, by omega⟩ : Fin (i + 1 + 1)) = j.castSucc := rfl
-    simp [this, Fin.Iic_castSucc]
-  · intro j a; simp only [Fin.val_succ, Fin.coe_castSucc, dcast_trans,
-      dcast_eq_dcast_iff, append_cast_left, dcast_eq]
+  · intro j; simp [Fin.sum_Iic_eq_univ]
+  · intro j a; simp [dcast_eq_dcast_iff, append_cast_left]
   · simp
 
 namespace FullTranscript
