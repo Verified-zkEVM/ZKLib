@@ -31,9 +31,9 @@ def proximityCondition {l : ℕ} (f : Fin l → ι → F) (δ : ℝ≥0) (GenFun
       ∃ i : Fin l, ∀ u' ∈ C, ∀ s ∈ S, u' s ≠ f i s
 
 /-- Definition 4.9
-  Let `C` be a linear code, then Gen is a proximity generator with mutual correlated agreement
+  Let `C` be a linear code, then Gen is a proximity generator with mutual correlated agreement,
   if for `l` functions `fᵢ : ι → F` and distance `δ`, `proximityCondition(r)` is true. -/
-noncomputable def proximityGenMCA (Gen : ProximityGenerator ι F)
+noncomputable def genMutualCorrAgreement (Gen : ProximityGenerator ι F)
   (BStar : ℝ≥0) (errStar : ℝ≥0 → ℝ≥0) :=
     ∀ (f : Fin Gen.l → ι → F) (δ : ℝ≥0) (_hδ : δ < 1 - BStar),
     Pr_{r ← F} [ (proximityCondition f δ Gen.GenFun Gen.C) r ] > errStar δ
@@ -42,8 +42,9 @@ noncomputable def proximityGenMCA (Gen : ProximityGenerator ι F)
   Let `C` be a linear code with minimum distance `δ_C`, `Gen` be a proximity generator for C
   with parameters `B` and `err`, then Gen has mutual correlated agreement with proximity bound with
   `BStar = min {1 - δ_C/2, B}` and `errStar = err`. -/
-lemma mutual_corr_agreement (Gen : ProximityGenerator ι F) (BStar : ℝ≥0) (errStar : ℝ≥0 → ℝ≥0)
-  (h: proximityGenMCA Gen BStar errStar) (C : Set (ι → F)) (hC : C = Gen.C) :
+lemma genMutualCorrAgreement_le_bound (Gen : ProximityGenerator ι F)
+  (BStar : ℝ≥0) (errStar : ℝ≥0 → ℝ≥0)
+  (h: genMutualCorrAgreement Gen BStar errStar) (C : Set (ι → F)) (hC : C = Gen.C) :
   BStar < min (1 - (δᵣ C) / 2 : ℝ) Gen.B
   ∧
   errStar = Gen.err := by sorry
@@ -56,19 +57,19 @@ lemma mutual_corr_agreement (Gen : ProximityGenerator ι F) (BStar : ℝ≥0) (e
     errStar = (l-1)•2^m / ρ•|F|.
 
   function `Gen(l,α)={1,α,..,α ^ l-1}`-/
-noncomputable def genₐ (α : F) (l : ℕ) : F → Fin l → F :=
+noncomputable def gen_α (α : F) (l : ℕ) : F → Fin l → F :=
   fun _ j => α ^ (j : ℕ)
 
 /--the proximity generator `Genₐ` for smooth ReedSolomon codes wrt function
 `Gen(l,α)={1,α,..,α ^ l-1}`-/
-noncomputable def ProximityGeneratorₐ
+noncomputable def proximityGenerator_α
   (ι : Finset F) [Nonempty ι] (Gen : ProximityGenerator ι F) (α : F)
   (domain : ι ↪ F) (m : ℕ) (k : ℕ) [Smooth domain k] :
   ProximityGenerator ι F :=
   {
     C := smoothCode F ι domain k m,
     l := Gen.l,
-    GenFun := genₐ α Gen.l,
+    GenFun := gen_α α Gen.l,
     B := Gen.B,
     err := Gen.err,
     proximity := by
@@ -80,11 +81,56 @@ noncomputable def ProximityGeneratorₐ
   mutual correlated agreement with bounds
     BStar = (1-ρ) / 2
     errStar = (l-1)•2^m / ρ•|F|. -/
-lemma mutual_corr_agreement_rsc (ι : Finset F) [Nonempty ι] (Gen Genₐ: ProximityGenerator ι F)
-  (α : F) (domain : ι ↪ F) (m k : ℕ) [Smooth domain k] (BStar ρ : ℝ≥0) (errStar : ℝ≥0 → ℝ≥0)
-  (hGen : Genₐ = ProximityGeneratorₐ ι Gen α domain m k)
-  (h : proximityGenMCA Genₐ BStar errStar)
+lemma genMutualCorrAgreement_rsc_le_bound
+  (ι : Finset F) [Nonempty ι] (Gen Genₐ: ProximityGenerator ι F)
+  (α : F) (domain : ι ↪ F) (m k : ℕ) [Smooth domain k]
+  (BStar ρ : ℝ≥0) (errStar : ℝ≥0 → ℝ≥0)
+  (hGen : Genₐ = proximityGenerator_α ι Gen α domain m k)
+  (h : genMutualCorrAgreement Genₐ BStar errStar)
   (hrate : ρ = (2^m : ℝ≥0) / (Fintype.card ι)) :
   BStar = (1 - ρ) / 2 ∧
   errStar = fun _ => (Genₐ.l - 1) • 2^m / ρ • (Fintype.card F : ℝ≥0)
   := by sorry
+
+
+/--Conjecture 4.12
+  The function `Gen(l,α)={1,α,..,α ^ l-1}` is a proximity generator with mutual correlated
+  agreement for every (smooth) ReedSolomon code `C` with rate `ρ = 2^m / |ι|`.
+  Below we state two conjectures for the parameters of the proximity bound.
+
+  1. Upto Johnson bound: BStar = √ρ and
+                         errStar = (l-1) • 2^2m / |F| • (2 • min {1 - √ρ - δ, √ρ/20}) ^ 7.
+  2. Upto capacity: BStar = ρ and ∃ c₁,c₂,c₃ ∈ ℕ s.t. ∀ η > 0 and 0 < δ < 1 - ρ - η
+                    errStar = (l-1)^c₂ • d^c₂ / η^c₁ • ρ^(c₁+c₂) • |F|.
+
+
+TODO: clarify condition "upto Johnson Bound" and "upto capacity" and the value d-/
+
+
+theorem genMutualCorrAgreement_le_johnsonBound
+  (ι : Finset F) [Nonempty ι] (Gen Genₐ: ProximityGenerator ι F)
+  (α : F) (domain : ι ↪ F) (m k : ℕ) [Smooth domain k]
+  (BStar ρ δ: ℝ≥0) (errStar : ℝ≥0 → ℝ≥0)
+  (hGen : Genₐ = proximityGenerator_α ι Gen α domain m k)
+  (h : genMutualCorrAgreement Genₐ BStar errStar)
+  (hrate : ρ = (2^m : ℝ≥0) / (Fintype.card ι)) :
+  let minval : ℝ≥0 := min (1 - NNReal.sqrt ρ - δ) (NNReal.sqrt ρ / 20)
+  BStar = NNReal.sqrt ρ ∧
+  errStar = fun δ => (Genₐ.l - 1) • 2 ^ (2 • m) / (Fintype.card ι • (2 • minval)^7)
+  := by sorry
+
+theorem genMutualCorrAgreement_le_capacity
+  (ι : Finset F) [Nonempty ι] (Gen Genₐ: ProximityGenerator ι F)
+  (α : F) (domain : ι ↪ F) (m k : ℕ) [Smooth domain k]
+  (BStar ρ δ: ℝ≥0) (errStar : ℝ≥0 → ℝ≥0)
+  (hGen : Genₐ = proximityGenerator_α ι Gen α domain m k)
+  (h : genMutualCorrAgreement Genₐ BStar errStar)
+  (hrate : ρ = (2^m : ℝ≥0) / (Fintype.card ι)) :
+  BStar = ρ ∧
+  ∃ (c₁ c₂ c₃ : ℕ), ∀ {η : ℝ≥0} (hηPos : η > 0) (hδPos : δ > 0) (hδLe : δ < 1 - ρ - η),
+  errStar = fun δ => (Genₐ.l - 1)^c₂ • (2^m)^c₂ / (η^c₁ • ρ^(c₁+c₂) • (Fintype.card ι : ℝ≥0))
+  := by sorry
+
+--lemma 4.13 Mutual correlated agreement preserves list decoding
+
+end CorrelatedAgreement
