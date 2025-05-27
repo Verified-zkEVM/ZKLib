@@ -297,14 +297,13 @@ structure Statement (i : Fin (n + 2)) where
   challenges : Fin i → R
 
 @[reducible]
-def OracleStatement : Fin 1 → Type := fun _ => R⦃≤ deg⦄[X Fin (n + 1)]
+def OracleStatement : Unit → Type := fun _ => R⦃≤ deg⦄[X Fin (n + 1)]
 
 /-- The sum-check relation for the `i`-th round, for `i ≤ n` -/
 def relation (i : Fin (n + 2)) :
     (Statement R n i) × (∀ i, OracleStatement R n deg i) → Unit → Prop :=
-  fun ⟨⟨target, challenges⟩, oStmt⟩ _ =>
-    let ⟨poly, _⟩ : R⦃≤ deg⦄[X Fin (n + 1)] := oStmt 0
-    ∑ x ∈ (univ.map D) ^ᶠ (n + 1 - i), poly ⸨challenges, x⸩ = target
+  fun ⟨⟨target, challenges⟩, polyOracle⟩ _ =>
+    ∑ x ∈ (univ.map D) ^ᶠ (n + 1 - i), (polyOracle ()).val ⸨challenges, x⸩ = target
 
 namespace SingleRound
 
