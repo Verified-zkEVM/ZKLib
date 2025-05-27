@@ -5,26 +5,24 @@ Authors: Least Authority
 -/
 
 import ArkLib.Data.CodingTheory.RelativeHammingDistance
-import ArkLib.Data.Probability.Test
+import ArkLib.Data.Probability.Notation
 
 
 namespace Generator
 
-open NNReal ProbabilityTheory
-universe u
-variable  {F : Type u} [Semiring F] [Fintype F] [DecidableEq F]
-          {ι : Type u} [Fintype ι] [Nonempty ι]
+open NNReal
+
+variable  {F : Type*} [Semiring F] [Fintype F] [DecidableEq F]
+          {ι : Type*} [Fintype ι] [Nonempty ι]
 
 /-- For `l` functions `fᵢ : ι → 𝔽`, distance `δ`, generator function `GenFun: 𝔽 → 𝔽ˡ`and linear
     code `C` the predicate `linear_comb_in_distance(r)` is true, if the linear
     combination f := ∑ⱼ GenFun(r)ⱼ⬝fⱼ is within relative Hamming distance `δ` to the linear
     code `C`.  -/
 noncomputable def linear_comb_in_distance
-  {l : ℕ} (f : Fin l → ι → F) (δ : ℝ≥0) (GenFun : F → Fin l → F) (C : LinearCode ι F): F → Bool :=
-    fun r =>
-      let dist : ℝ := δᵣ( (fun x => ∑ j : Fin l, (GenFun r j) • f j x) , C )
-      if dist ≤ (δ : ℝ) then true
-      else false
+  {l : ℕ} (f : Fin l → ι → F) (δ : ℝ≥0) (GenFun : F → Fin l → F) (C : LinearCode ι F): F → Prop
+   | r => δᵣ( (fun x => ∑ j : Fin l, (GenFun r j) • f j x) , C ) ≤ (δ : ℝ)
+
 
 /-- A proximity generator for a linear code `C`, Definition 4.7 -/
 structure ProximityGenerator
@@ -50,7 +48,7 @@ structure ProximityGenerator
     ∀ (f : Fin l → ι → F)
       (δ : ℝ≥0)
       (_hδ : δ < 1 - B) ,
-      Pr_{let r ←$ᵖ F}[ (linear_comb_in_distance f δ GenFun C r) ] > err δ →
+      Pr_{r ← F}[ (linear_comb_in_distance f δ GenFun C r) ] > err δ →
         ∃ S : Finset ι,
           S.card ≥ (1 - δ) * Fintype.card ι ∧
           ∀ i : Fin l, ∃ u ∈ C, ∀ x ∈ S, f i x = u x

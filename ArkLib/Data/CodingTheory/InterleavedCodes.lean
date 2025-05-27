@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2024-2025 ArkLib Contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Katerina Hristova, František Silváši
+Authors: Katerina Hristova, František Silváši, Least Authority
 -/
 
 import Mathlib.Algebra.Module.Submodule.Defs
@@ -9,8 +9,6 @@ import Mathlib.Data.Matrix.Defs
 import Mathlib.Data.Matrix.RowCol
 import Mathlib.Order.CompletePartialOrder
 import Mathlib.Algebra.Lie.OfAssociative
-import Mathlib.Probability.ProbabilityMassFunction.Basic
-import Mathlib.Probability.Distributions.Uniform
 import ArkLib.Data.CodingTheory.ReedSolomon
 import ArkLib.Data.CodingTheory.RelativeHammingDistance
 
@@ -111,5 +109,17 @@ def distToCode (U : Matrix (Fin κ) ι F) (IC : MatrixSubmodule κ ι F) : ℕ :
 `Δ(U,C')` denotes distance between a `κ x ι` matrix `U` and `κ`-interleaved code `IC`.
 -/
 notation "Δ(" U "," IC ")" => distToCode U IC
+
+/--
+Relative distance between codewords of an interleaved code.
+ -/
+def relDistCodewords [DecidableEq F] (U V : Matrix (Fin κ) ι F) : ℝ :=
+  (neqCols U V).card / Fintype.card ι
+
+/--Ball of radius `r` centered at U, with respect to relative Hamming distance.-/
+def relHammingBallInterleavedCode (U : Matrix (Fin κ) ι F) (IC : MatrixSubmodule κ ι F) (r : ℝ) :=
+  {V | V ∈ IC ∧ relDistCodewords U V < r}
+
+notation "Λᵢ(" U "," IC "," r ")" => relHammingBallInterleavedCode U IC r
 
 end InterleavedCodes
