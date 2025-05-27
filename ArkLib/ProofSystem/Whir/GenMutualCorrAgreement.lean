@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Least Authority
 -/
 
+import ArkLib.Data.CodingTheory.ListDecodeability
+import ArkLib.Data.CodingTheory.InterleavedCodes
 import ArkLib.Data.CodingTheory.SmoothReedSolomon
 import ArkLib.Data.CodingTheory.RelativeHammingDistance
 import ArkLib.Data.Probability.Notation
@@ -12,7 +14,7 @@ import ArkLib.ProofSystem.Whir.ProximityGen
 
 namespace CorrelatedAgreement
 
-open NNReal Generator ReedSolomon SmoothDomain
+open NNReal Generator ReedSolomon SmoothDomain InterleavedCodes
 variable  {F : Type*} [Field F] [Fintype F] [DecidableEq F]
           {ι : Type*} [Fintype ι] [Nonempty ι]
 
@@ -76,6 +78,7 @@ noncomputable def proximityGenerator_α
       intro f δ hδ hprob
       sorry
   }
+
 /--Corollary 4.11
   Let `C` be a smooth ReedSolomon code with rate `ρ`, then `Genₐ` is the proximity generator with
   mutual correlated agreement with bounds
@@ -99,14 +102,7 @@ lemma genMutualCorrAgreement_rsc_le_bound
   Below we state two conjectures for the parameters of the proximity bound.
 
   1. Upto Johnson bound: BStar = √ρ and
-                         errStar = (l-1) • 2^2m / |F| • (2 • min {1 - √ρ - δ, √ρ/20}) ^ 7.
-  2. Upto capacity: BStar = ρ and ∃ c₁,c₂,c₃ ∈ ℕ s.t. ∀ η > 0 and 0 < δ < 1 - ρ - η
-                    errStar = (l-1)^c₂ • d^c₂ / η^c₁ • ρ^(c₁+c₂) • |F|.
-
-
-TODO: clarify condition "upto Johnson Bound" and "upto capacity" and the value d-/
-
-
+                         errStar = (l-1) • 2^2m / |F| • (2 • min {1 - √ρ - δ, √ρ/20}) ^ 7.-/
 theorem genMutualCorrAgreement_le_johnsonBound
   (ι : Finset F) [Nonempty ι] (Gen Genₐ: ProximityGenerator ι F)
   (α : F) (domain : ι ↪ F) (m k : ℕ) [Smooth domain k]
@@ -116,9 +112,12 @@ theorem genMutualCorrAgreement_le_johnsonBound
   (hrate : ρ = (2^m : ℝ≥0) / (Fintype.card ι)) :
   let minval : ℝ≥0 := min (1 - NNReal.sqrt ρ - δ) (NNReal.sqrt ρ / 20)
   BStar = NNReal.sqrt ρ ∧
+  ∀ {η : ℝ≥0} (hηPos : η > 0) (hδPos : δ > 0) (hδLe : δ < 1 - NNReal.sqrt ρ - η),
   errStar = fun δ => (Genₐ.l - 1) • 2 ^ (2 • m) / (Fintype.card ι • (2 • minval)^7)
   := by sorry
 
+/--2. Upto capacity: BStar = ρ and ∃ c₁,c₂,c₃ ∈ ℕ s.t. ∀ η > 0 and 0 < δ < 1 - ρ - η
+      errStar = (l-1)^c₂ • d^c₂ / η^c₁ • ρ^(c₁+c₂) • |F|, where d = 2^m is the degree.-/
 theorem genMutualCorrAgreement_le_capacity
   (ι : Finset F) [Nonempty ι] (Gen Genₐ: ProximityGenerator ι F)
   (α : F) (domain : ι ↪ F) (m k : ℕ) [Smooth domain k]
@@ -131,6 +130,35 @@ theorem genMutualCorrAgreement_le_capacity
   errStar = fun δ => (Genₐ.l - 1)^c₂ • (2^m)^c₂ / (η^c₁ • ρ^(c₁+c₂) • (Fintype.card ι : ℝ≥0))
   := by sorry
 
---lemma 4.13 Mutual correlated agreement preserves list decoding
+/--lemma 4.13: Mutual correlated agreement preserves list decoding
+  Let C be a linear code with minimum distance δ_c and `Gen` be a proximity generator
+  with mutual correlated agreement for `C`-/
+def proximityConditionListDecoding
+  {ι : Type*} [Fintype ι] [Nonempty ι]
+  (Gen : ProximityGenerator ι F) (δ : ℝ≥0)
+  (fs us : Matrix (Fin Gen.l) ι F)
+  (IC : InterleavedCode Gen.l ι F)
+  (haveIC : IC = codeOfLinearCode Gen.l Gen.C)
+  (haveList : us ∈ Λᵢ(fs, IC.MF, δ)) :
+  F → Prop :=
+  fun r =>
+  let f_r := fun x => ∑ j, Gen.GenFun r j • fs j x
+  let u_r := fun x => ∑ j, Gen.GenFun r j • us j x
+  f_r ≠ u_r
+
+
+
+lemma mutualCorrAgreement_list_decoding
+  {ι : Type*} [Fintype ι] [Nonempty ι]
+  (Gen : ProximityGenerator ι F) (δ BStar : ℝ≥0) (errStar : ℝ≥0 → ℝ≥0)
+  (fs us : Matrix (Fin Gen.l) ι F)
+  (IC : InterleavedCode Gen.l ι F)
+  (haveIC : IC = codeOfLinearCode Gen.l Gen.C)
+  (hGen : genMutualCorrAgreement Gen BStar errStar)
+  (C : Set (ι → F)) (hC : C = Gen.C) :
+  ∀ {fs : Matrix (Fin Gen.l) ι F} (haveList : us ∈ Λᵢ(fs, IC.MF, δ))
+  (hδPos : δ > 0) (hδLt : δ < min (δᵣ C : ℝ) (1 - BStar)),
+    Pr_{r ← F} [ proximityConditionListDecoding Gen δ fs us IC haveIC haveList r] ≤ errStar δ
+    := by sorry
 
 end CorrelatedAgreement
