@@ -34,7 +34,8 @@ def proximityCondition {l : ℕ} (f : Fin l → ι → F) (δ : ℝ≥0) (GenFun
 
 /-- Definition 4.9
   Let `C` be a linear code, then Gen is a proximity generator with mutual correlated agreement,
-  if for `l` functions `fᵢ : ι → F` and distance `δ`, `proximityCondition(r)` is true. -/
+  if for `l` functions `fᵢ : ι → F` and distance `δ < 1 - BStar`,
+  `Pr_{ r ← F } [ proximityCondition(r) ] > errStar(δ)`. -/
 noncomputable def genMutualCorrAgreement (Gen : ProximityGenerator ι F)
   (BStar : ℝ≥0) (errStar : ℝ≥0 → ℝ≥0) :=
     ∀ (f : Fin Gen.l → ι → F) (δ : ℝ≥0) (_hδ : δ < 1 - BStar),
@@ -130,10 +131,11 @@ theorem genMutualCorrAgreement_le_capacity
   errStar = fun δ => (Genₐ.l - 1)^c₂ • (2^m)^c₂ / (η^c₁ • ρ^(c₁+c₂) • (Fintype.card ι : ℝ≥0))
   := by sorry
 
-/--lemma 4.13: Mutual correlated agreement preserves list decoding
-  Let C be a linear code with minimum distance δ_c and `Gen` be a proximity generator
-  with mutual correlated agreement for `C`-/
-def proximityConditionListDecoding
+/--For `l` functions `{f₁,..,fₗ}`, `IC` be the `l`-interleaved code from a linear code C,
+  with `Gen` as a proximity generator with mutual correlated agreement,
+  `proximityListDecodingCondition(r)` is true if,
+  ∑ⱼ rⱼ•fⱼ = ∑ⱼ rⱼ•uⱼ, where {uᵢ,..uₗ} ∈ Λᵢ({f₁,..,fₗ}, IC, δ)-/
+def proximityListDecodingCondition
   {ι : Type*} [Fintype ι] [Nonempty ι]
   (Gen : ProximityGenerator ι F) (δ : ℝ≥0)
   (fs us : Matrix (Fin Gen.l) ι F)
@@ -147,7 +149,11 @@ def proximityConditionListDecoding
   f_r ≠ u_r
 
 
-
+/--lemma 4.13: Mutual correlated agreement preserves list decoding
+  Let C be a linear code with minimum distance δ_c and `Gen` be a proximity generator
+  with mutual correlated agreement for `C`.
+  Then for every `{f₁,..,fₗ}` and `δ ∈ (0, min δ_c (1 - BStar))`,
+  `Pr_{ r ← F} [ proximityListDecodingCondition(r) ] > errStar(δ)`. -/
 lemma mutualCorrAgreement_list_decoding
   {ι : Type*} [Fintype ι] [Nonempty ι]
   (Gen : ProximityGenerator ι F) (δ BStar : ℝ≥0) (errStar : ℝ≥0 → ℝ≥0)
@@ -158,7 +164,7 @@ lemma mutualCorrAgreement_list_decoding
   (C : Set (ι → F)) (hC : C = Gen.C) :
   ∀ {fs : Matrix (Fin Gen.l) ι F} (haveList : us ∈ Λᵢ(fs, IC.MF, δ))
   (hδPos : δ > 0) (hδLt : δ < min (δᵣ C : ℝ) (1 - BStar)),
-    Pr_{r ← F} [ proximityConditionListDecoding Gen δ fs us IC haveIC haveList r] ≤ errStar δ
+    Pr_{r ← F} [ proximityListDecodingCondition Gen δ fs us IC haveIC haveList r] ≤ errStar δ
     := by sorry
 
 end CorrelatedAgreement
