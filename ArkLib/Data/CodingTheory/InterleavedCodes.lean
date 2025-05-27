@@ -11,48 +11,50 @@ import Mathlib.Order.CompletePartialOrder
 import Mathlib.Algebra.Lie.OfAssociative
 import Mathlib.Probability.ProbabilityMassFunction.Basic
 import Mathlib.Probability.Distributions.Uniform
-import ArkLib.Data.CodingTheory.LinearCodes
 import ArkLib.Data.CodingTheory.ReedSolomon
-import ArkLib.Data.CodingTheory.Prelims
+import ArkLib.Data.CodingTheory.RelativeHammingDistance
 
 
-open Classical LinearCode
+
+open Classical
 
 noncomputable section
 
 /-!
 Definition of an interleaved code `IC` of a linear code `LC` over a semiring.
 Definition of distances for interleaved codes and statement for the relation between the minimal
-distance of an interleaved code and its underlying linear code.
-Statements of proximity results for Reed Solomon codes
-(`Lemma 4.3`, `Lemma 4.4` and `Lemma 4.5` from Ligero) with proximity parameter less than
-the minimal code distance divided by `3`.
--/
+distance of an interleaved code and its underlying linear code.-/
 
 variable {F : Type*} [Semiring F]
-         {κ ι: ℕ}
+         {ι : Type*} [Fintype ι]
+         {κ : ℕ}
          {LC : LinearCode ι F}
 
 namespace InterleavedCodes
 
-abbrev MatrixSubmodule.{u} (κ ι : ℕ) (F : Type u) [Semiring F] : Type u :=
-  Submodule F (Matrix (Fin κ) (Fin ι) F)
+abbrev MatrixSubmodule.{u, v} (κ : ℕ) (ι : Type u) [Fintype ι] (F : Type v) [Semiring F] :
+  Type (max u v) :=
+    Submodule F (Matrix (Fin κ) ι F)
 
 /--
 The data needed to construct an interleaved code.
 -/
-structure InterleavedCode (κ ι : ℕ) (F : Type*) [Semiring F] where
+structure InterleavedCode (κ : ℕ) (ι F : Type*) [Semiring F] [Fintype ι] where
   MF : MatrixSubmodule κ ι F
   LC : LinearCode ι F
 
 /--
 The condition making the InterleavedCode structure an interleaved code.
 -/
-def InterleavedCode.isInterleaved (IC : InterleavedCode κ ι F) :=
+def InterleavedCode.isInterleaved (κ : ℕ) (ι F : Type*) [Semiring F] [Fintype ι]
+  (IC : InterleavedCode κ ι F) : Prop :=
   ∀ V ∈ IC.MF, ∀ i, V i ∈ IC.LC
 
-def LawfulInterleavedCode.{u} (κ ι : ℕ) (F : Type u) [Semiring F] :=
-  { IC : InterleavedCode κ ι F // IC.isInterleaved }
+
+def LawfulInterleavedCode.{u, v} (κ : ℕ) (ι : Type u) [Fintype ι] (F : Type v) [Semiring F] :
+  Type (max u v) :=
+  { IC : InterleavedCode κ ι F // InterleavedCode.isInterleaved κ ι F IC }
+
 
 /--
 The module of matrices whose rows belong to a linear code.
@@ -72,10 +74,16 @@ def lawfulInterleavedCodeOfLinearCode (κ : ℕ) (LC : LinearCode ι F) : Lawful
   ⟨codeOfLinearCode κ LC, isInterleaved_codeOfLinearCode⟩
 
 /--
+The set of indices of non-equal columns of two matrices.
+-/
+def neqCols [DecidableEq F] (U V : Matrix (Fin κ) ι F) : Finset ι :=
+  {j | ∃ i : (Fin κ), V i j ≠ U i j}
+
+/--
 Distance between codewords of an interleaved code.
  -/
-def distCodewords (U V : Matrix (Fin κ) (Fin ι) F) : ℕ :=
-  (Matrix.neqCols U V).card
+def distCodewords [DecidableEq F] (U V : Matrix (Fin κ) ι F) : ℕ :=
+  (neqCols U V).card
 
 /--
 `Δ(U,V)` is the distance codewords `U` and `V` of a `κ`-interleaved code `IC`.
@@ -96,19 +104,12 @@ notation "Δ" IC => minDist IC
 /--
 The distance from a matrix to the closest word in an interleaved code.
 -/
-def distToCode (U : Matrix (Fin κ) (Fin ι) F) (IC : MatrixSubmodule κ ι F) : ℕ :=
+def distToCode (U : Matrix (Fin κ) ι F) (IC : MatrixSubmodule κ ι F) : ℕ :=
  sInf { d : ℕ | ∃ V ∈ IC, distCodewords U V = d }
 
 /--
 `Δ(U,C')` denotes distance between a `κ x ι` matrix `U` and `κ`-interleaved code `IC`.
 -/
 notation "Δ(" U "," IC ")" => distToCode U IC
-
-/--
-The minimal distance of an interleaved code is the same as
-the minimal distance of its underlying linear code.
--/
-lemma minDistL_eq_minDist {IC : LawfulInterleavedCode κ ι F} :
-  LinearCode.minDist IC.1.LC = minDist IC.1.MF := by sorry
 
 end InterleavedCodes
