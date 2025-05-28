@@ -8,7 +8,6 @@ Authors: Least Authority
 import ArkLib.Data.CodingTheory.ConstraintReedSolomon
 import ArkLib.Data.CodingTheory.FieldReedSolomon
 import ArkLib.Data.CodingTheory.ListDecodeability
-import ArkLib.Data.CodingTheory.ProximityBound
 import ArkLib.Data.CodingTheory.RelativeHammingDistance
 import ArkLib.Data.CodingTheory.SmoothDomain
 import ArkLib.OracleReduction.VectorIOR
@@ -108,15 +107,15 @@ theorem whir_rbr_soundness
     -- {h_nonempty: ∀ i : Fin M, Nonempty (P.ι i)}
     (i s : ℕ) (C : Code P i s)
     (δ : (i : Fin M) → ℚ) (l : (i : Fin M) → Fin (P.foldingParam i) → ℚ) -- distance parameters
-    [Smooth domain₀ smoothk] (cc₀ : constraintCode F ι₀ domain₀ smoothk m₀ wPoly₀ σ₀)
+    [Smooth domain₀ smoothk]
     (h_not_code :
     f₀ ∉ ↑(constraintCode1 F ι₀ domain₀ smoothk m₀ wPoly₀ σ₀)) -- f ∉ CRS[F,ι₀,m₀,wPoly₀,σ₀]
     (hδ₀Pos : 0 < δ ⟨0, hM⟩)
     (hδ₀Lt : δ ⟨0, hM⟩ < δᵣ(f₀, ↑(constraintCode1 F ι₀ domain₀ smoothk m₀ wPoly₀ σ₀)))
     (hδᵢ : ∀ { i : Fin M}, δ i > 0) -- TODO: and δᵢ < (1 - B*(rsCodeᵢₛ, 2))
-    (h_list :
-      ∀ {i' : Fin M} {s' : Fin (P.foldingParam i')},
-        listDecodable (toCode (toLinearCode ↑(C.codeᵢₛ i' s'))) (δ i') (l i' s'))
+     -- need: Gen a proximity generator for  mutual correlated agreement
+    (h_list : ∀ {i' : Fin M} {s' : Fin (P.foldingParam i')},
+      listDecodable (toCode (toLinearCode ↑(C.codeᵢₛ i' s'))) (δ i') (l i' s'))
     (vPSpec : ProtocolSpec.VectorSpec n)
     (oSpec : OracleSpec ι) [oSpec.FiniteRange]
     {ιₛ : Type} [OracleInterface (ι₀ → F)]

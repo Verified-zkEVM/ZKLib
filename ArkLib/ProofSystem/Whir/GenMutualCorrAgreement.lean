@@ -8,7 +8,7 @@ import ArkLib.Data.CodingTheory.ListDecodeability
 import ArkLib.Data.CodingTheory.InterleavedCodes
 import ArkLib.Data.CodingTheory.SmoothReedSolomon
 import ArkLib.Data.CodingTheory.RelativeHammingDistance
-import ArkLib.Data.Probability.Notation
+import ArkLib.Data.Probability.NotationSingleSampl
 import ArkLib.ProofSystem.Whir.ProximityGen
 
 

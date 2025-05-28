@@ -28,9 +28,9 @@ noncomputable def extract_x
 
 /--Given a function `f : LpowT S k → F`, foldf operates on two inputs:
   element `y ∈ LpowT S (k+1)`, hence `∃ x ∈ S, s.t. y = x ^ 2^(k+1)` and `α ∈ F`.
-  It obtains the root of y as `xPow := extract_x S k y` -- here xPow is of the form x ^ 2^k.
+  It obtains the square root of y as `xPow := extract_x S k y` -- here xPow is of the form x ^ 2^k.
   It returns the value `f(xPow) + f(- xPow)/2 + α • (f(xPow) - f(- xPow))/ 2•xPow`. -/
-noncomputable def foldf (S : Finset ι) [LinearOrder ι]
+noncomputable def foldf (S : Finset ι)
 {k : ℕ} [ Neg (LpowT S k) ] (y : LpowT S (k+1)) (f : LpowT S k → F) (α : F) : F :=
   let xPow := extract_x S k y
   let fx := f xPow
@@ -46,7 +46,7 @@ noncomputable def foldf (S : Finset ι) [LinearOrder ι]
     function `fk : LpowT S i → F` is obtained by making a recursive call to
       `fold_k_core` on input `αs'`
     we obtain the final function `LpowT S (i+1) → F` by invoking `foldf` with `fk` and `α`.-/
-noncomputable def fold_k_core (S : Finset ι) [LinearOrder ι] [∀ i : ℕ, Neg (LpowT S i)]
+noncomputable def fold_k_core (S : Finset ι) [∀ i : ℕ, Neg (LpowT S i)]
   : (i : ℕ) → (αs : Vector F (i+1)) →
     ((j : Fin (i+1)) → LpowT S j → F) →
     LpowT S (i+1) → F
@@ -63,7 +63,7 @@ noncomputable def fold_k_core (S : Finset ι) [LinearOrder ι] [∀ i : ℕ, Neg
 
 /--fold_k takes a vector `αs` of size (k+1) and a vector of (k+1) functions `fⱼ : Lpowt S j → F`
   and returns a function `Fold : LpowT S (k+1) → F` -/
-noncomputable def fold_k (S : Finset ι) [LinearOrder ι]
+noncomputable def fold_k (S : Finset ι)
   {k : ℕ} [∀ k : ℕ, Neg (LpowT S k)]
   (fi : (j : Fin (k+1)) → LpowT S j → F)
   (αs : Vector F (k+1)) : LpowT S (k+1) → F :=
