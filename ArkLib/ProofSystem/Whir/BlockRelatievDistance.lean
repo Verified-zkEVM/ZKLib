@@ -25,21 +25,28 @@ def powFiberT (ι : Finset F) (k : ℕ) (y : LpowT ι k) :=
 def block (ι : Finset F) (k : ℕ) (z : LpowT ι k) (domain : ι ↪ F) [Smooth domain k]:=
   powFiberT ι k z
 
+class DecideBlockDisagreement
+  (ι : Finset F) (f : ι → F) (k : ℕ)
+  (domain : ι ↪ F) [Smooth domain k] where
+  dec_inst :
+    ∀ z : LpowT ι k, ∀ g : ι → F,
+      Decidable (∃ y : block ι k z domain, f ⟨y.val, y.property.left⟩ ≠ g ⟨y.val, y.property.left⟩)
+
 /--Let `C = CRS[F, ι, m, w, σ]` be a ConstrainReedSolomon code and `f,g : ι → F`, then
   the k-wise block relative distance is defined as
     Δᵣ(C,ι,f,g) = |{z ∈ ι ^ 2^k : ∃ y ∈ Block(ι,k,z) f(y) ≠ g(y)}| / |ι^(2^k)|.-/
-noncomputable def disagreementSet (ι : Finset F) [DecidableEq F]
-  (f : ι → F) (k : ℕ) [Fintype (LpowT ι k)] (domain : ι ↪ F) [Smooth domain k]
-  [∀ z, ∀ g : ι → F, Decidable (∃ y : block ι k z domain,
-                  f ⟨y.val, y.property.left⟩ ≠ g ⟨y.val, y.property.left⟩)] :
+noncomputable def disagreementSet
+  (ι : Finset F) [DecidableEq F]
+  (f : ι → F) (k : ℕ)
+  [Fintype (LpowT ι k)] (domain : ι ↪ F)
+  [Smooth domain k] [h : DecideBlockDisagreement ι f k domain] :
   (g : ι → F) → Finset (LpowT ι k) :=
   fun g =>
-    {z | ∃ y : block ι k z domain, f ⟨y.val, y.property.left⟩ ≠ g ⟨y.val, y.property.left⟩}
+    Finset.univ.filter (fun z => @decide _ (h.dec_inst z g))
 
 noncomputable def blockRelDistance (ι : Finset F) [DecidableEq F]
   (f : ι → F) (k : ℕ) [Fintype (LpowT ι k)] (domain : ι ↪ F) [Smooth domain k]
-  [∀ z, ∀ g : ι → F, Decidable (∃ y : block ι k z domain,
-                  f ⟨y.val, y.property.left⟩ ≠ g ⟨y.val, y.property.left⟩)]:
+  [h : DecideBlockDisagreement ι f k domain] :
   (g : ι → F) → ℝ≥0 :=
   fun g =>
     (disagreementSet ι f k domain g).card / (Fintype.card (LpowT ι k) : ℝ≥0)
@@ -50,8 +57,7 @@ noncomputable def listBlockRelDistance (ι : Finset F) [DecidableEq F]
   (f : ι → F) (k : ℕ) [Fintype (LpowT ι k)] {domain : ι ↪ F} [Smooth domain k]
   {m : ℕ} {w : MvPolynomial (Fin (m+1)) F} {σ : F} (C : Set (ι → F)) (δ : ℝ≥0)
   (hc : C = constraintCode F ι domain k m w σ) (hδLe : δ ≤ 1)
-  [∀ z, ∀ g : ι → F, Decidable (∃ y : block ι k z domain,
-                  f ⟨y.val, y.property.left⟩ ≠ g ⟨y.val, y.property.left⟩)]
+  [h : DecideBlockDisagreement ι f k domain]
   : (Set (ι → F)) :=
     { u ∈ C | blockRelDistance ι f k domain u ≤ δ }
 
