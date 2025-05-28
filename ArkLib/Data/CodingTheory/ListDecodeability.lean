@@ -29,8 +29,6 @@ Ball of radius `r` centred at a word `y` with respect to the relative Hamming di
 def relHammingBall [Fintype ι] (C : Code ι F) (y : ι → F) (r : ℝ)  : Code ι F :=
   { c | c ∈ C ∧ relHammingDist y c ≤ r }
 
-notation "Λ(" C "," y "," r ")" => relHammingBall C y r
-
 /--
 The number of close codewords to a given word `y` with respect to the Hamming distance metric.
 -/
