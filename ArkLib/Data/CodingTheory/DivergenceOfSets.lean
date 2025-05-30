@@ -7,7 +7,7 @@ Authors: Katerina Hristova, František Silváši, Julian Sutherland
 import ArkLib.Data.CodingTheory.RelativeHammingDistance
 
 /-!
-Proved definition for divergence of an arbitrary set `U` from an arbitrary set `V`.
+Proved definition for divergence of arbitrary sets.
 -/
 
 namespace DivergenceOfSets
@@ -21,27 +21,34 @@ variable {ι : Type*} [Fintype ι]
          {U V C : Set (ι → F)}
 
 /--
-`d_U` is the set of achievable relative Hamming distances between elements `u ∈ U` and `V`.
+The set of possible relative Hamming distances between two sets.
 -/
-def d_U [Nonempty ι] (U V : Set (ι → F)) : Set ℚ :=
+def setPossibleDistBetweenSets [Nonempty ι] (U V : Set (ι → F)) : Set ℚ :=
   { d : ℚ | ∃ u ∈ U, δᵣ(u,V) = d }
 
+/--
+The set of possible relative Hamming distances between two sets is well-defined.
+-/
 @[simp]
-lemma d_U_subset_relHammingDistRange [Nonempty ι] :
-d_U U C ⊆ relHammingDistRange ι :=
-  λ _ _ ↦ by aesop (add simp d_U)
-
-@[simp]
-lemma finite_d_U [Nonempty ι] : (d_U U V).Finite :=
-  Set.Finite.subset finite_relHammingDistRange d_U_subset_relHammingDistRange
+lemma setPossibleDistBetweenSets_subset_relHammingDistRange [Nonempty ι] :
+setPossibleDistBetweenSets U C ⊆ relHammingDistRange ι :=
+  λ _ _ ↦ by aesop (add simp setPossibleDistBetweenSets)
 
 /--
-divergence of an arbitrary set `U` from an arbitrary set `V`.
+The set of possible relative Hamming distances between two sets is finite.
 -/
-def div_U_from_V [Nonempty ι] (U : Set (ι → F)) (V : Set (ι → F)) : ℚ :=
-  have : Fintype (d_U U V) := @Fintype.ofFinite _ finite_d_U
-  if h : (d_U U V).Nonempty
-  then (d_U U V).toFinset.max' (Set.toFinset_nonempty.2 h)
+@[simp]
+lemma finite_setPossibleDistBetweenSets [Nonempty ι] : (setPossibleDistBetweenSets U V).Finite :=
+  Set.Finite.subset finite_relHammingDistRange setPossibleDistBetweenSets_subset_relHammingDistRange
+
+/--
+Divergence of two arbitrary sets.
+-/
+def divergenceSets [Nonempty ι] (U : Set (ι → F)) (V : Set (ι → F)) : ℚ :=
+  have : Fintype (setPossibleDistBetweenSets U V) :=
+  @Fintype.ofFinite _ finite_setPossibleDistBetweenSets
+  if h : (setPossibleDistBetweenSets U V).Nonempty
+  then (setPossibleDistBetweenSets U V).toFinset.max' (Set.toFinset_nonempty.2 h)
   else 0
 
   end
