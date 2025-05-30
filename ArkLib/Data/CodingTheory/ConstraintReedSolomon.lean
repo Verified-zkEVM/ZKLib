@@ -68,8 +68,7 @@ def constraintCode
   (w : MvPolynomial (Fin (m+1)) F)
   (σ : F)
   : Set (ι → F) :=
-{ f |
-    ∃ (h : f ∈ smoothCode F ι domain k m),
+    { f | ∃ (h : f ∈ smoothCode F ι domain k m),
       weightConstraint (mVdecode (⟨f, h⟩ : smoothCode F ι domain k m)) w σ }
 
 
@@ -111,8 +110,12 @@ end ConstraintReedSolomon
 
 /-- Multi-constraint Reed Solomon codes are smooth codes who's decoded m-variate
     polynomial satisfies the `t` weight constraints for given `w₀,...,wₜ₋₁` and
-    `σ₀,...,σₜ₋₁`. -/
-def multiConstraintCode
+    `σ₀,...,σₜ₋₁`.
+
+    The following definition returns a subset of smooth ReedSolomon codes
+    satisfying the weight constraint. This version can be used when we require
+    the decoded multivariate polynomial from an underlying smooth codeword.-/
+def multiConstraintCodesetSC
   (F : Type*) [Field F] [DecidableEq F]
   (ι : Finset F) [DecidableEq ι]
   (domain : ι ↪ F)
@@ -123,6 +126,23 @@ def multiConstraintCode
   (σ : Fin t → F) :
   Set (smoothCode F ι domain k m) :=
     { sc | ∀ i : Fin t, weightConstraint (mVdecode sc) (w i) (σ i) }
+
+/--Alternatively, the following definition returns a Set (ι -> F). -/
+def multiConstraintCode
+  (F : Type*) [Field F] [DecidableEq F]
+  (ι : Finset F) [DecidableEq ι]
+  (domain : ι ↪ F)
+  (k : ℕ) [Smooth domain k]
+  (m : ℕ)
+  (t : ℕ)
+  (w : Fin t → MvPolynomial (Fin (m+1)) F)
+  (σ : Fin t → F) :
+  Set (ι → F) :=
+    { f |
+      ∃ (h : f ∈ smoothCode F ι domain k m),
+        ∀ i : Fin t, weightConstraint (mVdecode (⟨f, h⟩ : smoothCode F ι domain k m)) (w i) (σ i)}
+
+
 
 namespace MultiConstraintReedSolomon
 
@@ -137,7 +157,7 @@ variable  {F : Type*} [Field F] [DecidableEq F]
 
 /-- Forget all weight constraints. -/
 noncomputable def toSmoothCode
-  (cc : multiConstraintCode F ι domain k m t w σ) : smoothCode F ι domain k m :=
+  (cc : multiConstraintCodesetSC F ι domain k m t w σ) : smoothCode F ι domain k m :=
     cc.val
 
 section
@@ -150,7 +170,7 @@ variable  (F : Type*) [Field F] [DecidableEq F]
           (t : ℕ)
           (w : Fin t → MvPolynomial (Fin (m+1)) F)
           (σ : Fin t → F)
-          (mcc : multiConstraintCode F ι domain k m t w σ)
+          (mcc : multiConstraintCodesetSC F ι domain k m t w σ)
 
 #check multiConstraintCode F ι domain k m t w σ
 #check mcc

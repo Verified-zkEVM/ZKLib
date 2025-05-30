@@ -5,7 +5,7 @@ Authors: Least Authority
 -/
 
 import ArkLib.Data.CodingTheory.RelativeHammingDistance
-import ArkLib.Data.Probability.Notation
+import ArkLib.Data.Probability.NotationSingleSampl
 
 
 namespace Generator
