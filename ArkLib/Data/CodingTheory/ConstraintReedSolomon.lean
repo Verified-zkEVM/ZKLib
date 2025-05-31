@@ -11,25 +11,17 @@ namespace ReedSolomon
 
 open ReedSolomon SmoothDomain Finset
 
--- TODO: There are hypercubes already in ArkLib. Use them
-
-/-- The boolens `{0,1}` sitting inside any field `F`. -/
-private def boolF {F : Type*} [Field F] [DecidableEq F] : Finset F := {0, 1}
-
-/-- The binary `m`‐dimensional cube `{0,1}^m` as a `Finset (Fin m → F)`. -/
-private def hypercube
-  {F : Type*} [Field F] [DecidableEq F]
-  {m : ℕ}: Finset (Fin m → F) := Fintype.piFinset fun _ => boolF
-
 /-- Auxiliary function to assign values to the weight polynomial variables:
     index `0` ↦ `p.eval b`, index `j+1` ↦ `b j`. -/
 private def toWeightAssignment
   {F : Type*} [Field F]
   {m : ℕ}
   (p : MvPolynomial (Fin m) F)
-  (b : Fin m → F) : Fin (m+1) → F
-    | ⟨0, _⟩       => MvPolynomial.eval b p
-    | ⟨j+1, hj⟩   => b ⟨j, by simpa using hj⟩
+  (b : Fin m → Fin 2) : Fin (m+1) → F :=
+    let b' : Fin m → F := fun i => ↑(b i : ℕ)
+    Fin.cases (MvPolynomial.eval b' p)
+              (fun i => ↑(b i : ℕ))
+
 
 /-- constraint is true, if ∑_{b ∈ {0,1}^m} w(f(b),b) = σ for given
     m-variate polynomial `f`and `(m+1)`-variate polynomial `w`-/
@@ -39,7 +31,7 @@ def weightConstraint
   (f : MvPolynomial (Fin m) F)
   (w : MvPolynomial (Fin (m+1)) F)
   (σ : F): Prop :=
-    ∑ b ∈  hypercube , w.eval (toWeightAssignment f b) = σ
+    ∑ b : Fin m → Fin 2 , w.eval (toWeightAssignment f b) = σ
 
 /-- Constraint Reed Solomon codes are smooth codes who's decoded m-variate
     polynomial satisfies the weight constraint for given `w` and `σ`.
