@@ -197,6 +197,16 @@ This is used in the evaluation of multilinear polynomials via their Lagrange int
 def lagrangeBasis (w : Vector R n) : Vector R (2^n) :=
   lagrangeBasisAux w 0 (by omega) #v[1]
 
+@[simp]
+theorem lagrangeBasis_zero {w : Vector R 0} : lagrangeBasis w = #v[1] := by
+  simp [lagrangeBasis, lagrangeBasisAux]
+
+-- Relate basis for n with basis for n+1
+-- @[simp]
+-- theorem lagrangeBasis_succ {w : Vector R (n + 1)} (i : Fin (2 ^ (n + 1))) :
+--     lagrangeBasis w[i] = ∏ j : Fin n, (if i.val.testBit j then w[j] else 1 - w[j]) := by
+--   sorry
+
 /--
 Example: `lagrangeBasis #v[(1 : ℤ), 2, 3]` should return `[0, 0, 0, 0, 2, -3, -4, 6]`
 
@@ -220,6 +230,12 @@ Example: `lagrangeBasis #v[(1 : ℤ), 2, 3]` should return `[0, 0, 0, 0, 2, -3, 
 example : lagrangeBasis #v[(1 : ℤ), 2, 3] = #v[0, 0, 0, 0, 2, -3, -4, 6] := by
   simp [lagrangeBasis, lagrangeBasisAux, Array.ofFn, Array.ofFn.go]
 
+/-- The `i`-th element of `lagrangeBasis w` is the product of `w[j]` if the `j`-th bit of `i` is 1,
+    and `1 - w[j]` if the `j`-th bit of `i` is 0. -/
+theorem lagrangeBasis_getElem {w : Vector R n} (i : Fin (2 ^ n)) :
+    (lagrangeBasis w)[i] = ∏ j : Fin n, if (BitVec.ofFin i).getLsb' j then w[j] else 1 - w[j] := by
+  sorry
+
 variable {S : Type*} [CommRing S]
 
 def map (f : R →+* S) (p : MlPoly R n) : MlPoly S n :=
@@ -241,48 +257,69 @@ def eval₂ (p : MlPoly R n) (f : R →+* S) (x : Vector S n) : S := eval (map f
 
 end MlPoly
 
-section MlPolyEval
+namespace MlPoly
 
--- TODO: define the functions below in a functional way (easier to prove theorems about)
+-- Conversion between the coefficient (i.e. monomial) and evaluation (on the Boolean hypercube)
+-- representations.
 
--- This function converts multilinear representation in the evaluation basis to the monomial basis
--- This is also called the Walsh-Hadamard transform (either that or the inverse)
+variable {R : Type*} [Add R] [Sub R]
 
--- def walshHadamardTransform (a : Array R) (n : ℕ) (h : ℕ) : Array R :=
---   if h < n then
---     let a := (Array.range (2 ^ n)).foldl (fun a i =>
---       if i &&& (2 ^ h) == 0 then
---         let u := a.get! i
---         let v := a.get! (i + (2 ^ h))
---         (a.set! i (u + v)).set! (i + (2 ^ h)) (v - u)
---       else
---         a
---     ) a
---     walshHadamardTransform a n (h + 1)
---   else
---     a
+/-- **One level** of the zeta‑transform.
 
--- def evalToMonomial (a : Array R) : Array R := walshHadamardTransform a (Nat.clog 2 a.size) 0
+If the `j`‑th least significant bit of the index `i` is `1`, we replace `v[i]` with
+`v[i] + v[i with bit j cleared]`; otherwise we leave it unchanged. -/
+@[inline] def coeffToEvalLevel {n : ℕ} (j : Fin n) : Vector R (2 ^ n) → Vector R (2 ^ n) :=
+  fun v =>
+    letI stride : ℕ := 2 ^ j.val    -- distance to the "partner" index
+    Vector.ofFn (fun i : Fin (2 ^ n) =>
+      if (BitVec.ofFin i).getLsb' j then
+        v[i] + v[i - stride]
+      else
+        v[i])
 
--- def invWalshHadamardTransform (a : Array R) (n : ℕ) (h : ℕ) : Array R :=
---   if h < n then
---     let a := (Array.range (2 ^ n)).foldl (fun a i =>
---       if i &&& (2 ^ h) == 0 then
---         let u := a.get! i
---         let v := a.get! (i + (2 ^ h))
---         (a.set! i (u + v)).set! (i + (2 ^ h)) (v - u)
---       else
---         a
---     ) a
---     invWalshHadamardTransform a n (h + 1)
---   else
---     a
+/-- **Full transform**: coefficients → evaluations. -/
+@[inline] def coeffToEval (n : ℕ) : Vector R (2 ^ n) → Vector R (2 ^ n) :=
+  (List.finRange n).foldl (fun acc level => coeffToEvalLevel level acc)
 
--- def monomialToEval (a : Array R) : Array R := invWalshHadamardTransform a (Nat.clog 2 a.size) 0
+-- Example:
+-- p(X_1, X_0) = 1 + 2X_0 + 3X_1 + 4X_0X_1
+-- p(0, 0) = 1
+-- p(0, 1) = 3
+-- p(1, 0) = 4
+-- p(1, 1) = 10
+#eval coeffToEval 2 #v[1, 2, 3, 4]
+-- { toArray := #[1, 3, 4, 10], size_toArray := _ }
 
--- @[simp]
--- lemma evalToMonomial_size (a : Array R) : (evalToMonomial a).size = 2 ^ (Nat.clog 2 a.size) := by
---   unfold evalToMonomial
---   sorry
+/-- **One level** of the inverse zeta‑transform.
 
-end MlPolyEval
+If the `j`‑th least significant bit of the index `i` is `1`, we replace `v[i]` with
+`v[i] - v[i with bit j cleared]`; otherwise we leave it unchanged. -/
+@[inline] def evalToCoeffLevel {n : ℕ} (j : Fin n) : Vector R (2 ^ n) → Vector R (2 ^ n) :=
+  fun v =>
+    letI stride : ℕ := 2 ^ j.val  -- distance to the "partner" index
+    Vector.ofFn (fun i : Fin (2 ^ n) =>
+      if (BitVec.ofFin i).getLsb' j then
+        v[i] - v[i - stride]
+      else
+        v[i])
+
+/-- **Full inverse transform**: evaluations → coefficients. -/
+@[inline]
+def evalToCoeff (n : ℕ) :
+    Vector R (2 ^ n) → Vector R (2 ^ n) :=
+  (List.finRange n).foldr (fun h acc => evalToCoeffLevel h acc)
+
+#eval evalToCoeff 2 #v[1, 3, 4, 10]
+
+-- Example: verifying that evalToCoeff is the inverse of coeffToEval
+-- Starting with coefficients [1, 2, 3, 4], transform to evaluations, then back to coefficients
+#eval evalToCoeff 2 (coeffToEval 2 #v[1, 2, 3, 4])
+-- Should return: { toArray := #[1, 2, 3, 4], size_toArray := _ }
+
+def equivMonomialEval : MlPoly R n ≃ MlPolyEval R n where
+  toFun := coeffToEval n
+  invFun := evalToCoeff n
+  left_inv := sorry
+  right_inv := sorry
+
+end MlPoly
