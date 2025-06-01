@@ -40,7 +40,7 @@ import ArkLib.Data.UniPoly.PolynomialReflection
 import ArkLib.OracleReduction.Basic
 import ArkLib.OracleReduction.Composition.Sequential.Basic
 import ArkLib.OracleReduction.Composition.Sequential.ProtocolSpec
-import ArkLib.OracleReduction.Composition.Virtual
+import ArkLib.OracleReduction.Composition.Transport
 import ArkLib.OracleReduction.Equiv
 import ArkLib.OracleReduction.Execution
 import ArkLib.OracleReduction.OracleInterface
