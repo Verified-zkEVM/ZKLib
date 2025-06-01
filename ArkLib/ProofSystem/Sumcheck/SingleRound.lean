@@ -559,9 +559,9 @@ def rbrExtractor (i : Fin (n + 1)) :
     @RBRExtractor _ (pSpec R deg) _ oSpec (Statement R n i.castSucc) Unit i := fun _ _ _ => ()
 
 -- /-- Round-by-round knowledge soundness theorem for sumcheck -/
--- theorem rbr_knowledge_soundness : OracleReduction.rbrKnowledgeSoundness
+-- theorem rbr_knowledge_soundness : (oracleVerifier R n deg D oSpec i).rbrKnowledgeSoundness
 --     (relation R n deg D i.castSucc) (relation R n deg D i.succ) (stateFunction i)
---     (oracleVerifier R n deg D oSpec i) (fun _ => (deg : ℝ≥0) / Fintype.card R) := sorry
+--     (fun _ => (deg : ℝ≥0) / Fintype.card R) := sorry
 
 -- def rbrKnowledgeSoundness (relIn : StmtIn → WitIn → Prop) (relOut : StmtOut → WitOut → Prop)
 --     (verifier : Verifier pSpec oSpec StmtIn StmtOut)
