@@ -265,9 +265,8 @@ theorem completeness : OracleReduction.perfectCompleteness
 -- def langOut : Set ((Query OStatement) × (∀ _ : Fin 2, OStatement)) := setOf fun ⟨q, oracles⟩ =>
 --   OracleInterface.oracle (oracles 0) q = OracleInterface.oracle (oracles 1) q
 
-def stateFunction : Reduction.StateFunction
-    (relIn OStatement).language (relOut OStatement).language
-    (verifier oSpec OStatement).toVerifier where
+def stateFunction : (verifier oSpec OStatement).StateFunction (pSpec OStatement) oSpec
+    (relIn OStatement).language (relOut OStatement).language where
   fn
   | 0 => fun ⟨_, oracles⟩ _ => oracles 0 = oracles 1
   | 1 => fun ⟨_, oracles⟩ chal =>
@@ -282,7 +281,7 @@ def stateFunction : Reduction.StateFunction
     simp [hSupp.1, hSupp.2, h]
 
 /-- The extractor is trivial since the output witness is `Unit`. -/
-def extractor : (i : Fin 2) → @Reduction.RBRExtractor _ (pSpec OStatement) _ oSpec
+def extractor : (i : Fin 2) → RBRExtractor (pSpec OStatement) oSpec
     (Unit × ((i : Fin 2) → (fun _ ↦ OStatement) i)) Unit i :=
   fun _ _ _ _ => ()
 
@@ -298,12 +297,11 @@ instance : Fintype ((pSpec OStatement).Challenge ⟨0, by simp⟩) := by
 open NNReal
 
 theorem rbr_knowledge_soundness {d : ℕ} (h : OracleInterface.distanceLE OStatement d) :
-    OracleReduction.rbrKnowledgeSoundness
+    (verifier oSpec OStatement).rbrKnowledgeSoundness
       (relIn OStatement)
       (relOut OStatement)
-      (verifier oSpec OStatement)
       (fun _ => (d : ℝ≥0) / (Fintype.card (Query OStatement) : ℝ≥0)) := by
-  unfold OracleReduction.rbrKnowledgeSoundness Reduction.rbrKnowledgeSoundness
+  unfold OracleVerifier.rbrKnowledgeSoundness Verifier.rbrKnowledgeSoundness
   refine ⟨stateFunction oSpec OStatement, extractor oSpec OStatement, ?_⟩
   intro ⟨_, oracles⟩ _ rbrP i
   have : i = ⟨0, by simp⟩ := by aesop

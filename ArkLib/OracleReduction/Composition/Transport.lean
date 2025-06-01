@@ -257,33 +257,33 @@ def Reduction.transport
   prover := R.prover.transport lens
   verifier := R.verifier.transport lens.toStatementLens
 
-open Reduction in
+open Verifier in
 /-- The outer extractor after transport invokes the inner extractor on the projected input, and
   integrates the output -/
 def StraightlineExtractor.transport
     (lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
       OuterWitIn OuterWitOut InnerWitIn InnerWitOut)
     (lensInv : WitnessLensInv OuterWitIn OuterWitOut InnerWitIn InnerWitOut)
-    (E : @StraightlineExtractor _ pSpec _ oSpec InnerStmtIn InnerWitIn InnerWitOut) :
-      @StraightlineExtractor _ pSpec _ oSpec OuterStmtIn OuterWitIn OuterWitOut :=
+    (E : StraightlineExtractor pSpec oSpec InnerStmtIn InnerWitIn InnerWitOut) :
+      StraightlineExtractor pSpec oSpec OuterStmtIn OuterWitIn OuterWitOut :=
   fun outerWitOut outerStmtIn fullTranscript proveQueryLog verifyQueryLog =>
     let innerStmtIn := lens.projectStmt outerStmtIn
     let innerWitOut := lensInv.projectWit outerWitOut
     let innerWitIn := E innerWitOut innerStmtIn fullTranscript proveQueryLog verifyQueryLog
     lensInv.integrateWit (outerWitOut, innerWitIn)
 
-open Reduction in
 /-- The outer state function after transport invokes the inner state function on the projected
   input, and integrates the output -/
-def StateFunction.transport [oSpec.FiniteRange]
+def Verifier.StateFunction.transport [oSpec.FiniteRange]
     (lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
       OuterWitIn OuterWitOut InnerWitIn InnerWitOut)
     (innerLangIn : Set InnerStmtIn) (innerLangOut : Set InnerStmtOut)
     (V : Verifier pSpec oSpec InnerStmtIn InnerStmtOut)
-    (S : @StateFunction _ pSpec _ oSpec _ InnerStmtIn InnerStmtOut innerLangIn innerLangOut V) :
-      StateFunction (lens.projectStmt ⁻¹' innerLangIn)
+    (S : V.StateFunction pSpec oSpec innerLangIn innerLangOut) :
+      (V.transport lens.toStatementLens).StateFunction pSpec oSpec
+        (lens.projectStmt ⁻¹' innerLangIn)
         -- TODO: figure out the right induced language for `OuterStmtOut`
-        (fun _ : OuterStmtOut => True) (V.transport lens.toStatementLens) where
+        (fun _ : OuterStmtOut => True) where
   fn := sorry
   fn_empty := sorry
   fn_next := sorry
@@ -489,7 +489,7 @@ theorem Reduction.transport_completeness
 
 /-- Transporting the reduction preserves soundness, assuming the lens satisfies its soundness
   conditions -/
-theorem Reduction.transport_soundness
+theorem Verifier.transport_soundness
     {outerLangIn : Set OuterStmtIn} {outerLangOut : Set OuterStmtOut}
     {innerLangIn : Set InnerStmtIn} {innerLangOut : Set InnerStmtOut}
     {soundnessError : ℝ≥0}
@@ -497,17 +497,19 @@ theorem Reduction.transport_soundness
     (V : Verifier pSpec oSpec InnerStmtIn InnerStmtOut)
     -- TODO: figure out the right compatibility relation for the IsSound condition
     (lensSound : lens.IsSound outerLangIn outerLangOut innerLangIn innerLangOut (fun _ _ => True))
-    (h : Reduction.soundness innerLangIn innerLangOut V soundnessError) :
-      Reduction.soundness outerLangIn outerLangOut (V.transport lens) soundnessError := by
+    (h : V.soundness innerLangIn innerLangOut soundnessError) :
+      (V.transport lens).soundness outerLangIn outerLangOut soundnessError := by
   unfold soundness at h ⊢
-  intro outerStmtIn hOuterStmtIn OuterWitIn OuterWitOut outerWitIn prover
+  intro OuterWitIn OuterWitOut outerWitIn prover outerStmtIn hOuterStmtIn
+  simp at h ⊢
+  have h' := h OuterWitIn OuterWitOut outerWitIn
   sorry
 
 /-
   Transporting the reduction preserves knowledge soundness, assuming the lens satisfies its
   knowledge soundness conditions
 -/
-theorem Reduction.transport_knowledgeSoundness
+theorem Verifier.transport_knowledgeSoundness
     {outerRelIn : OuterStmtIn → OuterWitIn → Prop} {outerRelOut : OuterStmtOut → OuterWitOut → Prop}
     {innerRelIn : InnerStmtIn → InnerWitIn → Prop} {innerRelOut : InnerStmtOut → InnerWitOut → Prop}
     {soundnessError : ℝ≥0}
@@ -516,9 +518,9 @@ theorem Reduction.transport_knowledgeSoundness
     (lensKnowledgeSound : lens.IsKnowledgeSound outerRelIn innerRelIn outerRelOut innerRelOut
       (fun _ _ => True))
     (V : Verifier pSpec oSpec InnerStmtIn InnerStmtOut)
-    (h : Reduction.knowledgeSoundness innerRelIn innerRelOut V soundnessError) :
-      Reduction.knowledgeSoundness outerRelIn outerRelOut
-        (V.transport lens.toStatementLens) soundnessError := by
+    (h : V.knowledgeSoundness innerRelIn innerRelOut soundnessError) :
+      (V.transport lens.toStatementLens).knowledgeSoundness outerRelIn outerRelOut
+        soundnessError := by
   unfold knowledgeSoundness at h ⊢
   obtain ⟨E, h'⟩ := h
   stop
@@ -533,7 +535,7 @@ theorem Reduction.transport_knowledgeSoundness
   Transporting the reduction preserves round-by-round soundness, assuming the lens satisfies its
   soundness conditions
 -/
-theorem Reduction.transport_rbr_soundness
+theorem Verifier.transport_rbr_soundness
     {outerLangIn : Set OuterStmtIn} {outerLangOut : Set OuterStmtOut}
     {innerLangIn : Set InnerStmtIn} {innerLangOut : Set InnerStmtOut}
     {rbrSoundnessError : pSpec.ChallengeIdx → ℝ≥0}
@@ -541,8 +543,8 @@ theorem Reduction.transport_rbr_soundness
     (V : Verifier pSpec oSpec InnerStmtIn InnerStmtOut)
     -- TODO: figure out the right compatibility relation for the IsSound condition
     (lensSound : lens.IsSound outerLangIn outerLangOut innerLangIn innerLangOut (fun _ _ => True))
-    (h : Reduction.rbrSoundness innerLangIn innerLangOut V rbrSoundnessError) :
-      Reduction.rbrSoundness outerLangIn outerLangOut (V.transport lens) rbrSoundnessError := by
+    (h : V.rbrSoundness innerLangIn innerLangOut rbrSoundnessError) :
+      (V.transport lens).rbrSoundness outerLangIn outerLangOut rbrSoundnessError := by
   unfold rbrSoundness at h ⊢
   sorry
 
@@ -550,7 +552,7 @@ theorem Reduction.transport_rbr_soundness
   Transporting the reduction preserves round-by-round knowledge soundness, assuming the lens
   satisfies its knowledge soundness conditions
 -/
-theorem Reduction.transport_rbr_knowledgeSoundness
+theorem Verifier.transport_rbr_knowledgeSoundness
     {outerRelIn : OuterStmtIn → OuterWitIn → Prop} {outerRelOut : OuterStmtOut → OuterWitOut → Prop}
     {innerRelIn : InnerStmtIn → InnerWitIn → Prop} {innerRelOut : InnerStmtOut → InnerWitOut → Prop}
     {rbrKnowledgeError : pSpec.ChallengeIdx → ℝ≥0}
@@ -559,9 +561,9 @@ theorem Reduction.transport_rbr_knowledgeSoundness
     (lensKnowledgeSound : lens.IsKnowledgeSound outerRelIn innerRelIn outerRelOut innerRelOut
       (fun _ _ => True))
     (V : Verifier pSpec oSpec InnerStmtIn InnerStmtOut)
-    (h : Reduction.rbrKnowledgeSoundness innerRelIn innerRelOut V rbrKnowledgeError) :
-      Reduction.rbrKnowledgeSoundness outerRelIn outerRelOut
-        (V.transport lens.toStatementLens) rbrKnowledgeError := by
+    (h : V.rbrKnowledgeSoundness innerRelIn innerRelOut rbrKnowledgeError) :
+      (V.transport lens.toStatementLens).rbrKnowledgeSoundness outerRelIn outerRelOut
+        rbrKnowledgeError := by
   sorry
 
 end Theorems

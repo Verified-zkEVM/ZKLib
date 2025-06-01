@@ -254,13 +254,13 @@ theorem perfect_completeness : (reduction R d D).perfectCompleteness
   · simp only [Reduction.run, probFailure_bind_eq_zero_iff]
     constructor
     · simp -- There's still some pathing issue here w/ simp, need to simp in steps which is sub-par
-      unfold Prover.run Prover.runToRound
+      unfold Prover.run Prover.runToRound Prover.processRound
       simp [Fin.induction, Fin.induction.go, reduction, prover, neverFails_map_iff']
     · intro ⟨⟨stmt, oStmtOut⟩, _, transcript⟩
       simp -- Also some pathing issues, need to simp once before reducing `reduction`
       simp [reduction, verifier, Verifier.run]
       intro hSupport
-      simp [Prover.run, Prover.runToRound, reduction, prover] at hSupport
+      simp [Prover.run, Prover.runToRound, Prover.processRound, reduction, prover] at hSupport
       obtain ⟨h1, h2⟩ := hSupport
       simp [← h2, Transcript.snoc, Fin.snoc, h]
       simp [inputRelation, h] at hValid
@@ -270,7 +270,7 @@ theorem perfect_completeness : (reduction R d D).perfectCompleteness
       Set.mem_singleton_iff, Prod.eq_iff_fst_eq_snd_eq, true_and] at hSupport
     obtain ⟨x1, hx1, ⟨x2_1, x2_2⟩, hx2, ⟨⟨⟨h2_1, h2_2⟩, _⟩, ⟨⟨h3_1, h3_2⟩, h3_3⟩⟩⟩ := hSupport
     simp only [reduction, prover, Prover.run, Prover.runToRound] at hx1
-    simp at hx1
+    simp [Prover.processRound] at hx1
     obtain ⟨a, b, hab, hx1'⟩ := hx1
     simp only [Verifier.run, reduction, verifier] at hx2
     simp [liftComp_support, Transcript.snoc, Fin.snoc] at hx2
@@ -519,7 +519,7 @@ theorem perfect_completeness : OracleReduction.perfectCompleteness
   --   -- at this point we have reduced to a purely polynomial problem
 
 /-- State function for round-by-round soundness -/
-def stateFunction (i : Fin (n + 1)) : StateFunction (pSpec := pSpec R deg) (oSpec := oSpec)
+def stateFunction (i : Fin (n + 1)) : Verifier.StateFunction (pSpec := pSpec R deg) (oSpec := oSpec)
     (relation R n deg D i.castSucc).language (relation R n deg D i.succ).language
     (verifier R n deg D oSpec i) where
   fn := fun m ⟨stmt, oStmt⟩ partialTranscript => match m with
