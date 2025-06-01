@@ -8,11 +8,11 @@ Verifier
 OracleReduction
 OracleReduction.run
 Reduction.completeness
-Reduction.soundness
-Reduction.knowledgeSoundness
-Reduction.StateFunction
-Reduction.rbrSoundness
-Reduction.rbrKnowledgeSoundness
+Verifier.soundness
+Verifier.knowledgeSoundness
+Verifier.StateFunction
+Verifier.rbrSoundness
+Verifier.rbrKnowledgeSoundness
 MvPolynomial.MLE
 MvPolynomial.schwartz_zippel_sum_degreeOf
 UniPoly
@@ -34,6 +34,8 @@ OracleSpec.DecidableEq
 OracleSpec.FiniteRange
 OracleSpec.OracleQuery
 OracleComp
+QueryImpl
 OracleComp.evalDist
 loggingOracle
 cachingOracle
+randomOracle

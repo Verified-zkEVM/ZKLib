@@ -220,6 +220,7 @@ instance instChallengeOracleInterface {pSpec : ProtocolSpec n} {i : pSpec.Challe
   Response := pSpec.Challenge i
   oracle := fun c _ => c
 
+/-- Query a verifier's challenge for a given challenge round `i` -/
 @[reducible, inline, specialize]
 def getChallenge (pSpec : ProtocolSpec n) (i : pSpec.ChallengeIdx) :
     OracleComp [pSpec.Challenge]ₒ (pSpec.Challenge i) :=

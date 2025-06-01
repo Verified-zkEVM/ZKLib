@@ -15,7 +15,7 @@
 <title>Oracle Reductions</title>
 <link rel="next" href="chap-proof_systems.html" title="Proof Systems" />
 <link rel="prev" href="sect0001.html" title="Introduction" />
-<link rel="up" href="index.html" title="Formally Verified SNARKs in Lean" />
+<link rel="up" href="index.html" title="Formally Verified Arguments of Knowledge in Lean" />
 <link rel="stylesheet" href="styles/theme-white.css" />
 <link rel="stylesheet" href="styles/amsthm.css" />
 <link rel="stylesheet" href="styles/pygments.css" />
@@ -27,7 +27,7 @@
 <body>
 <header>
 <svg  id="toc-toggle" class="icon icon-list-numbered "><use xlink:href="symbol-defs.svg#icon-list-numbered"></use></svg>
-<h1 id="doc_title"><a href="index.html">Formally Verified SNARKs in Lean</a></h1>
+<h1 id="doc_title"><a href="index.html">Formally Verified Arguments of Knowledge in Lean</a></h1>
 </header>
 
 <div class="wrapper">
@@ -94,6 +94,16 @@
  </li>
 <li class="">
   <a href="chap-proof_systems.html#sec:sumcheck"><span class="toc_ref">3.2</span> <span class="toc_entry">The Sum-Check Protocol</span></a>
+  <span class="expand-toc">▶</span>
+  <ul class="sub-toc-2">
+     <li class="">
+  <a href="chap-proof_systems.html#sec:sumcheck_standard"><span class="toc_ref">3.2.1</span> <span class="toc_entry">Standard Description</span></a>
+ </li>
+<li class="">
+  <a href="chap-proof_systems.html#sec:sumcheck_modular"><span class="toc_ref">3.2.2</span> <span class="toc_entry">Modular Description</span></a>
+ </li>
+
+  </ul>
  </li>
 <li class="">
   <a href="chap-proof_systems.html#a0000000015"><span class="toc_ref">3.3</span> <span class="toc_entry">The Spartan Protocol</span></a>
@@ -217,7 +227,7 @@
         </div>
   </div>
   <div class="definition_thmcontent">
-  <p>  A protocol specification \(\rho : \mathsf{PSpec}\;  n\) of an oracle reduction is parametrized by a fixed number of messages sent in total. For each step of interaction, it specifies a direction for the messsage (prover to verifier, or vice versa), and a type for the message. If a message from the prover to the verifier is further marked as oracle, then we also expect an oracle interface for that message. In Lean, we handle these oracle interfaces via the \(\mathsf{OracleInterface}\) type class.  </p>
+  <p>  A protocol specification \(\rho : \mathsf{PSpec}\;  n\) of an oracle reduction is parametrized by a fixed number of messages sent in total. For each step of interaction, it specifies a direction for the message (prover to verifier, or vice versa), and a type for the message. If a message from the prover to the verifier is further marked as oracle, then we also expect an oracle interface for that message. In Lean, we handle these oracle interfaces via the \(\mathsf{OracleInterface}\) type class.  </p>
 
   </div>
 </div>
@@ -418,6 +428,26 @@
     <a class="icon proof" href="chap-oracle_reductions.html#def:interactive_oracle_reduction">#</a>
     
     
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-oracle_reductions.html#def:oracle_reduction_type_signature">Definition 1</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
     
     <button class="modal lean">L∃∀N</button>
         <div class="modal-container">
@@ -441,7 +471,7 @@
         </div>
   </div>
   <div class="definition_thmcontent">
-  <p>   An interactive oracle reduction for a given context \(\Gamma \) is a combination a prover and a verifier of the types specified above. </p>
+  <p>   An interactive oracle reduction for a given context \(\Gamma \) is a combination a prover and a verifier of the types specified above.  </p>
 
   </div>
 </div>
@@ -566,6 +596,26 @@
     <a class="icon proof" href="chap-oracle_reductions.html#def:completeness">#</a>
     
     
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-oracle_reductions.html#def:interactive_oracle_reduction">Definition 7</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
     
     <button class="modal lean">L∃∀N</button>
         <div class="modal-container">
@@ -617,6 +667,26 @@
     <a class="icon proof" href="chap-oracle_reductions.html#def:soundness">#</a>
     
     
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-oracle_reductions.html#def:interactive_oracle_reduction">Definition 7</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
     
     <button class="modal lean">L∃∀N</button>
         <div class="modal-container">
@@ -629,7 +699,7 @@
         
         <ul class="uses">
           
-          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Reduction.soundness" class="lean_decl">Reduction.soundness</a></li>
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Verifier.soundness" class="lean_decl">Verifier.soundness</a></li>
           
         </ul>
     
@@ -661,6 +731,26 @@
     <a class="icon proof" href="chap-oracle_reductions.html#def:knowledge_soundness">#</a>
     
     
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-oracle_reductions.html#def:interactive_oracle_reduction">Definition 7</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
     
     <button class="modal lean">L∃∀N</button>
         <div class="modal-container">
@@ -673,7 +763,7 @@
         
         <ul class="uses">
           
-          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Reduction.knowledgeSoundness" class="lean_decl">Reduction.knowledgeSoundness</a></li>
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Verifier.knowledgeSoundness" class="lean_decl">Verifier.knowledgeSoundness</a></li>
           
         </ul>
     
@@ -716,7 +806,7 @@
         
         <ul class="uses">
           
-          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Reduction.StateFunction" class="lean_decl">Reduction.StateFunction</a></li>
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Verifier.StateFunction" class="lean_decl">Verifier.StateFunction</a></li>
           
         </ul>
     
@@ -746,6 +836,26 @@
     <a class="icon proof" href="chap-oracle_reductions.html#def:round_by_round_soundness">#</a>
     
     
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-oracle_reductions.html#def:interactive_oracle_reduction">Definition 7</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
     
     <button class="modal lean">L∃∀N</button>
         <div class="modal-container">
@@ -758,7 +868,7 @@
         
         <ul class="uses">
           
-          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Reduction.rbrSoundness" class="lean_decl">Reduction.rbrSoundness</a></li>
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Verifier.rbrSoundness" class="lean_decl">Verifier.rbrSoundness</a></li>
           
         </ul>
     
@@ -788,6 +898,26 @@
     <a class="icon proof" href="chap-oracle_reductions.html#def:round_by_round_knowledge_soundness">#</a>
     
     
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-oracle_reductions.html#def:interactive_oracle_reduction">Definition 7</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
     
     <button class="modal lean">L∃∀N</button>
         <div class="modal-container">
@@ -800,7 +930,7 @@
         
         <ul class="uses">
           
-          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Reduction.rbrKnowledgeSoundness" class="lean_decl">Reduction.rbrKnowledgeSoundness</a></li>
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Verifier.rbrKnowledgeSoundness" class="lean_decl">Verifier.rbrKnowledgeSoundness</a></li>
           
         </ul>
     
@@ -944,7 +1074,7 @@
 
   <a href="sect0001.html" title="Introduction"><svg  class="icon icon-arrow-left "><use xlink:href="symbol-defs.svg#icon-arrow-left"></use></svg>
 </a>
-  <a href="index.html" title="Formally Verified SNARKs in Lean"><svg  class="icon icon-arrow-up "><use xlink:href="symbol-defs.svg#icon-arrow-up"></use></svg>
+  <a href="index.html" title="Formally Verified Arguments of Knowledge in Lean"><svg  class="icon icon-arrow-up "><use xlink:href="symbol-defs.svg#icon-arrow-up"></use></svg>
 </a>
   <a href="chap-proof_systems.html" title="Proof Systems"><svg  class="icon icon-arrow-right "><use xlink:href="symbol-defs.svg#icon-arrow-right"></use></svg>
 </a>

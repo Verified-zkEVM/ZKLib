@@ -20,14 +20,16 @@ The core of our library is a mechanized theory of **$$\mathcal{F}$$-Interactive 
 4. We can also carry out the **BCS transform**, which takes an $$\mathcal{F}$$-IOR and compose it with **$$\mathcal{F}$$-commitment schemes** to result in an interactive argument.
   - Roughly speaking, an $$\mathcal{F}$$-commitment scheme is a commitment scheme with an associated opening argument for the correctness of the specified oracle interface.
   - The BCS transform then replaces every oracle message from the prover with a commitment to that message, and runs an opening argument for each oracle query the verifier makes to the prover's messages.
-5. $$\mathcal{F}$$-IOR is a natural notion and related versions have appeared in various places in the literature (see [BACKGROUND](./References.md) for a detailed comparison). Our library takes these existing threads and formalizes them into a cohesive theory.
+5. $$\mathcal{F}$$-IOR is a natural notion and related versions have appeared in various places in the literature (see [BACKGROUND](./BACKGROUND.md) for a detailed comparison). Our library takes these existing threads and formalizes them into a cohesive theory.
 
 Using the theory of $$\mathcal{F}$$-IOR, we then formalize various proof systems in [ProofSystem](ArkLib/ProofSystem).
 
-## Active Formalizations (last updated: 22 May 2025)
+## Active Formalizations (last updated: 1 June 2025)
 
 The library is currently in development. Alongside general development of the library's underlying theory, the following cryptographic components are actively being worked on:
 - The sumcheck protocol
+- Spartan
+- Merkle Trees
 - A blueprint for FRI and coding theory pre-requisites
 - A blueprint for STIR and WHIR
 - Binius
