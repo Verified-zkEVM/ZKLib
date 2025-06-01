@@ -15,7 +15,7 @@
 <title>Proof Systems</title>
 <link rel="next" href="chap-commitment_schemes.html" title="Commitment Schemes" />
 <link rel="prev" href="chap-oracle_reductions.html" title="Oracle Reductions" />
-<link rel="up" href="index.html" title="Formally Verified SNARKs in Lean" />
+<link rel="up" href="index.html" title="Formally Verified Arguments of Knowledge in Lean" />
 <link rel="stylesheet" href="styles/theme-white.css" />
 <link rel="stylesheet" href="styles/amsthm.css" />
 <link rel="stylesheet" href="styles/pygments.css" />
@@ -27,7 +27,7 @@
 <body>
 <header>
 <svg  id="toc-toggle" class="icon icon-list-numbered "><use xlink:href="symbol-defs.svg#icon-list-numbered"></use></svg>
-<h1 id="doc_title"><a href="index.html">Formally Verified SNARKs in Lean</a></h1>
+<h1 id="doc_title"><a href="index.html">Formally Verified Arguments of Knowledge in Lean</a></h1>
 </header>
 
 <div class="wrapper">
@@ -94,6 +94,16 @@
  </li>
 <li class="">
   <a href="chap-proof_systems.html#sec:sumcheck"><span class="toc_ref">3.2</span> <span class="toc_entry">The Sum-Check Protocol</span></a>
+  <span class="expand-toc">▶</span>
+  <ul class="sub-toc-2">
+     <li class="">
+  <a href="chap-proof_systems.html#sec:sumcheck_standard"><span class="toc_ref">3.2.1</span> <span class="toc_entry">Standard Description</span></a>
+ </li>
+<li class="">
+  <a href="chap-proof_systems.html#sec:sumcheck_modular"><span class="toc_ref">3.2.2</span> <span class="toc_entry">Modular Description</span></a>
+ </li>
+
+  </ul>
  </li>
 <li class="">
   <a href="chap-proof_systems.html#a0000000015"><span class="toc_ref">3.3</span> <span class="toc_entry">The Spartan Protocol</span></a>
@@ -180,77 +190,545 @@
 <p>Security: depends on the degree &amp; non-degeneracy of the polynomial map \(E\) </p>
 <h1 id="sec:sumcheck">3.2 The Sum-Check Protocol</h1>
 
-<p>In this section, we describe the sum-check protocol&#160;<span class="cite">
-	[
-	<a href="sect0002.html#sumcheck-protocol" >1</a>
-	]
-</span> in a modular manner, as a running example for our approach to specifying and proving properties of oracle reductions (based on a program logic approach). </p>
-<p>The sum-check protocol, as described in the original paper and many expositions thereafter, is a protocol to reduce the claim that </p>
-<div class="displaymath" id="a0000000030">
-  \[  \sum _{x \in \{ 0, 1\} ^n} P(x) = c,  \]
+<p>This section documents our formalization of the sum-check protocol. We first describe the sum-check protocol as it is typically described in the literature, and then present a modular description that maximally relies on our general oracle reduction framework. </p>
+<h2 id="sec:sumcheck_standard">3.2.1 Standard Description</h2>
+
+<h3 id="a0000000030">Protocol Parameters</h3>
+<p>The sum-check protocol is parameterized by the following: </p>
+<ul class="itemize">
+  <li><p>\(R\): the underlying ring (for soundness, required to be finite and an integral domain) </p>
+</li>
+  <li><p>\(n \in \mathbb {N}\): the number of variables (and the number of rounds for the protocol) </p>
+</li>
+  <li><p>\(d \in \mathbb {N}\): the individual degree bound for the polynomial </p>
+</li>
+  <li><p>\(\mathcal{D}: \{ 0, 1, \ldots , m-1\}  \hookrightarrow R\): the set of \(m\) evaluation points for each variable, represented as an injection. The image of \(\mathcal{D}\) as a finite subset of \(R\) is written as \(\text{Image}(\mathcal{D})\). </p>
+</li>
+  <li><p>\(\mathcal{O}\): the set of underlying oracles (e.g., random oracles) that may be needed for other reductions. However, the sum-check protocol itself does <em>not</em> use any oracles. </p>
+</li>
+</ul>
+<h3 id="a0000000031">Input and Output Statements</h3>
+<p>For the standard description of the sum-check protocol, we specify the complete input and output data: </p>
+<h4 id="a0000000032">Input Statement.</h4>
+<p> The claimed sum \(T \in R\). </p>
+<h4 id="a0000000033">Input Oracle Statement.</h4>
+<p> The polynomial \(P \in R[X_0, X_1, \ldots , X_{n-1}]_{\leq d}\) of \(n\) variables with bounded individual degrees \(d\). </p>
+<h4 id="a0000000034">Input Witness.</h4>
+<p> None (the unit type). </p>
+<h4 id="a0000000035">Input Relation.</h4>
+<p> The sum-check relation: </p>
+<div class="displaymath" id="a0000000036">
+  \[  \sum _{x \in (\text{Image}(\mathcal{D}))^n} P(x) = T  \]
 </div>
-<p> where \(P\) is an \(n\)-variate polynomial of certain individual degree bounds, and \(c\) is some field element, to the claim that </p>
-<div class="displaymath" id="a0000000031">
-  \[  P(r) = v,  \]
+<h4 id="a0000000037">Output Statement.</h4>
+<p> The claimed evaluation \(e \in R\) and the challenge vector \((r_0, r_1, \ldots , r_{n-1}) \in R^n\). </p>
+<h4 id="a0000000038">Output Oracle Statement.</h4>
+<p> The same polynomial \(P \in R[X_0, X_1, \ldots , X_{n-1}]_{\leq d}\). </p>
+<h4 id="a0000000039">Output Witness.</h4>
+<p> None (the unit type). </p>
+<h4 id="a0000000040">Output Relation.</h4>
+<p> The evaluation relation: </p>
+<div class="displaymath" id="a0000000041">
+  \[  P(r_0, r_1, \ldots , r_{n-1}) = e  \]
 </div>
-<p> for some claimed value \(v\) (derived from the protocol transcript), where \(r\) is a vector of random challenges from the verifier sent during the protocol. </p>
-<p>In our language, the initial context of the sum-check protocol is the pair \((P, c)\), where \(P\) is an oracle input and \(c\) is public. The protocol proceeds in \(n\) rounds of interaction, where in each round \(i\) the prover sends a univariate polynomial \(s_i\) of bounded degree and the verifier sends a challenge \(r_i \gets \mathbb {F}\). The honest prover would compute </p>
-<div class="displaymath" id="a0000000032">
-  \[  s_i(X) = \sum _{x \in \{ 0, 1\} ^{n - i - 1}} P(r_1, \ldots , r_{i - 1}, X, x),  \]
-</div>
-<p> and the honest verifier would check that \(s_i(0) + s_i(1) = s_{i - 1}(r_{i - 1})\), with the convention that \(s_0(r_0) = c\). </p>
-<div class="theorem_thmwrapper theorem-style-plain" id="a0000000033">
+<h3 id="a0000000042">Protocol Description</h3>
+<p>The sum-check protocol proceeds in \(n\) rounds of interaction between the prover and verifier. The protocol reduces the claim that a multivariate polynomial \(P\) sums to a target value \(T\) over the domain \((\text{Image}(\mathcal{D}))^n\) to the claim that \(P\) evaluates to a specific value \(e\) at a random point \((r_0, r_1, \ldots , r_{n-1})\). </p>
+<p>In each round, the prover sends a univariate polynomial of bounded degree, and the verifier responds with a random challenge. The verifier performs consistency checks by querying the polynomial oracle at specific evaluation points. After \(n\) rounds, the protocol terminates with an output statement asserting that \(P(r_0, r_1, \ldots , r_{n-1}) = e\), where the challenges \((r_0, r_1, \ldots , r_{n-1})\) are the random values chosen by the verifier during the protocol execution. </p>
+<p>The protocol is described as an oracle reduction, where the polynomial \(P\) is accessed only through evaluation queries rather than being explicitly represented. </p>
+<h3 id="a0000000043">Security Properties</h3>
+<p>We prove the following security properties for the sum-check protocol: </p>
+<div class="theorem_thmwrapper theorem-style-plain" id="thm:sumcheck_perfect_completeness">
   <div class="theorem_thmheading">
     <span class="theorem_thmcaption">
     Theorem
     </span>
     <span class="theorem_thmlabel">18</span>
+    <span class="theorem_thmtitle">Perfect Completeness</span>
     <div class="thm_header_extras">
 
         </div>
     <div class="thm_header_hidden_extras">
 
-    <a class="icon proof" href="chap-proof_systems.html#a0000000033">#</a>
+    <a class="icon proof" href="chap-proof_systems.html#thm:sumcheck_perfect_completeness">#</a>
     
     
     
         </div>
   </div>
   <div class="theorem_thmcontent">
-  <p>The sum-check protocol is complete. </p>
+  <p>  The sum-check protocol satisfies perfect completeness. That is, for any valid input statement and oracle statement satisfying the input relation, the protocol accepts with probability 1. </p>
 
   </div>
 </div>
-<p>We now proceed to break down this protocol into individual message, and then specify the predicates that should hold before and after each message is exchanged. </p>
+<div class="theorem_thmwrapper theorem-style-plain" id="thm:sumcheck_knowledge_soundness">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">19</span>
+    <span class="theorem_thmtitle">Knowledge Soundness</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-proof_systems.html#thm:sumcheck_knowledge_soundness">#</a>
+    
+    
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  <p>  The sum-check protocol satisfies knowledge soundness. The soundness error is bounded by \(n \cdot d / |R|\), where \(n\) is the number of rounds, \(d\) is the degree bound, and \(|R|\) is the size of the field. </p>
+
+  </div>
+</div>
+<div class="theorem_thmwrapper theorem-style-plain" id="thm:sumcheck_rbr_knowledge_soundness_standard">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">20</span>
+    <span class="theorem_thmtitle">Round-by-Round Knowledge Soundness</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-proof_systems.html#thm:sumcheck_rbr_knowledge_soundness_standard">#</a>
+    
+    
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  <p>  The sum-check protocol satisfies round-by-round knowledge soundness with respect to an appropriate state function (to be specified). Each round maintains the security properties compositionally, allowing for modular security analysis. </p>
+
+  </div>
+</div>
+<h3 id="a0000000044">Implementation Notes</h3>
+<p>Our formalization includes several important implementation considerations: </p>
+<h4 id="a0000000045">Oracle Reduction Level.</h4>
+<p> This description of the sum-check protocol stays at the <b class="bfseries">oracle reduction</b> level, describing the protocol before being compiled with concrete cryptographic primitives such as polynomial commitment schemes for \(P\). The oracle model allows us to focus on the logical structure and security properties of the protocol without being concerned with the specifics of how polynomial evaluations are implemented or verified. </p>
+<h4 id="a0000000046">Abstract Protocol Description.</h4>
+<p> The protocol description above does not consider implementation details and optimizations that would be necessary in practice. For instance, we do not address computational efficiency, concrete polynomial representations, or specific algorithms for polynomial evaluation. This abstraction allows us to establish the fundamental security properties that any concrete implementation must preserve. </p>
+<h4 id="a0000000047">Degree Constraints.</h4>
+<p> To represent sum-check as a series of Interactive Oracle Reductions (IORs), we implicitly constrain the degree of the polynomials via using subtypes such as \(R[X]_{\leq d}\) and appropriate multivariate polynomial degree bounds. This is necessary because the oracle verifier only gets oracle access to evaluating the polynomials, but does not see the polynomials in the clear. </p>
+<h4 id="a0000000048">Polynomial Commitments.</h4>
+<p> When this protocol is compiled to an interactive proof (rather than an oracle reduction), the corresponding polynomial commitment schemes will enforce that the declared degree bounds hold, by letting the (non-oracle) verifier perform explicit degree checks. </p>
+<h4 id="a0000000049">Formalization Alignment.</h4>
+<p> <b class="bfseries">TODO:</b> Align the sum-check protocol formalization in Lean to use \(n\) variables and \(n\) rounds (as in this standard description) rather than \(n+1\) variables and \(n+1\) rounds. This should be achievable by refactoring the current implementation to better match the standard presentation. </p>
+<h3 id="a0000000050">Future Extensions</h3>
+<p>Several generalizations are considered for future work: </p>
+<ul class="itemize">
+  <li><p><b class="bfseries">Variable Degree Bounds:</b> Generalize to \(d : \{ 0, 1, \ldots , n+1\}  \to \mathbb {N}\) and \(\mathcal{D} : \{ 0, 1, \ldots , n+1\}  \to (\{ 0, 1, \ldots , m-1\}  \hookrightarrow R)\), allowing different degree bounds and summation domains for each variable. </p>
+</li>
+  <li><p><b class="bfseries">Restricted Challenge Domains:</b> Generalize the challenges to come from suitable subsets of \(R\) (e.g., subtractive sets), rather than the entire domain. This modification is used in lattice-based protocols. </p>
+</li>
+  <li><p><b class="bfseries">Module-based Sum-check:</b> Extend to sum-check over modules instead of just rings. This would require extending multivariate polynomial evaluation to modules, defining something like \(\text{evalModule} : (R^n \to M) \to R[X_0, \ldots , X_{n-1}] \to M\) where \(M\) is an \(R\)-module. </p>
+</li>
+</ul>
+<p>The sum-check protocol, as described in the original paper and many expositions thereafter, is a protocol to reduce the claim that </p>
+<div class="displaymath" id="a0000000051">
+  \[  \sum _{x \in \{ 0, 1\} ^n} P(x) = c,  \]
+</div>
+<p> where \(P\) is an \(n\)-variate polynomial of certain individual degree bounds, and \(c\) is some field element, to the claim that </p>
+<div class="displaymath" id="a0000000052">
+  \[  P(r) = v,  \]
+</div>
+<p> for some claimed value \(v\) (derived from the protocol transcript), where \(r\) is a vector of random challenges from the verifier sent during the protocol. </p>
+<p>In our language, the initial context of the sum-check protocol is the pair \((P, c)\), where \(P\) is an oracle input and \(c\) is public. The protocol proceeds in \(n\) rounds of interaction, where in each round \(i\) the prover sends a univariate polynomial \(s_i\) of bounded degree and the verifier sends a challenge \(r_i \gets \mathbb {F}\). The honest prover would compute </p>
+<div class="displaymath" id="a0000000053">
+  \[  s_i(X) = \sum _{x \in \{ 0, 1\} ^{n - i - 1}} P(r_1, \ldots , r_{i - 1}, X, x),  \]
+</div>
+<p> and the honest verifier would check that \(s_i(0) + s_i(1) = s_{i - 1}(r_{i - 1})\), with the convention that \(s_0(r_0) = c\). </p>
+<h2 id="sec:sumcheck_modular">3.2.2 Modular Description</h2>
+
+<h3 id="a0000000054">Round-by-Round Analysis</h3>
+<p>Our modular approach breaks down the sum-check protocol into individual rounds, each of which can be analyzed as a two-message Interactive Oracle Reduction. This decomposition allows us to prove security properties compositionally and provides a more granular understanding of the protocol’s structure. </p>
+<h4 id="a0000000055">Round-Specific Statements.</h4>
+<p> For the \(i\)-th round, where \(i \in \{ 0, 1, \ldots , n\} \), the statement contains: </p>
+<ul class="itemize">
+  <li><p>\(\text{target} \in R\): the target value for sum-check at this round </p>
+</li>
+  <li><p>\(\text{challenges} \in R^i\): the list of challenges sent from the verifier to the prover in previous rounds </p>
+</li>
+</ul>
+<p>The oracle statement remains the same polynomial \(P \in R[X_0, X_1, \ldots , X_{n-1}]_{\leq d}\). </p>
+<h4 id="a0000000056">Round-Specific Relations.</h4>
+<p> The sum-check relation for the \(i\)-th round checks that: </p>
+<div class="displaymath" id="a0000000057">
+  \[  \sum _{x \in (\text{Image}(\mathcal{D}))^{n-i}} P(\text{challenges}, x) = \text{target}  \]
+</div>
+<p>Note that when \(i = n\), this becomes the output statement of the sum-check protocol, checking that \(P(\text{challenges}) = \text{target}\). </p>
+<h3 id="a0000000058">Individual Round Protocol</h3>
+<p>For \(i = 0, 1, \ldots , n-1\), the \(i\)-th round of the sum-check protocol consists of the following: </p>
+<h4 id="a0000000059">Step 1: Prover’s Message.</h4>
+<p> The prover sends a univariate polynomial \(p_i \in R[X]_{\leq d}\) of degree at most \(d\). If the prover is honest, then: </p>
+<div class="displaymath" id="a0000000060">
+  \[  p_i(X) = \sum _{x \in (\text{Image}(\mathcal{D}))^{n-i}} P(\text{challenges}_0, \ldots , \text{challenges}_{i-1}, X, x)  \]
+</div>
+<p>Here, \(P(\text{challenges}_0, \ldots , \text{challenges}_{i-1}, X, x)\) is the polynomial \(P\) evaluated at the concatenation of: </p>
+<ul class="itemize">
+  <li><p>the prior challenges \(\text{challenges}_0, \ldots , \text{challenges}_{i-1}\) </p>
+</li>
+  <li><p>the \(i\)-th variable as the new indeterminate \(X\) </p>
+</li>
+  <li><p>the remaining values \(x \in (\text{Image}(\mathcal{D}))^{n-i}\) </p>
+</li>
+</ul>
+<p>In the oracle protocol, this polynomial \(p_i\) is turned into an oracle for which the verifier can query evaluations at arbitrary points. </p>
+<h4 id="a0000000061">Step 2: Verifier’s Challenge.</h4>
+<p> The verifier sends the \(i\)-th challenge \(r_i\) sampled uniformly at random from \(R\). </p>
+<h4 id="a0000000062">Step 3: Verifier’s Check.</h4>
+<p> The (oracle) verifier performs queries for the evaluations of \(p_i\) at all points in \(\text{Image}(\mathcal{D})\), and checks that: </p>
+<div class="displaymath" id="a0000000063">
+  \[  \sum _{x \in \text{Image}(\mathcal{D})} p_i(x) = \text{target}  \]
+</div>
+<p>If the check fails, the verifier outputs \(\texttt{failure}\). Otherwise, it outputs a statement for the next round as follows: </p>
+<ul class="itemize">
+  <li><p>\(\text{target}\) is updated to \(p_i(r_i)\) </p>
+</li>
+  <li><p>\(\text{challenges}\) is updated to the concatenation of the previous challenges and \(r_i\) </p>
+</li>
+</ul>
+<h3 id="a0000000064">Single Round Security Analysis</h3>
+<div class="definition_thmwrapper theorem-style-definition" id="def:sumcheck_single_round">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">21</span>
+    <span class="definition_thmtitle">Single Round Protocol</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-proof_systems.html#def:sumcheck_single_round">#</a>
+    
+    
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  The \(i\)-th round of sum-check consists of: </p>
+<ol class="enumerate">
+  <li><p><b class="bfseries">Input:</b> A statement containing target value and prior challenges, along with an oracle for the multivariate polynomial </p>
+</li>
+  <li><p><b class="bfseries">Prover’s message:</b> A univariate polynomial \(p_i \in R[X]_{\leq d}\) </p>
+</li>
+  <li><p><b class="bfseries">Verifier’s challenge:</b> A random element \(r_i \gets R\) </p>
+</li>
+  <li><p><b class="bfseries">Output:</b> An updated statement with new target \(p_i(r_i)\) and extended challenges </p>
+</li>
+</ol>
+
+  </div>
+</div>
+<div class="theorem_thmwrapper theorem-style-plain" id="thm:sumcheck_single_round_completeness">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">22</span>
+    <span class="theorem_thmtitle">Single Round Completeness</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-proof_systems.html#thm:sumcheck_single_round_completeness">#</a>
+    
+    
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  <p>  Each individual round of the sum-check protocol is perfectly complete. </p>
+
+  </div>
+</div>
+<div class="theorem_thmwrapper theorem-style-plain" id="thm:sumcheck_single_round_soundness">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">23</span>
+    <span class="theorem_thmtitle">Single Round Soundness</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-proof_systems.html#thm:sumcheck_single_round_soundness">#</a>
+    
+    
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  <p>  Each individual round of the sum-check protocol is sound with error probability at most \(d / |R|\), where \(d\) is the degree bound and \(|R|\) is the size of the field. </p>
+
+  </div>
+</div>
+<div class="theorem_thmwrapper theorem-style-plain" id="thm:sumcheck_rbr_knowledge_soundness">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">24</span>
+    <span class="theorem_thmtitle">Round-by-Round Knowledge Soundness</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-proof_systems.html#thm:sumcheck_rbr_knowledge_soundness">#</a>
+    
+    
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  <p>  The sum-check protocol satisfies round-by-round knowledge soundness. Each individual round can be analyzed independently, and the soundness error in each round is bounded by \(d / |R|\). </p>
+
+  </div>
+</div>
+<h3 id="a0000000065">Virtual Protocol Decomposition</h3>
+<p>We now proceed to break down this protocol into individual messages, and then specify the predicates that should hold before and after each message is exchanged. </p>
 <p>First, it is clear that we can consider each round in isolation. In fact, each round can be seen as an instantiation of the following simpler "virtual" protocol: </p>
+<div class="definition_thmwrapper theorem-style-definition" id="def:virtual_sumcheck_round_protocol">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">25</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-proof_systems.html#def:virtual_sumcheck_round_protocol">#</a>
+    
+    
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  
 <ol class="enumerate">
   <li><p>In this protocol, the context is a pair \((p, d)\), where \(p\) is now a <em>univariate</em> polynomial of bounded degree. The predicate / relation is that \(p(0) + p(1) = d\). </p>
 </li>
   <li><p>The prover first sends a univariate polynomial \(s\) of the same bounded degree as \(p\). In the honest case, it would just send \(p\) itself. </p>
 </li>
-  <li><p>The verifier samples and sends a random challenge \(r \gets \mathbb {F}\). </p>
+  <li><p>The verifier samples and sends a random challenge \(r \gets R\). </p>
 </li>
   <li><p>The verifier checks that \(s(0) + s(1) = d\). The predicate on the resulting output context is that \(p(r) = s(r)\). </p>
 </li>
 </ol>
+
+  </div>
+</div>
 <p>The reason why this simpler protocol is related to a sum-check round is that we can <em>emulate</em> the simpler protocol using variables in the context at the time: </p>
 <ul class="itemize">
-  <li><p>The univariate polynomial \(p\) is instantiated as \(\sum _{x \in \{ 0, 1\} ^{n - i - 1}} P(r_1, \ldots , r_{i - 1}, X, x)\). </p>
+  <li><p>The univariate polynomial \(p\) is instantiated as \(\sum _{x \in (\text{Image}(\mathcal{D}))^{n - i - 1}} P(r_0, \ldots , r_{i - 1}, X, x)\). </p>
 </li>
-  <li><p>The scalar \(d\) is instantiated as \(c\) if \(i = 0\), and as \(s_{i - 1}(r_{i - 1})\) otherwise. </p>
+  <li><p>The scalar \(d\) is instantiated as \(T\) if \(i = 0\), and as \(s_{i - 1}(r_{i - 1})\) otherwise. </p>
 </li>
 </ul>
 <p>It is "clear" that the simpler protocol is perfectly complete. It is sound (and since there is no witness, also knowledge sound) since by the Schwartz-Zippel Lemma, the probability that \(p \ne s\) and yet \(p(r) = s(r)\) for a random challenge \(r\) is at most the degree of \(p\) over the size of the field. </p>
-<p>Note that there is no witness so knowledge soundness follows trivially from soundness. Moreover, we can define the following state function for the simpler protocol: </p>
+<div class="theorem_thmwrapper theorem-style-plain" id="thm:virtual_sumcheck_round_protocol_sound">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">26</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-proof_systems.html#thm:virtual_sumcheck_round_protocol_sound">#</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-oracle_reductions.html#def:soundness">Definition 11</a></li>
+          
+          <li><a href="chap-proof_systems.html#def:virtual_sumcheck_round_protocol">Definition 25</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  <p>The virtual sum-check round protocol is sound.   </p>
+
+  </div>
+</div>
+<p>Note that there is no witness, so knowledge soundness follows trivially from soundness. </p>
+<div class="theorem_thmwrapper theorem-style-plain" id="thm:virtual_sumcheck_round_protocol_knowledge_sound">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">27</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-proof_systems.html#thm:virtual_sumcheck_round_protocol_knowledge_sound">#</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-oracle_reductions.html#def:knowledge_soundness">Definition 12</a></li>
+          
+          <li><a href="chap-proof_systems.html#def:virtual_sumcheck_round_protocol">Definition 25</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  <p>The virtual sum-check round protocol is knowledge sound.   </p>
+
+  </div>
+</div>
+<p>Moreover, we can define the following state function for the simpler protocol </p>
+<div class="definition_thmwrapper theorem-style-definition" id="def:virtual_sumcheck_round_protocol_state_function">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">28</span>
+    <span class="definition_thmtitle">State Function</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-proof_systems.html#def:virtual_sumcheck_round_protocol_state_function">#</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-oracle_reductions.html#def:state_function">Definition 13</a></li>
+          
+          <li><a href="chap-proof_systems.html#def:virtual_sumcheck_round_protocol">Definition 25</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  The state function for the virtual sum-check round protocol is given by: </p>
 <ol class="enumerate">
-  <li><p>The initial state funtion is the same as the predicate on the initial context, namely that \(p(0) + p(1) = d\). </p>
+  <li><p>The initial state function is the same as the predicate on the initial context, namely that \(p(0) + p(1) = d\). </p>
 </li>
   <li><p>The state function after the prover sends \(s\) is the predicate that \(p(0) + p(1) = d\) and \(s(0) + s(1) = d\). Essentially, we add in the verifier’s check. </p>
 </li>
   <li><p>The state function for the output context (after the verifier sends \(r\)) is the predicate that \(s(0) + s(1) = d\) and \(p(r) = s(r)\). </p>
 </li>
 </ol>
-<p> Seen in this light, it should be clear that the simpler protocol satisfies round-by-round soundness. </p>
+
+
+  </div>
+</div>
+<p>Seen in this light, it should be clear that the simpler protocol satisfies round-by-round soundness. </p>
+<div class="theorem_thmwrapper theorem-style-plain" id="thm:virtual_sumcheck_round_protocol_rbr_sound">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">29</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-proof_systems.html#thm:virtual_sumcheck_round_protocol_rbr_sound">#</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-oracle_reductions.html#def:round_by_round_soundness">Definition 14</a></li>
+          
+          <li><a href="chap-proof_systems.html#def:virtual_sumcheck_round_protocol">Definition 25</a></li>
+          
+          <li><a href="chap-proof_systems.html#def:virtual_sumcheck_round_protocol_state_function">Definition 28</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  <p>The virtual sum-check round protocol is round-by-round sound.   </p>
+
+  </div>
+</div>
 <p>In fact, we can break down this simpler protocol even more: consider the two sub-protocols that each consists of a single message. Then the intermediate state function is the same as the predicate on the intermediate context, and is given in a "strongest post-condition" style where it incorporates the verifier’s check along with the initial predicate. We can also view the final state function as a form of "canonical" post-condition, that is implied by the previous predicate except with small probability.  </p>
 <h1 id="a0000000015">3.3 The Spartan Protocol</h1>
 <h1 id="a0000000016">3.4 The Ligero Polynomial Commitment Scheme</h1>
@@ -267,7 +745,7 @@
 
   <a href="chap-oracle_reductions.html" title="Oracle Reductions"><svg  class="icon icon-arrow-left "><use xlink:href="symbol-defs.svg#icon-arrow-left"></use></svg>
 </a>
-  <a href="index.html" title="Formally Verified SNARKs in Lean"><svg  class="icon icon-arrow-up "><use xlink:href="symbol-defs.svg#icon-arrow-up"></use></svg>
+  <a href="index.html" title="Formally Verified Arguments of Knowledge in Lean"><svg  class="icon icon-arrow-up "><use xlink:href="symbol-defs.svg#icon-arrow-up"></use></svg>
 </a>
   <a href="chap-commitment_schemes.html" title="Commitment Schemes"><svg  class="icon icon-arrow-right "><use xlink:href="symbol-defs.svg#icon-arrow-right"></use></svg>
 </a>

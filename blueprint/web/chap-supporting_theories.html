@@ -15,7 +15,7 @@
 <title>Supporting Theories</title>
 <link rel="next" href="chap-references.html" title="References" />
 <link rel="prev" href="chap-commitment_schemes.html" title="Commitment Schemes" />
-<link rel="up" href="index.html" title="Formally Verified SNARKs in Lean" />
+<link rel="up" href="index.html" title="Formally Verified Arguments of Knowledge in Lean" />
 <link rel="stylesheet" href="styles/theme-white.css" />
 <link rel="stylesheet" href="styles/amsthm.css" />
 <link rel="stylesheet" href="styles/pygments.css" />
@@ -27,7 +27,7 @@
 <body>
 <header>
 <svg  id="toc-toggle" class="icon icon-list-numbered "><use xlink:href="symbol-defs.svg#icon-list-numbered"></use></svg>
-<h1 id="doc_title"><a href="index.html">Formally Verified SNARKs in Lean</a></h1>
+<h1 id="doc_title"><a href="index.html">Formally Verified Arguments of Knowledge in Lean</a></h1>
 </header>
 
 <div class="wrapper">
@@ -94,6 +94,16 @@
  </li>
 <li class="">
   <a href="chap-proof_systems.html#sec:sumcheck"><span class="toc_ref">3.2</span> <span class="toc_entry">The Sum-Check Protocol</span></a>
+  <span class="expand-toc">▶</span>
+  <ul class="sub-toc-2">
+     <li class="">
+  <a href="chap-proof_systems.html#sec:sumcheck_standard"><span class="toc_ref">3.2.1</span> <span class="toc_entry">Standard Description</span></a>
+ </li>
+<li class="">
+  <a href="chap-proof_systems.html#sec:sumcheck_modular"><span class="toc_ref">3.2.2</span> <span class="toc_entry">Modular Description</span></a>
+ </li>
+
+  </ul>
  </li>
 <li class="">
   <a href="chap-proof_systems.html#a0000000015"><span class="toc_ref">3.3</span> <span class="toc_entry">The Spartan Protocol</span></a>
@@ -158,7 +168,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">19</span>
+    <span class="definition_thmlabel">30</span>
     <span class="definition_thmtitle">Multilinear Extension</span>
     <div class="thm_header_extras">
 
@@ -200,7 +210,7 @@
     <span class="theorem_thmcaption">
     Theorem
     </span>
-    <span class="theorem_thmlabel">20</span>
+    <span class="theorem_thmlabel">31</span>
     <span class="theorem_thmtitle">Multilinear Extension is Unique</span>
     <div class="thm_header_extras">
 
@@ -224,7 +234,7 @@
     <span class="theorem_thmcaption">
     Theorem
     </span>
-    <span class="theorem_thmlabel">21</span>
+    <span class="theorem_thmlabel">32</span>
     <span class="theorem_thmtitle">Schwartz-Zippel Lemma</span>
     <div class="thm_header_extras">
 
@@ -267,7 +277,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">22</span>
+    <span class="definition_thmlabel">33</span>
     <span class="definition_thmtitle">Computable Univariate Polynomials</span>
     <div class="thm_header_extras">
 
@@ -309,7 +319,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">23</span>
+    <span class="definition_thmlabel">34</span>
     <span class="definition_thmtitle">Computable Multilinear Polynomials</span>
     <div class="thm_header_extras">
 
@@ -354,7 +364,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">24</span>
+    <span class="definition_thmlabel">35</span>
     <span class="definition_thmtitle">Code Distance</span>
     <div class="thm_header_extras">
 
@@ -396,7 +406,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">25</span>
+    <span class="definition_thmlabel">36</span>
     <span class="definition_thmtitle">Distance from a Code</span>
     <div class="thm_header_extras">
 
@@ -438,7 +448,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">26</span>
+    <span class="definition_thmlabel">37</span>
     <span class="definition_thmtitle">Generator Matrix</span>
     <div class="thm_header_extras">
 
@@ -480,7 +490,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">27</span>
+    <span class="definition_thmlabel">38</span>
     <span class="definition_thmtitle">Parity Check Matrix</span>
     <div class="thm_header_extras">
 
@@ -522,7 +532,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">28</span>
+    <span class="definition_thmlabel">39</span>
     <span class="definition_thmtitle">Interleaved Code</span>
     <div class="thm_header_extras">
 
@@ -564,7 +574,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">29</span>
+    <span class="definition_thmlabel">40</span>
     <span class="definition_thmtitle">Reed-Solomon Code</span>
     <div class="thm_header_extras">
 
@@ -606,7 +616,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">30</span>
+    <span class="definition_thmlabel">41</span>
     <span class="definition_thmtitle">Proximity Measure</span>
     <div class="thm_header_extras">
 
@@ -615,6 +625,26 @@
 
     <a class="icon proof" href="chap-supporting_theories.html#def:proximity_measure">#</a>
     
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-supporting_theories.html#def:distance_from_code">Definition 36</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
     
     
     <button class="modal lean">L∃∀N</button>
@@ -648,7 +678,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">31</span>
+    <span class="definition_thmlabel">42</span>
     <span class="definition_thmtitle">Proximity Gap</span>
     <div class="thm_header_extras">
 
@@ -657,6 +687,26 @@
 
     <a class="icon proof" href="chap-supporting_theories.html#def:proximity_gap">#</a>
     
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-supporting_theories.html#def:distance_from_code">Definition 36</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
     
     
     <button class="modal lean">L∃∀N</button>
@@ -694,10 +744,12 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">32</span>
+    <span class="definition_thmlabel">43</span>
     <span class="definition_thmtitle">Specification of Oracles</span>
     <div class="thm_header_extras">
 
+    
+    ✓
         </div>
     <div class="thm_header_hidden_extras">
 
@@ -756,7 +808,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">33</span>
+    <span class="definition_thmlabel">44</span>
     <span class="definition_thmtitle">Oracle Computation</span>
     <div class="thm_header_extras">
 
@@ -765,6 +817,26 @@
 
     <a class="icon proof" href="chap-supporting_theories.html#def:oracle_computation">#</a>
     
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-supporting_theories.html#def:oracle_spec">Definition 43</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
     
     
     <button class="modal lean">L∃∀N</button>
@@ -798,7 +870,7 @@
   <li><p>Signal failure (via <span class="ttfamily">failure</span>) </p>
 </li>
 </ul>
-<p> The formal implementation uses a free monad on the inductive type of oracle queries  wrapped in an option monad transformer (i.e. <code class="verbatim">OptionT(FreeMonad(OracleQuery spec))</code>).  </p>
+<p> The formal implementation uses a free monad on the inductive type of oracle queries  wrapped in an option monad transformer (i.e. <code class="verbatim">OptionT(FreeMonad(OracleQuery spec))</code>).   </p>
 
   </div>
 </div>
@@ -807,7 +879,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">34</span>
+    <span class="definition_thmlabel">45</span>
     <span class="definition_thmtitle">Handling Oracle Queries</span>
     <div class="thm_header_extras">
 
@@ -816,6 +888,26 @@
 
     <a class="icon proof" href="chap-supporting_theories.html#def:handling_oracle_queries">#</a>
     
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-supporting_theories.html#def:oracle_spec">Definition 43</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
     
     
     <button class="modal lean">L∃∀N</button>
@@ -829,7 +921,7 @@
         
         <ul class="uses">
           
-          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/OracleImpl" class="lean_decl">OracleImpl</a></li>
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/QueryImpl" class="lean_decl">QueryImpl</a></li>
           
         </ul>
     
@@ -840,7 +932,7 @@
         </div>
   </div>
   <div class="definition_thmcontent">
-  <p>  To actually run oracle computations, we need a way to handle (or implement) the oracle queries. An oracle implementation consists a mapping from oracle queries to values in another monad. Depending on the monad, this may allow for various interpretations of the oracle queries.  </p>
+  <p>  To actually run oracle computations, we need a way to handle (or implement) the oracle queries. An oracle implementation consists a mapping from oracle queries to values in another monad. Depending on the monad, this may allow for various interpretations of the oracle queries.   </p>
 
   </div>
 </div>
@@ -849,7 +941,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">35</span>
+    <span class="definition_thmlabel">46</span>
     <span class="definition_thmtitle">Probabilistic Semantics of Oracle Computations</span>
     <div class="thm_header_extras">
 
@@ -858,6 +950,26 @@
 
     <a class="icon proof" href="chap-supporting_theories.html#def:probabilistic_semantics_of_oracle_computations">#</a>
     
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-supporting_theories.html#def:oracle_computation">Definition 44</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
     
     
     <button class="modal lean">L∃∀N</button>
@@ -882,7 +994,7 @@
         </div>
   </div>
   <div class="definition_thmcontent">
-  <p>  We can view oracle computations as probabilistic programs by considering what happens when oracles respond uniformly at random. This gives rise to a probability distribution over possible outputs (including the possibility of failure). The semantics maps each oracle query to a uniform distribution over its possible responses.  </p>
+  <p>  We can view oracle computations as probabilistic programs by considering what happens when oracles respond uniformly at random. This gives rise to a probability distribution over possible outputs (including the possibility of failure). The semantics maps each oracle query to a uniform distribution over its possible responses.   </p>
 
   </div>
 </div>
@@ -892,7 +1004,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">36</span>
+    <span class="definition_thmlabel">47</span>
     <span class="definition_thmtitle">Simulating Oracle Queries with Other Oracles</span>
     <div class="thm_header_extras">
 
@@ -915,7 +1027,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">37</span>
+    <span class="definition_thmlabel">48</span>
     <span class="definition_thmtitle">Logging &amp; Caching Oracle Queries</span>
     <div class="thm_header_extras">
 
@@ -924,6 +1036,28 @@
 
     <a class="icon proof" href="chap-supporting_theories.html#def:logging_caching_oracle_queries">#</a>
     
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-supporting_theories.html#def:oracle_computation">Definition 44</a></li>
+          
+          <li><a href="chap-supporting_theories.html#def:handling_oracle_queries">Definition 45</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
     
     
     <button class="modal lean">L∃∀N</button>
@@ -957,7 +1091,7 @@
   <li><p>Caching remembers query responses and reuses them for repeated queries </p>
 </li>
 </ul>
-<p> These are implemented as special cases of simulation oracles.  </p>
+<p> These are implemented as special cases of simulation oracles.   </p>
 
   </div>
 </div>
@@ -966,7 +1100,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">38</span>
+    <span class="definition_thmlabel">49</span>
     <span class="definition_thmtitle">Random Oracle</span>
     <div class="thm_header_extras">
 
@@ -975,6 +1109,28 @@
 
     <a class="icon proof" href="chap-supporting_theories.html#def:random_oracle">#</a>
     
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-supporting_theories.html#def:oracle_computation">Definition 44</a></li>
+          
+          <li><a href="chap-supporting_theories.html#def:handling_oracle_queries">Definition 45</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
     
     
     <button class="modal lean">L∃∀N</button>
@@ -988,7 +1144,7 @@
         
         <ul class="uses">
           
-          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/randOracle" class="lean_decl">randOracle</a></li>
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/randomOracle" class="lean_decl">randomOracle</a></li>
           
         </ul>
     
@@ -1023,7 +1179,7 @@
 
   <a href="chap-commitment_schemes.html" title="Commitment Schemes"><svg  class="icon icon-arrow-left "><use xlink:href="symbol-defs.svg#icon-arrow-left"></use></svg>
 </a>
-  <a href="index.html" title="Formally Verified SNARKs in Lean"><svg  class="icon icon-arrow-up "><use xlink:href="symbol-defs.svg#icon-arrow-up"></use></svg>
+  <a href="index.html" title="Formally Verified Arguments of Knowledge in Lean"><svg  class="icon icon-arrow-up "><use xlink:href="symbol-defs.svg#icon-arrow-up"></use></svg>
 </a>
   <a href="chap-references.html" title="References"><svg  class="icon icon-arrow-right "><use xlink:href="symbol-defs.svg#icon-arrow-right"></use></svg>
 </a>
