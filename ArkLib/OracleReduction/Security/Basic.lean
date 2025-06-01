@@ -134,14 +134,23 @@ def soundness (langIn : Set StmtIn) (langOut : Set StmtOut)
     | reduction.run stmtIn witIn] ≤ soundnessError
 
 /--
-  A straightline, deterministic, non-oracle-querying extractor takes in the initial statement, the
-  output statement, the output witness, the IOR transcript, and the query log, and returns a
-  corresponding initial witness.
+  A straightline, deterministic, non-oracle-querying extractor takes in the output witness, the
+  initial statement, the IOR transcript, and the query logs from the prover and verifier, and
+  returns a corresponding initial witness.
+
+  Note that the extractor does not need to take in the output statement, since it can be derived
+  via re-running the verifier on the initial statement, the transcript, and the verifier's query
+  log.
 
   This form of extractor suffices for proving knowledge soundness of most hash-based IOPs.
 -/
-def StraightlineExtractor := StmtIn → StmtOut → WitOut →
-    FullTranscript pSpec → QueryLog oSpec → WitIn
+def StraightlineExtractor :=
+  WitOut → -- output witness
+  StmtIn → -- input statement
+  FullTranscript pSpec → -- reduction transcript
+  QueryLog oSpec → -- prover's query log
+  QueryLog oSpec → -- verifier's query log
+  WitIn -- input witness
 
 -- How would one define a rewinding extractor? It should have oracle access to the prover's
 -- functions (receive challenges and send messages), and be able to observe & simulate the prover's
@@ -162,8 +171,8 @@ def knowledgeSoundness (relIn : StmtIn → WitIn → Prop) (relOut : StmtOut →
   ∀ witIn : WitIn,
   ∀ prover : Prover pSpec oSpec StmtIn WitIn StmtOut WitOut,
     letI reduction := Reduction.mk prover verifier
-    [fun ⟨(_, witOut), stmtOut, transcript, proveQueryLog, _⟩ =>
-      letI extractedWitIn := extractor stmtIn stmtOut witOut transcript proveQueryLog
+    [fun ⟨(_, witOut), stmtOut, transcript, proveQueryLog, verifyQueryLog⟩ =>
+      letI extractedWitIn := extractor witOut stmtIn transcript proveQueryLog verifyQueryLog
       ¬ relIn stmtIn extractedWitIn ∧ relOut stmtOut witOut
     | reduction.runWithLog stmtIn witIn] ≤ knowledgeError
 
