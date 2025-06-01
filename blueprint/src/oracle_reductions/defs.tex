@@ -116,7 +116,7 @@ l
         % Basic types
         \mathsf{Type} &::=& \mathsf{Unit} \mid \mathsf{Bool} \mid \mathbb{N} \mid \mathsf{Fin}\; n \mid \mathbb{F}_q \mid \mathsf{List}\;(\alpha : \mathsf{Type}) \mid (i : \iota) \to \alpha\; i \mid (i : \iota) \times \alpha\; i \mid \dots \\[1em]
         % Protocol message types
-        \mathsf{Dir} &::=& \mathsf{P2V.Pub} \mid \mathsf{P2V.Orac} \mid \mathsf{V2P} \\ 
+        \mathsf{Dir} &::=& \mathsf{P2V.Pub} \mid \mathsf{P2V.Orac} \mid \mathsf{V2P} \\
         \mathsf{OI}\; (\mathrm{M} : \Type) &::=& \langle \mathrm{Q}, \mathrm{R}, \mathrm{M} \to \mathrm{Q} \to \mathrm{R} \rangle \\
         % Protocol type signature
         \mathsf{PSpec}\; (n : \mathbb{N}) &::=& \mathsf{Fin}\; n \to (d : \mathsf{Dir}) \times (M : \Type) \times (\mathsf{if}\; d = \mathsf{P2V.Orac} \; \mathsf{then} \; \mathsf{OI}(M) \; \mathsf{else} \; \mathsf{Unit}) \\
@@ -216,7 +216,7 @@ special soundness (via rewinding). At the moment, we only care about non-rewindi
 
 \begin{definition}[Soundness]
     \label{def:soundness}
-    \lean{Reduction.soundness}
+    \lean{Verifier.soundness}
     \uses{def:interactive_oracle_reduction}
 \end{definition}
 
@@ -228,7 +228,7 @@ the execution.
 
 \begin{definition}[Knowledge Soundness]
     \label{def:knowledge_soundness}
-    \lean{Reduction.knowledgeSoundness}
+    \lean{Verifier.knowledgeSoundness}
     \uses{def:interactive_oracle_reduction}
 \end{definition}
 
@@ -236,18 +236,18 @@ To define round-by-round (knowledge) soundness, we need to define the notion of 
 
 \begin{definition}[State Function]
     \label{def:state_function}
-    \lean{Reduction.StateFunction}
+    \lean{Verifier.StateFunction}
 \end{definition}
 
 \begin{definition}[Round-by-Round Soundness]
     \label{def:round_by_round_soundness}
-    \lean{Reduction.rbrSoundness}
+    \lean{Verifier.rbrSoundness}
     \uses{def:interactive_oracle_reduction}
 \end{definition}
 
 \begin{definition}[Round-by-Round Knowledge Soundness]
     \label{def:round_by_round_knowledge_soundness}
-    \lean{Reduction.rbrKnowledgeSoundness}
+    \lean{Verifier.rbrKnowledgeSoundness}
     \uses{def:interactive_oracle_reduction}
 \end{definition}
 
@@ -256,4 +256,3 @@ By default, the properties we consider are perfect completeness and (straightlin
 \[
     \Gamma := (\Psi; \Theta; \varSigma; \rho; \mathcal{O}) \vdash \{\mathcal{R}_1\} \quad \langle\mathcal{P}, \mathcal{V}, \mathcal{E}\rangle \quad \{\!\!\{\mathcal{R}_2; \mathsf{St}; \epsilon\}\!\!\}
 \]
-
