@@ -46,7 +46,7 @@ import ArkLib.OracleReduction.Security.Basic
     for `integrateOutput`.
 
   That is, if `projectInput(inp1) = projectInput(inp2) = inp*`, then `integrateOutput(inp1, out)
-  = integrateOutput(inp2, out)` for all `out` which is a possible result of runnign the oracle
+  = integrateOutput(inp2, out)` for all `out` which is a possible result of running the oracle
   reduction on `inp*`. This basically implies a decomposition of sorts between the input to be
   transported.
 -/
@@ -167,40 +167,44 @@ structure ContextLens.IsComplete {OuterStmtIn OuterStmtOut InnerStmtIn InnerStmt
                 (lens.integrateWit (outerWitIn, innerWitOut))
 
 /-- Conditions for the lens / transformation to preserve soundness -/
-structure ContextLensSound (OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut : Type)
+structure StatementLens.IsSound {OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut : Type}
     (outerLangIn : Set OuterStmtIn) (outerLangOut : Set OuterStmtOut)
     (innerLangIn : Set InnerStmtIn) (innerLangOut : Set InnerStmtOut)
-    extends StatementLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut where
+    (compat : OuterStmtIn → InnerStmtOut → Prop)
+    (stmtLens : StatementLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut) where
 
   project_sound : ∀ outerStmtIn,
-    outerStmtIn ∉ outerLangIn → projectStmt outerStmtIn ∉ innerLangIn
+    outerStmtIn ∉ outerLangIn → stmtLens.projectStmt outerStmtIn ∉ innerLangIn
 
   integrate_sound : ∀ outerStmtIn innerStmtOut,
-    outerStmtIn ∉ outerLangIn → innerStmtOut ∉ innerLangOut →
-      integrateStmt (outerStmtIn, innerStmtOut) ∈ outerLangOut
+    outerStmtIn ∉ outerLangIn →
+    innerStmtOut ∉ innerLangOut →
+    compat outerStmtIn innerStmtOut →
+      stmtLens.integrateStmt (outerStmtIn, innerStmtOut) ∈ outerLangOut
 
 /-- Conditions for the lens / transformation to preserve knowledge soundness
 
 (TODO: double-check) -/
-structure ContextLensKnowledgeSound
-    (OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut : Type)
-    (OuterWitIn OuterWitOut InnerWitIn InnerWitOut : Type)
+structure ContextLens.IsKnowledgeSound
+    {OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut : Type}
+    {OuterWitIn OuterWitOut InnerWitIn InnerWitOut : Type}
     (outerRelIn : OuterStmtIn → OuterWitIn → Prop)
     (innerRelIn : InnerStmtIn → InnerWitIn → Prop)
     (outerRelOut : OuterStmtOut → OuterWitOut → Prop)
     (innerRelOut : InnerStmtOut → InnerWitOut → Prop)
-    extends
-      ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
-                  OuterWitIn OuterWitOut InnerWitIn InnerWitOut where
+    (compat : OuterStmtIn × OuterWitIn → InnerStmtOut × InnerWitOut → Prop)
+    (lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
+                        OuterWitIn OuterWitOut InnerWitIn InnerWitOut) where
 
   project_knowledge_sound : ∀ outerStmtIn outerWitIn,
-    outerRelIn outerStmtIn outerWitIn → innerRelIn (projectStmt outerStmtIn) (projectWit outerWitIn)
+    outerRelIn outerStmtIn outerWitIn →
+    innerRelIn (lens.projectStmt outerStmtIn) (lens.projectWit outerWitIn)
 
   integrate_knowledge_sound : ∀ outerStmtIn outerWitIn innerStmtOut innerWitOut,
     outerRelIn outerStmtIn outerWitIn →
     innerRelOut innerStmtOut innerWitOut →
-    outerRelOut (integrateStmt (outerStmtIn, innerStmtOut))
-                (integrateWit (outerWitIn, innerWitOut))
+    outerRelOut (lens.integrateStmt (outerStmtIn, innerStmtOut))
+                (lens.integrateWit (outerWitIn, innerWitOut))
 
 /-
   The above two soundness / knowledge soundness conditions should be the same for all notions,
@@ -208,13 +212,13 @@ structure ContextLensKnowledgeSound
   since we only act on the input-output interface
 -/
 
-variable {n : ℕ} {pSpec : ProtocolSpec n} {ι : Type} [DecidableEq ι] {oSpec : OracleSpec ι}
+variable {n : ℕ} {pSpec : ProtocolSpec n} {ι : Type} {oSpec : OracleSpec ι}
   {OuterStmtIn OuterWitIn OuterStmtOut OuterWitOut : Type}
   {InnerStmtIn InnerWitIn InnerStmtOut InnerWitOut : Type}
-  [∀ i, VCVCompatible (pSpec.Challenge i)] [oSpec.FiniteRange]
+  [∀ i, VCVCompatible (pSpec.Challenge i)]
 
-/-- How does the prover change? Only in input & output, and keep around the input statement &
-  witness -/
+/-- The outer prover after transport invokes the inner prover on the projected input, and
+  integrates the output -/
 def Prover.transport
     (lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
       OuterWitIn OuterWitOut InnerWitIn InnerWitOut)
@@ -232,6 +236,8 @@ def Prover.transport
     let ⟨innerStmtOut, innerWitOut⟩ := P.output prvState
     ⟨lens.integrateStmt (stmtIn, innerStmtOut), lens.integrateWit (witIn, innerWitOut)⟩
 
+/-- The outer verifier after transport invokes the inner verifier on the projected input, and
+  integrates the output -/
 def Verifier.transport
     (lens : StatementLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut)
     (V : Verifier pSpec oSpec InnerStmtIn InnerStmtOut) :
@@ -241,6 +247,8 @@ def Verifier.transport
     let innerStmtOut ← V.verify innerStmtIn transcript
     return lens.integrateStmt (stmtIn, innerStmtOut)
 
+/-- The outer reduction after transport is the combination of the transport of the prover and
+  verifier -/
 def Reduction.transport
     (lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
       OuterWitIn OuterWitOut InnerWitIn InnerWitOut)
@@ -250,6 +258,8 @@ def Reduction.transport
   verifier := R.verifier.transport lens.toStatementLens
 
 open Reduction in
+/-- The outer extractor after transport invokes the inner extractor on the projected input, and
+  integrates the output -/
 def StraightlineExtractor.transport
     (lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
       OuterWitIn OuterWitOut InnerWitIn InnerWitOut)
@@ -262,51 +272,36 @@ def StraightlineExtractor.transport
     let innerWitIn := E innerWitOut innerStmtIn fullTranscript proveQueryLog verifyQueryLog
     lensInv.integrateWit (outerWitOut, innerWitIn)
 
-theorem Prover.run_transport
-    {lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
-      OuterWitIn OuterWitOut InnerWitIn InnerWitOut}
-    {outerStmtIn : OuterStmtIn} {outerWitIn : OuterWitIn}
-    (P : Prover pSpec oSpec InnerStmtIn InnerWitIn InnerStmtOut InnerWitOut) :
-      (P.transport lens).run outerStmtIn outerWitIn = do
-        let ⟨innerStmtOut, innerWitOut, fullTranscript⟩ ←
-          P.run (lens.projectStmt outerStmtIn) (lens.projectWit outerWitIn)
-        return ⟨lens.integrateStmt (outerStmtIn, innerStmtOut),
-                lens.integrateWit (outerWitIn, innerWitOut),
-                fullTranscript⟩ := by
-  unfold Prover.run Prover.runToRound
-  simp [Prover.transport]
-  sorry
+open Reduction in
+/-- The outer state function after transport invokes the inner state function on the projected
+  input, and integrates the output -/
+def StateFunction.transport [oSpec.FiniteRange]
+    (lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
+      OuterWitIn OuterWitOut InnerWitIn InnerWitOut)
+    (innerLangIn : Set InnerStmtIn) (innerLangOut : Set InnerStmtOut)
+    (V : Verifier pSpec oSpec InnerStmtIn InnerStmtOut)
+    (S : @StateFunction _ pSpec _ oSpec _ InnerStmtIn InnerStmtOut innerLangIn innerLangOut V) :
+      StateFunction (lens.projectStmt ⁻¹' innerLangIn)
+        -- TODO: figure out the right induced language for `OuterStmtOut`
+        (fun _ : OuterStmtOut => True) (V.transport lens.toStatementLens) where
+  fn := sorry
+  fn_empty := sorry
+  fn_next := sorry
+  fn_full := sorry
 
-theorem Reduction.run_transport
-    {lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
-      OuterWitIn OuterWitOut InnerWitIn InnerWitOut}
-    {outerStmtIn : OuterStmtIn} {outerWitIn : OuterWitIn}
-    (R : Reduction pSpec oSpec InnerStmtIn InnerWitIn InnerStmtOut InnerWitOut) :
-      (R.transport lens).run outerStmtIn outerWitIn = do
-        let ⟨⟨prvInnerStmtOut, innerWitOut⟩, verInnerStmtOut, fullTranscript⟩ ←
-          R.run (lens.projectStmt outerStmtIn) (lens.projectWit outerWitIn)
-        return ⟨⟨lens.integrateStmt (outerStmtIn, prvInnerStmtOut),
-                lens.integrateWit (outerWitIn, innerWitOut)⟩,
-                lens.integrateStmt (outerStmtIn, verInnerStmtOut),
-                fullTranscript⟩ := by
-  unfold Reduction.run
-  simp [Reduction.transport, Prover.run_transport, Verifier.transport]
-  sorry
+/-- Compatibility relation between the outer input statement and the inner output statement,
+relative to a verifier.
 
-theorem Reduction.runWithLog_transport
-    {lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
-      OuterWitIn OuterWitOut InnerWitIn InnerWitOut}
-    {outerStmtIn : OuterStmtIn} {outerWitIn : OuterWitIn}
-    (R : Reduction pSpec oSpec InnerStmtIn InnerWitIn InnerStmtOut InnerWitOut) :
-      (R.transport lens).runWithLog outerStmtIn outerWitIn = do
-        let ⟨⟨prvInnerStmtOut, innerWitOut⟩, verInnerStmtOut, fullTranscript, queryLog⟩ ←
-          R.runWithLog (lens.projectStmt outerStmtIn) (lens.projectWit outerWitIn)
-        return ⟨⟨lens.integrateStmt (outerStmtIn, prvInnerStmtOut),
-          lens.integrateWit (outerWitIn, innerWitOut)⟩,
-          lens.integrateStmt (outerStmtIn, verInnerStmtOut), fullTranscript, queryLog⟩ := by
-  unfold Reduction.runWithLog
-  simp [Reduction.transport, Prover.run_transport, Verifier.transport]
-  sorry
+We require that the inner output statement is a possible output of the verifier on the outer
+input statement, for any given transcript. Note that we have to existentially quantify over
+transcripts since we only reference the verifier, and there's no way to get the transcript without
+a prover. -/
+def Verifier.compatStatement {OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut : Type}
+    (lens : StatementLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut)
+    (V : Verifier pSpec oSpec InnerStmtIn InnerStmtOut) :
+      OuterStmtIn → InnerStmtOut → Prop :=
+  fun outerStmtIn innerStmtOut =>
+    innerStmtOut ∈ ⋃ transcript, (V.run (lens.projectStmt outerStmtIn) transcript).support
 
 /-- Compatibility relation between the outer input context and the inner output context, relative
 to a reduction.
@@ -323,10 +318,146 @@ def Reduction.compatContext {OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut :
     innerContextOut ∈
       Prod.fst <$> (R.run (lens.projectStmt outerStmtIn) (lens.projectWit outerWitIn)).support
 
+section Theorems
+
+/- Theorems about transport interacting with reduction execution and security properties -/
+
+section Prover
+
+/- Breaking down the intertwining of transport and prover execution -/
+
+/-- Transporting the prover intertwines with the process round function -/
+theorem Prover.transport_processRound
+    {lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
+                        OuterWitIn OuterWitOut InnerWitIn InnerWitOut}
+    {i : Fin n}
+    (P : Prover pSpec oSpec InnerStmtIn InnerWitIn InnerStmtOut InnerWitOut)
+    {resultRound : OracleComp (oSpec ++ₒ [pSpec.Challenge]ₒ)
+      (pSpec.Transcript i.castSucc × (P.transport lens).PrvState i.castSucc)} :
+      (P.transport lens).processRound i resultRound
+      = do
+        let ⟨transcript, prvState, outerStmtIn, outerWitIn⟩ ← resultRound
+        let ⟨newTranscript, newPrvState⟩ ← P.processRound i (do return ⟨transcript, prvState⟩)
+        return ⟨newTranscript, ⟨newPrvState, outerStmtIn, outerWitIn⟩⟩ := by
+  unfold processRound transport
+  simp
+  congr 1; funext
+  split <;> simp
+
+/-- Lemma needed for the proof of `Prover.transport_runToRound` -/
+private lemma Prover.bind_map_processRound_pure {i : Fin n}
+    (P : Prover pSpec oSpec InnerStmtIn InnerWitIn InnerStmtOut InnerWitOut)
+    (comp : OracleComp (oSpec ++ₒ [pSpec.Challenge]ₒ)
+        (pSpec.Transcript i.castSucc × P.PrvState i.castSucc))
+    {α : Type} (f : pSpec.Transcript i.succ × P.PrvState i.succ → α) :
+      (do let result ← comp; f <$> P.processRound i (pure result))
+      = f <$> P.processRound i comp := by
+  simp [processRound]
+
+theorem Prover.transport_runToRound
+    {lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
+                        OuterWitIn OuterWitOut InnerWitIn InnerWitOut}
+    {outerStmtIn : OuterStmtIn} {outerWitIn : OuterWitIn} {i : Fin (n + 1)}
+    (P : Prover pSpec oSpec InnerStmtIn InnerWitIn InnerStmtOut InnerWitOut) :
+      (P.transport lens).runToRound i outerStmtIn outerWitIn
+      = do
+        let ⟨transcript, prvState⟩ ←
+          P.runToRound i (lens.projectStmt outerStmtIn) (lens.projectWit outerWitIn)
+        return ⟨transcript, ⟨prvState, outerStmtIn, outerWitIn⟩⟩ := by
+  unfold runToRound
+  induction i using Fin.induction with
+  | zero => simp [transport]
+  | succ i ih => simp [transport_processRound, ih, bind_map_processRound_pure]
+
+-- Requires more lemmas about `simulateQ` for logging oracles
+theorem Prover.transport_runWithLogToRound
+    {lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
+                        OuterWitIn OuterWitOut InnerWitIn InnerWitOut}
+    {outerStmtIn : OuterStmtIn} {outerWitIn : OuterWitIn} {i : Fin (n + 1)}
+    (P : Prover pSpec oSpec InnerStmtIn InnerWitIn InnerStmtOut InnerWitOut) :
+      (P.transport lens).runWithLogToRound i outerStmtIn outerWitIn
+      = do
+        let ⟨transcript, prvState, queryLog⟩ ←
+          P.runWithLogToRound i (lens.projectStmt outerStmtIn) (lens.projectWit outerWitIn)
+        return ⟨transcript, ⟨prvState, outerStmtIn, outerWitIn⟩, queryLog⟩ := by
+  unfold runWithLogToRound
+  induction i using Fin.induction with
+  | zero => simp [transport]
+  | succ i ih =>
+    simp at ih
+    simp only [ChallengeIdx, bind_pure_comp, Functor.map_map]
+    sorry
+
+/-- Running the transported outer prover is equivalent to running the inner prover on the projected
+  input, and then integrating the output -/
+theorem Prover.transport_run
+    {lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
+                        OuterWitIn OuterWitOut InnerWitIn InnerWitOut}
+    {outerStmtIn : OuterStmtIn} {outerWitIn : OuterWitIn}
+    (P : Prover pSpec oSpec InnerStmtIn InnerWitIn InnerStmtOut InnerWitOut) :
+      (P.transport lens).run outerStmtIn outerWitIn
+      = do
+        let ⟨innerStmtOut, innerWitOut, fullTranscript⟩ ←
+          P.run (lens.projectStmt outerStmtIn) (lens.projectWit outerWitIn)
+        return ⟨lens.integrateStmt (outerStmtIn, innerStmtOut),
+                lens.integrateWit (outerWitIn, innerWitOut),
+                fullTranscript⟩ := by
+  simp only [Prover.run, ChallengeIdx, transport_runToRound, bind_pure_comp, Functor.map_map]
+  simp [transport]
+
+/- Transporting the prover intertwines with the runWithLog function -/
+theorem Prover.transport_runWithLog
+    {lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
+                        OuterWitIn OuterWitOut InnerWitIn InnerWitOut}
+    {outerStmtIn : OuterStmtIn} {outerWitIn : OuterWitIn}
+    (P : Prover pSpec oSpec InnerStmtIn InnerWitIn InnerStmtOut InnerWitOut) :
+      (P.transport lens).runWithLog outerStmtIn outerWitIn
+      = do
+        let ⟨innerStmtOut, innerWitOut, fullTranscript, queryLog⟩ ←
+          P.runWithLog (lens.projectStmt outerStmtIn) (lens.projectWit outerWitIn)
+        return ⟨lens.integrateStmt (outerStmtIn, innerStmtOut),
+                lens.integrateWit (outerWitIn, innerWitOut),
+                fullTranscript,
+                queryLog⟩ := by
+  simp only [ChallengeIdx, runWithLog, transport_runWithLogToRound, bind_pure_comp, Functor.map_map]
+  simp [transport]
+
+end Prover
+
+theorem Reduction.transport_run
+    {lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
+      OuterWitIn OuterWitOut InnerWitIn InnerWitOut}
+    {outerStmtIn : OuterStmtIn} {outerWitIn : OuterWitIn}
+    (R : Reduction pSpec oSpec InnerStmtIn InnerWitIn InnerStmtOut InnerWitOut) :
+      (R.transport lens).run outerStmtIn outerWitIn = do
+        let ⟨⟨prvInnerStmtOut, innerWitOut⟩, verInnerStmtOut, fullTranscript⟩ ←
+          R.run (lens.projectStmt outerStmtIn) (lens.projectWit outerWitIn)
+        return ⟨⟨lens.integrateStmt (outerStmtIn, prvInnerStmtOut),
+                lens.integrateWit (outerWitIn, innerWitOut)⟩,
+                lens.integrateStmt (outerStmtIn, verInnerStmtOut),
+                fullTranscript⟩ := by
+  unfold Reduction.run
+  simp [Reduction.transport, Prover.transport_run, Verifier.transport, Verifier.run]
+
+theorem Reduction.transport_runWithLog
+    {lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
+      OuterWitIn OuterWitOut InnerWitIn InnerWitOut}
+    {outerStmtIn : OuterStmtIn} {outerWitIn : OuterWitIn}
+    (R : Reduction pSpec oSpec InnerStmtIn InnerWitIn InnerStmtOut InnerWitOut) :
+      (R.transport lens).runWithLog outerStmtIn outerWitIn = do
+        let ⟨⟨prvInnerStmtOut, innerWitOut⟩, verInnerStmtOut, fullTranscript, queryLog⟩ ←
+          R.runWithLog (lens.projectStmt outerStmtIn) (lens.projectWit outerWitIn)
+        return ⟨⟨lens.integrateStmt (outerStmtIn, prvInnerStmtOut),
+          lens.integrateWit (outerWitIn, innerWitOut)⟩,
+          lens.integrateStmt (outerStmtIn, verInnerStmtOut), fullTranscript, queryLog⟩ := by
+  unfold Reduction.runWithLog
+  simp [Reduction.transport, Prover.transport_runWithLog, Verifier.transport, Verifier.run]
+
+variable [oSpec.FiniteRange]
+
 /--
-  Informally, if `(outerStmtIn, outerWitIn) ∈ relIn`, we want `(innerStmtIn, innerWitIn) ∈ relIn'`.
-  Using the completeness guarantee, we get that `(innerStmtOut, innerWitOut) ∈ relOut'`.
-  From these, we need to deduce that `(outerStmtOut, outerWitOut) ∈ relOut`.
+  Transporting the reduction preserves completeness, assuming the lens satisfies its completeness
+  conditions
 -/
 theorem Reduction.transport_completeness
     {relIn : OuterStmtIn → OuterWitIn → Prop} {relOut : OuterStmtOut → OuterWitOut → Prop}
@@ -342,7 +473,7 @@ theorem Reduction.transport_completeness
   intro outerStmtIn outerWitIn hRelIn
   have hR := h (lens.projectStmt outerStmtIn) (lens.projectWit outerWitIn)
     (lensComplete.project_complete _ _ hRelIn)
-  rw [Reduction.run_transport]
+  rw [Reduction.transport_run]
   refine le_trans hR ?_
   simp
   refine probEvent_mono ?_
@@ -356,40 +487,88 @@ theorem Reduction.transport_completeness
   rw [← hRelOut']
   simp [compatContext]; exact this
 
-/-- -/
+/-- Transporting the reduction preserves soundness, assuming the lens satisfies its soundness
+  conditions -/
 theorem Reduction.transport_soundness
-    {langIn : Set OuterStmtIn} {langOut : Set OuterStmtOut}
-    {langIn' : Set InnerStmtIn} {langOut' : Set InnerStmtOut}
+    {outerLangIn : Set OuterStmtIn} {outerLangOut : Set OuterStmtOut}
+    {innerLangIn : Set InnerStmtIn} {innerLangOut : Set InnerStmtOut}
     {soundnessError : ℝ≥0}
-    (lens : ContextLensSound OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
-      langIn langOut langIn' langOut')
+    (lens : StatementLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut)
     (V : Verifier pSpec oSpec InnerStmtIn InnerStmtOut)
-    (h : Reduction.soundness langIn' langOut' V soundnessError) :
-      Reduction.soundness langIn langOut
-        (V.transport lens.toStatementLens) soundnessError := by
+    -- TODO: figure out the right compatibility relation for the IsSound condition
+    (lensSound : lens.IsSound outerLangIn outerLangOut innerLangIn innerLangOut (fun _ _ => True))
+    (h : Reduction.soundness innerLangIn innerLangOut V soundnessError) :
+      Reduction.soundness outerLangIn outerLangOut (V.transport lens) soundnessError := by
   unfold soundness at h ⊢
   intro outerStmtIn hOuterStmtIn OuterWitIn OuterWitOut outerWitIn prover
   sorry
 
+/-
+  Transporting the reduction preserves knowledge soundness, assuming the lens satisfies its
+  knowledge soundness conditions
+-/
 theorem Reduction.transport_knowledgeSoundness
-    {relIn : OuterStmtIn → OuterWitIn → Prop} {relOut : OuterStmtOut → OuterWitOut → Prop}
-    {relIn' : InnerStmtIn → InnerWitIn → Prop} {relOut' : InnerStmtOut → InnerWitOut → Prop}
+    {outerRelIn : OuterStmtIn → OuterWitIn → Prop} {outerRelOut : OuterStmtOut → OuterWitOut → Prop}
+    {innerRelIn : InnerStmtIn → InnerWitIn → Prop} {innerRelOut : InnerStmtOut → InnerWitOut → Prop}
     {soundnessError : ℝ≥0}
-    (lens : ContextLensKnowledgeSound OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
-      OuterWitIn OuterWitOut InnerWitIn InnerWitOut relIn relIn' relOut relOut')
+    (lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
+      OuterWitIn OuterWitOut InnerWitIn InnerWitOut)
+    (lensKnowledgeSound : lens.IsKnowledgeSound outerRelIn innerRelIn outerRelOut innerRelOut
+      (fun _ _ => True))
     (V : Verifier pSpec oSpec InnerStmtIn InnerStmtOut)
-    (h : Reduction.knowledgeSoundness relIn' relOut' V soundnessError) :
-      Reduction.knowledgeSoundness relIn relOut
-        (V.transport lens.toContextLens.toStatementLens) soundnessError := by
+    (h : Reduction.knowledgeSoundness innerRelIn innerRelOut V soundnessError) :
+      Reduction.knowledgeSoundness outerRelIn outerRelOut
+        (V.transport lens.toStatementLens) soundnessError := by
   unfold knowledgeSoundness at h ⊢
   obtain ⟨E, h'⟩ := h
   stop
   refine ⟨E.transport lens lens.toContextLensInv, ?_⟩ -- lensInv needs to be correctly derived
   intro outerStmtIn outerWitIn hRelIn
   have hR := h (lens.projectStmt outerStmtIn) (lens.projectWit outerWitIn)
-    (lens.project_knowledge_sound _ _ hRelIn)
-  rw [Reduction.run_transport]
+    (lensKnowledgeSound.project_knowledge_sound _ _ hRelIn)
+  rw [Reduction.transport_run]
   sorry
+
+/-
+  Transporting the reduction preserves round-by-round soundness, assuming the lens satisfies its
+  soundness conditions
+-/
+theorem Reduction.transport_rbr_soundness
+    {outerLangIn : Set OuterStmtIn} {outerLangOut : Set OuterStmtOut}
+    {innerLangIn : Set InnerStmtIn} {innerLangOut : Set InnerStmtOut}
+    {rbrSoundnessError : pSpec.ChallengeIdx → ℝ≥0}
+    (lens : StatementLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut)
+    (V : Verifier pSpec oSpec InnerStmtIn InnerStmtOut)
+    -- TODO: figure out the right compatibility relation for the IsSound condition
+    (lensSound : lens.IsSound outerLangIn outerLangOut innerLangIn innerLangOut (fun _ _ => True))
+    (h : Reduction.rbrSoundness innerLangIn innerLangOut V rbrSoundnessError) :
+      Reduction.rbrSoundness outerLangIn outerLangOut (V.transport lens) rbrSoundnessError := by
+  unfold rbrSoundness at h ⊢
+  sorry
+
+/-
+  Transporting the reduction preserves round-by-round knowledge soundness, assuming the lens
+  satisfies its knowledge soundness conditions
+-/
+theorem Reduction.transport_rbr_knowledgeSoundness
+    {outerRelIn : OuterStmtIn → OuterWitIn → Prop} {outerRelOut : OuterStmtOut → OuterWitOut → Prop}
+    {innerRelIn : InnerStmtIn → InnerWitIn → Prop} {innerRelOut : InnerStmtOut → InnerWitOut → Prop}
+    {rbrKnowledgeError : pSpec.ChallengeIdx → ℝ≥0}
+    (lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
+      OuterWitIn OuterWitOut InnerWitIn InnerWitOut)
+    (lensKnowledgeSound : lens.IsKnowledgeSound outerRelIn innerRelIn outerRelOut innerRelOut
+      (fun _ _ => True))
+    (V : Verifier pSpec oSpec InnerStmtIn InnerStmtOut)
+    (h : Reduction.rbrKnowledgeSoundness innerRelIn innerRelOut V rbrKnowledgeError) :
+      Reduction.rbrKnowledgeSoundness outerRelIn outerRelOut
+        (V.transport lens.toStatementLens) rbrKnowledgeError := by
+  sorry
+
+end Theorems
+
+
+-- TODO: state definitions & theorems about oracle reduction as well
+
 
 end Transport
 
