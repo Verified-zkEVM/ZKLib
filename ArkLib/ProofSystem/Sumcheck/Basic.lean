@@ -141,10 +141,10 @@ def OStmtOut : Unit → Type := fun _ => R⦃≤ d⦄[X (Fin (n + 1))]
 
 def WitOut := Unit
 
-def relIn : (StmtIn R) × (∀ i, OStmtIn R n d i) → WitIn → Prop :=
-  fun ⟨target, polyOracle⟩ _ => ∑ x ∈ (univ.map D) ^ᶠ (n + 1), (polyOracle ()).1 ⸨x⸩ = target
+def relIn : (StmtIn R) × (∀ i, OStmtIn R d n i) → WitIn → Prop :=
+  fun ⟨target, polyOracle⟩ _ => ∑ x ∈ (univ.map D) ^ᶠ (n + 1), (polyOracle ()).val ⸨x⸩ = target
 
-def relOut : (StmtOut R n) × (∀ i, OStmtOut R n d i) → WitOut → Prop :=
+def relOut : (StmtOut R n) × (∀ i, OStmtOut R d n i) → WitOut → Prop :=
   fun ⟨⟨target, challenges⟩, polyOracle⟩ _ => (polyOracle ()).1 ⸨challenges⸩ = target
 
 def prover : OracleProver (pSpec R d n) []ₒ (StmtIn R) WitIn (StmtOut R n) WitOut
@@ -159,9 +159,9 @@ def reduction : OracleReduction (pSpec R d n) []ₒ (StmtIn R) WitIn (StmtOut R 
 
 variable [VCVCompatible R]
 
-/-- Perfect completeness for the (full) sum-check protocol -/
-theorem reduction_complete : (reduction R d n).perfectCompleteness
-    (relIn R d D n) (relOut R d n) := sorry
+-- /-- Perfect completeness for the (full) sum-check protocol -/
+-- theorem reduction_complete : (reduction R d n).perfectCompleteness
+--     (relIn R d D n) (relOut R d n) := sorry
 
 -- def stateFunction : Reduction.StateFunction (pSpec R deg n) []ₒ
 --   (relIn R n deg D) (relOut R n deg)

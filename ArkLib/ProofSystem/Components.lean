@@ -175,7 +175,8 @@ open OracleInterface
 /-!
 3. - There is no witness nor public statement. There are two `OStatement`s, `a` and `b`,
      of the same type. The relation is `a = b`.
-   - The verifier samples random `q : OracleInterface.Query` for that type and sends it to the prover.
+   - The verifier samples random `q : OracleInterface.Query` for that type
+   and sends it to the prover.
    - The verifier does not do any checks.
    - The final relation is that `a` and `b` are equal at that query.
 -/
