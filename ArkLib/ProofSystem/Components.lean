@@ -267,14 +267,14 @@ theorem completeness : OracleReduction.perfectCompleteness
 
 def stateFunction : (verifier oSpec OStatement).StateFunction (pSpec OStatement) oSpec
     (relIn OStatement).language (relOut OStatement).language where
-  fn
+  toFun
   | 0 => fun ⟨_, oracles⟩ _ => oracles 0 = oracles 1
   | 1 => fun ⟨_, oracles⟩ chal =>
     let q : Query OStatement := by simpa [pSpec] using chal ⟨0, by aesop⟩
     OracleInterface.oracle (oracles 0) q = OracleInterface.oracle (oracles 1) q
-  fn_empty := fun stmt hStmt => by simp_all [relIn, Function.language]
-  fn_next := fun i hDir ⟨stmt, oStmt⟩ tr h => by simp_all
-  fn_full := fun ⟨stmt, oStmt⟩ tr h => by
+  toFun_empty := fun stmt hStmt => by simp_all [relIn, Function.language]
+  toFun_next := fun i hDir ⟨stmt, oStmt⟩ tr h => by simp_all
+  toFun_full := fun ⟨stmt, oStmt⟩ tr h => by
     simp_all [relOut, Function.language]
     intro a b hSupp
     simp [Verifier.run, OracleVerifier.toVerifier, verifier] at hSupp

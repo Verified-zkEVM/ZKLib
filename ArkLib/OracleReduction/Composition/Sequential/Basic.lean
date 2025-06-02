@@ -181,9 +181,7 @@ def Prover.append (P₁ : Prover pSpec₁ oSpec Stmt₁ Wit₁ Stmt₂ Wit₂)
   - if `i < m - 1`, then it sends the message & updates the state as the first prover
   - if `i = m - 1`, then it sends the message as the first prover, but further returns the beginning
     state of the second prover
-  - if `i > m`, then it sends the message & updates the state as the second prover. It needs to
-    provide a `stmt₂` for the second prover, which it derives from running the verifier on the first
-    transcript. -/
+  - if `i > m`, then it sends the message & updates the state as the second prover. -/
   sendMessage := fun ⟨⟨i, hLt⟩, h⟩ state => by
     by_cases hi : i < m
     · dsimp [ProtocolSpec.append, Fin.append, Fin.addCases, Fin.init,
