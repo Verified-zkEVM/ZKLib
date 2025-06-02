@@ -18,4 +18,5 @@
 # *print.pdf
 /blueprint/src/web.pdf
 
-.nvim.lua
+# Locally built home page
+/home_page/

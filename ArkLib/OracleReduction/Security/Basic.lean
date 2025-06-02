@@ -27,6 +27,20 @@ noncomputable section
 open OracleComp OracleSpec ProtocolSpec
 open scoped NNReal
 
+section find_home
+
+universe u w
+
+-- #print probEvent
+
+-- #print probEvent_def
+
+-- theorem probEvent_not {ι : Type u} {spec : OracleSpec ι} {α : Type w} {oa : OracleComp spec α}
+--     [spec.FiniteRange] {p : α → Prop} : [p | oa] ≤ 1 - [fun a => ¬ p a | oa] := by
+--   simp
+
+end find_home
+
 variable {n : ℕ} {pSpec : ProtocolSpec n} {ι : Type} {oSpec : OracleSpec ι}
   [oSpec.FiniteRange] [∀ i, VCVCompatible (pSpec.Challenge i)]
   {StmtIn WitIn StmtOut WitOut : Type}
@@ -101,6 +115,8 @@ section Soundness
   6. Round-by-round knowledge soundness
 -/
 
+section Prover
+
 /-! Note: all soundness definitions are really defined for the **verifier** only. The (honest)
 prover does not feature into the definitions.
 
@@ -114,6 +130,38 @@ structure AdaptiveProver (pSpec : ProtocolSpec n) (oSpec : OracleSpec ι)
     (StmtIn WitIn StmtOut WitOut : Type) extends Prover pSpec oSpec StmtIn WitIn StmtOut WitOut
     where
   chooseStmtIn : OracleComp oSpec StmtIn
+
+-- /-- Version of `challengeOracle` that requires querying with the statement and prior messages.
+
+-- This is a stepping stone toward the Fiat-Shamir transform. -/
+def srChallengeOracle (pSpec : ProtocolSpec n) (Statement : Type) :
+    OracleSpec (pSpec.ChallengeIdx) :=
+  fun i => (Statement × pSpec.Transcript i.1, pSpec.Challenge i)
+
+/-- A **state-restoration** prover in a reduction is a modified prover that has query access to
+  challenge oracles that can return the `i`-th challenge, for all `i : pSpec.ChallengeIdx`, given
+  the input statement and the transcript up to that point.
+
+  It further takes in the input statement and witness, and outputs a full transcript of interaction,
+  along with the output statement and witness. -/
+structure SRProver (pSpec : ProtocolSpec n) (oSpec : OracleSpec ι)
+    (StmtIn WitIn StmtOut WitOut : Type) where
+  srProve : StmtIn → WitIn →
+    OracleComp (oSpec ++ₒ (srChallengeOracle pSpec StmtIn))
+      (pSpec.FullTranscript × StmtOut × WitOut)
+
+-- /-- Running a state-restoration prover -/
+-- def SRProver.run
+--     (prover : SRProver pSpec oSpec StmtIn WitIn StmtOut WitOut)
+--     (stmtIn : StmtIn) (witIn : WitIn) :
+--     OracleComp (oSpec ++ₒ challengeOracle' pSpec StmtIn)
+--     (StmtOut × WitOut × pSpec.FullTranscript ×
+--       QueryLog (oSpec ++ₒ challengeOracle' pSpec StmtIn))
+-- := do
+--   let ⟨state, stmt, transcript⟩ ← prover.stateRestorationQuery stmtIn
+--   return ⟨transcript, state⟩
+
+end Prover
 
 section Extractor
 
@@ -184,11 +232,16 @@ namespace Verifier
 
 /--
   A reduction satisfies **soundness** with error `soundnessError ≥ 0` and with respect to input
-  language `langIn : Set StmtIn` and output language `langOut : Set StmtOut`, if for all input
-  statment `stmtIn ∉ langIn`, all (malicious) provers with arbitrary types for `WitIn`, `WitOut`,
-  and `PrvState`, and all arbitrary `witIn`, the execution between the prover and the honest
-  verifier will result in an output statement `stmtOut` that is not in `langOut`, except with
-  probability `soundnessError`.
+  language `langIn : Set StmtIn` and output language `langOut : Set StmtOut` if:
+  - for all (malicious) provers with arbitrary types for `WitIn`, `WitOut`,
+  - for all arbitrary `witIn`,
+  - for all input statement `stmtIn ∉ langIn`,
+
+  the execution between the prover and the honest verifier will result in an output statement
+  `stmtOut` that is in `langOut` is at most `soundnessError`.
+
+  (technical note: since execution may fail, this is _not_ equivalent to saying that
+  `stmtOut ∉ langOut` with probability at least `1 - soundnessError`)
 -/
 def soundness (langIn : Set StmtIn) (langOut : Set StmtOut)
     (verifier : Verifier pSpec oSpec StmtIn StmtOut)
@@ -198,7 +251,7 @@ def soundness (langIn : Set StmtIn) (langOut : Set StmtOut)
   ∀ prover : Prover pSpec oSpec StmtIn WitIn StmtOut WitOut,
   ∀ stmtIn ∉ langIn,
     letI reduction := Reduction.mk prover verifier
-    [fun ⟨_, stmtOut, _⟩ => stmtOut ∉ langOut
+    [fun ⟨_, stmtOut, _⟩ => stmtOut ∈ langOut
     | reduction.run stmtIn witIn] ≤ soundnessError
 
 -- How would one define a rewinding extractor? It should have oracle access to the prover's
@@ -207,11 +260,14 @@ def soundness (langIn : Set StmtIn) (langOut : Set StmtOut)
 
 /--
   A reduction satisfies **(straightline) knowledge soundness** with error `knowledgeError ≥ 0` and
-  with respect to input relation `relIn` and output relation `relOut`, if there exists a
-  straightline extractor such that for all input statement `stmtIn`, witness `witIn`, and
-  (malicious) prover `prover`, if the execution with the honest verifier results in a pair
-  `(stmtOut, witOut)`, and the extractor produces some `witIn'`, then the probability that
-  `(stmtIn, witIn')` is valid and yet `(stmtOut, witOut)` is not valid is at most `knowledgeError`.
+  with respect to input relation `relIn` and output relation `relOut` if:
+  - there exists a straightline extractor `E`, such that
+  - for all input statement `stmtIn`, witness `witIn`, and (malicious) prover `prover`,
+  - if the execution with the honest verifier results in a pair `(stmtOut, witOut)`,
+  - and the extractor produces some `witIn'`,
+
+  then the probability that `(stmtIn, witIn')` is not valid and yet `(stmtOut, witOut)` is valid
+  is at most `knowledgeError`.
 -/
 def knowledgeSoundness (relIn : StmtIn → WitIn → Prop) (relOut : StmtOut → WitOut → Prop)
     (verifier : Verifier pSpec oSpec StmtIn StmtOut) (knowledgeError : ℝ≥0) : Prop :=
@@ -227,36 +283,6 @@ def knowledgeSoundness (relIn : StmtIn → WitIn → Prop) (relOut : StmtOut →
 
 section StateRestoration
 
--- /-- Version of `challengeOracle` that requires querying with the statement and prior messages.
-
--- This is a stepping stone toward the Fiat-Shamir transform. -/
-def srChallengeOracle (pSpec : ProtocolSpec n) (Statement : Type) :
-    OracleSpec (pSpec.ChallengeIdx) :=
-  fun i => (Statement × pSpec.Transcript i.1, pSpec.Challenge i)
-
-/-- A **state-restoration** prover in a reduction is a modified prover that has query access to
-  challenge oracles that can return the `i`-th challenge, for all `i : pSpec.ChallengeIdx`, given
-  the input statement and the transcript up to that point.
-
-  It further takes in the input statement and witness, and outputs a full transcript of interaction,
-  along with the output statement and witness. -/
-structure SRProver (pSpec : ProtocolSpec n) (oSpec : OracleSpec ι)
-    (StmtIn WitIn StmtOut WitOut : Type) where
-  srProve : StmtIn → WitIn →
-    OracleComp (oSpec ++ₒ (srChallengeOracle pSpec StmtIn))
-      (pSpec.FullTranscript × StmtOut × WitOut)
-
--- /-- Running a state-restoration prover -/
--- def SRProver.run
---     (prover : SRProver pSpec oSpec StmtIn WitIn StmtOut WitOut)
---     (stmtIn : StmtIn) (witIn : WitIn) :
---     OracleComp (oSpec ++ₒ challengeOracle' pSpec StmtIn)
---     (StmtOut × WitOut × pSpec.FullTranscript ×
---       QueryLog (oSpec ++ₒ challengeOracle' pSpec StmtIn))
--- := do
---   let ⟨state, stmt, transcript⟩ ← prover.stateRestorationQuery stmtIn
---   return ⟨transcript, state⟩
-
 -- /-- State-restoration soundness -/
 -- def srSoundness (verifier : Verifier pSpec oSpec StmtIn StmtOut)
 --     (langIn : Set StmtIn) (langOut : Set StmtOut) (SRSoundnessError : ENNReal) : Prop :=
@@ -266,6 +292,8 @@ structure SRProver (pSpec : ProtocolSpec n) (oSpec : OracleSpec ι)
 --     let ⟨_, witOut, transcript, queryLog⟩ ← (simulateQ ... (SRProver.run stmtIn witIn)).run
 --     let stmtOut ← verifier.run stmtIn transcript
 --     return stmtOut ∉ langOut
+
+-- State-restoration knowledge soundness (w/ straightline extractor)
 
 end StateRestoration
 
@@ -279,19 +307,24 @@ structure StateFunction (pSpec : ProtocolSpec n) (oSpec : OracleSpec ι) [oSpec.
     (langIn : Set StmtIn) (langOut : Set StmtOut)
     (verifier : Verifier pSpec oSpec StmtIn StmtOut)
     where
-  fn : (m : Fin (n + 1)) → StmtIn → Transcript m pSpec → Prop
+  toFun : (m : Fin (n + 1)) → StmtIn → Transcript m pSpec → Prop
   /-- For all input statement not in the language, the state function is false for the empty
     transcript -/
-  fn_empty : ∀ stmt ∉ langIn, fn 0 stmt default = False
+  toFun_empty : ∀ stmt ∉ langIn, toFun 0 stmt default = False
   /-- If the state function is false for a partial transcript, and the next message is from the
     prover to the verifier, then the state function is also false for the new partial transcript
     regardless of the message -/
-  fn_next : ∀ m, pSpec.getDir m = .P_to_V → ∀ stmt tr, fn m.castSucc stmt tr = False →
-    ∀ msg, fn m.succ stmt (tr.snoc msg) = False
+  toFun_next : ∀ m, pSpec.getDir m = .P_to_V → ∀ stmt tr, toFun m.castSucc stmt tr = False →
+    ∀ msg, toFun m.succ stmt (tr.snoc msg) = False
   /-- If the state function is false for a full transcript, the verifier will not output a statement
     in the output language -/
-  fn_full : ∀ stmt tr, fn (.last n) stmt tr = False →
+  toFun_full : ∀ stmt tr, toFun (.last n) stmt tr = False →
     [(· ∈ langOut) | verifier.run stmt tr] = 0
+
+instance {langIn : Set StmtIn} {langOut : Set StmtOut}
+    {verifier : Verifier pSpec oSpec StmtIn StmtOut} :
+    CoeFun (verifier.StateFunction pSpec oSpec langIn langOut)
+    (fun _ => (m : Fin (n + 1)) → StmtIn → Transcript m pSpec → Prop) := ⟨fun f => f.toFun⟩
 
 /--
   A protocol with `verifier` satisfies round-by-round soundness with respect to input language
@@ -323,8 +356,8 @@ def rbrSoundness (langIn : Set StmtIn) (langOut : Set StmtOut)
     let ex : OracleComp (oSpec ++ₒ [pSpec.Challenge]ₒ) _ := do
       return (← prover.runWithLogToRound i.1.castSucc stmtIn witIn, ← pSpec.getChallenge i)
     [fun ⟨⟨transcript, _⟩, challenge⟩ =>
-      ¬ stateFunction.fn i.1.castSucc stmtIn transcript ∧
-        stateFunction.fn i.1.succ stmtIn (transcript.snoc challenge)
+      ¬ stateFunction i.1.castSucc stmtIn transcript ∧
+        stateFunction i.1.succ stmtIn (transcript.snoc challenge)
     | ex] ≤
       rbrSoundnessError i
 
@@ -362,8 +395,8 @@ def rbrKnowledgeSoundness (relIn : StmtIn → WitIn → Prop) (relOut : StmtOut 
     [fun ⟨⟨transcript, _, proveQueryLog⟩, challenge⟩ =>
       letI extractedWitIn := extractor i.1.castSucc stmtIn transcript proveQueryLog.fst
       ¬ relIn stmtIn extractedWitIn ∧
-        ¬ stateFunction.fn i.1.castSucc stmtIn transcript ∧
-          stateFunction.fn i.1.succ stmtIn (transcript.snoc challenge)
+        ¬ stateFunction i.1.castSucc stmtIn transcript ∧
+          stateFunction i.1.succ stmtIn (transcript.snoc challenge)
     | ex] ≤ rbrKnowledgeError i
 
 end RoundByRound

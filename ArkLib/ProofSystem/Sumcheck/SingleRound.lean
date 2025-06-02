@@ -6,7 +6,7 @@ Authors: Quang Dao
 
 import ArkLib.OracleReduction.Security.Basic
 import ArkLib.OracleReduction.Composition.Sequential.Basic
-import ArkLib.OracleReduction.Composition.Transport
+import ArkLib.OracleReduction.Composition.LiftContext
 import ArkLib.Data.Fin.Basic
 
 /-!
@@ -522,7 +522,7 @@ theorem perfect_completeness : OracleReduction.perfectCompleteness
 def stateFunction (i : Fin (n + 1)) : Verifier.StateFunction (pSpec := pSpec R deg) (oSpec := oSpec)
     (relation R n deg D i.castSucc).language (relation R n deg D i.succ).language
     (verifier R n deg D oSpec i) where
-  fn := fun m ⟨stmt, oStmt⟩ partialTranscript => match m with
+  toFun := fun m ⟨stmt, oStmt⟩ partialTranscript => match m with
    -- If `m = 0` (e.g. the transcript is empty), returns whether
     -- the statement satisfies the relation
     | 0 => relation R n deg D i.castSucc ⟨stmt, oStmt⟩ ()
@@ -537,11 +537,11 @@ def stateFunction (i : Fin (n + 1)) : Verifier.StateFunction (pSpec := pSpec R d
     | 2 => relation R n deg D i.succ ⟨⟨stmt.target,
       by simpa using Fin.snoc stmt.challenges (by simpa using partialTranscript ⟨1, by simp⟩ : R)⟩,
        oStmt⟩ ()
-  fn_empty := fun stmt hStmt => by simp_all [Function.language]
-  fn_next := fun m hDir => match m with
+  toFun_empty := fun stmt hStmt => by simp_all [Function.language]
+  toFun_next := fun m hDir => match m with
     | 0 => fun stmt tr hFalse => by simp_all
     | 1 => nomatch hDir
-  fn_full := fun stmt tr hFalse => by
+  toFun_full := fun stmt tr hFalse => by
     simp_all [Function.language]
     -- intro stmt' oStmt log h ()
     -- simp [Verifier.run] at h

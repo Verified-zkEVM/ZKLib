@@ -36,9 +36,9 @@ import ArkLib.Data.UniPoly.Basic
 import ArkLib.Data.UniPoly.BasicOld
 import ArkLib.Data.UniPoly.PolynomialReflection
 import ArkLib.OracleReduction.Basic
+import ArkLib.OracleReduction.Composition.LiftContext
 import ArkLib.OracleReduction.Composition.Sequential.Basic
 import ArkLib.OracleReduction.Composition.Sequential.ProtocolSpec
-import ArkLib.OracleReduction.Composition.Transport
 import ArkLib.OracleReduction.Equiv
 import ArkLib.OracleReduction.Execution
 import ArkLib.OracleReduction.OracleInterface
