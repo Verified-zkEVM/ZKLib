@@ -243,7 +243,7 @@ variable {n : ℕ} {pSpec : ProtocolSpec n} {ι : Type} {oSpec : OracleSpec ι}
   {InnerStmtIn InnerWitIn InnerStmtOut InnerWitOut : Type}
   [∀ i, VCVCompatible (pSpec.Challenge i)]
 
-/-- The outer prover after liftContext invokes the inner prover on the projected input, and
+/-- The outer prover after lifting invokes the inner prover on the projected input, and
   lifts the output -/
 def Prover.liftContext
     (lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
@@ -262,7 +262,7 @@ def Prover.liftContext
     let ⟨innerStmtOut, innerWitOut⟩ := P.output prvState
     ⟨lens.liftStmt (stmtIn, innerStmtOut), lens.liftWit (witIn, innerWitOut)⟩
 
-/-- The outer verifier after liftContext invokes the inner verifier on the projected input, and
+/-- The outer verifier after lifting invokes the inner verifier on the projected input, and
   lifts the output -/
 def Verifier.liftContext
     (lens : StatementLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut)
@@ -273,7 +273,7 @@ def Verifier.liftContext
     let innerStmtOut ← V.verify innerStmtIn transcript
     return lens.liftStmt (stmtIn, innerStmtOut)
 
-/-- The outer reduction after liftContext is the combination of the liftContext of the prover and
+/-- The outer reduction after lifting is the combination of the lifting of the prover and
   verifier -/
 def Reduction.liftContext
     (lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
@@ -284,7 +284,7 @@ def Reduction.liftContext
   verifier := R.verifier.liftContext lens.toStatementLens
 
 open Verifier in
-/-- The outer extractor after liftContext invokes the inner extractor on the projected input, and
+/-- The outer extractor after lifting invokes the inner extractor on the projected input, and
   lifts the output -/
 def StraightlineExtractor.liftContext
     (lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
@@ -327,7 +327,7 @@ def Reduction.compatContext {OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut :
     innerContextOut ∈
       Prod.fst <$> (R.run (lens.projStmt outerStmtIn) (lens.projWit outerWitIn)).support
 
-/-- The outer state function after liftContext invokes the inner state function on the projected
+/-- The outer state function after lifting invokes the inner state function on the projected
   input, and lifts the output -/
 def Verifier.StateFunction.liftContext [oSpec.FiniteRange]
     (lens : StatementLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut)
@@ -365,7 +365,7 @@ section Prover
 
 /- Breaking down the intertwining of liftContext and prover execution -/
 
-/-- Transporting the prover intertwines with the process round function -/
+/-- Lifting the prover intertwines with the process round function -/
 theorem Prover.liftContext_processRound
     {lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
                         OuterWitIn OuterWitOut InnerWitIn InnerWitOut}
@@ -422,9 +422,9 @@ theorem Prover.liftContext_runWithLogToRound
   unfold runWithLogToRound
   induction i using Fin.induction with
   | zero => simp [liftContext]
-  | succ i ih => simp [ChallengeIdx, bind_pure_comp, Functor.map_map, Prover.liftContext_runToRound]
+  | succ i ih => simp [liftContext_runToRound]
 
-/-- Running the liftContexted outer prover is equivalent to running the inner prover on the projected
+/-- Running the lifted outer prover is equivalent to running the inner prover on the projected
   input, and then integrating the output -/
 theorem Prover.liftContext_run
     {lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
@@ -438,10 +438,10 @@ theorem Prover.liftContext_run
         return ⟨lens.liftStmt (outerStmtIn, innerStmtOut),
                 lens.liftWit (outerWitIn, innerWitOut),
                 fullTranscript⟩ := by
-  simp only [Prover.run, ChallengeIdx, liftContext_runToRound, bind_pure_comp, Functor.map_map]
+  simp only [Prover.run, liftContext_runToRound]
   simp [liftContext]
 
-/- Transporting the prover intertwines with the runWithLog function -/
+/- Lifting the prover intertwines with the runWithLog function -/
 theorem Prover.liftContext_runWithLog
     {lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
                         OuterWitIn OuterWitOut InnerWitIn InnerWitOut}
@@ -455,7 +455,7 @@ theorem Prover.liftContext_runWithLog
                 lens.liftWit (outerWitIn, innerWitOut),
                 fullTranscript,
                 queryLog⟩ := by
-  simp only [ChallengeIdx, runWithLog, liftContext_runWithLogToRound, bind_pure_comp, Functor.map_map]
+  simp only [runWithLog, liftContext_runWithLogToRound]
   simp [liftContext]
 
 end Prover
@@ -492,7 +492,7 @@ theorem Reduction.liftContext_runWithLog
 variable [oSpec.FiniteRange]
 
 /--
-  Transporting the reduction preserves completeness, assuming the lens satisfies its completeness
+  Lifting the reduction preserves completeness, assuming the lens satisfies its completeness
   conditions
 -/
 theorem Reduction.liftContext_completeness
@@ -523,7 +523,7 @@ theorem Reduction.liftContext_completeness
   rw [← hRelOut']
   simp [compatContext]; exact this
 
-/-- Transporting the reduction preserves soundness, assuming the lens satisfies its soundness
+/-- Lifting the reduction preserves soundness, assuming the lens satisfies its soundness
   conditions -/
 theorem Verifier.liftContext_soundness [Inhabited InnerStmtOut]
     {outerLangIn : Set OuterStmtIn} {outerLangOut : Set OuterStmtOut}
@@ -560,7 +560,7 @@ theorem Verifier.liftContext_soundness [Inhabited InnerStmtOut]
   sorry
 
 /-
-  Transporting the reduction preserves knowledge soundness, assuming the lens satisfies its
+  Lifting the reduction preserves knowledge soundness, assuming the lens satisfies its
   knowledge soundness conditions
 -/
 theorem Verifier.liftContext_knowledgeSoundness [Inhabited InnerStmtOut]
@@ -609,7 +609,7 @@ theorem Verifier.liftContext_knowledgeSoundness [Inhabited InnerStmtOut]
   sorry
 
 /-
-  Transporting the reduction preserves round-by-round soundness, assuming the lens satisfies its
+  Lifting the reduction preserves round-by-round soundness, assuming the lens satisfies its
   soundness conditions
 -/
 theorem Verifier.liftContext_rbr_soundness
@@ -628,7 +628,7 @@ theorem Verifier.liftContext_rbr_soundness
   sorry
 
 /-
-  Transporting the reduction preserves round-by-round knowledge soundness, assuming the lens
+  Lifting the reduction preserves round-by-round knowledge soundness, assuming the lens
   satisfies its knowledge soundness conditions
 -/
 theorem Verifier.liftContext_rbr_knowledgeSoundness
