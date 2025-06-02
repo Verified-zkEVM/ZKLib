@@ -17,6 +17,3 @@
 # LaTeX PDF files for blueprint
 # *print.pdf
 /blueprint/src/web.pdf
-
-# Locally built home page
-/home_page/

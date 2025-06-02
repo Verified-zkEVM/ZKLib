@@ -54,7 +54,7 @@ import ToMathlib.PFunctor.Basic
   That is, if `projInput(inp1) = projInput(inp2) = inp*`, then `liftOutput(inp1, out)
   = liftOutput(inp2, out)` for all `out` which is a possible result of running the oracle
   reduction on `inp*`. This basically implies a decomposition of sorts between the input to be
-  liftContexted.
+  transported.
 -/
 
 open OracleSpec OracleComp ProtocolSpec
@@ -63,12 +63,12 @@ section Transport
 
 open scoped NNReal
 
-/-- A lens for liftContexting (non-oracle) statements between outer and inner contexts -/
+/-- A lens for transporting (non-oracle) statements between outer and inner contexts -/
 class StatementLens (OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut : Type) where
   projStmt : OuterStmtIn → InnerStmtIn
   liftStmt : OuterStmtIn × InnerStmtOut → OuterStmtOut
 
-/-- A lens for liftContexting oracle statements between outer and inner contexts
+/-- A lens for transporting oracle statements between outer and inner contexts
 
 We require knowledge of the (non-oracle) input statement in the outer context, along with the
 (non-oracle) output statement in the inner context. -/
@@ -89,18 +89,18 @@ class OStatementLens (OuterStmtIn InnerStmtOut : Type)
   liftOStmt : QueryImpl [OuterOStmtOut]ₒ
     (ReaderT (OuterStmtIn × InnerStmtOut) (OracleComp [InnerOStmtOut]ₒ))
 
-/-- A lens for liftContexting witnesses between outer and inner contexts -/
+/-- A lens for transporting witnesses between outer and inner contexts -/
 class WitnessLens (OuterWitIn OuterWitOut InnerWitIn InnerWitOut : Type) where
   projWit : OuterWitIn → InnerWitIn
   liftWit : OuterWitIn × InnerWitOut → OuterWitOut
 
-/-- A lens for liftContexting between outer and inner contexts of a (non-oracle) reduction -/
+/-- A lens for transporting between outer and inner contexts of a (non-oracle) reduction -/
 class ContextLens (OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut : Type)
     (OuterWitIn OuterWitOut InnerWitIn InnerWitOut : Type)
     extends StatementLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut,
       WitnessLens OuterWitIn OuterWitOut InnerWitIn InnerWitOut
 
-/-- A lens for liftContexting between outer and inner contexts of an oracle reduction -/
+/-- A lens for transporting between outer and inner contexts of an oracle reduction -/
 class OracleContextLens (OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut : Type)
     {Outer_ιₛᵢ : Type} (OuterOStmtIn : Outer_ιₛᵢ → Type) [∀ i, OracleInterface (OuterOStmtIn i)]
     {Outer_ιₛₒ : Type} (OuterOStmtOut : Outer_ιₛₒ → Type) [∀ i, OracleInterface (OuterOStmtOut i)]
