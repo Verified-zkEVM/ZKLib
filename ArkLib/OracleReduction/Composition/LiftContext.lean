@@ -61,20 +61,10 @@ open OracleSpec OracleComp ProtocolSpec
 
 section Transport
 
-/-
-TODOs:
-1. Change naming to `lift/unlift`
-2. Make Lens a type class, so we can just write `Reduction.lift` without needing to explicitly
-   mention the lens.
-
-Note: this notion of lens is precisely `PFunctor.Lens` on two monomials (i.e. the output context's
-type is independent of the input context's value)
--/
-
 open scoped NNReal
 
 /-- A lens for liftContexting (non-oracle) statements between outer and inner contexts -/
-structure StatementLens (OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut : Type) where
+class StatementLens (OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut : Type) where
   projStmt : OuterStmtIn → InnerStmtIn
   liftStmt : OuterStmtIn × InnerStmtOut → OuterStmtOut
 
@@ -82,7 +72,7 @@ structure StatementLens (OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut : Typ
 
 We require knowledge of the (non-oracle) input statement in the outer context, along with the
 (non-oracle) output statement in the inner context. -/
-structure OStatementLens (OuterStmtIn InnerStmtOut : Type)
+class OStatementLens (OuterStmtIn InnerStmtOut : Type)
     {Outer_ιₛᵢ : Type} (OuterOStmtIn : Outer_ιₛᵢ → Type) [∀ i, OracleInterface (OuterOStmtIn i)]
     {Outer_ιₛₒ : Type} (OuterOStmtOut : Outer_ιₛₒ → Type) [∀ i, OracleInterface (OuterOStmtOut i)]
     {Inner_ιₛᵢ : Type} (InnerOStmtIn : Inner_ιₛᵢ → Type) [∀ i, OracleInterface (InnerOStmtIn i)]
@@ -100,7 +90,7 @@ structure OStatementLens (OuterStmtIn InnerStmtOut : Type)
     (ReaderT (OuterStmtIn × InnerStmtOut) (OracleComp [InnerOStmtOut]ₒ))
 
 /-- A lens for liftContexting witnesses between outer and inner contexts -/
-structure WitnessLens (OuterWitIn OuterWitOut InnerWitIn InnerWitOut : Type) where
+class WitnessLens (OuterWitIn OuterWitOut InnerWitIn InnerWitOut : Type) where
   projWit : OuterWitIn → InnerWitIn
   liftWit : OuterWitIn × InnerWitOut → OuterWitOut
 
@@ -111,7 +101,7 @@ class ContextLens (OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut : Type)
       WitnessLens OuterWitIn OuterWitOut InnerWitIn InnerWitOut
 
 /-- A lens for liftContexting between outer and inner contexts of an oracle reduction -/
-structure OracleContextLens (OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut : Type)
+class OracleContextLens (OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut : Type)
     {Outer_ιₛᵢ : Type} (OuterOStmtIn : Outer_ιₛᵢ → Type) [∀ i, OracleInterface (OuterOStmtIn i)]
     {Outer_ιₛₒ : Type} (OuterOStmtOut : Outer_ιₛₒ → Type) [∀ i, OracleInterface (OuterOStmtOut i)]
     {Inner_ιₛᵢ : Type} (InnerOStmtIn : Inner_ιₛᵢ → Type) [∀ i, OracleInterface (InnerOStmtIn i)]
@@ -246,8 +236,8 @@ variable {n : ℕ} {pSpec : ProtocolSpec n} {ι : Type} {oSpec : OracleSpec ι}
 /-- The outer prover after lifting invokes the inner prover on the projected input, and
   lifts the output -/
 def Prover.liftContext
-    (lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
-      OuterWitIn OuterWitOut InnerWitIn InnerWitOut)
+    [lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
+                        OuterWitIn OuterWitOut InnerWitIn InnerWitOut]
     (P : Prover pSpec oSpec InnerStmtIn InnerWitIn InnerStmtOut InnerWitOut) :
       Prover pSpec oSpec OuterStmtIn OuterWitIn OuterStmtOut OuterWitOut where
   PrvState := fun i => P.PrvState i × OuterStmtIn × OuterWitIn
@@ -265,7 +255,7 @@ def Prover.liftContext
 /-- The outer verifier after lifting invokes the inner verifier on the projected input, and
   lifts the output -/
 def Verifier.liftContext
-    (lens : StatementLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut)
+    [lens : StatementLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut]
     (V : Verifier pSpec oSpec InnerStmtIn InnerStmtOut) :
       Verifier pSpec oSpec OuterStmtIn OuterStmtOut where
   verify := fun stmtIn transcript => do
@@ -276,12 +266,12 @@ def Verifier.liftContext
 /-- The outer reduction after lifting is the combination of the lifting of the prover and
   verifier -/
 def Reduction.liftContext
-    (lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
-      OuterWitIn OuterWitOut InnerWitIn InnerWitOut)
+    [lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
+      OuterWitIn OuterWitOut InnerWitIn InnerWitOut]
     (R : Reduction pSpec oSpec InnerStmtIn InnerWitIn InnerStmtOut InnerWitOut) :
       Reduction pSpec oSpec OuterStmtIn OuterWitIn OuterStmtOut OuterWitOut where
-  prover := R.prover.liftContext lens
-  verifier := R.verifier.liftContext lens.toStatementLens
+  prover := R.prover.liftContext
+  verifier := R.verifier.liftContext
 
 open Verifier in
 /-- The outer extractor after lifting invokes the inner extractor on the projected input, and
@@ -330,14 +320,14 @@ def Reduction.compatContext {OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut :
 /-- The outer state function after lifting invokes the inner state function on the projected
   input, and lifts the output -/
 def Verifier.StateFunction.liftContext [oSpec.FiniteRange]
-    (lens : StatementLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut)
+    [lens : StatementLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut]
     (outerLangIn : Set OuterStmtIn) (outerLangOut : Set OuterStmtOut)
     (innerLangIn : Set InnerStmtIn) (innerLangOut : Set InnerStmtOut)
     (V : Verifier pSpec oSpec InnerStmtIn InnerStmtOut)
     [lensSound : lens.IsSound outerLangIn outerLangOut innerLangIn innerLangOut
       (V.compatStatement lens)]
     (stF : V.StateFunction pSpec oSpec innerLangIn innerLangOut) :
-      (V.liftContext lens).StateFunction pSpec oSpec outerLangIn outerLangOut
+      V.liftContext.StateFunction pSpec oSpec outerLangIn outerLangOut
         -- (lens.projStmt ⁻¹' innerLangIn)
         -- TODO: figure out the right induced language for `OuterStmtOut`
         -- (lens.liftStmt '' ( (lens.projStmt ⁻¹' innerLangIn).prod innerLangOut)
@@ -367,13 +357,13 @@ section Prover
 
 /-- Lifting the prover intertwines with the process round function -/
 theorem Prover.liftContext_processRound
-    {lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
-                        OuterWitIn OuterWitOut InnerWitIn InnerWitOut}
+    [lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
+                        OuterWitIn OuterWitOut InnerWitIn InnerWitOut]
     {i : Fin n}
     (P : Prover pSpec oSpec InnerStmtIn InnerWitIn InnerStmtOut InnerWitOut)
     {resultRound : OracleComp (oSpec ++ₒ [pSpec.Challenge]ₒ)
-      (pSpec.Transcript i.castSucc × (P.liftContext lens).PrvState i.castSucc)} :
-      (P.liftContext lens).processRound i resultRound
+      (pSpec.Transcript i.castSucc × P.liftContext.PrvState i.castSucc)} :
+      (P.liftContext (lens := lens)).processRound i resultRound
       = do
         let ⟨transcript, prvState, outerStmtIn, outerWitIn⟩ ← resultRound
         let ⟨newTranscript, newPrvState⟩ ← P.processRound i (do return ⟨transcript, prvState⟩)
@@ -394,11 +384,11 @@ private lemma Prover.bind_map_processRound_pure {i : Fin n}
   simp [processRound]
 
 theorem Prover.liftContext_runToRound
-    {lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
-                        OuterWitIn OuterWitOut InnerWitIn InnerWitOut}
+    [lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
+                        OuterWitIn OuterWitOut InnerWitIn InnerWitOut]
     {outerStmtIn : OuterStmtIn} {outerWitIn : OuterWitIn} {i : Fin (n + 1)}
     (P : Prover pSpec oSpec InnerStmtIn InnerWitIn InnerStmtOut InnerWitOut) :
-      (P.liftContext lens).runToRound i outerStmtIn outerWitIn
+      (P.liftContext (lens := lens)).runToRound i outerStmtIn outerWitIn
       = do
         let ⟨transcript, prvState⟩ ←
           P.runToRound i (lens.projStmt outerStmtIn) (lens.projWit outerWitIn)
@@ -410,11 +400,11 @@ theorem Prover.liftContext_runToRound
 
 -- Requires more lemmas about `simulateQ` for logging oracles
 theorem Prover.liftContext_runWithLogToRound
-    {lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
-                        OuterWitIn OuterWitOut InnerWitIn InnerWitOut}
+    [lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
+                        OuterWitIn OuterWitOut InnerWitIn InnerWitOut]
     {outerStmtIn : OuterStmtIn} {outerWitIn : OuterWitIn} {i : Fin (n + 1)}
     (P : Prover pSpec oSpec InnerStmtIn InnerWitIn InnerStmtOut InnerWitOut) :
-      (P.liftContext lens).runWithLogToRound i outerStmtIn outerWitIn
+      (P.liftContext (lens := lens)).runWithLogToRound i outerStmtIn outerWitIn
       = do
         let ⟨transcript, prvState, queryLog⟩ ←
           P.runWithLogToRound i (lens.projStmt outerStmtIn) (lens.projWit outerWitIn)
@@ -427,11 +417,11 @@ theorem Prover.liftContext_runWithLogToRound
 /-- Running the lifted outer prover is equivalent to running the inner prover on the projected
   input, and then integrating the output -/
 theorem Prover.liftContext_run
-    {lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
-                        OuterWitIn OuterWitOut InnerWitIn InnerWitOut}
+    [lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
+                        OuterWitIn OuterWitOut InnerWitIn InnerWitOut]
     {outerStmtIn : OuterStmtIn} {outerWitIn : OuterWitIn}
     (P : Prover pSpec oSpec InnerStmtIn InnerWitIn InnerStmtOut InnerWitOut) :
-      (P.liftContext lens).run outerStmtIn outerWitIn
+      P.liftContext.run outerStmtIn outerWitIn
       = do
         let ⟨innerStmtOut, innerWitOut, fullTranscript⟩ ←
           P.run (lens.projStmt outerStmtIn) (lens.projWit outerWitIn)
@@ -443,11 +433,11 @@ theorem Prover.liftContext_run
 
 /- Lifting the prover intertwines with the runWithLog function -/
 theorem Prover.liftContext_runWithLog
-    {lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
-                        OuterWitIn OuterWitOut InnerWitIn InnerWitOut}
+    [lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
+                        OuterWitIn OuterWitOut InnerWitIn InnerWitOut]
     {outerStmtIn : OuterStmtIn} {outerWitIn : OuterWitIn}
     (P : Prover pSpec oSpec InnerStmtIn InnerWitIn InnerStmtOut InnerWitOut) :
-      (P.liftContext lens).runWithLog outerStmtIn outerWitIn
+      P.liftContext.runWithLog outerStmtIn outerWitIn
       = do
         let ⟨innerStmtOut, innerWitOut, fullTranscript, queryLog⟩ ←
           P.runWithLog (lens.projStmt outerStmtIn) (lens.projWit outerWitIn)
@@ -461,11 +451,11 @@ theorem Prover.liftContext_runWithLog
 end Prover
 
 theorem Reduction.liftContext_run
-    {lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
-      OuterWitIn OuterWitOut InnerWitIn InnerWitOut}
+    [lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
+                        OuterWitIn OuterWitOut InnerWitIn InnerWitOut]
     {outerStmtIn : OuterStmtIn} {outerWitIn : OuterWitIn}
     (R : Reduction pSpec oSpec InnerStmtIn InnerWitIn InnerStmtOut InnerWitOut) :
-      (R.liftContext lens).run outerStmtIn outerWitIn = do
+      R.liftContext.run outerStmtIn outerWitIn = do
         let ⟨⟨prvInnerStmtOut, innerWitOut⟩, verInnerStmtOut, fullTranscript⟩ ←
           R.run (lens.projStmt outerStmtIn) (lens.projWit outerWitIn)
         return ⟨⟨lens.liftStmt (outerStmtIn, prvInnerStmtOut),
@@ -476,11 +466,11 @@ theorem Reduction.liftContext_run
   simp [Reduction.liftContext, Prover.liftContext_run, Verifier.liftContext, Verifier.run]
 
 theorem Reduction.liftContext_runWithLog
-    {lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
-      OuterWitIn OuterWitOut InnerWitIn InnerWitOut}
+    [lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
+                        OuterWitIn OuterWitOut InnerWitIn InnerWitOut]
     {outerStmtIn : OuterStmtIn} {outerWitIn : OuterWitIn}
     (R : Reduction pSpec oSpec InnerStmtIn InnerWitIn InnerStmtOut InnerWitOut) :
-      (R.liftContext lens).runWithLog outerStmtIn outerWitIn = do
+      R.liftContext.runWithLog outerStmtIn outerWitIn = do
         let ⟨⟨prvInnerStmtOut, innerWitOut⟩, verInnerStmtOut, fullTranscript, queryLog⟩ ←
           R.runWithLog (lens.projStmt outerStmtIn) (lens.projWit outerWitIn)
         return ⟨⟨lens.liftStmt (outerStmtIn, prvInnerStmtOut),
@@ -499,12 +489,12 @@ theorem Reduction.liftContext_completeness
     {relIn : OuterStmtIn → OuterWitIn → Prop} {relOut : OuterStmtOut → OuterWitOut → Prop}
     {relIn' : InnerStmtIn → InnerWitIn → Prop} {relOut' : InnerStmtOut → InnerWitOut → Prop}
     {completenessError : ℝ≥0}
-    (lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
-      OuterWitIn OuterWitOut InnerWitIn InnerWitOut)
+    [lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
+                        OuterWitIn OuterWitOut InnerWitIn InnerWitOut]
     (R : Reduction pSpec oSpec InnerStmtIn InnerWitIn InnerStmtOut InnerWitOut)
     [lensComplete : lens.IsComplete relIn relIn' relOut relOut' (R.compatContext lens)]
     (h : R.completeness relIn' relOut' completenessError) :
-      (R.liftContext lens).completeness relIn relOut completenessError := by
+      R.liftContext.completeness relIn relOut completenessError := by
   unfold completeness at h ⊢
   intro outerStmtIn outerWitIn hRelIn
   have hR := h (lens.projStmt outerStmtIn) (lens.projWit outerWitIn)
@@ -529,13 +519,13 @@ theorem Verifier.liftContext_soundness [Inhabited InnerStmtOut]
     {outerLangIn : Set OuterStmtIn} {outerLangOut : Set OuterStmtOut}
     {innerLangIn : Set InnerStmtIn} {innerLangOut : Set InnerStmtOut}
     {soundnessError : ℝ≥0}
-    (lens : StatementLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut)
+    [lens : StatementLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut]
     (V : Verifier pSpec oSpec InnerStmtIn InnerStmtOut)
     -- TODO: figure out the right compatibility relation for the IsSound condition
     [lensSound : lens.IsSound outerLangIn outerLangOut innerLangIn innerLangOut
       (V.compatStatement lens)]
     (h : V.soundness innerLangIn innerLangOut soundnessError) :
-      (V.liftContext lens).soundness outerLangIn outerLangOut soundnessError := by
+      V.liftContext.soundness outerLangIn outerLangOut soundnessError := by
   unfold soundness Reduction.run at h ⊢
   -- Note: there is no distinction between `Outer` and `Inner` here
   intro WitIn WitOut outerWitIn outerP outerStmtIn hOuterStmtIn
@@ -567,14 +557,14 @@ theorem Verifier.liftContext_knowledgeSoundness [Inhabited InnerStmtOut]
     {outerRelIn : OuterStmtIn → OuterWitIn → Prop} {outerRelOut : OuterStmtOut → OuterWitOut → Prop}
     {innerRelIn : InnerStmtIn → InnerWitIn → Prop} {innerRelOut : InnerStmtOut → InnerWitOut → Prop}
     {knowledgeError : ℝ≥0}
-    (lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
-      OuterWitIn OuterWitOut InnerWitIn InnerWitOut)
+    [lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
+                        OuterWitIn OuterWitOut InnerWitIn InnerWitOut]
     (lensInv : WitnessLensInv OuterWitIn OuterWitOut InnerWitIn InnerWitOut)
     [lensKnowledgeSound : lens.IsKnowledgeSound outerRelIn innerRelIn outerRelOut innerRelOut
       (fun _ _ => True) lensInv]
     (V : Verifier pSpec oSpec InnerStmtIn InnerStmtOut)
     (h : V.knowledgeSoundness innerRelIn innerRelOut knowledgeError) :
-      (V.liftContext lens.toStatementLens).knowledgeSoundness outerRelIn outerRelOut
+      V.liftContext.knowledgeSoundness outerRelIn outerRelOut
         knowledgeError := by
   unfold knowledgeSoundness at h ⊢
   obtain ⟨E, h'⟩ := h
@@ -616,13 +606,13 @@ theorem Verifier.liftContext_rbr_soundness
     {outerLangIn : Set OuterStmtIn} {outerLangOut : Set OuterStmtOut}
     {innerLangIn : Set InnerStmtIn} {innerLangOut : Set InnerStmtOut}
     {rbrSoundnessError : pSpec.ChallengeIdx → ℝ≥0}
-    (lens : StatementLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut)
+    [lens : StatementLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut]
     (V : Verifier pSpec oSpec InnerStmtIn InnerStmtOut)
     -- TODO: figure out the right compatibility relation for the IsSound condition
     [lensSound : lens.IsSound outerLangIn outerLangOut innerLangIn innerLangOut
       (V.compatStatement lens)]
     (h : V.rbrSoundness innerLangIn innerLangOut rbrSoundnessError) :
-      (V.liftContext lens).rbrSoundness outerLangIn outerLangOut rbrSoundnessError := by
+      V.liftContext.rbrSoundness outerLangIn outerLangOut rbrSoundnessError := by
   unfold rbrSoundness at h ⊢
   obtain ⟨stF, h⟩ := h
   sorry
@@ -635,14 +625,14 @@ theorem Verifier.liftContext_rbr_knowledgeSoundness
     {outerRelIn : OuterStmtIn → OuterWitIn → Prop} {outerRelOut : OuterStmtOut → OuterWitOut → Prop}
     {innerRelIn : InnerStmtIn → InnerWitIn → Prop} {innerRelOut : InnerStmtOut → InnerWitOut → Prop}
     {rbrKnowledgeError : pSpec.ChallengeIdx → ℝ≥0}
-    (lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
-      OuterWitIn OuterWitOut InnerWitIn InnerWitOut)
+    [lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
+                        OuterWitIn OuterWitOut InnerWitIn InnerWitOut]
     (lensInv : WitnessLensInv OuterWitIn OuterWitOut InnerWitIn InnerWitOut)
     [lensKnowledgeSound : lens.IsKnowledgeSound outerRelIn innerRelIn outerRelOut innerRelOut
       (fun _ _ => True) lensInv]
     (V : Verifier pSpec oSpec InnerStmtIn InnerStmtOut)
     (h : V.rbrKnowledgeSoundness innerRelIn innerRelOut rbrKnowledgeError) :
-      (V.liftContext lens.toStatementLens).rbrKnowledgeSoundness outerRelIn outerRelOut
+      V.liftContext.rbrKnowledgeSoundness outerRelIn outerRelOut
         rbrKnowledgeError := by
   sorry
 
