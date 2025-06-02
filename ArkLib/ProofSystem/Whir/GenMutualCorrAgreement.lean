@@ -47,10 +47,11 @@ noncomputable def genMutualCorrAgreement (Gen : ProximityGenerator ι F)
   `BStar = min {1 - δ_C/2, B}` and `errStar = err`. -/
 lemma genMutualCorrAgreement_le_bound (Gen : ProximityGenerator ι F)
   (BStar : ℝ≥0) (errStar : ℝ≥0 → ℝ≥0)
-  (h: genMutualCorrAgreement Gen BStar errStar) (C : Set (ι → F)) (hC : C = Gen.C) :
-  BStar < min (1 - (δᵣ C) / 2 : ℝ) Gen.B
+  (C : Set (ι → F)) (hC : C = Gen.C)
+  (h: genMutualCorrAgreement Gen BStar errStar) :
+  BStar < min (1 - (δᵣ C) / 2 : ℝ) (Gen.B Gen.C Gen.l)
   ∧
-  errStar = Gen.err := by sorry
+  errStar = Gen.err Gen.C Gen.l := by sorry
 
 /--Corollary 4.11
   Let `rsC` be a (smooth) ReedSolomon Code with rate `ρ`, then the function
@@ -66,11 +67,11 @@ noncomputable def gen_α (α : F) (l : ℕ) : F → Fin l → F :=
 /--the proximity generator `Genₐ` for smooth ReedSolomon codes wrt function
 `Gen(l,α)={1,α,..,α ^ l-1}`-/
 noncomputable def proximityGenerator_α
-  (ι : Finset F) [Nonempty ι] (Gen : ProximityGenerator ι F) (α : F)
-  (domain : ι ↪ F) (m : ℕ) (k : ℕ) [Smooth domain k] :
+  [DecidableEq ι] (Gen : ProximityGenerator ι F) (α : F)
+  (domain : ι ↪ F) (m : ℕ) [Smooth domain] :
   ProximityGenerator ι F :=
   {
-    C := smoothCode F ι domain k m,
+    C := smoothCode F ι domain m,
     l := Gen.l,
     GenFun := gen_α α Gen.l,
     B := Gen.B,
@@ -86,10 +87,10 @@ noncomputable def proximityGenerator_α
     BStar = (1-ρ) / 2
     errStar = (l-1)•2^m / ρ•|F|. -/
 lemma genMutualCorrAgreement_rsc_le_bound
-  (ι : Finset F) [Nonempty ι] (Gen Genₐ: ProximityGenerator ι F)
-  (α : F) (domain : ι ↪ F) (m k : ℕ) [Smooth domain k]
+  [DecidableEq ι] (Gen Genₐ: ProximityGenerator ι F)
+  (α : F) (domain : ι ↪ F) (m : ℕ) [Smooth domain]
   (BStar ρ : ℝ≥0) (errStar : ℝ≥0 → ℝ≥0)
-  (hGen : Genₐ = proximityGenerator_α ι Gen α domain m k)
+  (hGen : Genₐ = proximityGenerator_α Gen α domain m)
   (h : genMutualCorrAgreement Genₐ BStar errStar)
   (hrate : ρ = (2^m : ℝ≥0) / (Fintype.card ι)) :
   BStar = (1 - ρ) / 2 ∧
@@ -105,10 +106,10 @@ lemma genMutualCorrAgreement_rsc_le_bound
   1. Upto Johnson bound: BStar = √ρ and
                          errStar = (l-1) • 2^2m / |F| • (2 • min {1 - √ρ - δ, √ρ/20}) ^ 7.-/
 theorem genMutualCorrAgreement_le_johnsonBound
-  (ι : Finset F) [Nonempty ι] (Gen Genₐ: ProximityGenerator ι F)
-  (α : F) (domain : ι ↪ F) (m k : ℕ) [Smooth domain k]
+  [DecidableEq ι] (Gen Genₐ: ProximityGenerator ι F)
+  (α : F) (domain : ι ↪ F) (m : ℕ) [Smooth domain]
   (BStar ρ δ: ℝ≥0) (errStar : ℝ≥0 → ℝ≥0)
-  (hGen : Genₐ = proximityGenerator_α ι Gen α domain m k)
+  (hGen : Genₐ = proximityGenerator_α Gen α domain m)
   (h : genMutualCorrAgreement Genₐ BStar errStar)
   (hrate : ρ = (2^m : ℝ≥0) / (Fintype.card ι)) :
   let minval : ℝ≥0 := min (1 - NNReal.sqrt ρ - δ) (NNReal.sqrt ρ / 20)
@@ -120,10 +121,10 @@ theorem genMutualCorrAgreement_le_johnsonBound
 /--2. Upto capacity: BStar = ρ and ∃ c₁,c₂,c₃ ∈ ℕ s.t. ∀ η > 0 and 0 < δ < 1 - ρ - η
       errStar = (l-1)^c₂ • d^c₂ / η^c₁ • ρ^(c₁+c₂) • |F|, where d = 2^m is the degree.-/
 theorem genMutualCorrAgreement_le_capacity
-  (ι : Finset F) [Nonempty ι] (Gen Genₐ: ProximityGenerator ι F)
-  (α : F) (domain : ι ↪ F) (m k : ℕ) [Smooth domain k]
+  [DecidableEq ι] (Gen Genₐ: ProximityGenerator ι F)
+  (α : F) (domain : ι ↪ F) (m : ℕ) [Smooth domain]
   (BStar ρ δ: ℝ≥0) (errStar : ℝ≥0 → ℝ≥0)
-  (hGen : Genₐ = proximityGenerator_α ι Gen α domain m k)
+  (hGen : Genₐ = proximityGenerator_α Gen α domain m)
   (h : genMutualCorrAgreement Genₐ BStar errStar)
   (hrate : ρ = (2^m : ℝ≥0) / (Fintype.card ι)) :
   BStar = ρ ∧

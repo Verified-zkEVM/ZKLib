@@ -35,20 +35,20 @@ structure ProximityGenerator
   -- Generator function maps sampled randomness `r : 𝔽 ` to `l`-tuples of field elements
   GenFun    : F → Fin l → F
   -- Distance threshold parameter
-  B         : ℝ≥0
+  B         : (LinearCode ι F) → ℕ → ℝ≥0
   -- Error function bounding the probability of hitting within distance `δ`
-  err       : ℝ≥0 → ℝ≥0
+  err       : (LinearCode ι F) → ℕ → ℝ≥0 → ℝ≥0
   /- Proximity:
-      For all `l`-tuples of functions `fᵢ : ι → 𝔽` and distance parameter `δ ∈ (0, 1-BStar)`:
+      For all `l`-tuples of functions `fᵢ : ι → 𝔽` and distance parameter `δ ∈ (0, 1-BStar(C,l))`:
 
       If the probability that `linear_comb_in_distance(r)` is true for uniformly random
-      sampled  `r ← 𝔽 ` exceeds `err(δ)`, then there exists a  subset `S ⊆ ι ` of size
+      sampled  `r ← 𝔽 ` exceeds `err(C,l,δ)`, then there exists a  subset `S ⊆ ι ` of size
       `|S| ≥ (1-δ)⬝|ι|`) on which each `fᵢ` agrees with some codeword in `C`. -/
   proximity:
     ∀ (f : Fin l → ι → F)
       (δ : ℝ≥0)
-      (_hδ : δ < 1 - B) ,
-      Pr_{r ← F}[ (linear_comb_in_distance f δ GenFun C r) ] > err δ →
+      (_hδ : δ < 1 - (B C l)) ,
+      Pr_{r ← F}[ (linear_comb_in_distance f δ GenFun C r) ] > (err C l δ) →
         ∃ S : Finset ι,
           S.card ≥ (1 - δ) * Fintype.card ι ∧
           ∀ i : Fin l, ∃ u ∈ C, ∀ x ∈ S, f i x = u x

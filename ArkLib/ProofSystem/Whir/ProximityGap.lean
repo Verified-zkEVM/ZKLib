@@ -21,7 +21,7 @@ open ReedSolomon Generator SmoothDomain NNReal
                   (l-1)+2²ᵐ7(|F|(2 min{1-√ρ-δ, √ρ/20})⁷)  -/
 noncomputable def reedSolomonProximityGen
   {F : Type*} [Field F]  [Fintype F] [DecidableEq F]
-  {ι : Finset F} [DecidableEq ι] [Nonempty ι]
+  {ι : Type*} [Fintype ι] [DecidableEq ι] [Nonempty ι]
   (l : ℕ)
   (domain : ι ↪ F)
   (k : ℕ) [Smooth domain k]
@@ -31,8 +31,8 @@ noncomputable def reedSolomonProximityGen
     { C      := smoothCode F ι domain k m,
       l      := l,
       GenFun := fun r j => r ^ (j : ℕ),
-      B  := NNReal.sqrt ρ ,
-      err    := fun δ => (
+      B  := fun _ _ => NNReal.sqrt ρ ,
+      err    := fun _ _ δ => (
         if δ ≤ (1 - ρ) / 2 then
           ((l- 1) * 2^m) / (ρ  * Fintype.card F )
         else
