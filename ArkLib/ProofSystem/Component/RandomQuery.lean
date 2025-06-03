@@ -3,36 +3,60 @@ Copyright (c) 2025 ArkLib Contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
-import ArkLib.OracleReduction.Security.Basic
+import ArkLib.OracleReduction.LiftContext.Basic
 
 /-!
-# Building blocks for oracle reductions - RandomQuery
+# Simple Oracle Reduction: Random Query
 
-There is no witness nor public statement. There are two `OStatement`s, `a` and `b`,
-     of the same type. The relation is `a = b`.
-   - The verifier samples random `q : OracleInterface.Query` for that type
-   and sends it to the prover.
+This describes a one-round oracle reduction to randomly test whether two oracles (of the same type,
+with same oracle interface) are equal.
+
+In more details: there is no witness nor public statement. There are two `OStatement`s, `a` and `b`,
+of the same type. The relation is `a = b`.
+   - The verifier samples random `q : OracleInterface.Query` for that type and sends it to the
+     prover.
    - The verifier does not do any checks.
-   - The final relation is that `a` and `b` are equal at that query.
+   - The output relation is that `a` and `b` are equal at that query.
+   - We also support a variant where it's `a.query q = r` where `r` is the response, discarding `b`.
 -/
 
-open OracleSpec OracleComp OracleQuery
-
-namespace RandomQuery
-
-open OracleInterface
-
-/-!
-3. - There is no witness nor public statement. There are two `OStatement`s, `a` and `b`,
-     of the same type. The relation is `a = b`.
-   - The verifier samples random `q : OracleInterface.Query` for that type
-   and sends it to the prover.
-   - The verifier does not do any checks.
-   - The final relation is that `a` and `b` are equal at that query.
--/
+open OracleSpec OracleComp OracleQuery OracleInterface ProtocolSpec
 
 variable {ι : Type} (oSpec : OracleSpec ι) (OStatement : Type) [OracleInterface OStatement]
   [inst : VCVCompatible (Query OStatement)]
+
+namespace RandomQuery
+
+@[reducible, simp]
+def StmtIn := Unit
+
+@[reducible, simp]
+def StmtOut := Query OStatement
+
+@[reducible, simp]
+def OStmtIn := fun _ : Fin 2 => OStatement
+
+@[reducible, simp]
+def OStmtOut := fun _ : Fin 2 => OStatement
+
+@[reducible, simp]
+def WitIn := Unit
+
+@[reducible, simp]
+def WitOut := Unit
+
+/-- The input relation is that the two oracles are equal. -/
+@[reducible, simp]
+def relIn : (StmtIn × ∀ i, OStmtIn OStatement i) → WitIn → Prop := fun ⟨(), oracles⟩ () =>
+  oracles 0 = oracles 1
+
+/--
+The output relation states that if the verifier's single query was `q`, then
+`a` and `b` agree on that `q`, i.e. `oracle a q = oracle b q`.
+-/
+@[reducible, simp]
+def relOut : (StmtOut OStatement × ∀ i, OStmtOut OStatement i) → WitOut → Prop :=
+  fun ⟨q, oStmt⟩ () => oracle (oStmt 0) q = oracle (oStmt 1) q
 
 @[reducible]
 def pSpec : ProtocolSpec 1 := ![(.V_to_P, Query OStatement)]
@@ -42,7 +66,9 @@ instance : ∀ i, OracleInterface ((pSpec OStatement).Message i) | ⟨0, h⟩ =>
   | ⟨0, _⟩ => by dsimp [pSpec, ProtocolSpec.Challenge]; exact inst
 
 /--
-The prover is trivial: it has no messages to send.  It only receives the verifier's challenge `q`.
+The prover is trivial: it has no messages to send.  It only receives the verifier's challenge `q`,
+and outputs the same `q`.
+
 We keep track of `(a, b)` in the prover's state, along with the single random query `q`.
 -/
 def prover : OracleProver (pSpec OStatement) oSpec Unit Unit
@@ -50,29 +76,25 @@ def prover : OracleProver (pSpec OStatement) oSpec Unit Unit
     (fun _ : Fin 2 => OStatement) (fun _ : Fin 2 => OStatement) where
 
   PrvState
-  | 0 => OStatement × OStatement
-  | 1 => OStatement × OStatement × (Query OStatement)
+  | 0 => ∀ _ : Fin 2, OStatement
+  | 1 => (∀ _ : Fin 2, OStatement) × (Query OStatement)
 
-  input := fun ⟨(), oracles⟩ () => (oracles 0, oracles 1)
+  input := fun ⟨(), oracles⟩ () => oracles
 
   sendMessage | ⟨0, h⟩ => nomatch h
 
-  receiveChallenge | ⟨0, _⟩ => fun (a, b) q => (a, b, q)
+  receiveChallenge | ⟨0, _⟩ => fun oracles q => (oracles, q)
 
-  output := fun (a, b, q) => ((q, ![a, b]), ())
+  output := fun (oracles, q) => ((q, oracles), ())
 
 /--
-The verifier queries both `a` and `b` at the random point `q`.
-We check `OracleInterface.oracle a q = OracleInterface.oracle b q`.
+The oracle verifier simply returns the challenge, and performs no checks.
 -/
 def verifier : OracleVerifier (pSpec OStatement) oSpec Unit (Query OStatement)
     (fun _ : Fin 2 => OStatement) (fun _ : Fin 2 => OStatement) where
 
   verify := fun _ chal => do
-    let q : OracleInterface.Query OStatement := chal ⟨0, rfl⟩
-    -- let resp ← liftM <| query
-    --   (spec := (oSpec ++ₒ ([fun x ↦ OStatement]ₒ ++ₒ [(pSpec OStatement).Message]ₒ)))
-    --   (Sum.inr <| Sum.inl (0 : Fin 2)) q
+    let q : Query OStatement := chal ⟨0, rfl⟩
     pure q
 
   embed := Function.Embedding.inl
@@ -80,8 +102,9 @@ def verifier : OracleVerifier (pSpec OStatement) oSpec Unit (Query OStatement)
   hEq := by simp
 
 /--
-Combine the trivial prover and this verifier to form the oracle reduction:
-the input oracles are `(a, b)`, and the output oracles are the same `(a, b)`.
+Combine the trivial prover and this verifier to form the `RandomQuery` oracle reduction:
+the input oracles are `(a, b)`, and the output oracles are the same `(a, b)`
+its output statement also contains the challenge `q`.
 -/
 def oracleReduction :
   OracleReduction (pSpec OStatement) oSpec Unit Unit
@@ -90,24 +113,21 @@ def oracleReduction :
   prover := prover oSpec OStatement
   verifier := verifier oSpec OStatement
 
-@[reducible]
-def relIn : (Unit × (∀ _ : Fin 2, OStatement)) → Unit → Prop := fun ⟨(), oracles⟩ () =>
-  oracles 0 = oracles 1
-
-/--
-The final relation states that if the verifier's single query was `q`, then
-`a` and `b` agree on that `q`, i.e. `OracleInterface.oracle a q = OracleInterface.oracle b q`.
--/
-def relOut : ((Query OStatement) × (∀ _ : Fin 2, OStatement)) → Unit → Prop :=
-  fun ⟨q, oStmt⟩ () => OracleInterface.oracle (oStmt 0) q = OracleInterface.oracle (oStmt 1) q
-
 variable [oSpec.FiniteRange]
 
-theorem completeness : OracleReduction.perfectCompleteness
-    (relIn OStatement)
-    (relOut OStatement)
-    (oracleReduction oSpec OStatement) := by
-  sorry
+/-- The `RandomQuery` oracle reduction is perfectly complete. -/
+@[simp]
+theorem completeness : (oracleReduction oSpec OStatement).perfectCompleteness
+    (relIn OStatement) (relOut OStatement) := by
+  simp [OracleReduction.perfectCompleteness, oracleReduction, relIn, relOut]
+  intro _ oStmt _ hOStmt
+  simp [Reduction.run, Prover.run, Verifier.run, Prover.runToRound, Prover.processRound,
+    OracleReduction.toReduction, OracleVerifier.toVerifier, verifier, prover,
+    Transcript.snoc, FullTranscript.challenges]
+  intro q oStmt' q' oStmt'' transcript h1 h2 h3 h4
+  apply congrFun at h3
+  simp_all [Fin.snoc]
+  funext i; fin_cases i <;> simp_all
 
 -- def langIn : Set (Unit × (∀ _ : Fin 2, OStatement)) := setOf fun ⟨(), oracles⟩ =>
 --   oracles 0 = oracles 1
@@ -135,9 +155,11 @@ def extractor : RBRExtractor (pSpec OStatement) oSpec
     (Unit × (∀ _ : Fin 2, OStatement)) Unit :=
   fun _ _ _ _ => ()
 
--- The key fact governing the soundness of this reduction is a property of the form
--- `∀ a b : OStatement, a ≠ b → #{q | OracleInterface.oracle a q = OracleInterface.oracle b q} ≤ d`.
--- In other words, the oracle instance has distance at most `d`.
+/-!
+  The key fact governing the soundness of this reduction is a property of the form
+  `∀ a b : OStatement, a ≠ b → #{q | OracleInterface.oracle a q = OracleInterface.oracle b q} ≤ d`.
+  In other words, the oracle instance has distance at most `d`.
+-/
 
 variable [Fintype (Query OStatement)] [DecidableEq (Response OStatement)]
 
@@ -146,6 +168,8 @@ instance : Fintype ((pSpec OStatement).Challenge ⟨0, by simp⟩) := by
 
 open NNReal
 
+/-- The `RandomQuery` oracle reduction is knowledge sound. -/
+@[simp]
 theorem rbr_knowledge_soundness {d : ℕ} (h : OracleInterface.distanceLE OStatement d) :
     (verifier oSpec OStatement).rbrKnowledgeSoundness
       (relIn OStatement)
@@ -168,3 +192,65 @@ theorem rbr_knowledge_soundness {d : ℕ} (h : OracleInterface.distanceLE OState
   exact h (oracles 0) (oracles 1) hOracles
 
 end RandomQuery
+
+namespace RandomQueryWithResponse
+
+/-!
+  Random query where we throw away the second oracle, and replace with the response
+-/
+
+@[reducible, simp]
+def StmtIn := Unit
+
+@[reducible, simp]
+def StmtOut := Query OStatement × Response OStatement
+
+@[reducible, simp]
+def OStmtIn := fun _ : Fin 2 => OStatement
+
+@[reducible, simp]
+def OStmtOut := fun _ : Unit => OStatement
+
+@[reducible, simp]
+def WitIn := Unit
+
+@[reducible, simp]
+def WitOut := Unit
+
+@[reducible, simp]
+def relIn : (StmtIn × ∀ i, OStmtIn OStatement i) → WitIn → Prop := fun ⟨(), oracles⟩ () =>
+  oracles 0 = oracles 1
+
+/--
+The final relation states that the first oracle `oStmt ()` agrees with the response `r` at the query
+`q`.
+-/
+@[reducible, simp]
+def relOut : (StmtOut OStatement × ∀ i, OStmtOut OStatement i) → WitOut → Prop :=
+  fun ⟨⟨q, r⟩, oStmt⟩ () => oracle (oStmt ()) q = r
+
+@[reducible]
+def pSpec : ProtocolSpec 1 := ![(.V_to_P, Query OStatement)]
+
+instance : ∀ i, OracleInterface ((pSpec OStatement).Message i) | ⟨0, h⟩ => nomatch h
+@[reducible, simp] instance : ∀ i, VCVCompatible ((pSpec OStatement).Challenge i)
+  | ⟨0, _⟩ => by dsimp [pSpec, ProtocolSpec.Challenge]; exact inst
+
+-- Perhaps it's time to test out the liftContext infrastructure
+
+-- instance : OracleContextLens
+--     RandomQuery.StmtIn (RandomQuery.StmtOut OStatement)
+--     StmtIn (StmtOut OStatement)
+--     (RandomQuery.OStmtIn OStatement) (RandomQuery.OStmtOut OStatement)
+--     (OStmtIn OStatement) (OStmtOut OStatement)
+--     RandomQuery.WitIn RandomQuery.WitOut
+--     WitIn WitOut where
+--   projStmt := fun () => ()
+--   liftStmt := fun () => ()
+--   projOStmt := fun i => fun () => ()
+--   simOStmt := fun i => fun () => ()
+--   liftOStmt := fun i => fun () => ()
+--   projWit := fun () => ()
+--   liftWit := fun () => ()
+
+end RandomQueryWithResponse
