@@ -35,11 +35,6 @@ noncomputable def foldf (S : Finset ι) (φ : ι ↪ F)
   let f_negx := f (-xPow)
   (fx + f_negx) / 2 + α • ((fx - f_negx) / (2 * (xPow.val : F)))
 
-/-- Helper to recursively descend to base level 0 by repeated extraction. -/
-noncomputable def descend_to_0
-  (S : Finset ι) (φ : ι ↪ F) : ∀ (j : ℕ), indexPowT S φ j → indexPowT S φ 0
-| 0, x => x
-| (j+1), y => descend_to_0 S φ j (extract_x S φ j y)
 
 /--the function fold_k_core runs a recursion, for i, a vector `αs` of size (i+1) and
   a vector of (i+1) functions `fᵢ: LpowT S i → F`
@@ -51,14 +46,12 @@ noncomputable def descend_to_0
     we obtain the final function `LpowT S (i+1) → F` by invoking `foldf` with `fk` and `α`.-/
 noncomputable def fold_k_core {S : Finset ι} {φ : ι ↪ F} (f : (indexPowT S φ 0) → F)
   [∀ i : ℕ, Neg (indexPowT S φ i)] : (i : ℕ) → (αs : Vector F i) →
-    ((j : Fin i) → indexPowT S φ j → F) → indexPowT S φ i → F
-| 0, _, _ => fun x₀ => f x₀
-| k+1, αs, fi => fun y =>
+    indexPowT S φ i → F
+| 0, _ => fun x₀ => f x₀
+| k+1, αs => fun y =>
     let α := αs.head
     let αs' := αs.tail
-    let fi' : (j : Fin k) → indexPowT S φ j → F :=
-      fun j xj => fi (Fin.castSucc j) xj
-    let fk := fold_k_core f k αs' fi'
+    let fk := fold_k_core f k αs'
     foldf S φ y fk α
 
 
@@ -68,11 +61,7 @@ noncomputable def fold_k
   {S : Finset ι} {φ : ι ↪ F} {k : ℕ}
   [∀ j : ℕ, Neg (indexPowT S φ j)]
   (f : (indexPowT S φ 0) → F) (αs : Vector F k) : indexPowT S φ k → F :=
-  let fi : (j : Fin k) → indexPowT S φ j → F :=
-    fun j x => f (descend_to_0 S φ j x)
-  fold_k_core f k αs fi
-
-
+  fold_k_core f k αs
 
 noncomputable def fold_k_set
   {S : Finset ι} {φ : ι ↪ F} {k : ℕ}
@@ -160,6 +149,54 @@ lemma folding_preserves_listdecoding_base
 
                foldSet ≠ listBlock'
              ] ≤ errStar C' 2 δ
+  := by sorry
+
+lemma folding_preserves_listdecoding_bound
+  {S : Finset ι} {k m : ℕ} {φ : ι ↪ F} [Smooth φ] {δ : ℝ≥0} {f : (indexPowT S φ 0) → F}
+  {S_0 : Finset (indexPowT S φ 0)} {S_1 : Finset (indexPowT S φ 1)}
+  {φ_0 : (indexPowT S φ 0) ↪ F} {φ_1 : (indexPowT S φ 1) ↪ F}
+  [∀ i : ℕ, Fintype (indexPowT S φ i)] [∀ i : ℕ, DecidableEq (indexPowT S φ i)]
+  [Smooth φ_0] [Smooth φ_1]
+  [h : ∀ {f : (indexPowT S φ 0) → F}, DecidableBlockDisagreement 0 k f S_0 φ_0]
+  [h : ∀ {f : (indexPowT S φ 1) → F}, DecidableBlockDisagreement 1 k f S_1 φ_1]
+  [∀ i : ℕ, Neg (indexPowT S φ i)]
+  {C : Set ((indexPowT S φ 0) → F)} (hcode : C = smoothCode F (indexPowT S φ 0) φ_0 m)
+  (C' : Set ((indexPowT S φ 1) → F)) (hcode' : C' = smoothCode F (indexPowT S φ 1) φ_1 (m-1))
+  {BStar : (Set (indexPowT S φ 1 → F)) → ℕ → ℝ≥0}
+  {errStar : (Set (indexPowT S φ 1 → F)) → ℕ → ℝ≥0 → ℝ≥0} :
+      ∀ α : F,
+        let listBlock : Set ((indexPowT S φ 0) → F) := Λᵣ(0, k, f, S_0, C, hcode, δ)
+        let vec_α : Vector F 1 := Vector.ofFn (fun _ : Fin 1 => α)
+        let foldSet := fold_k_set listBlock vec_α
+        let fold := fold_k f vec_α
+        let listBlock' : Set ((indexPowT S φ 1) → F) := Λᵣ(1, k, fold, S_1, C', hcode', δ)
+
+        foldSet ⊆ listBlock'
+  := by sorry
+
+lemma folding_preserves_listdecoding_base_ne_subset
+  {S : Finset ι} {k m : ℕ} {φ : ι ↪ F} [Smooth φ] {δ : ℝ≥0}
+  {S_0 : Finset (indexPowT S φ 0)} {S_1 : Finset (indexPowT S φ 1)}
+  {φ_0 : (indexPowT S φ 0) ↪ F} {φ_1 : (indexPowT S φ 1) ↪ F}
+  [∀ i : ℕ, Fintype (indexPowT S φ i)] [∀ i : ℕ, DecidableEq (indexPowT S φ i)]
+  [Smooth φ_0] [Smooth φ_1]
+  [h : ∀ {f : (indexPowT S φ 0) → F}, DecidableBlockDisagreement 0 k f S_0 φ_0]
+  [h : ∀ {f : (indexPowT S φ 1) → F}, DecidableBlockDisagreement 1 k f S_1 φ_1]
+  [∀ i : ℕ, Neg (indexPowT S φ i)]
+  {C : Set ((indexPowT S φ 0) → F)} (hcode : C = smoothCode F (indexPowT S φ 0) φ_0 m)
+  (C' : Set ((indexPowT S φ 1) → F)) (hcode' : C' = smoothCode F (indexPowT S φ 1) φ_1 (m-1))
+  {BStar : (Set (indexPowT S φ 1 → F)) → ℕ → ℝ≥0}
+  {errStar : (Set (indexPowT S φ 1 → F)) → ℕ → ℝ≥0 → ℝ≥0} :
+    Pr_{α ← F} [ ∀ { f : (indexPowT S φ 0) → F} (hδLe: δ ≤ 1 - (BStar C' 2)),
+
+               let listBlock : Set ((indexPowT S φ 0) → F) := Λᵣ(0, k, f, S_0, C, hcode, δ)
+               let vec_α : Vector F 1 := Vector.ofFn (fun _ : Fin 1 => α)
+               let foldSet := fold_k_set listBlock vec_α
+               let fold := fold_k f vec_α
+               let listBlock' : Set ((indexPowT S φ 1) → F) := Λᵣ(1, k, fold, S_1, C', hcode', δ)
+
+               ¬ (listBlock' ⊆ foldSet)
+             ] < errStar C' 2 δ
   := by sorry
 
 end FoldingLemmas
