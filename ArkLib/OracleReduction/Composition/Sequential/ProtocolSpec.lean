@@ -6,7 +6,7 @@ Authors: Quang Dao
 
 import ArkLib.Data.Fin.Basic
 import ArkLib.ToMathlib.BigOperators.Fin
-import ArkLib.OracleReduction.Basic
+import ArkLib.OracleReduction.Cast
 
 /-! # Sequential Composition of Protocol Specifications
 
@@ -39,29 +39,7 @@ abbrev FullTranscript.rtake {pSpec : ProtocolSpec n} (m : ℕ) (h : m ≤ n)
 
 end Restrict
 
-/-! ### Casting Protocol Specifications -/
 
-section Cast
-
-variable {m n : ℕ}
-
-/-- Casting a `ProtocolSpec` across an equality of the number of rounds
-
-One should use the type-class function `dcast` instead of this one. -/
-protected def cast (h : m = n) (pSpec : ProtocolSpec m) : ProtocolSpec n :=
-  pSpec ∘ (Fin.cast h.symm)
-
-@[simp]
-theorem cast_id : ProtocolSpec.cast (Eq.refl n) = id := rfl
-
-instance instDepCast : DepCast Nat ProtocolSpec where
-  dcast h := ProtocolSpec.cast h
-  dcast_id := cast_id
-
-theorem cast_eq_dcast (h : m = n) (pSpec : ProtocolSpec m) :
-    dcast h pSpec = ProtocolSpec.cast h pSpec := rfl
-
-end Cast
 
 /-! ### Composition of Two Protocol Specifications -/
 
@@ -139,27 +117,6 @@ theorem rtake_append_right :
   simp [Fin.rtake_apply, Fin.append_right]
 
 namespace FullTranscript
-
-section Cast
-
-/-- Casting a transcript across an equality of `ProtocolSpec`s -/
-protected def cast (h : m = n) (hSpec : dcast h pSpec₁ = pSpec₂) (T : FullTranscript pSpec₁) :
-    FullTranscript pSpec₂ :=
-  fun i => _root_.cast (congrFun (congrArg getType hSpec) i) (T (Fin.cast h.symm i))
-
-variable {m n : ℕ} {pSpec₁ : ProtocolSpec m} {pSpec₂ : ProtocolSpec n}
-
-@[simp]
-theorem cast_id : FullTranscript.cast rfl rfl = (id : pSpec₁.FullTranscript → _) := rfl
-
-instance instDepCast₂ : DepCast₂ Nat ProtocolSpec (fun _ pSpec => FullTranscript pSpec) where
-  dcast₂ h h' T := FullTranscript.cast h h' T
-  dcast₂_id := cast_id
-
-theorem cast_eq_dcast₂ (h : m = n) (hSpec : dcast h pSpec₁ = pSpec₂) (T : FullTranscript pSpec₁) :
-    dcast₂ h hSpec T = FullTranscript.cast h hSpec T := rfl
-
-end Cast
 
 /-- Appending two transcripts for two `ProtocolSpec`s -/
 def append (T₁ : FullTranscript pSpec₁) (T₂ : FullTranscript pSpec₂) :
