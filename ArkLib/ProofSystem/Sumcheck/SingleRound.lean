@@ -555,8 +555,8 @@ def stateFunction (i : Fin (n + 1)) : Verifier.StateFunction (pSpec := pSpec R d
     sorry
 
 /-- Trivial extractor since witness is `Unit` -/
-def rbrExtractor (i : Fin (n + 1)) :
-    @RBRExtractor _ (pSpec R deg) _ oSpec (Statement R n i.castSucc) Unit i := fun _ _ _ => ()
+def rbrExtractor : RBRExtractor (pSpec R deg) oSpec (Statement R n i.castSucc) Unit :=
+  fun _ _ _ _ => ()
 
 -- /-- Round-by-round knowledge soundness theorem for sumcheck -/
 -- theorem rbr_knowledge_soundness : (oracleVerifier R n deg D oSpec i).rbrKnowledgeSoundness

@@ -190,10 +190,10 @@ def StraightlineExtractor :=
   WitIn -- input witness
 
 /-- A round-by-round extractor with index `m` is given the input statement, a partial transcript
-  of length `m`, the query log, and returns a witness to the statement.
+  of length `m`, the prover's query log, and returns a witness to the statement.
 
   Note that the RBR extractor does not need to take in the output statement or witness. -/
-def RBRExtractor (m : Fin (n + 1)) := StmtIn → Transcript m pSpec → QueryLog oSpec → WitIn
+def RBRExtractor := (m : Fin (n + 1)) → StmtIn → Transcript m pSpec → QueryLog oSpec → WitIn
 
 section Rewinding
 
@@ -354,7 +354,7 @@ def rbrSoundness (langIn : Set StmtIn) (langOut : Set StmtOut)
   ∀ prover : Prover pSpec oSpec StmtIn WitIn StmtOut WitOut,
   ∀ i : pSpec.ChallengeIdx,
     let ex : OracleComp (oSpec ++ₒ [pSpec.Challenge]ₒ) _ := do
-      return (← prover.runWithLogToRound i.1.castSucc stmtIn witIn, ← pSpec.getChallenge i)
+      return (← prover.runToRound i.1.castSucc stmtIn witIn, ← pSpec.getChallenge i)
     [fun ⟨⟨transcript, _⟩, challenge⟩ =>
       ¬ stateFunction i.1.castSucc stmtIn transcript ∧
         stateFunction i.1.succ stmtIn (transcript.snoc challenge)
@@ -383,7 +383,7 @@ def rbrKnowledgeSoundness (relIn : StmtIn → WitIn → Prop) (relOut : StmtOut 
     (verifier : Verifier pSpec oSpec StmtIn StmtOut)
     (rbrKnowledgeError : pSpec.ChallengeIdx → ℝ≥0) : Prop :=
   ∃ stateFunction : verifier.StateFunction pSpec oSpec relIn.language relOut.language,
-  ∃ extractor : (m : Fin (n + 1)) → RBRExtractor pSpec oSpec StmtIn WitIn m,
+  ∃ extractor : RBRExtractor pSpec oSpec StmtIn WitIn,
   ∀ stmtIn : StmtIn,
   ∀ witIn : WitIn,
   ∀ prover : Prover pSpec oSpec StmtIn WitIn StmtOut WitOut,
