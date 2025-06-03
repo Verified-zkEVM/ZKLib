@@ -38,6 +38,8 @@ import ArkLib.Data.UniPoly.Basic
 import ArkLib.Data.UniPoly.BasicOld
 import ArkLib.Data.UniPoly.PolynomialReflection
 import ArkLib.OracleReduction.Basic
+import ArkLib.OracleReduction.Cast
+import ArkLib.OracleReduction.Composition.Parallel.Basic
 import ArkLib.OracleReduction.Composition.Sequential.Basic
 import ArkLib.OracleReduction.Composition.Sequential.ProtocolSpec
 import ArkLib.OracleReduction.Equiv
@@ -47,7 +49,10 @@ import ArkLib.OracleReduction.OracleInterface
 import ArkLib.OracleReduction.Prelude
 import ArkLib.OracleReduction.Security.Basic
 import ArkLib.OracleReduction.VectorIOR
-import ArkLib.ProofSystem.Components
+import ArkLib.ProofSystem.Component.CheckPred
+import ArkLib.ProofSystem.Component.RandomQuery
+import ArkLib.ProofSystem.Component.SendClaim
+import ArkLib.ProofSystem.Component.SendWitness
 import ArkLib.ProofSystem.ConstraintSystem.IndexedLookup
 import ArkLib.ProofSystem.ConstraintSystem.Plonk
 import ArkLib.ProofSystem.ConstraintSystem.R1CS
