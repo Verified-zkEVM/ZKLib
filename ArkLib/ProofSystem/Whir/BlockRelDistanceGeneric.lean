@@ -27,15 +27,19 @@ def indexPowT (S : Finset ι) (φ : ι ↪ F) (k : ℕ) := { y : F // ∃ x ∈ 
   It returns the subset of `ι` consisting of all `x` such that `x^(2^k) = y`.
   Semantically: `powFiberT ι k y = { x ∈ ι | x^(2^k) = y }`.
 -/
-def powFiberT (S : Finset ι) (φ : ι ↪ F) (k : ℕ) (y : indexPowT S φ k) :=
-  { x : ι // x ∈ S ∧ (φ x) ^ (2^k) = y.val }
+def powFiberT (i k : ℕ) {S : Finset ι} {φ : ι ↪ F} (S' : Finset (indexPowT S φ i))
+  (φ' : (indexPowT S φ i) ↪ F)  (y : indexPowT S φ (k-i)) :=
+  { x : (indexPowT S φ i) // x ∈ S' ∧ (φ' x) ^ (2^(k-i)) = y.val }
 
 /--Definition 4.16
   For `ι` be a smooth evaluation domain, `k` be a folding parameter, `z ∈ ι ^ 2^k`,
   Block is the set of elements `{ y ∈ ι, y ^ 2^k = z }`.-/
-def block [DecidableEq F] [DecidableEq ι] (S : Finset ι) (φ : ι ↪ F) (k : ℕ)
-  (z : indexPowT S φ k) [Smooth φ]:=
-    powFiberT S φ k z
+def block (i k : ℕ) {S : Finset ι} {φ : ι ↪ F}
+  (S' : Finset (indexPowT S φ i))
+  (φ' : (indexPowT S φ i) ↪ F)  (z : indexPowT S φ (k-i))
+  [DecidableEq F] [DecidableEq ι] [Smooth φ]
+  [Fintype (indexPowT S φ i)] [DecidableEq (indexPowT S φ i)] [Smooth φ'] :=
+    powFiberT i k S' φ' z
 
 /--The class DecidableBlockDisagreement provides a decidability instance for testing
   pointwise inequality of two functions `f, g : ι → F` on elements of `block ι k z domain`,
@@ -46,11 +50,15 @@ def block [DecidableEq F] [DecidableEq ι] (S : Finset ι) (φ : ι ↪ F) (k : 
   evaluation domain `ι`. This is useful in defining sets of such `z`.
 -/
 class DecidableBlockDisagreement
-  [DecidableEq F] [DecidableEq ι] (S : Finset ι) (φ : ι ↪ F) (f : ι → F) (k : ℕ)
-  [Smooth φ] where
+  (i k : ℕ) {S : Finset ι} {φ : ι ↪ F}
+  [DecidableEq F] [DecidableEq ι] [Smooth φ]
+  (f : (indexPowT S φ i) → F) (S' : Finset (indexPowT S φ i))
+  (φ' : (indexPowT S φ i) ↪ F)
+  [Fintype (indexPowT S φ i)] [DecidableEq (indexPowT S φ i)] [Smooth φ']
+  where
   dec_inst :
-    ∀ z : indexPowT S φ k, ∀ g : ι → F,
-      Decidable (∃ y : block S φ k z, f y.val ≠ g y.val)
+    ∀ z : indexPowT S φ (k-i), ∀ g : (indexPowT S φ i) → F,
+      Decidable (∃ y : block i k S' φ' z, f y.val ≠ g y.val)
 
 /--Let `C = CRS[F, ι, m, w, σ]` be a ConstrainReedSolomon code and `f,g : ι → F`, then
   the k-wise block relative distance is defined as
@@ -59,10 +67,14 @@ class DecidableBlockDisagreement
   using the class DecidableBlockDisagreement, to filter a finite subset of the Finset
   (indexPow ι k), as per {z ∈ ι ^ 2^k : ∃ y ∈ Block(ι,k,z) f(y) ≠ g(y)} for a given g.  -/
 noncomputable def disagreementSet
-  [DecidableEq F] [DecidableEq ι] (S : Finset ι) (φ : ι ↪ F) (f : ι → F)
-  (k : ℕ) [Fintype (indexPowT S φ k)]
-  [Smooth φ] [h : DecidableBlockDisagreement S φ f k] :
-  (g : ι → F) → Finset (indexPowT S φ k) :=
+  (i k : ℕ) {S : Finset ι} {φ : ι ↪ F}
+  [DecidableEq F] [DecidableEq ι] [Smooth φ]
+  (f : (indexPowT S φ i) → F) (S' : Finset (indexPowT S φ i))
+  (φ' : (indexPowT S φ i) ↪ F)
+  [Fintype (indexPowT S φ i)] [DecidableEq (indexPowT S φ i)] [Smooth φ']
+  [Fintype (indexPowT S φ (k-i))]
+  [h : DecidableBlockDisagreement i k f S' φ'] :
+  (g : (indexPowT S φ i) → F) → Finset (indexPowT S φ (k-i)) :=
   fun g =>
     Finset.univ.filter (fun z => @decide _ (h.dec_inst z g))
 
@@ -70,41 +82,52 @@ noncomputable def disagreementSet
   Given the disagreementSet from above, we obtain the block relative distance as
   |disagreementSet|/ |ι ^ (2^k|.-/
 noncomputable def blockRelDistance
-  [DecidableEq F] [DecidableEq ι] (S : Finset ι) (φ : ι ↪ F) (f : ι → F)
-  (k : ℕ) [Fintype (indexPowT S φ k)] [Smooth φ]
-  [h : DecidableBlockDisagreement S φ f k] :
-  (g : ι → F) → ℝ≥0 :=
+  (i k : ℕ) {S : Finset ι} {φ : ι ↪ F}
+  [DecidableEq F] [DecidableEq ι] [Smooth φ]
+  (f : (indexPowT S φ i) → F) (S' : Finset (indexPowT S φ i))
+  (φ' : (indexPowT S φ i) ↪ F)
+  [Fintype (indexPowT S φ i)] [DecidableEq (indexPowT S φ i)] [Smooth φ']
+  [Fintype (indexPowT S φ (k-i))]
+  [h : DecidableBlockDisagreement i k f S' φ'] :
+  (g : (indexPowT S φ i) → F) → ℝ≥0 :=
   fun g =>
-    (disagreementSet S φ f k g).card / (Fintype.card (indexPowT S φ k) : ℝ≥0)
+    (disagreementSet i k f S' φ' g).card / (Fintype.card (indexPowT S φ (k-i)) : ℝ≥0)
 
 /--notation Δᵣ(ι, f, k, domain, g) is the k-wise block relative distance.-/
-scoped notation "Δᵣ( "S", "φ", "f", "k", "g")"  => blockRelDistance S φ f k g
+scoped notation "Δᵣ( "i", "k", "f", "S'", "φ'", "g" )"  => blockRelDistance i k f S' φ' g
 
 /--For the set S ⊆ F^ι, we define the minimum block relative distance wrt set S.-/
 noncomputable def minBlockRelDistance
-  [DecidableEq F] [DecidableEq ι] (S : Finset ι) (φ : ι ↪ F) (f : ι → F)
-  (Set : Set (ι → F)) (k : ℕ) [Fintype (indexPowT S φ k)]
-  [Smooth φ] [h : DecidableBlockDisagreement S φ f k] : ℝ≥0 :=
-    sInf { d : ℝ≥0 | ∃ g ∈ Set, Δᵣ(S, φ, f, k, g) = d}
+  (i k : ℕ) {S : Finset ι} {φ : ι ↪ F}
+  [DecidableEq F] [DecidableEq ι] [Smooth φ]
+  (f : (indexPowT S φ i) → F) (S' : Finset (indexPowT S φ i))
+  (φ' : (indexPowT S φ i) ↪ F) (Set : Set ((indexPowT S φ i) → F))
+  [Fintype (indexPowT S φ i)] [DecidableEq (indexPowT S φ i)] [Smooth φ']
+  [Fintype (indexPowT S φ (k-i))]
+  [h : DecidableBlockDisagreement i k f S' φ'] : ℝ≥0 :=
+    sInf { d : ℝ≥0 | ∃ g ∈ Set, Δᵣ(i, k, f, S', φ', g) = d}
 
 /--notation Δₛ(ι, f, S, k, domain)  denotes the minimum block relative distance wrt set S.-/
-scoped notation "Δₛ( "S", "f", "φ", "k", "domain" )"  => minBlockRelDistance S f φ k domain
+scoped notation "Δₛ( "i", "k", "f", "S'", "φ'", "Set" )"  => minBlockRelDistance i k f S' φ' Set
 
 /--Definition 4.18
   For a constrained ReedSolomon code C = CRS[F, ι, m, w, σ], proximity parameter δ ∈ [0,1]
   function f : ι → F, we define the following as the ball of radius `δ` centered at
   word `f`, i.e., u ∈ C such that Δᵣ(ι, f, k, domain, u) ≤ δ.-/
 noncomputable def listBlockRelDistance
-  [DecidableEq F] [DecidableEq ι] (S : Finset ι) {φ : ι ↪ F} (f : ι → F)
-  (k : ℕ) [Fintype (indexPowT S φ k)] [Smooth φ] {m : ℕ}
-  (C : Set (ι → F)) (hcode : C = smoothCode F ι φ m) (δ : ℝ≥0)
-  [h : DecidableBlockDisagreement S φ f k]
-  : (Set (ι → F)) :=
+  (i k : ℕ) {S : Finset ι} {φ : ι ↪ F}
+  [DecidableEq F] [DecidableEq ι] [Smooth φ]
+  (f : (indexPowT S φ i) → F) (S' : Finset (indexPowT S φ i))
+  {φ' : (indexPowT S φ i) ↪ F} (C : Set ((indexPowT S φ i) → F))
+  [∀ i : ℕ, Fintype (indexPowT S φ i)] [DecidableEq (indexPowT S φ i)] [Smooth φ'] {m : ℕ}
+  (hcode : C = smoothCode F (indexPowT S φ i) φ' m) (δ : ℝ≥0)
+  [h : DecidableBlockDisagreement i k f S' φ'] : (Set ((indexPowT S φ i) → F)) :=
     let hδLe := δ ≤ 1
-    { u ∈ C | Δᵣ(S, φ, f, k, u) ≤ δ }
+    { u ∈ C | Δᵣ(i, k, f, S', φ', u) ≤ δ }
 
  /--Λᵣ(ι, f, C, hcode, δ) denotes the ball of radius `δ` centered at word `f`.-/
-scoped notation "Λᵣ( "S", "f", "k", "C", "hcode", "δ")" => listBlockRelDistance S f k C hcode δ
+scoped notation "Λᵣ( "i", "k", "f", "S'", "C", "hcode", "δ")" =>
+  listBlockRelDistance i k f S' C hcode δ
 
 /--Claim 4.19
   For a constrained ReedSolomon code `C = CRS[F, ι, m, w, σ]`, codewords `f, g : ι → F`,
@@ -112,14 +135,17 @@ scoped notation "Λᵣ( "S", "f", "k", "C", "hcode", "δ")" => listBlockRelDista
   relative Hamming distance `δᵣ(f,g)`. As a result, we have
     `Λᵣ(f, C, hcode, δ)` is bounded by `Λ(f, C, hcode, δ)`-/
 lemma blockRelDistance_le_hammingDistance
-  [DecidableEq F] [DecidableEq ι] {S : Finset ι} {φ : ι ↪ F} (f g : ι → F)
-  (k : ℕ) [Fintype (indexPowT S φ k)] [Smooth φ] {m : ℕ}
-  (C : Set (ι → F)) (hcode : C = smoothCode F ι φ m)
-  [h : DecidableBlockDisagreement S φ f k]
-  (hBound : Δᵣ(S, φ, f, k, g) ≤ (δᵣ(f, g) : ℝ)) :
+  (i k : ℕ) {S : Finset ι} {φ : ι ↪ F}
+  [DecidableEq F] [DecidableEq ι] [Smooth φ]
+  (f g : (indexPowT S φ i) → F) (S' : Finset (indexPowT S φ i))
+  {φ' : (indexPowT S φ i) ↪ F} (C : Set ((indexPowT S φ i) → F))
+  [∀ i : ℕ, Fintype (indexPowT S φ i)] [DecidableEq (indexPowT S φ i)] [Smooth φ'] {m : ℕ}
+  (hcode : C = smoothCode F (indexPowT S φ i) φ' m) (δ : ℝ≥0)
+  [h : DecidableBlockDisagreement i k f S' φ']
+  (hBound :   Δᵣ(i, k, f, S', φ', g) ≤ (δᵣ(f, g) : ℝ)) :
     ∀ {δ : ℝ≥0} (hδLe : δ ≤ 1),
       let listHamming := relHammingBall C f δ
-      let listBlock := Λᵣ(S, f, k, C, hcode, δ)
+      let listBlock := Λᵣ(i, k, f, S', C, hcode, δ)
       listBlock ⊆ listHamming := by sorry
 
 
