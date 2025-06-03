@@ -7,11 +7,11 @@ Authors: Quang Dao
 import ArkLib.OracleReduction.Execution
 
 /-!
-  # Security Definitions for IOR
+  # Security Definitions for (Oracle) Reductions
 
-  We define the following security properties for IOR:
+  We define the following security properties for (oracle) reductions:
 
-  - Completeness.
+  - (Perfect) Completeness
 
   - (Knowledge) Soundness: We define many variants of soundness and knowledge soundness, including
     - (Standard) soundness
@@ -20,6 +20,9 @@ import ArkLib.OracleReduction.Execution
   All definitions are in the adaptive prover setting.
 
   - Zero-knowledge: This will be defined in the future
+
+  For each security notion, we provide a typeclass for it, so that security can be synthesized
+  automatically with verified transformations.
 -/
 
 noncomputable section
@@ -75,8 +78,27 @@ def perfectCompleteness (relIn : StmtIn → WitIn → Prop) (relOut : StmtOut �
     (reduction : Reduction pSpec oSpec StmtIn WitIn StmtOut WitOut) : Prop :=
   completeness relIn relOut reduction 0
 
+/-- Type class for completeness for a reduction -/
+class IsComplete (relIn : StmtIn → WitIn → Prop) (relOut : StmtOut → WitOut → Prop)
+    (reduction : Reduction pSpec oSpec StmtIn WitIn StmtOut WitOut)
+    (completenessError : ℝ≥0) where
+  is_complete : completeness relIn relOut reduction completenessError
+
+/-- Type class for perfect completeness for a reduction -/
+class IsPerfectComplete (reduction : Reduction pSpec oSpec StmtIn WitIn StmtOut WitOut)
+    (relIn : StmtIn → WitIn → Prop) (relOut : StmtOut → WitOut → Prop) where
+  is_perfect_complete : perfectCompleteness relIn relOut reduction
+
 variable {relIn : StmtIn → WitIn → Prop} {relOut : StmtOut → WitOut → Prop}
     {reduction : Reduction pSpec oSpec StmtIn WitIn StmtOut WitOut}
+
+-- Unclear if these circular instances will cause problems
+
+instance [reduction.IsComplete relIn relOut 0] : IsPerfectComplete reduction relIn relOut :=
+  ⟨IsComplete.is_complete⟩
+
+instance [reduction.IsPerfectComplete relIn relOut] : IsComplete relIn relOut reduction 0 :=
+  ⟨IsPerfectComplete.is_perfect_complete⟩
 
 /-- Perfect completeness means that the probability of the reduction outputting a valid
   statement-witness pair is _exactly_ 1 (instead of at least `1 - 0`). -/
@@ -254,6 +276,12 @@ def soundness (langIn : Set StmtIn) (langOut : Set StmtOut)
     [fun ⟨_, stmtOut, _⟩ => stmtOut ∈ langOut
     | reduction.run stmtIn witIn] ≤ soundnessError
 
+/-- Type class for soundness for a verifier -/
+class IsSound (langIn : Set StmtIn) (langOut : Set StmtOut)
+    (verifier : Verifier pSpec oSpec StmtIn StmtOut)
+    (soundnessError : ℝ≥0) where
+  is_sound : soundness langIn langOut verifier soundnessError
+
 -- How would one define a rewinding extractor? It should have oracle access to the prover's
 -- functions (receive challenges and send messages), and be able to observe & simulate the prover's
 -- oracle queries
@@ -280,6 +308,12 @@ def knowledgeSoundness (relIn : StmtIn → WitIn → Prop) (relOut : StmtOut →
       letI extractedWitIn := extractor witOut stmtIn transcript proveQueryLog.fst verifyQueryLog
       ¬ relIn stmtIn extractedWitIn ∧ relOut stmtOut witOut
     | reduction.runWithLog stmtIn witIn] ≤ knowledgeError
+
+/-- Type class for knowledge soundness for a verifier -/
+class IsKnowledgeSound (relIn : StmtIn → WitIn → Prop) (relOut : StmtOut → WitOut → Prop)
+    (verifier : Verifier pSpec oSpec StmtIn StmtOut)
+    (knowledgeError : ℝ≥0) where
+  is_knowledge_sound : knowledgeSoundness relIn relOut verifier knowledgeError
 
 section StateRestoration
 
@@ -361,6 +395,12 @@ def rbrSoundness (langIn : Set StmtIn) (langOut : Set StmtOut)
     | ex] ≤
       rbrSoundnessError i
 
+/-- Type class for round-by-round soundness for a verifier -/
+class IsRBRSound (langIn : Set StmtIn) (langOut : Set StmtOut)
+    (verifier : Verifier pSpec oSpec StmtIn StmtOut)
+    (rbrSoundnessError : pSpec.ChallengeIdx → ℝ≥0) where
+  is_rbr_sound : rbrSoundness langIn langOut verifier rbrSoundnessError
+
 /--
   A protocol with `verifier` satisfies round-by-round knowledge soundness with respect to input
   relation `relIn`, output relation `relOut`, and error `rbrKnowledgeError` if:
@@ -398,6 +438,13 @@ def rbrKnowledgeSoundness (relIn : StmtIn → WitIn → Prop) (relOut : StmtOut 
         ¬ stateFunction i.1.castSucc stmtIn transcript ∧
           stateFunction i.1.succ stmtIn (transcript.snoc challenge)
     | ex] ≤ rbrKnowledgeError i
+
+/-- Type class for round-by-round knowledge soundness for a verifier -/
+class IsRBRKnowledgeSound
+    (relIn : StmtIn → WitIn → Prop) (relOut : StmtOut → WitOut → Prop)
+    (verifier : Verifier pSpec oSpec StmtIn StmtOut)
+    (rbrKnowledgeError : pSpec.ChallengeIdx → ℝ≥0) where
+  is_rbr_knowledge_sound : rbrKnowledgeSoundness relIn relOut verifier rbrKnowledgeError
 
 end RoundByRound
 
@@ -501,26 +548,6 @@ end ZeroKnowledge
 
 end Reduction
 
-section Classes
-
-/-! We provide typeclasses for the security notions, so that we could synthesize them automatically
-with verified transformations
-
-For now, we only care about two properties: perfect completness and round-by-round knowledge
-soundness -/
-
-/-- Type class for (perfect) completeness for a reduction -/
-class Reduction.IsComplete (reduction : Reduction pSpec oSpec StmtIn WitIn StmtOut WitOut)
-    (relIn : StmtIn → WitIn → Prop) (relOut : StmtOut → WitOut → Prop) where
-  complete : perfectCompleteness relIn relOut reduction
-
-/-- Type class for round-by-round knowledge soundness for a reduction -/
-class Verifier.IsRBRKnowledgeSound (verifier : Verifier pSpec oSpec StmtIn StmtOut)
-    (relIn : StmtIn → WitIn → Prop) (relOut : StmtOut → WitOut → Prop) where
-  rbrKnowledgeError : pSpec.ChallengeIdx → ℝ≥0
-  is_rbr_knowledge_sound : rbrKnowledgeSoundness relIn relOut verifier rbrKnowledgeError
-
-end Classes
 
 /-! Completeness and soundness are the same as for non-oracle reductions. Only zero-knowledge is
   different (but we haven't defined it yet) -/

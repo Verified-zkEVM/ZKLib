@@ -68,6 +68,8 @@ class StatementLens (OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut : Type) w
   projStmt : OuterStmtIn → InnerStmtIn
   liftStmt : OuterStmtIn × InnerStmtOut → OuterStmtOut
 
+#check ReaderT.run
+
 /-- A lens for transporting oracle statements between outer and inner contexts
 
 We require knowledge of the (non-oracle) input statement in the outer context, along with the
@@ -81,13 +83,22 @@ class OStatementLens (OuterStmtIn InnerStmtOut : Type)
   -- To access an input oracle statement in the inner context, we may simulate it using the input
   -- (non-oracle) statement of the outer context, along with oracle access to the outer input oracle
   -- statements
-  projOStmt : QueryImpl [InnerOStmtIn]ₒ
+  projOStmt : ∀ i, OuterOStmtIn i → ∀ i, InnerOStmtIn i
+
+  simOStmt : QueryImpl [InnerOStmtIn]ₒ
     (ReaderT OuterStmtIn (OracleComp [OuterOStmtIn]ₒ))
+
+  -- simOStmt_eq_projOStmt :
+
+  -- projOStmt_neverFails : ∀ i, ∀ t, ∀ outerStmtIn,
+  --   ((projOStmt.impl (query i t)).run outerStmtIn).neverFails
   -- To get back an output oracle statement in the outer context, we may simulate it using the input
   -- (non-oracle) statement of the outer context, the output (non-oracle) statement of the inner
   -- context, along with oracle access to the inner output oracle statements
   liftOStmt : QueryImpl [OuterOStmtOut]ₒ
-    (ReaderT (OuterStmtIn × InnerStmtOut) (OracleComp [InnerOStmtOut]ₒ))
+    (ReaderT (OuterStmtIn × InnerStmtOut) (OracleComp ([OuterOStmtIn]ₒ ++ₒ [InnerOStmtOut]ₒ)))
+  liftOStmt_neverFails : ∀ i, ∀ t, ∀ outerStmtIn, ∀ innerStmtOut,
+    ((liftOStmt.impl (query i t)).run (outerStmtIn, innerStmtOut)).neverFails
 
 /-- A lens for transporting witnesses between outer and inner contexts -/
 class WitnessLens (OuterWitIn OuterWitOut InnerWitIn InnerWitOut : Type) where
@@ -117,6 +128,8 @@ class OracleContextLens (OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut : Typ
 
 namespace OracleContextLens
 
+#check OracleComp.simulateQ
+
 variable {OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut : Type}
   {Outer_ιₛᵢ : Type} (OuterOStmtIn : Outer_ιₛᵢ → Type) [∀ i, OracleInterface (OuterOStmtIn i)]
   {Outer_ιₛₒ : Type} (OuterOStmtOut : Outer_ιₛₒ → Type) [∀ i, OracleInterface (OuterOStmtOut i)]
@@ -133,7 +146,8 @@ instance instContextLens : ContextLens
     (OuterStmtIn × ∀ i, OuterOStmtIn i) (OuterStmtOut × ∀ i, OuterOStmtOut i)
     (InnerStmtIn × ∀ i, InnerOStmtIn i) (InnerStmtOut × ∀ i, InnerOStmtOut i)
     OuterWitIn OuterWitOut InnerWitIn InnerWitOut where
-  projStmt := fun ⟨outerStmtIn, outerOStmtIn⟩ => ⟨oLens.projStmt outerStmtIn, sorry⟩
+  projStmt := fun ⟨outerStmtIn, outerOStmtIn⟩ =>
+    ⟨oLens.projStmt outerStmtIn, sorry⟩
   liftStmt := fun ⟨outerStmtIn, innerStmtOut⟩ => sorry
   projWit := fun outerWitIn => sorry
   liftWit := fun ⟨outerWitIn, innerWitOut⟩ => sorry
@@ -559,20 +573,25 @@ theorem Reduction.liftContext_runWithLog
 
 variable [oSpec.FiniteRange]
 
+section Completeness
+
+variable
+    {outerRelIn : OuterStmtIn → OuterWitIn → Prop} {outerRelOut : OuterStmtOut → OuterWitOut → Prop}
+    {innerRelIn : InnerStmtIn → InnerWitIn → Prop} {innerRelOut : InnerStmtOut → InnerWitOut → Prop}
+    {R : Reduction pSpec oSpec InnerStmtIn InnerWitIn InnerStmtOut InnerWitOut}
+    {completenessError : ℝ≥0}
+    [lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
+                    OuterWitIn OuterWitOut InnerWitIn InnerWitOut]
+    [lensComplete : lens.IsComplete outerRelIn innerRelIn outerRelOut innerRelOut
+      (R.compatContext lens)]
+
 /--
   Lifting the reduction preserves completeness, assuming the lens satisfies its completeness
   conditions
 -/
 theorem Reduction.liftContext_completeness
-    {relIn : OuterStmtIn → OuterWitIn → Prop} {relOut : OuterStmtOut → OuterWitOut → Prop}
-    {relIn' : InnerStmtIn → InnerWitIn → Prop} {relOut' : InnerStmtOut → InnerWitOut → Prop}
-    {completenessError : ℝ≥0}
-    [lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
-                        OuterWitIn OuterWitOut InnerWitIn InnerWitOut]
-    (R : Reduction pSpec oSpec InnerStmtIn InnerWitIn InnerStmtOut InnerWitOut)
-    [lensComplete : lens.IsComplete relIn relIn' relOut relOut' (R.compatContext lens)]
-    (h : R.completeness relIn' relOut' completenessError) :
-      R.liftContext.completeness relIn relOut completenessError := by
+    (h : R.completeness innerRelIn innerRelOut completenessError) :
+      R.liftContext.completeness outerRelIn outerRelOut completenessError := by
   unfold completeness at h ⊢
   intro outerStmtIn outerWitIn hRelIn
   have hR := h (lens.projStmt outerStmtIn) (lens.projWit outerWitIn)
@@ -590,6 +609,19 @@ theorem Reduction.liftContext_completeness
   refine lensComplete.lift_complete _ _ _ _ hRelIn hRelOut ?_
   rw [← hRelOut']
   simp [compatContext]; exact this
+
+-- Can't turn the above into an instance because Lean needs to synthesize `innerRelIn` and
+-- `innerRelOut` out of thin air.
+
+-- instance [Reduction.IsComplete innerRelIn innerRelOut R completenessError] :
+--     R.liftContext.IsComplete outerRelIn outerRelOut completenessError :=
+--   ⟨R.liftContext.completeness⟩
+
+-- instance [R.IsPerfectComplete relIn relOut] :
+--     R.liftContext.IsPerfectComplete relIn relOut :=
+--   ⟨fun _ => R.liftContext.perfectCompleteness _ _ _⟩
+
+end Completeness
 
 /-- Lifting the reduction preserves soundness, assuming the lens satisfies its soundness
   conditions -/

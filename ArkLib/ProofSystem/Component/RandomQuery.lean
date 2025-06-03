@@ -8,12 +8,12 @@ import ArkLib.OracleReduction.Security.Basic
 /-!
 # Building blocks for oracle reductions - RandomQuery
 
-We describe common (1-message) protocols that serve as building blocks for constructing oracle
-reductions. Each of these components is an oracle reduction with a single message (from prover or
-from verifier), and does a minimal amount of computation.
-
-Assume that the beginning data consists of `Statement`, `OStatement`, and `Witness`, and a
-relation `rel : Statement → OStatement → Witness → Prop`.
+There is no witness nor public statement. There are two `OStatement`s, `a` and `b`,
+     of the same type. The relation is `a = b`.
+   - The verifier samples random `q : OracleInterface.Query` for that type
+   and sends it to the prover.
+   - The verifier does not do any checks.
+   - The final relation is that `a` and `b` are equal at that query.
 -/
 
 open OracleSpec OracleComp OracleQuery
