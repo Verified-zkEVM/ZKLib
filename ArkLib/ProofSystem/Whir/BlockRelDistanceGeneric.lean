@@ -37,8 +37,7 @@ def powFiberT (i k : ℕ) {S : Finset ι} {φ : ι ↪ F} (S' : Finset (indexPow
 def block (i k : ℕ) {S : Finset ι} {φ : ι ↪ F}
   (S' : Finset (indexPowT S φ i))
   (φ' : (indexPowT S φ i) ↪ F)  (z : indexPowT S φ (k-i))
-  [DecidableEq F] [DecidableEq ι] [Smooth φ]
-  [Fintype (indexPowT S φ i)] [DecidableEq (indexPowT S φ i)] [Smooth φ'] :=
+  [DecidableEq F] [DecidableEq ι] [Smooth φ] :=
     powFiberT i k S' φ' z
 
 /--The class DecidableBlockDisagreement provides a decidability instance for testing
@@ -53,9 +52,7 @@ class DecidableBlockDisagreement
   (i k : ℕ) {S : Finset ι} {φ : ι ↪ F}
   [DecidableEq F] [DecidableEq ι] [Smooth φ]
   (f : (indexPowT S φ i) → F) (S' : Finset (indexPowT S φ i))
-  (φ' : (indexPowT S φ i) ↪ F)
-  [Fintype (indexPowT S φ i)] [DecidableEq (indexPowT S φ i)] [Smooth φ']
-  where
+  (φ' : (indexPowT S φ i) ↪ F) where
   dec_inst :
     ∀ z : indexPowT S φ (k-i), ∀ g : (indexPowT S φ i) → F,
       Decidable (∃ y : block i k S' φ' z, f y.val ≠ g y.val)
@@ -70,9 +67,7 @@ noncomputable def disagreementSet
   (i k : ℕ) {S : Finset ι} {φ : ι ↪ F}
   [DecidableEq F] [DecidableEq ι] [Smooth φ]
   (f : (indexPowT S φ i) → F) (S' : Finset (indexPowT S φ i))
-  (φ' : (indexPowT S φ i) ↪ F)
-  [Fintype (indexPowT S φ i)] [DecidableEq (indexPowT S φ i)] [Smooth φ']
-  [Fintype (indexPowT S φ (k-i))]
+  (φ' : (indexPowT S φ i) ↪ F) [∀ i : ℕ, Fintype (indexPowT S φ i)]
   [h : DecidableBlockDisagreement i k f S' φ'] :
   (g : (indexPowT S φ i) → F) → Finset (indexPowT S φ (k-i)) :=
   fun g =>
@@ -85,9 +80,7 @@ noncomputable def blockRelDistance
   (i k : ℕ) {S : Finset ι} {φ : ι ↪ F}
   [DecidableEq F] [DecidableEq ι] [Smooth φ]
   (f : (indexPowT S φ i) → F) (S' : Finset (indexPowT S φ i))
-  (φ' : (indexPowT S φ i) ↪ F)
-  [Fintype (indexPowT S φ i)] [DecidableEq (indexPowT S φ i)] [Smooth φ']
-  [Fintype (indexPowT S φ (k-i))]
+  (φ' : (indexPowT S φ i) ↪ F) [∀ i : ℕ, Fintype (indexPowT S φ i)]
   [h : DecidableBlockDisagreement i k f S' φ'] :
   (g : (indexPowT S φ i) → F) → ℝ≥0 :=
   fun g =>
@@ -102,8 +95,7 @@ noncomputable def minBlockRelDistance
   [DecidableEq F] [DecidableEq ι] [Smooth φ]
   (f : (indexPowT S φ i) → F) (S' : Finset (indexPowT S φ i))
   (φ' : (indexPowT S φ i) ↪ F) (Set : Set ((indexPowT S φ i) → F))
-  [Fintype (indexPowT S φ i)] [DecidableEq (indexPowT S φ i)] [Smooth φ']
-  [Fintype (indexPowT S φ (k-i))]
+  [∀ i : ℕ, Fintype (indexPowT S φ i)]
   [h : DecidableBlockDisagreement i k f S' φ'] : ℝ≥0 :=
     sInf { d : ℝ≥0 | ∃ g ∈ Set, Δᵣ(i, k, f, S', φ', g) = d}
 
