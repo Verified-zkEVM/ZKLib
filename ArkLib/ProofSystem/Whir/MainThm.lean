@@ -130,6 +130,9 @@ theorem whir_rbr_soundness
     (ε_fold : (i : Fin M) → Fin (P.foldingParam i) → ℝ≥0) (ε_out : Fin M → ℝ≥0)
     (ε_shift : Fin M → ℝ≥0) (ε_fin : ℝ≥0) :
       ∃ π : VectorIOP vPSpec F oSpec (Statement F ι P.degreeExp) Unit (OStmtOut F ι₀ ιₛ),
+        let maxDeg := (Finset.univ : Finset (Fin m_0)).sup (fun i => wPoly₀.degreeOf (Fin.succ i))
+        let dstar := 1 + (wPoly₀.degreeOf 0) + maxDeg
+        let d := max dstar 3
         ∀ j : Fin (P.foldingParam ⟨0, Fact.out⟩),
           let errStar_0_j j :=
             h.errStar_ij ⟨0, Fact.out⟩ j (h.C_ij ⟨0, Fact.out⟩ j)  2 (h.δ_i ⟨0, Fact.out⟩)
