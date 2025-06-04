@@ -81,7 +81,8 @@ def perfectCompleteness (relIn : StmtIn → WitIn → Prop) (relOut : StmtOut �
 /-- Type class for completeness for a reduction -/
 class IsComplete (relIn : StmtIn → WitIn → Prop) (relOut : StmtOut → WitOut → Prop)
     (reduction : Reduction pSpec oSpec StmtIn WitIn StmtOut WitOut)
-    (completenessError : ℝ≥0) where
+    where
+  completenessError : ℝ≥0
   is_complete : completeness relIn relOut reduction completenessError
 
 /-- Type class for perfect completeness for a reduction -/
@@ -92,13 +93,9 @@ class IsPerfectComplete (reduction : Reduction pSpec oSpec StmtIn WitIn StmtOut 
 variable {relIn : StmtIn → WitIn → Prop} {relOut : StmtOut → WitOut → Prop}
     {reduction : Reduction pSpec oSpec StmtIn WitIn StmtOut WitOut}
 
--- Unclear if these circular instances will cause problems
-
-instance [reduction.IsComplete relIn relOut 0] : IsPerfectComplete reduction relIn relOut :=
-  ⟨IsComplete.is_complete⟩
-
-instance [reduction.IsPerfectComplete relIn relOut] : IsComplete relIn relOut reduction 0 :=
-  ⟨IsPerfectComplete.is_perfect_complete⟩
+instance [reduction.IsPerfectComplete relIn relOut] : IsComplete relIn relOut reduction where
+  completenessError := 0
+  is_complete := sorry
 
 /-- Perfect completeness means that the probability of the reduction outputting a valid
   statement-witness pair is _exactly_ 1 (instead of at least `1 - 0`). -/
@@ -209,7 +206,7 @@ def StraightlineExtractor :=
   FullTranscript pSpec → -- reduction transcript
   QueryLog oSpec → -- prover's query log
   QueryLog oSpec → -- verifier's query log
-  WitIn -- input witness
+  OracleComp oSpec WitIn -- input witness
 
 /-- A round-by-round extractor with index `m` is given the input statement, a partial transcript
   of length `m`, the prover's query log, and returns a witness to the statement.
@@ -240,6 +237,8 @@ structure RewindingExtractor (pSpec : ProtocolSpec n) (oSpec : OracleSpec ι)
     times -/
   runExt : StmtOut → WitOut → StmtIn →
     StateT ExtState (OracleComp (OracleSpec.proverOracle pSpec StmtIn)) WitIn
+
+-- Challenge: need environment to update & maintain the prover's states after each extractor query
 
 -- def RewindingExtractor.run
 --     (P : AdaptiveProver pSpec oSpec StmtIn WitIn StmtOut WitOut)
@@ -278,8 +277,8 @@ def soundness (langIn : Set StmtIn) (langOut : Set StmtOut)
 
 /-- Type class for soundness for a verifier -/
 class IsSound (langIn : Set StmtIn) (langOut : Set StmtOut)
-    (verifier : Verifier pSpec oSpec StmtIn StmtOut)
-    (soundnessError : ℝ≥0) where
+    (verifier : Verifier pSpec oSpec StmtIn StmtOut) where
+  soundnessError : ℝ≥0
   is_sound : soundness langIn langOut verifier soundnessError
 
 -- How would one define a rewinding extractor? It should have oracle access to the prover's
@@ -304,15 +303,19 @@ def knowledgeSoundness (relIn : StmtIn → WitIn → Prop) (relOut : StmtOut →
   ∀ witIn : WitIn,
   ∀ prover : Prover pSpec oSpec StmtIn WitIn StmtOut WitOut,
     letI reduction := Reduction.mk prover verifier
-    [fun ⟨(_, witOut), stmtOut, transcript, proveQueryLog, verifyQueryLog⟩ =>
-      letI extractedWitIn := extractor witOut stmtIn transcript proveQueryLog.fst verifyQueryLog
-      ¬ relIn stmtIn extractedWitIn ∧ relOut stmtOut witOut
-    | reduction.runWithLog stmtIn witIn] ≤ knowledgeError
+    [fun ⟨stmtIn, witIn, stmtOut, witOut⟩ =>
+      ¬ relIn stmtIn witIn ∧ relOut stmtOut witOut
+    | do
+      let ⟨(_, witOut), stmtOut, transcript, proveQueryLog, verifyQueryLog⟩ ←
+        reduction.runWithLog stmtIn witIn
+      let extractedWitIn ←
+        liftComp (extractor witOut stmtIn transcript proveQueryLog.fst verifyQueryLog) _
+      return (stmtIn, extractedWitIn, stmtOut, witOut)] ≤ knowledgeError
 
 /-- Type class for knowledge soundness for a verifier -/
 class IsKnowledgeSound (relIn : StmtIn → WitIn → Prop) (relOut : StmtOut → WitOut → Prop)
-    (verifier : Verifier pSpec oSpec StmtIn StmtOut)
-    (knowledgeError : ℝ≥0) where
+    (verifier : Verifier pSpec oSpec StmtIn StmtOut) where
+  knowledgeError : ℝ≥0
   is_knowledge_sound : knowledgeSoundness relIn relOut verifier knowledgeError
 
 section StateRestoration
@@ -395,10 +398,13 @@ def rbrSoundness (langIn : Set StmtIn) (langOut : Set StmtOut)
     | ex] ≤
       rbrSoundnessError i
 
-/-- Type class for round-by-round soundness for a verifier -/
+/-- Type class for round-by-round soundness for a verifier
+
+Note that we put the error as a field in the type class to make it easier for synthesization
+(often the rbr error will need additional simplification / proof) -/
 class IsRBRSound (langIn : Set StmtIn) (langOut : Set StmtOut)
-    (verifier : Verifier pSpec oSpec StmtIn StmtOut)
-    (rbrSoundnessError : pSpec.ChallengeIdx → ℝ≥0) where
+    (verifier : Verifier pSpec oSpec StmtIn StmtOut) where
+  rbrSoundnessError : pSpec.ChallengeIdx → ℝ≥0
   is_rbr_sound : rbrSoundness langIn langOut verifier rbrSoundnessError
 
 /--
@@ -439,11 +445,14 @@ def rbrKnowledgeSoundness (relIn : StmtIn → WitIn → Prop) (relOut : StmtOut 
           stateFunction i.1.succ stmtIn (transcript.snoc challenge)
     | ex] ≤ rbrKnowledgeError i
 
-/-- Type class for round-by-round knowledge soundness for a verifier -/
-class IsRBRKnowledgeSound
-    (relIn : StmtIn → WitIn → Prop) (relOut : StmtOut → WitOut → Prop)
-    (verifier : Verifier pSpec oSpec StmtIn StmtOut)
-    (rbrKnowledgeError : pSpec.ChallengeIdx → ℝ≥0) where
+/-- Type class for round-by-round knowledge soundness for a verifier
+
+Note that we put the error as a field in the type class to make it easier for synthesization
+(often the rbr error will need additional simplification / proof)
+-/
+class IsRBRKnowledgeSound (relIn : StmtIn → WitIn → Prop) (relOut : StmtOut → WitOut → Prop)
+    (verifier : Verifier pSpec oSpec StmtIn StmtOut) where
+  rbrKnowledgeError : pSpec.ChallengeIdx → ℝ≥0
   is_rbr_knowledge_sound : rbrKnowledgeSoundness relIn relOut verifier rbrKnowledgeError
 
 end RoundByRound

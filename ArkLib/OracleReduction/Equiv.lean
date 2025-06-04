@@ -1,4 +1,5 @@
 import ArkLib.OracleReduction.Security.Basic
+import ArkLib.OracleReduction.LiftContext.Basic
 
 /-!
   # Equivalence / Isomorphism of Oracle Reductions
@@ -7,6 +8,8 @@ import ArkLib.OracleReduction.Security.Basic
 
   We also define equivalence between IORs, in the sense that the statements and witnesses are
   equivalent, and their mapping commute with the reduction (both for the prover and the verifier).
+
+  NOTE: this is now a special case of `liftContext`
 
   -----------------------------------------------------------------------------------------------
 
