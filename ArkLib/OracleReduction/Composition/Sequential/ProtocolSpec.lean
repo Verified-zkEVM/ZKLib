@@ -116,6 +116,22 @@ theorem rtake_append_right :
   ext i : 1
   simp [Fin.rtake_apply, Fin.append_right]
 
+namespace Transcript
+
+variable {k : Fin (m + n + 1)}
+
+/-- The first half of a partial transcript for a concatenated protocol. -/
+def fst (T : (pSpec₁ ++ₚ pSpec₂).Transcript k) : pSpec₁.Transcript ⟨min k m, by omega⟩ :=
+  fun i => sorry
+  -- cast T i
+
+/-- The second half of a partial transcript for a concatenated protocol. -/
+def snd (T : (pSpec₁ ++ₚ pSpec₂).Transcript k) : pSpec₂.Transcript ⟨k - m, by omega⟩ :=
+  fun i => sorry
+  -- cast T i
+
+end Transcript
+
 namespace FullTranscript
 
 /-- Appending two transcripts for two `ProtocolSpec`s -/

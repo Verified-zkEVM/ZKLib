@@ -95,7 +95,7 @@ variable {relIn : StmtIn → WitIn → Prop} {relOut : StmtOut → WitOut → Pr
 
 instance [reduction.IsPerfectComplete relIn relOut] : IsComplete relIn relOut reduction where
   completenessError := 0
-  is_complete := sorry
+  is_complete := IsPerfectComplete.is_perfect_complete
 
 /-- Perfect completeness means that the probability of the reduction outputting a valid
   statement-witness pair is _exactly_ 1 (instead of at least `1 - 0`). -/
@@ -119,7 +119,6 @@ theorem perfectCompleteness_eq_prob_one :
 end Completeness
 
 end Reduction
-
 
 section Soundness
 
@@ -318,6 +317,21 @@ class IsKnowledgeSound (relIn : StmtIn → WitIn → Prop) (relOut : StmtOut →
   knowledgeError : ℝ≥0
   is_knowledge_sound : knowledgeSoundness relIn relOut verifier knowledgeError
 
+/-- An extractor is **monotone** if its success probability on a given query log is the same as
+  the success probability on any extension of that query log. -/
+class StraightlineExtractor.IsMonotone [oSpec.FiniteRange]
+    (E : StraightlineExtractor pSpec oSpec StmtIn WitIn WitOut)
+    (relIn : StmtIn → WitIn → Prop) where
+  is_monotone : ∀ witOut stmtIn transcript, ∀ proveQueryLog₁ proveQueryLog₂ : oSpec.QueryLog,
+    ∀ verifyQueryLog₁ verifyQueryLog₂ : oSpec.QueryLog,
+    proveQueryLog₁.Sublist proveQueryLog₂ →
+    verifyQueryLog₁.Sublist verifyQueryLog₂ →
+    -- Placeholder probability for now, probably need to consider the whole game
+    [fun witIn => relIn stmtIn witIn | E witOut stmtIn transcript proveQueryLog₁ verifyQueryLog₁] ≤
+      [fun witIn => relIn stmtIn witIn | E witOut stmtIn transcript proveQueryLog₂ verifyQueryLog₂]
+    -- Pr[extraction game succeeds on proveQueryLog₁, verifyQueryLog₁]
+    -- ≤ Pr[extraction game succeeds on proveQueryLog₂, verifyQueryLog₂]
+
 section StateRestoration
 
 -- /-- State-restoration soundness -/
@@ -454,6 +468,19 @@ class IsRBRKnowledgeSound (relIn : StmtIn → WitIn → Prop) (relOut : StmtOut 
     (verifier : Verifier pSpec oSpec StmtIn StmtOut) where
   rbrKnowledgeError : pSpec.ChallengeIdx → ℝ≥0
   is_rbr_knowledge_sound : rbrKnowledgeSoundness relIn relOut verifier rbrKnowledgeError
+
+/-- A round-by-round extractor is **monotone** if its success probability on a given query log
+  is the same as the success probability on any extension of that query log. -/
+class RBRExtractor.IsMonotone (E : RBRExtractor pSpec oSpec StmtIn WitIn)
+    (relIn : StmtIn → WitIn → Prop) where
+  is_monotone : ∀ roundIdx stmtIn transcript,
+    ∀ proveQueryLog₁ proveQueryLog₂ : oSpec.QueryLog,
+    -- ∀ verifyQueryLog₁ verifyQueryLog₂ : oSpec.QueryLog,
+    proveQueryLog₁.Sublist proveQueryLog₂ →
+    -- verifyQueryLog₁.Sublist verifyQueryLog₂ →
+    -- Placeholder condition for now, will need to consider the whole game w/ probabilities
+    relIn stmtIn (E roundIdx stmtIn transcript proveQueryLog₁) →
+      relIn stmtIn (E roundIdx stmtIn transcript proveQueryLog₂)
 
 end RoundByRound
 

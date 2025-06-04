@@ -264,21 +264,75 @@ def OracleReduction.append (R₁ : OracleReduction pSpec₁ oSpec Stmt₁ Wit₁
 
 namespace Verifier
 
+/-! Sequential composition of extractors and state functions
+
+These have the following form: they needs to know the first verifier, and derive the intermediate
+statement from running the first verifier on the first statement.
+
+This leads to complications: the verifier is assumed to be a general `OracleComp oSpec`, and so
+we also need to have the extractors and state functions to be similarly `OracleComp`s.
+
+The alternative is to consider a fully deterministic (and non-failing) verifier. The non-failing
+part is somewhat problematic as we write our verifiers to be able to fail (i.e. implicit failing
+via `guard` statements).
+
+As such, the definitions below are temporary until further development. -/
+
 /-- The sequential composition of two straightline extractors.
 
-TODO: figure out how to handle the query logs -/
+TODO: state a monotone condition on the extractor, namely that if extraction succeeds on a given
+query log, then it also succeeds on any extension of that query log -/
 def StraightlineExtractor.append (E₁ : StraightlineExtractor pSpec₁ oSpec Stmt₁ Wit₁ Wit₂)
     (E₂ : StraightlineExtractor pSpec₂ oSpec Stmt₂ Wit₂ Wit₃)
-    (V₁ : Verifier pSpec₁ oSpec Stmt₁ Stmt₂) (V₂ : Verifier pSpec₂ oSpec Stmt₂ Stmt₃) :
+    (V₁ : Verifier pSpec₁ oSpec Stmt₁ Stmt₂) :
       StraightlineExtractor (pSpec₁ ++ₚ pSpec₂) oSpec Stmt₁ Wit₁ Wit₃ :=
   fun wit₃ stmt₁ transcript proveQueryLog verifyQueryLog => do
     let stmt₂ ← V₁.verify stmt₁ transcript.fst
-    let wit₂ := E₂ wit₃ stmt₂ transcript.snd proveQueryLog verifyQueryLog
-    sorry
+    let wit₂ ← E₂ wit₃ stmt₂ transcript.snd proveQueryLog verifyQueryLog
+    let wit₁ ← E₁ wit₂ stmt₁ transcript.fst proveQueryLog verifyQueryLog
+    return wit₁
+
+/-- The round-by-round extractor for the sequential composition of two (oracle) reductions
+
+The nice thing is we just extend the first extractor to the concatenated protocol. The intuition is
+that RBR extraction happens on the very first message, so further messages don't matter. -/
+def RBRExtractor.append (E₁ : RBRExtractor pSpec₁ oSpec Stmt₁ Wit₁) :
+      RBRExtractor (pSpec₁ ++ₚ pSpec₂) oSpec Stmt₁ Wit₁ :=
+  -- (TODO: describe `Transcript.fst` and `Transcript.snd`)
+  fun roundIdx stmt₁ transcript proveQueryLog =>
+    E₁ ⟨min roundIdx m, by omega⟩ stmt₁ transcript.fst proveQueryLog
+
+variable {lang₁ : Set Stmt₁} {lang₂ : Set Stmt₂} {lang₃ : Set Stmt₃}
+
+example {a b : ℕ} (h : a < b) : min b a = a := by exact min_eq_right_of_lt h
+
+/-- The sequential composition of two state functions. -/
+def StateFunction.append [oSpec.FiniteRange]
+    (V₁ : Verifier pSpec₁ oSpec Stmt₁ Stmt₂)
+    (V₂ : Verifier pSpec₂ oSpec Stmt₂ Stmt₃)
+    (S₁ : StateFunction pSpec₁ oSpec lang₁ lang₂ V₁)
+    (S₂ : StateFunction pSpec₂ oSpec lang₂ lang₃ V₂)
+    -- Assume the first verifier is deterministic for now
+    (verify : Stmt₁ → pSpec₁.FullTranscript → Stmt₂)
+    (hVerify : V₁ = ⟨fun stmt tr => pure (verify stmt tr)⟩) :
+      StateFunction (pSpec₁ ++ₚ pSpec₂) oSpec lang₁ lang₃ (V₁.append V₂) where
+  toFun := fun roundIdx stmt₁ transcript =>
+    if h : roundIdx.val ≤ m then
+    -- If the round index falls in the first protocol, then we simply invokes the first state fn
+      S₁ ⟨roundIdx, by omega⟩ stmt₁ (by simpa [h] using transcript.fst)
+    else
+    -- If the round index falls in the second protocol, then we returns the conjunction of
+    -- the first state fn on the first protocol's transcript, and the second state fn on the
+    -- remaining transcript.
+      S₁ ⟨m, by omega⟩ stmt₁ (by simp at h; simpa [min_eq_right_of_lt h] using transcript.fst) ∧
+      S₂ ⟨roundIdx - m, by omega⟩ (verify stmt₁
+        (by simp at h; simpa [min_eq_right_of_lt h] using transcript.fst))
+        (by simpa [h] using transcript.snd)
+  toFun_empty := sorry
+  toFun_next := sorry
+  toFun_full := sorry
 
 end Verifier
-
-
 
 section Execution
 
@@ -311,14 +365,14 @@ section Security
 
 open scoped NNReal
 
-namespace Reduction
-
 section Append
 
 variable {pSpec₁ : ProtocolSpec m} {pSpec₂ : ProtocolSpec n} [∀ i, Sampleable (pSpec₁.Challenge i)]
     [∀ i, Sampleable (pSpec₂.Challenge i)] {Stmt₁ Wit₁ Stmt₂ Wit₂ Stmt₃ Wit₃ : Type}
     {rel₁ : Stmt₁ → Wit₁ → Prop} {rel₂ : Stmt₂ → Wit₂ → Prop} {rel₃ : Stmt₃ → Wit₃ → Prop}
     [oSpec.DecidableEq] [oSpec.FiniteRange]
+
+namespace Reduction
 
 /-- If two reductions satisfy completeness with compatible relations (`rel₁`, `rel₂` for `R₁` and
     `rel₂`, `rel₃` for `R₂`), and respective completeness errors `completenessError₁` and
@@ -343,8 +397,75 @@ theorem perfectCompleteness_append (R₁ : Reduction pSpec₁ oSpec Stmt₁ Wit�
   convert Reduction.completeness_append R₁ R₂ h₁ h₂
   simp only [add_zero]
 
-end Append
-
 end Reduction
+
+namespace Verifier
+
+/-- If two verifiers satisfy soundness with compatible languages and respective soundness errors,
+    then their sequential composition also satisfies soundness.
+    The soundness error of the appended verifier is the sum of the individual errors. -/
+theorem append_soundness (V₁ : Verifier pSpec₁ oSpec Stmt₁ Stmt₂)
+    (V₂ : Verifier pSpec₂ oSpec Stmt₂ Stmt₃)
+    (langIn₁ : Set Stmt₁) (langOut₁ : Set Stmt₂)
+    (langIn₂ : Set Stmt₂) (langOut₂ : Set Stmt₃)
+    {soundnessError₁ soundnessError₂ : ℝ≥0}
+    (h₁ : V₁.soundness langIn₁ langOut₁ soundnessError₁)
+    (h₂ : V₂.soundness langIn₂ langOut₂ soundnessError₂) :
+      (V₁.append V₂).soundness langIn₁ langOut₂ (soundnessError₁ + soundnessError₂) := by
+  sorry
+
+/-- If two verifiers satisfy knowledge soundness with compatible relations and respective knowledge
+    errors, then their sequential composition also satisfies knowledge soundness.
+    The knowledge error of the appended verifier is the sum of the individual errors. -/
+theorem append_knowledgeSoundness (V₁ : Verifier pSpec₁ oSpec Stmt₁ Stmt₂)
+    (V₂ : Verifier pSpec₂ oSpec Stmt₂ Stmt₃)
+    (relIn₁ : Stmt₁ → Wit₁ → Prop) (relOut₁ : Stmt₂ → Wit₂ → Prop)
+    (relIn₂ : Stmt₂ → Wit₂ → Prop) (relOut₂ : Stmt₃ → Wit₃ → Prop)
+    {knowledgeError₁ knowledgeError₂ : ℝ≥0}
+    (h₁ : V₁.knowledgeSoundness relIn₁ relOut₁ knowledgeError₁)
+    (h₂ : V₂.knowledgeSoundness relIn₂ relOut₂ knowledgeError₂) :
+      (V₁.append V₂).knowledgeSoundness relIn₁ relOut₂ (knowledgeError₁ + knowledgeError₂) := by
+  sorry
+
+/-- If two verifiers satisfy round-by-round soundness with compatible languages and respective RBR
+    soundness errors, then their sequential composition also satisfies round-by-round soundness.
+    The RBR soundness error of the appended verifier extends the individual errors appropriately. -/
+theorem append_rbrSoundness (V₁ : Verifier pSpec₁ oSpec Stmt₁ Stmt₂)
+    (V₂ : Verifier pSpec₂ oSpec Stmt₂ Stmt₃)
+    (langIn₁ : Set Stmt₁) (langOut₁ : Set Stmt₂)
+    (langIn₂ : Set Stmt₂) (langOut₂ : Set Stmt₃)
+    {rbrSoundnessError₁ : pSpec₁.ChallengeIdx → ℝ≥0}
+    {rbrSoundnessError₂ : pSpec₂.ChallengeIdx → ℝ≥0}
+    (h₁ : V₁.rbrSoundness langIn₁ langOut₁ rbrSoundnessError₁)
+    (h₂ : V₂.rbrSoundness langIn₂ langOut₂ rbrSoundnessError₂)
+    -- Deterministic verifier condition for state function composition (placeholder for now)
+    (verify₁ : Stmt₁ → pSpec₁.FullTranscript → Stmt₂)
+    (hVerify₁ : V₁ = ⟨fun stmt tr => pure (verify₁ stmt tr)⟩) :
+      (V₁.append V₂).rbrSoundness langIn₁ langOut₂
+        (Sum.elim rbrSoundnessError₁ rbrSoundnessError₂ ∘ ChallengeIdx.sumEquiv.symm) := by
+  sorry
+
+/-- If two verifiers satisfy round-by-round knowledge soundness with compatible relations and
+    respective RBR knowledge errors, then their sequential composition also satisfies
+    round-by-round knowledge soundness.
+    The RBR knowledge error of the appended verifier extends the individual errors appropriately. -/
+theorem append_rbrKnowledgeSoundness (V₁ : Verifier pSpec₁ oSpec Stmt₁ Stmt₂)
+    (V₂ : Verifier pSpec₂ oSpec Stmt₂ Stmt₃)
+    (relIn₁ : Stmt₁ → Wit₁ → Prop) (relOut₁ : Stmt₂ → Wit₂ → Prop)
+    (relIn₂ : Stmt₂ → Wit₂ → Prop) (relOut₂ : Stmt₃ → Wit₃ → Prop)
+    {rbrKnowledgeError₁ : pSpec₁.ChallengeIdx → ℝ≥0}
+    {rbrKnowledgeError₂ : pSpec₂.ChallengeIdx → ℝ≥0}
+    (h₁ : V₁.rbrKnowledgeSoundness relIn₁ relOut₁ rbrKnowledgeError₁)
+    (h₂ : V₂.rbrKnowledgeSoundness relIn₂ relOut₂ rbrKnowledgeError₂)
+    -- Deterministic verifier condition for state function composition (placeholder for now)
+    (verify₁ : Stmt₁ → pSpec₁.FullTranscript → Stmt₂)
+    (hVerify₁ : V₁ = ⟨fun stmt tr => pure (verify₁ stmt tr)⟩) :
+      (V₁.append V₂).rbrKnowledgeSoundness relIn₁ relOut₂
+        (Sum.elim rbrKnowledgeError₁ rbrKnowledgeError₂ ∘ ChallengeIdx.sumEquiv.symm) := by
+  sorry
+
+end Verifier
+
+end Append
 
 end Security

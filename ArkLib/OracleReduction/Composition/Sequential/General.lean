@@ -132,4 +132,66 @@ theorem completeness_compose
 
 end Reduction
 
+namespace Verifier
+
+variable {m : ℕ} {n : Fin (m + 1) → ℕ} {pSpec : ∀ i, ProtocolSpec (n i)}
+    [∀ i, ∀ j, Sampleable ((pSpec i).Challenge j)]
+    {Stmt : Fin (m + 2) → Type} {Wit : Fin (m + 2) → Type}
+    [oSpec.DecidableEq] [oSpec.FiniteRange]
+
+/-- If all verifiers in a sequence satisfy soundness with respective soundness errors, then their
+    sequential composition also satisfies soundness.
+    The soundness error of the composed verifier is the sum of the individual errors. -/
+theorem compose_soundness
+    (V : ∀ i, Verifier (pSpec i) oSpec (Stmt i.castSucc) (Stmt i.succ))
+    (lang : ∀ i, Set (Stmt i))
+    (soundnessError : Fin (m + 1) → ℝ≥0)
+    (h : ∀ i, (V i).soundness (lang i.castSucc) (lang i.succ) (soundnessError i)) :
+      (Verifier.compose m n pSpec Stmt V).soundness (lang 0) (lang (Fin.last (m + 1)))
+        (∑ i, soundnessError i) := by
+  sorry
+
+/-- If all verifiers in a sequence satisfy knowledge soundness with respective knowledge errors,
+    then their sequential composition also satisfies knowledge soundness.
+    The knowledge error of the composed verifier is the sum of the individual errors. -/
+theorem compose_knowledgeSoundness
+    (V : ∀ i, Verifier (pSpec i) oSpec (Stmt i.castSucc) (Stmt i.succ))
+    (rel : ∀ i, Stmt i → Wit i → Prop)
+    (knowledgeError : Fin (m + 1) → ℝ≥0)
+    (h : ∀ i, (V i).knowledgeSoundness (rel i.castSucc) (rel i.succ) (knowledgeError i)) :
+      (Verifier.compose m n pSpec Stmt V).knowledgeSoundness (rel 0) (rel (Fin.last (m + 1)))
+        (∑ i, knowledgeError i) := by
+  sorry
+
+/-- If all verifiers in a sequence satisfy round-by-round soundness with respective RBR soundness
+    errors, then their sequential composition also satisfies round-by-round soundness. -/
+theorem compose_rbrSoundness
+    (V : ∀ i, Verifier (pSpec i) oSpec (Stmt i.castSucc) (Stmt i.succ))
+    (lang : ∀ i, Set (Stmt i))
+    (rbrSoundnessError : ∀ i, (pSpec i).ChallengeIdx → ℝ≥0)
+    (h : ∀ i, (V i).rbrSoundness (lang i.castSucc) (lang i.succ) (rbrSoundnessError i))
+    -- Deterministic verifier condition for state function composition
+    (verify : ∀ i, Stmt i.castSucc → (pSpec i).FullTranscript → Stmt i.succ)
+    (hVerify : ∀ i, V i = ⟨fun stmt tr => pure (verify i stmt tr)⟩) :
+      (Verifier.compose m n pSpec Stmt V).rbrSoundness (lang 0) (lang (Fin.last (m + 1)))
+        (fun _ => sorry) := by -- TODO: figure out the right way to compose RBR errors
+  sorry
+
+/-- If all verifiers in a sequence satisfy round-by-round knowledge soundness with respective RBR
+    knowledge errors, then their sequential composition also satisfies round-by-round knowledge
+    soundness. -/
+theorem compose_rbrKnowledgeSoundness
+    (V : ∀ i, Verifier (pSpec i) oSpec (Stmt i.castSucc) (Stmt i.succ))
+    (rel : ∀ i, Stmt i → Wit i → Prop)
+    (rbrKnowledgeError : ∀ i, (pSpec i).ChallengeIdx → ℝ≥0)
+    (h : ∀ i, (V i).rbrKnowledgeSoundness (rel i.castSucc) (rel i.succ) (rbrKnowledgeError i))
+    -- Deterministic verifier condition for state function composition
+    (verify : ∀ i, Stmt i.castSucc → (pSpec i).FullTranscript → Stmt i.succ)
+    (hVerify : ∀ i, V i = ⟨fun stmt tr => pure (verify i stmt tr)⟩) :
+      (Verifier.compose m n pSpec Stmt V).rbrKnowledgeSoundness (rel 0) (rel (Fin.last (m + 1)))
+        (fun _ => sorry) := by -- TODO: figure out the right way to compose RBR errors
+  sorry
+
+end Verifier
+
 end Security
