@@ -23,12 +23,11 @@ noncomputable def reedSolomonProximityGen
   {F : Type*} [Field F]  [Fintype F] [DecidableEq F]
   {ι : Type*} [Fintype ι] [DecidableEq ι] [Nonempty ι]
   (l : ℕ)
-  (domain : ι ↪ F)
-  (k : ℕ) [Smooth domain k]
+  (domain : ι ↪ F) [Smooth domain]
   (m : ℕ)
   : ProximityGenerator ι F :=
     let ρ : ℝ≥0 := (2^m : ℝ≥0) / (Fintype.card ι)
-    { C      := smoothCode F ι domain k m,
+    { C      := smoothCode F ι domain m,
       l      := l,
       GenFun := fun r j => r ^ (j : ℕ),
       B  := fun _ _ => NNReal.sqrt ρ ,
