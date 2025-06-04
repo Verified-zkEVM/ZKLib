@@ -397,6 +397,14 @@ theorem perfectCompleteness_append (R₁ : Reduction pSpec₁ oSpec Stmt₁ Wit�
   convert Reduction.completeness_append R₁ R₂ h₁ h₂
   simp only [add_zero]
 
+variable {R₁ : Reduction pSpec₁ oSpec Stmt₁ Wit₁ Stmt₂ Wit₂}
+  {R₂ : Reduction pSpec₂ oSpec Stmt₂ Wit₂ Stmt₃ Wit₃}
+
+-- Synthesization issues...
+-- So maybe no synthesization but simp is fine? Maybe not...
+-- instance [R₁.IsComplete rel₁ rel₂] [R₂.IsComplete rel₂ rel₃] :
+--     (R₁.append R₂).IsComplete rel₁ rel₃ := by sorry
+
 end Reduction
 
 namespace Verifier

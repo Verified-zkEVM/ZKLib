@@ -370,7 +370,7 @@ def StraightlineExtractor.liftContext
     let innerStmtIn := lens.projStmt outerStmtIn
     let innerWitOut := lensInv.projWit outerWitOut
     let innerWitIn := E innerWitOut innerStmtIn fullTranscript proveQueryLog verifyQueryLog
-    lensInv.liftWit (outerWitOut, innerWitIn)
+    do return lensInv.liftWit (outerWitOut, ← innerWitIn)
 
 open Verifier in
 /-- The outer round-by-round extractor after lifting invokes the inner extractor on the projected

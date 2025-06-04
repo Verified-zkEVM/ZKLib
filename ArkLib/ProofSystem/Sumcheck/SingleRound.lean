@@ -5,7 +5,7 @@ Authors: Quang Dao
 -/
 
 import ArkLib.OracleReduction.Security.Basic
-import ArkLib.OracleReduction.Composition.Sequential.Basic
+import ArkLib.OracleReduction.Composition.Sequential.General
 import ArkLib.OracleReduction.LiftContext.Basic
 import ArkLib.Data.Fin.Basic
 

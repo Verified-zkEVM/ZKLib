@@ -49,6 +49,8 @@ import ArkLib.OracleReduction.LiftContext.Basic
 import ArkLib.OracleReduction.OracleInterface
 import ArkLib.OracleReduction.Prelude
 import ArkLib.OracleReduction.Security.Basic
+import ArkLib.OracleReduction.Transform.BCS
+import ArkLib.OracleReduction.Transform.FiatShamir
 import ArkLib.OracleReduction.VectorIOR
 import ArkLib.ProofSystem.Component.CheckPred
 import ArkLib.ProofSystem.Component.RandomQuery
@@ -70,5 +72,3 @@ import ArkLib.ToMathlib.MvPolynomial.Equiv
 import ArkLib.ToMathlib.NumberTheory.PrattCertificate
 import ArkLib.ToMathlib.UInt.Equiv
 import ArkLib.ToVCVio.Oracle
-import ArkLib.Transform.BCS
-import ArkLib.Transform.FiatShamir
