@@ -5,7 +5,7 @@ Authors: Quang Dao
 -/
 
 import ArkLib.CommitmentScheme.Basic
-import ArkLib.OracleReduction.Composition.Sequential.Basic
+import ArkLib.OracleReduction.Composition.Sequential.General
 
 /-!
   # The BCS Transformation

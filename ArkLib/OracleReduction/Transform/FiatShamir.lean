@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
 
-import ArkLib.OracleReduction.Composition.Sequential.Basic
+import ArkLib.OracleReduction.Composition.Sequential.General
 
 /-!
   # The Fiat-Shamir Transformation
