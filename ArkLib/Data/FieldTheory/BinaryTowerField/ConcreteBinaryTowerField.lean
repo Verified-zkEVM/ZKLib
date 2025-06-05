@@ -5,6 +5,7 @@ Authors: Chung Thai Nguyen
 -/
 
 import ArkLib.Data.FieldTheory.BinaryTowerField.Basic
+import ArkLib.Data.Math.DepCast
 
 /-!
 # Computable concrete binary tower fields
@@ -51,6 +52,16 @@ def width (k : ℕ) : ℕ := 2^k
 -- Convert Nat to ConcreteBinaryTower
 def fromNat {k : ℕ} (n : Nat) : ConcreteBinaryTower k :=
   BitVec.ofNat (2^k) n
+
+@[simp] theorem fromNat_toNat_eq_self {k : ℕ} (bv : BitVec (2^k)) :
+  (fromNat (BitVec.toNat bv) : ConcreteBinaryTower k) = bv := by
+  simp only [BitVec.ofNat_toNat, BitVec.setWidth_eq, fromNat, ConcreteBinaryTower]
+
+instance ConcreteBinaryTower.instDepCast_local : DepCast ℕ ConcreteBinaryTower where
+  dcast h_k_eq term_k1 := BitVec.cast (congrArg (fun n => 2^n) h_k_eq) term_k1
+  dcast_id := by
+    intro k_idx; funext x
+    simp only [id_eq, BitVec.cast, BitVec.ofNatLT_toNat]
 
 -- Zero element
 def zero {k : ℕ} : ConcreteBinaryTower k := BitVec.zero (2^k)
@@ -297,38 +308,79 @@ instance {k: ℕ}: NeZero (1 : ConcreteBinaryTower k) := by
   exact {out := concrete_one_ne_zero (k:=k) }
 
 -- Split a field element into high and low parts
-def split {k : ℕ} (h : k > 0) (x : ConcreteBinaryTower k) : ConcreteBinaryTower (k - 1) × ConcreteBinaryTower (k - 1) :=
-  let half_width := 2^(k - 1)
-  let lo: BitVec (half_width - 1 - 0 + 1) := BitVec.extractLsb (half_width - 1) 0 x
-  let hi: BitVec (2 ^ k - 1 - half_width + 1) := BitVec.extractLsb (2^k - 1) half_width x
-  let loBTF: ConcreteBinaryTower (k - 1) := fromNat (lo.toNat)
-  let hiBTF: ConcreteBinaryTower (k - 1) := fromNat (hi.toNat)
-  (hiBTF, loBTF)
+def split {k : ℕ} (h : k > 0) (x : ConcreteBinaryTower k) :
+    ConcreteBinaryTower (k - 1) × ConcreteBinaryTower (k - 1) :=
+  let lo_bits: BitVec (2 ^ (k - 1) - 1 - 0 + 1) :=
+    BitVec.extractLsb (hi := 2 ^ (k - 1) - 1) (lo := 0) x
+  let hi_bits: BitVec (2 ^ k - 1 - 2 ^ (k - 1) + 1) :=
+    BitVec.extractLsb (hi := 2 ^ k - 1) (lo := 2 ^ (k - 1)) x
+  have h_lo: 2 ^ (k - 1) - 1 - 0 + 1 = 2 ^ (k - 1) := by
+    calc 2 ^ (k - 1) - 1 - 0 + 1 = 2 ^ (k - 1) - 1 + 1 := by norm_num
+      _ = 2^(k-1) := by rw [Nat.sub_add_cancel]; exact one_le_two_pow_n (n:=k-1)
+  have one_le: 1 ≤ 2 ^ k - 2 ^ (k - 1) := by
+    have l1: 2 ^ (k - 1 + 1) = 2^k := by congr 1; omega
+    have res := one_le_sub_consecutive_two_pow (n:=k-1)
+    rw [l1] at res
+    exact res
+  have h_hi: 2 ^ k - 1 - 2 ^ (k - 1) + 1 = 2 ^ (k - 1) := by
+    calc 2 ^ k - 1 - 2 ^ (k - 1) + 1 = 2 ^ k - 2 ^ (k - 1) - 1 + 1 := by omega
+      _ = 2 ^ k - 2 ^ (k - 1) := by rw [Nat.sub_add_cancel]; exact one_le
+      _ = 2^(k-1) * 2 - 2 ^ (k - 1):= by
+        congr 1
+        rw [← Nat.pow_succ]
+        congr
+        simp only [Nat.succ_eq_add_one]
+        rw [Nat.sub_add_cancel]
+        omega
+      _ = 2^(k-1) + 2^(k-1) - 2^(k-1) := by rw [Nat.mul_two]
+      _ = 2^(k-1) := by omega
+  -- Use cast to avoid overuse of fromNat & toNat
+  let lo: BitVec (2^(k-1)) := dcast h_lo lo_bits
+  let hi: BitVec (2^(k-1)) := dcast h_hi hi_bits
+  (hi, lo)
 
--- Join high and low parts
-def join {k : ℕ} (hi lo : ConcreteBinaryTower k) : ConcreteBinaryTower (k + 1) :=
-  let width_k := 2^k
-  let hi_shifted := BitVec.zeroExtend (2^(k + 1)) hi <<< width_k
-  let lo_extended := BitVec.zeroExtend (2^(k + 1)) lo
-  -- This yields a new element reperesented by 2^(k+1) bits by concatenating hi and lo
-  BitVec.or hi_shifted lo_extended
+def join {k : ℕ} (h_pos : k > 0)  (hi lo : ConcreteBinaryTower (k-1)) : ConcreteBinaryTower k :=
+  BitVec.ofNat (2^k) ((hi.toNat <<< 2^(k-1)) ||| lo.toNat)
+
+-- Option 3: Disable the precheck (not recommended for production code)
+-- set_option quotPrecheck false
+-- notation:90 a "ₕ[" h "]" => (split h a).1  -- High part with explicit proof
+-- notation:90 a "ₗ[" h "]" => (split h a).2  -- Low part with explicit proof
+-- notation:80 hi "⋈[" h "]" lo => join h hi lo  -- Join with explicit proof
+
+theorem split_eq_iff {k : ℕ} (h_pos : k > 0) (x : ConcreteBinaryTower k)
+  (hi_btf lo_btf : ConcreteBinaryTower (k - 1)):
+  split h_pos x = (hi_btf, lo_btf) ↔
+  (hi_btf = fromNat (k:=k-1) (x.toNat >>> 2^(k-1)) ∧
+  lo_btf = fromNat (k:=k-1) (x.toNat &&& ((2^(k-1) - 1)))) := by sorry
+
+theorem join_eq_iff {k: ℕ} (h_pos : k > 0) (x: ConcreteBinaryTower k)
+  (hi_btf lo_btf : ConcreteBinaryTower (k-1)):
+  x = join h_pos hi_btf lo_btf ↔
+  (hi_btf = fromNat (k:=k-1) (x.toNat >>> 2^(k-1)) ∧
+  lo_btf = fromNat (k:=k-1) (x.toNat &&& ((2^(k-1) - 1)))) := by sorry
+
+theorem join_of_split {k : ℕ} (h_pos : k > 0) (x : ConcreteBinaryTower k)
+    (hi_btf lo_btf : ConcreteBinaryTower (k - 1))
+    (h_split_eq : split h_pos x = (hi_btf, lo_btf)):
+    x = join h_pos hi_btf lo_btf := by
+  have h_split := (split_eq_iff (k:=k) (h_pos:=h_pos) x hi_btf lo_btf).mp h_split_eq
+  obtain ⟨h_hi, h_lo⟩ := h_split
+  exact (join_eq_iff h_pos x hi_btf lo_btf).mpr ⟨h_hi, h_lo⟩
+
+theorem split_of_join {k : ℕ} (h_pos : k > 0) (x : ConcreteBinaryTower k)
+    (hi_btf lo_btf : ConcreteBinaryTower (k - 1))
+    (h_join: x = join h_pos hi_btf lo_btf):
+    (hi_btf, lo_btf) = split h_pos x := by
+  have ⟨h_hi, h_lo⟩ := (join_eq_iff h_pos x hi_btf lo_btf).mp h_join
+  exact ((split_eq_iff h_pos x hi_btf lo_btf).mpr ⟨h_hi, h_lo⟩).symm
 
 def equivProd {k : ℕ} (h_k_pos : k > 0) :
   ConcreteBinaryTower k ≃ ConcreteBinaryTower (k - 1) × ConcreteBinaryTower (k - 1) where
   toFun := split h_k_pos
-  invFun p :=
-    have h_eq : k - 1 + 1 = k := by omega
-    cast (by rw [h_eq]) (join (k := k-1) p.1 p.2)
-  left_inv := by
-    intro x
-    -- Proof that join (split x).1 (split x).2 = x
-    -- This involves reasoning about BitVec.extractLsb, BitVec.toNat,
-    -- BitVec.ofNat, BitVec.zeroExtend, BitVec.shiftLeft, and BitVec.or.
-    sorry -- TODO: Prove join (split x) = x
-  right_inv := by
-    intro p
-    -- Proof that split (join p.1 p.2) = p
-    sorry -- TODO: Prove split (join p) = p
+  invFun := λ (hi, lo) => join h_k_pos hi lo
+  left_inv := λ x => Eq.symm (join_of_split h_k_pos x _ _ rfl)
+  right_inv := λ ⟨hi, lo⟩ => Eq.symm (split_of_join h_k_pos _ hi lo rfl)
 
 lemma mul_trans_inequality {k : ℕ} (x: ℕ) (h_k: k ≤ 2) (h_x: x ≤ 2^(2^k) - 1): x < 16 := by
   have x_le_1: x ≤ 2^(2^k) - 1 := by omega
@@ -375,7 +427,7 @@ def concrete_mul {k : ℕ} (a b : ConcreteBinaryTower k) : ConcreteBinaryTower k
     let hi_res := sum_mul + lo_res + (concrete_mul mult_hi prevX)
     have h_eq : k - 1 + 1 = k := by omega
     -- Use the proof to cast the type
-    have res := cast (by rw [h_eq]) (join hi_res lo_res)
+    have res := join (k:=k) (by omega) hi_res lo_res
     res
 termination_by (k, a.toNat, b.toNat)
 
@@ -400,9 +452,10 @@ instance (k : ℕ) : HMul (ConcreteBinaryTower k) (ConcreteBinaryTower k) (Concr
 #eval Z (5)
 #eval Z (6)
 
-#eval (fromNat (k:=1) 3) * (fromNat (k:=1) 3) -- 9#4
-#eval (fromNat (k:=4) 7) * (fromNat (k:=4) 20) -- 9#4
-#eval (fromNat (k:=5) 7) * (fromNat (k:=5) 20) -- 9#4
+#eval! (fromNat (k:=1) 3) * (fromNat (k:=1) 3) -- 9#4
+#eval! (fromNat (k:=4) 3) * (fromNat (k:=4) 3) -- 9#4
+#eval! (fromNat (k:=2) 3) * (fromNat (k:=2) 3) -- 9#4
+#eval! (fromNat (k:=5) 7) * (fromNat (k:=5) 20) -- 9#4
 
 -- Test function to bundle multiple evaluations
 def runTests : IO Unit := do
@@ -452,7 +505,7 @@ def runTests : IO Unit := do
   IO.println s!"five * seven = {(concrete_mul five2 seven2).toBitString}"
 
 -- Run the tests
-#eval runTests
+#eval! runTests
 
 instance (k : ℕ) : LT (ConcreteBinaryTower k) where
   lt := fun x y => by
@@ -630,31 +683,31 @@ lemma concrete_mul_inv_cancel0 (a : ConcreteBinaryTower 0) (h : a ≠ 0) :
     simp only [concrete_pow_nat, ↓reduceIte]
 
 -- Natural number casting
-def natCast (n : ℕ) : ConcreteBinaryTower 0 := if n % 2 = 0 then zero else one
-def natCast_zero : natCast 0 = zero := by rfl
+def natCast {k: ℕ} (n : ℕ) : ConcreteBinaryTower k := if n % 2 = 0 then zero else one
+def natCast_zero {k: ℕ} : natCast (k:=k) 0 = zero := by rfl
 
-def natCast_succ (n : ℕ) : natCast (n + 1) = natCast n + 1 := by
+def natCast_succ {k: ℕ} (n : ℕ) : natCast (k:=k) (n + 1) = natCast (k:=k) n + 1 := by
   by_cases h : n % 2 = 0
   · -- If n % 2 = 0, then (n+1) % 2 = 1
     have h_succ : (n + 1) % 2 = 1 := by omega
-    simp only [natCast, h, h_succ]; rfl
+    simp only [natCast, h, h_succ]; norm_num; rw [one_is_1, zero_is_0]; norm_num
   · -- If n % 2 = 1, then (n+1) % 2 = 0
     have h_succ : (n + 1) % 2 = 0 := by omega
-    simp only [natCast, h, h_succ]; rfl
+    simp only [natCast, h, h_succ]; norm_num; rw [one_is_1, zero_is_0, add_self_cancel]
 
-instance : NatCast (ConcreteBinaryTower 0) where
+instance {k: ℕ} : NatCast (ConcreteBinaryTower k) where
   natCast n:= natCast n
 
 -- help simp recognize the NatCast coercion
-@[simp] lemma natCast_eq (n : ℕ) : (↑n : ConcreteBinaryTower 0) = natCast n := rfl
+@[simp] lemma natCast_eq {k: ℕ} (n : ℕ) : (↑n : ConcreteBinaryTower k) = natCast n := rfl
 
 -- Integer casting
-def intCast (n : ℤ) : ConcreteBinaryTower 0 := if n % 2 = 0 then zero else one
+def intCast {k: ℕ} (n : ℤ) : ConcreteBinaryTower k := if n % 2 = 0 then zero else one
 
-instance : IntCast (ConcreteBinaryTower 0) where
+instance {k:ℕ} : IntCast (ConcreteBinaryTower k) where
   intCast n:= intCast n
 
-def intCast_ofNat (n : ℕ) : intCast (n : ℤ) = natCast n := by
+def intCast_ofNat {k:ℕ} (n : ℕ) : intCast (k:=k) (n : ℤ) = natCast n := by
   have h_mod_eq : (n : ℤ) % 2 = 0 ↔ n % 2 = 0 := by omega
   by_cases h : n % 2 = 0
   · -- Case: n % 2 = 0
@@ -669,7 +722,7 @@ def intCast_ofNat (n : ℕ) : intCast (n : ℤ) = natCast n := by
 @[simp] lemma my_neg_mod_two (m : ℤ) : (-m) % 2 = if m % 2 = 0 then 0 else 1 := by omega
 @[simp] lemma mod_two_eq_zero (m: ℤ): m % 2 = (-m) % 2 := by omega
 
-def intCast_negSucc (n : ℕ) : intCast (Int.negSucc n) = - (↑(n + 1) : ConcreteBinaryTower 0) := by
+def intCast_negSucc {k:ℕ} (n : ℕ) : intCast (k:=k) (Int.negSucc n) = - (↑(n + 1) : ConcreteBinaryTower k) := by
   by_cases h_mod : (n + 1) % 2 = 0
   · -- ⊢ intCast (Int.negSucc n) = -↑(n + 1)
     have h_neg : (-(n + 1 : ℤ)) % 2 = 0 := by omega
@@ -677,7 +730,7 @@ def intCast_negSucc (n : ℕ) : intCast (Int.negSucc n) = - (↑(n + 1) : Concre
     have int_neg_succ: Int.negSucc n = -(n+1 : ℤ) := by rfl
     rw [int_neg_succ]
     simp only [h_neg]
-    have h_nat : (↑(n + 1) : ConcreteBinaryTower 0) = (zero : ConcreteBinaryTower 0) := by
+    have h_nat : (↑(n + 1) : ConcreteBinaryTower k) = (zero : ConcreteBinaryTower k) := by
       simp only [natCast_eq, natCast, h_mod]
       rfl
     rw [h_nat]
@@ -689,7 +742,7 @@ def intCast_negSucc (n : ℕ) : intCast (Int.negSucc n) = - (↑(n + 1) : Concre
     rw [int_neg_succ]
     simp only [h_neg]
     rw [if_neg (by simp)]
-    have h_nat : (↑(n + 1) : ConcreteBinaryTower 0) = (one : ConcreteBinaryTower 0) := by
+    have h_nat : (↑(n + 1) : ConcreteBinaryTower k) = (one : ConcreteBinaryTower k) := by
       simp only [natCast_eq, natCast, h_mod]
       rfl
     rw [h_nat]
@@ -787,55 +840,11 @@ variable {k : ℕ} (h_k: k > 0) [instRingPrevConcreteBTF: Ring (ConcreteBinaryTo
   [instFieldPrevConcreteBTF: Field (ConcreteBinaryTower (k-1))]
   (instRingEquivPrevConcreteBTF: ConcreteBinaryTower (k-1) ≃+* BinaryTower.BTField (k-1))
 
-theorem concrete_mul_eq (a b: ConcreteBinaryTower k)
-    (a₁ a₀ b₁ b₀: ConcreteBinaryTower (k-1))
-    (h_a: equivProd h_k a = (a₁, a₀))
-    (h_b: equivProd h_k b = (b₁, b₀)):
-  equivProd h_k (a * b) = (a₀*b₁ + b₀*a₁ + a₁*b₁ * Z (k - 1), a₀*b₀ + a₁*b₁) := by
-  -- Since k > 0, we're in the second branch of concrete_mul
-  unfold HMul.hMul  -- This unfolds the * notation to the hMul method
-  simp only [instHMulConcreteBinaryTower]  -- This uses the correct instance name
-  unfold concrete_mul
-  simp [h_k.ne']  -- Since k > 0, we skip the k = 0 branch
-
-  -- Unfold split using h_a and h_b
-  have split_a: split h_k a = (a₁, a₀) := h_a
-  have split_b: split h_k b = (b₁, b₀) := h_b
-  rw [split_a, split_b]
-
-  -- Now we need to follow the calculation in concrete_mul
-  let a_sum := a₁ + a₀
-  let b_sum := b₁ + b₀
-  let sum_mul := concrete_mul a_sum b_sum
-  let prevX := Z (k - 1)
-  let mult_hi := concrete_mul a₁ b₁
-  let mult_lo := concrete_mul a₀ b₀
-  let lo_res := mult_lo + mult_hi
-  let hi_res := sum_mul + lo_res + (concrete_mul mult_hi prevX)
-  have h_eq : k - 1 + 1 = k := by omega
-
-  -- Now we need to show that the result matches our expected formula
-  -- Use Equiv.symm instead of inverse notation
-  have cast_join_eq: cast (by rw [h_eq]) (join hi_res lo_res) =
-      (equivProd h_k).symm (hi_res, lo_res) := by
-    -- This requires showing that cast followed by join is the inverse of split
-    sorry
-
-  rw [cast_join_eq]
-
-  -- Now we need to show the components match our formula
-  have hi_res_eq: hi_res = a₀*b₁ + b₀*a₁ + a₁*b₁ * Z (k - 1) := by
-    unfold hi_res lo_res sum_mul
-    -- Expand and use algebraic properties
-    sorry
-
-  have lo_res_eq: lo_res = a₀*b₀ + a₁*b₁ := by
-    unfold lo_res
-    -- This is by definition
-    sorry
-
-  rw [hi_res_eq, lo_res_eq]
-  -- The goal should now match our formula
+theorem concrete_mul_eq (a b: ConcreteBinaryTower k) (h_k: k > 0)
+  {a₁ a₀ b₁ b₀: ConcreteBinaryTower (k-1)}
+  (h_a: (a₁, a₀) = split h_k a)
+  (h_b: (b₁, b₀) = split h_k b):
+  a * b = join h_k (a₀*b₁ + b₀*a₁ + a₁*b₁ * Z (k - 1)) (a₀*b₀ + a₁*b₁) := by
   sorry
 
 lemma concrete_zero_mul (b : ConcreteBinaryTower k) :
@@ -850,9 +859,42 @@ lemma concrete_one_mul (a : ConcreteBinaryTower k) :
   concrete_mul (one (k:=k)) a = a := by
   sorry
 
-lemma concrete_mul_one (a : ConcreteBinaryTower k) :
-  concrete_mul a (one (k:=k)) = a := by
-  sorry
+lemma concrete_pow_base_one (n : ℕ) : concrete_pow_nat (k:=k) (x:=1) n = 1 := by
+  induction n using Nat.strong_induction_on with
+  | h n ih =>
+    -- ih: ∀ m, m < n → concrete_pow_nat (k:=k) (x:=1) m = 1
+    unfold concrete_pow_nat
+    by_cases h_n_zero : n = 0
+    · -- Base case: n = 0
+      rw [if_pos h_n_zero]
+      exact one_is_1  -- one = 1
+    · -- Inductive step: n ≠ 0
+      rw [if_neg h_n_zero]
+      by_cases h_mod : n % 2 = 0
+      · -- Even case: n % 2 = 0
+        rw [if_pos h_mod]
+        have h_square : concrete_mul (1 : ConcreteBinaryTower k) 1 = 1 := by
+          rw [← one_is_1]
+          rw [concrete_one_mul]  -- Assume concrete_mul 1 1 = 1
+        rw [h_square]
+        have h_div_lt : n / 2 < n := by
+          apply Nat.div_lt_self
+          simp [Nat.ne_zero_iff_zero_lt.mp h_n_zero]
+          exact Nat.le_refl 2
+        apply ih (n / 2) h_div_lt  -- Use ih for n / 2 < n
+      · -- Odd case: n % 2 ≠ 0
+        rw [if_neg h_mod]
+        have h_square : concrete_mul (1 : ConcreteBinaryTower k) 1 = 1 := by
+          rw [← one_is_1]
+          rw [concrete_one_mul]  -- Assume concrete_mul 1 1 = 1
+        rw [h_square]
+        have h_div_lt : n / 2 < n := by
+          apply Nat.div_lt_self
+          simp [Nat.ne_zero_iff_zero_lt.mp h_n_zero]
+          exact Nat.le_refl 2
+        rw [ih (n / 2) h_div_lt]  -- Use ih for n / 2 < n
+        rw [← one_is_1]
+        rw [concrete_one_mul]  -- Assume concrete_mul 1 1 = 1
 
 lemma concrete_mul_assoc (a b c : ConcreteBinaryTower k) :
   concrete_mul (concrete_mul a b) c = concrete_mul a (concrete_mul b c) := by
@@ -874,6 +916,39 @@ lemma concrete_mul_inv_cancel (a : ConcreteBinaryTower k) (h : a ≠ 0) :
   concrete_mul a (concrete_inv a) = one := by
   sorry
 
+instance instInvConcreteBTF: Inv (ConcreteBinaryTower k) where
+  inv := concrete_inv
+
+lemma concrete_inv_zero : (0 : ConcreteBinaryTower k)⁻¹ = 0 := by
+  unfold Inv.inv
+  dsimp only [instInvConcreteBTF]
+  simp only [concrete_inv, zero_is_0, ↓reduceIte]
+
+lemma concrete_inv_one : (1 : ConcreteBinaryTower k)⁻¹ = 1 := by
+  unfold Inv.inv
+  dsimp only [instInvConcreteBTF]
+  simp only [concrete_inv, zero_is_0]; norm_num;
+  sorry -- TODO: needs theorem about pow of 1
+  -- simp only [concrete_pow_nat, ↓reduceIte, one_is_1];
+
+instance instHDivConcreteBTF: HDiv (ConcreteBinaryTower k) (ConcreteBinaryTower k) (ConcreteBinaryTower k) where
+  hDiv a b := a * (concrete_inv b)
+
+lemma concrete_div_eq_mul_inv (a b : ConcreteBinaryTower k) : a / b = a * (concrete_inv b) := by
+  rfl
+
+instance instHPowConcreteBTF: HPow (ConcreteBinaryTower k) ℤ (ConcreteBinaryTower k) where
+  hPow a n :=
+    match n with
+    | Int.ofNat m => concrete_pow_nat a m
+    | Int.negSucc m =>
+      -- n = -(m+1)
+      if a = 0 then 0
+      else concrete_pow_nat (concrete_inv a) (m + 1) -- a^(-(m+1)) = (a^(-1))^(m+1)
+
+instance : Div (ConcreteBinaryTower k) where
+  div a b := a * (concrete_inv b)
+
 instance : Ring (ConcreteBinaryTower k) where
   toAddCommGroup := inferInstance
   one := one (k:=k)
@@ -886,26 +961,25 @@ instance : Ring (ConcreteBinaryTower k) where
   zero_mul := concrete_zero_mul
   mul_zero := concrete_mul_zero
 
-instance : Field (ConcreteBinaryTower k) where
+  natCast n := natCast n
+  natCast_zero := natCast_zero
+  natCast_succ n := natCast_succ n
+  intCast n := intCast n
+  intCast_ofNat n := intCast_ofNat n
+  intCast_negSucc n := intCast_negSucc n
+
+instance instDivisionRingConcrete : DivisionRing (ConcreteBinaryTower k) where
   toRing := inferInstance
-  mul_comm := concrete_mul_comm -- ⊢ ∀ (a b : ConcreteBinaryTower k), a * b = b * a
-  inv := concrete_inv -- ⊢ ConcreteBinaryTower k → ConcreteBinaryTower k
-  exists_pair_ne := concrete_exists_pair_ne (k:=k)
-  mul_inv_cancel := sorry -- ⊢ ∀ (a : ConcreteBinaryTower k), a ≠ 0 → a * inv a = 1
-  inv_zero := by sorry --   protected inv_zero : (0 : K)⁻¹ = 0
-  div_eq_mul_inv := by sorry -- ⊢ ∀ (a b : ConcreteBinaryTower k), a / b = a * inv b
-  zpow_zero' := by sorry -- ⊢ ∀ (a : ConcreteBinaryTower k), zpowRec npowRec 0 a = 1
-  zpow_succ' := by sorry -- ⊢ ∀ (n : ℕ) (a : ConcreteBinaryTower k), zpowRec npowRec (↑n.succ) a = zpowRec npowRec (↑n) a * a
-  nnqsmul := fun n a => if n = 0 then 0 else a
-  qsmul := fun q a => if q = 0 then 0 else a
-  nnqsmul_def := by
-    intro n a
-    cases n
-    · sorry
-  qsmul_def := by
-    intro q a
-    cases q
-    sorry
+  inv := concrete_inv
+  exists_pair_ne := concrete_exists_pair_ne (k := k)
+  mul_inv_cancel := concrete_mul_inv_cancel
+  inv_zero := concrete_inv_zero
+  qsmul := (Rat.castRec · * ·)
+  nnqsmul := (NNRat.castRec · * ·)
+
+instance instFieldConcrete: Field (ConcreteBinaryTower 0) where
+  toDivisionRing := inferInstance
+  mul_comm := concrete_mul_comm0
 
 -- Ring equivalence
 instance toBTField: ConcreteBinaryTower k ≃+* BinaryTower.BTField k := sorry
