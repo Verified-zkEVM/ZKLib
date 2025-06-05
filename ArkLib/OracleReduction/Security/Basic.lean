@@ -87,7 +87,7 @@ theorem perfectCompleteness_eq_prob_one :
         [fun ⟨(prvStmtOut, witOut), stmtOut, _⟩ => relOut stmtOut witOut ∧ prvStmtOut = stmtOut
         | reduction.run stmtIn witIn] = 1 := by
   refine forall_congr' fun stmtIn => forall_congr' fun stmtOut => forall_congr' fun _ => ?_
-  rw [ENNReal.coe_zero, tsub_zero, ge_iff_le, one_le_probEvent_iff,
+  rw [ENNReal.coe_zero, tsub_zero, ge_iff_le, OracleComp.one_le_probEvent_iff,
     probEvent_eq_one_iff, Prod.forall]
 
 -- /-- For a reduction without shared oracles (i.e. `oSpec = []ₒ`), perfect completeness occurs

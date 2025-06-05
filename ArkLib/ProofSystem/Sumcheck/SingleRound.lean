@@ -225,7 +225,7 @@ lemma probFailure_liftComp {ι' : Type w} {superSpec : OracleSpec ι'}
     [spec.FiniteRange] [superSpec.FiniteRange]
     [h : MonadLift (OracleQuery spec) (OracleQuery superSpec)]
     (oa : OracleComp spec α) : [⊥ | liftComp oa superSpec] = [⊥ | oa] := by
-  simp only [probFailure_def, evalDist_liftComp]
+  simp only [OracleComp.probFailure_def, OracleComp.evalDist_liftComp]
 
 @[simp]
 lemma liftComp_support {ι' : Type w} {superSpec : OracleSpec ι'}
