@@ -100,7 +100,6 @@ structure Statement
 def OStmtOut (F : Type) (ι₀ : Type) (ιₛ : Type) [Fintype ι₀][Fintype ιₛ] : ιₛ → Type :=
     fun _ => ι₀ → F
 
-@[instance]
 instance instWhirOraclePerIndex
   {F : Type} [Field F] [Fintype F] [DecidableEq F]
   {ι₀ : Type} [Fintype ι₀] {ιₛ :  Type} :
@@ -161,8 +160,5 @@ theorem whir_rbr_soundness
 
 
 
-
-
 end RBR
-
 end WhirIOP
