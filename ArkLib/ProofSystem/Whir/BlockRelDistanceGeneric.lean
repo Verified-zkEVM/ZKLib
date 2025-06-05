@@ -19,8 +19,8 @@ open ListDecodable NNReal ReedSolomon SmoothDomain
 variable {F : Type*} [Field F]
          {ι : Type*} [Fintype ι] [Pow ι ℕ]
 
-/--The `2^k`-th power images over a set of points specified by `φ : ι ↪ F` and a finite subset
-  `S : Finset ι`.
+/--The `2^k`-th power images over a set of points specified by `φ : ι ↪ F` and a finite set
+  of elements `S : Finset ι`.
 
   In particular, it returns the set of field elements `y ∈ F` for which there exists `x ∈ S`
   such that `y = (φ x)^(2ᵏ)`. It models the image of the map `x ↦ (φ x)^(2ᵏ)` restricted to `S`.
@@ -32,7 +32,7 @@ def indexPowT (S : Finset ι) (φ : ι ↪ F) (k : ℕ) := { y : F // ∃ x ∈ 
   For `φ' : ι^(2ⁱ) → F`, this defines the preimage of `y` under the map
   `x^(2ⁱ) ↦ x^(2ᵏ)` restricted to `x^(2ⁱ) ∈ S'`.
 
-  It returns the subset of `S'` consisting of all `x^(2ⁱ)`
+  It returns the subset of `S'` of elements of type `ι^(2ⁱ)`
     such that `(x^(2ⁱ))^(2^(k-i)) = x^(2^k) = y`.
   Example i = 0 : powFiberT 0 k S' φ' y = { x ∈ S' | (x)^(2^k) = y }.
   Example i = 1 : powFiberT 1 k S' φ' y = { x^2 ∈ S' | (x^2)^(2^(k-1)) = y }.

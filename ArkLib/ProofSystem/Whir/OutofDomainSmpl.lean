@@ -7,7 +7,6 @@ Authors: Least Authority
 import ArkLib.Data.MvPolynomial.Multilinear
 import ArkLib.Data.CodingTheory.ConstraintReedSolomon
 import ArkLib.Data.CodingTheory.ListDecodeability
-import ArkLib.Data.CodingTheory.SmoothDomainGeneric
 import ArkLib.Data.Probability.NotationSingleSampl
 
 namespace OutOfDomSmpl

@@ -142,9 +142,12 @@ class GenMutualCorrParams (S : Finset ι) (φ : ι ↪ F) (k : ℕ) where
   Let Cⁱ = RS[F,ι^(2ⁱ),m-i] and let Gen(l,α) be a proxmity generator with
   mutual correlated agreement for C⁰,...,C^{k-1} with proximity bounds BStar and errStar
   Then for every `f : ι → F` and `δ ∈ (0, 1 - max {i < k} BStar(Cⁱ, 2))`
-    `Pr_{α ← F} [ Fold(Λᵣ(0,k,f,S',C,hcode,δ),vecα) ≠ Λ(Cᵏ,fold(f,vecα),δ)]`,
-  where `Λᵣ(0,k,f,S',C,hcode,δ)` corresponds to the Ball of radius δ centered at f,
-  wrt block relative distance
+    `Pr_{α ← F} [ fold_k_set(Λᵣ(0,k,f,S',C,hcode,δ),vecα) ≠ Λ(Cᵏ,fold_k(f,vecα),δ)]
+      < ∑ i ≤ k errStar(Cⁱ,2,δ)`,
+  where fold_k_set and fold_k are as defined above,
+  vecα is generated from α as `{1,α,α²,..}`
+  `Λᵣ(0,k,f,S',C,hcode,δ)` corresponds to the Ball of radius δ centered at f,
+  wrt (0,k)-wise block relative distance.
   `Λ(Cᵏ,fold(f,vecα),δ)` is the Ball of radius δ at f, wrt the relative Hamming distance
   Below, we use an instance of the class `GenMutualCorrParams` to capture the
   conditions of proxmity generator with mutual correlated agreement for codes
@@ -177,10 +180,18 @@ theorem folding_listdecoding_if_genMutualCorrAgreement
                     let listHamming := relHammingBall Cₖ fold δ
 
                     foldSet ≠ listHamming
-                ] ≤ (∑ i : Fin (k+1), params.errStarᵢ i (params.Gen_αᵢ i).C 2 δ) := by sorry
+                ] < (∑ i : Fin (k+1), params.errStarᵢ i (params.Gen_αᵢ i).C 2 δ) := by sorry
 
 /--Lemma 4.21
-  -/
+  Let `C = RS[F,ι,m]` be a smooth ReedSolomon code and k ≤ m
+  Denote `C' = RS[F,ι^2,m-1]`, then for every `f : ι → F` and `δ ∈ (0, 1 - BStar(C',2))`
+    `Pr_{α ← F} [ fold_k_set(Λᵣ(0,k,f,S_0,C,δ),α) ≠ Λᵣ(1,k-1,foldf(f,α),S_1,C',δ) ]
+      < errStar(C',2,δ)`
+    where `foldf(f,α)` returns a function `ι^2 → F`,
+    S_0 and S_1 denote finite sets of elements of type ι and ι², and
+    Λᵣ denotes the Ball of radius δ wrt block relative distance.
+    Λᵣ(0,k,f,S_0,C) denotes Λᵣ at f : ι → F for code C and
+    Λᵣ(1,k-1,foldf(f,α),S_1,C') denotes Λᵣ at foldf : ι^2 → F for code C'.-/
 lemma folding_preserves_listdecoding_base
   {S : Finset ι} {k m : ℕ} {φ : ι ↪ F} [Smooth φ] {δ : ℝ≥0}
   {S_0 : Finset (indexPowT S φ 0)} {S_1 : Finset (indexPowT S φ 1)}
@@ -203,9 +214,12 @@ lemma folding_preserves_listdecoding_base
                let listBlock' : Set ((indexPowT S φ 1) → F) := Λᵣ(1, k, fold, S_1, C', hcode', δ)
 
                foldSet ≠ listBlock'
-             ] ≤ errStar C' 2 δ
+             ] < errStar C' 2 δ
   := by sorry
 
+/--Lemma 4.22
+  Following same parameters as Lemma 4.21 above, and states
+  `∀ α : F, Λᵣ(0,k,f,S_0,C,δ),α) ⊆ Λᵣ(1,k-1,foldf(f,α),S_1,C',δ)`-/
 lemma folding_preserves_listdecoding_bound
   {S : Finset ι} {k m : ℕ} {φ : ι ↪ F} [Smooth φ] {δ : ℝ≥0} {f : (indexPowT S φ 0) → F}
   {S_0 : Finset (indexPowT S φ 0)} {S_1 : Finset (indexPowT S φ 1)}
@@ -229,6 +243,9 @@ lemma folding_preserves_listdecoding_bound
         foldSet ⊆ listBlock'
   := by sorry
 
+/--Lemma 4.23
+  following same parameters as Lemma 4.21 above, and states
+  Pr_{α ← F} [ Λᵣ(1,k-1,foldf(f,α),S_1,C',δ) ¬ ⊆ Λᵣ(0,k,f,S_0,C,δ),α) ] < errStar(C',2,δ)-/
 lemma folding_preserves_listdecoding_base_ne_subset
   {S : Finset ι} {k m : ℕ} {φ : ι ↪ F} [Smooth φ] {δ : ℝ≥0}
   {S_0 : Finset (indexPowT S φ 0)} {S_1 : Finset (indexPowT S φ 1)}
