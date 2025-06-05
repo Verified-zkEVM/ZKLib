@@ -311,6 +311,7 @@ class TensorAlgebra
   [Field K] [Field L] [Field R]
   [Fintype ιL] [Fintype ιR] where
   A_is_semiring : Semiring A
+  -- eq: A = B
   L_is_K_algebra : Algebra K L
   R_is_K_algebra : Algebra K R
   A_is_K_algebra : Algebra K A
@@ -320,11 +321,14 @@ class TensorAlgebra
   basis_over_L : Basis ιR L A
   basis_over_R : Basis ιL R A
 
+-- [@reducible]
+-- def TowerAlgebra (κ τ ι : ℕ) [Fact (κ < τ)] [Fact (ι < τ)] := BTField τ ⊗[BTField κ] BTField ι
+
 -- TowerAlgebra is a special case of TensorAlgebra where K, L, R are binary tower fields
 instance TowerAlgebra (κ τ ι : ℕ) [Fact (κ < τ)] [Fact (ι < τ)]
   [Module (BTField κ) (BTField τ)] [Module (BTField κ) (BTField ι)]
   [Algebra (BTField κ) (BTField τ)] [Algebra (BTField κ) (BTField ι)] :
-  TensorAlgebra (BTField κ) (BTField τ) (BTField ι) (BTField τ ⊗[BTField κ] BTField ι) (BTField ι) (BTField ι) where
+  TensorAlgebra (BTField κ) (BTField τ) (BTField ι) (x: BTField τ ⊗[BTField κ] BTField ι) (BTField ι) (BTField ι) where
   A_is_semiring := sorry
   L_is_K_algebra := inferInstance
   R_is_K_algebra := inferInstance
