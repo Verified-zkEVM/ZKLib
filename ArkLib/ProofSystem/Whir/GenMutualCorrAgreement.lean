@@ -123,15 +123,15 @@ theorem genMutualCorrAgreement_le_johnsonBound
 /--2. Upto capacity: BStar = ρ and ∃ c₁,c₂,c₃ ∈ ℕ s.t. ∀ η > 0 and 0 < δ < 1 - ρ - η
       errStar = (l-1)^c₂ • d^c₂ / η^c₁ • ρ^(c₁+c₂) • |F|, where d = 2^m is the degree.-/
 theorem genMutualCorrAgreement_le_capacity
-  [DecidableEq ι] (Gen Genₐ: ProximityGenerator ι F)
+  [DecidableEq ι] (Gen Gen_α: ProximityGenerator ι F)
   (α : F) (domain : ι ↪ F) (m : ℕ) [Smooth domain]
   (BStar ρ δ: ℝ≥0) (errStar : ℝ≥0 → ℝ≥0)
-  (hGen : Genₐ = proximityGenerator_α Gen α domain m)
-  (h : genMutualCorrAgreement Genₐ BStar errStar)
+  (hGen : Gen_α = proximityGenerator_α Gen α domain m)
+  (h : genMutualCorrAgreement Gen_α BStar errStar)
   (hrate : ρ = (2^m : ℝ≥0) / (Fintype.card ι)) :
   BStar = ρ ∧
   ∃ (c₁ c₂ c₃ : ℕ), ∀ {η : ℝ≥0} (hδPos : δ > 0) (hδLe : δ < 1 - ρ - η),
-  errStar = fun δ => (Genₐ.l - 1)^c₂ • (2^m)^c₂ / (η^c₁ • ρ^(c₁+c₂) • (Fintype.card ι : ℝ≥0))
+  errStar = fun δ => (Gen_α.l - 1)^c₂ • (2^m)^c₂ / (η^c₁ • ρ^(c₁+c₂) • (Fintype.card ι : ℝ≥0))
   := by sorry
 
 /--For `l` functions `{f₁,..,fₗ}`, `IC` be the `l`-interleaved code from a linear code C,
