@@ -183,7 +183,7 @@ namespace SendSingleWitness
 
 /-!
   A special case of `SendWitness` oracle reduction where there is only one witness. We implicitly
-  convert to `fun _ : Unit => Witness`.
+  convert to `fun _ : Fin 1 => Witness`.
 -/
 
 variable {ιₛ : Type} (OStatement : ιₛ → Type) [∀ i, OracleInterface (OStatement i)]
@@ -206,7 +206,7 @@ The prover sends the witness `wit` to the verifier as the only oracle message.
 @[inline, specialize]
 def oracleProver : OracleProver (oraclePSpec Witness) oSpec
     Statement Witness Statement Unit
-    OStatement (OStatement ⊕ᵥ (fun _ : Unit => Witness)) where
+    OStatement (OStatement ⊕ᵥ (fun _ : Fin 1 => Witness)) where
   PrvState := fun _ => Statement × (∀ i, OStatement i) × Witness
   input := fun ⟨stmt, oStmt⟩ wit => ⟨stmt, oStmt, wit⟩
   sendMessage | ⟨0, _⟩ => fun state => pure (state.2.2, state)
@@ -220,39 +220,51 @@ message as the output oracle statement.
 -/
 @[inline, specialize]
 def oracleVerifier : OracleVerifier (oraclePSpec Witness) oSpec
-    Statement Statement OStatement (OStatement ⊕ᵥ (fun _ : Unit => Witness)) where
+    Statement Statement OStatement (OStatement ⊕ᵥ (fun _ : Fin 1 => Witness)) where
   verify := fun stmt _ => pure stmt
   embed := .sumMap (.refl _)
     <| Equiv.toEmbedding
-    <|.symm
-    <|.trans (subtypeUnivEquiv (by simp)) finOneEquiv
+    <|.symm (subtypeUnivEquiv (by simp))
   hEq := by intro i; rcases i <;> simp
 
 def oracleReduction : OracleReduction (oraclePSpec Witness) oSpec
     Statement Witness Statement Unit
-    OStatement (OStatement ⊕ᵥ (fun _ : Unit => Witness)) where
+    OStatement (OStatement ⊕ᵥ (fun _ : Fin 1 => Witness)) where
   prover := oracleProver oSpec Statement OStatement Witness
   verifier := oracleVerifier oSpec Statement OStatement Witness
 
-variable {Statement} {OStatement} {Witness} [oSpec.FiniteRange]
+variable {Statement} {OStatement} {Witness}
 
-variable (oRelIn : Statement × (∀ i, OStatement i) → Witness → Prop)
+omit [(i : ιₛ) → OracleInterface (OStatement i)] [OracleInterface Witness] in
+theorem oracleProver_run {stmt : Statement} {oStmt : ∀ i, OStatement i} {wit : Witness}:
+    (oracleProver oSpec Statement OStatement Witness).run ⟨stmt, oStmt⟩ wit =
+      pure (⟨stmt, Sum.rec oStmt (fun _ => wit)⟩, (), fun i => by simpa using wit) := by
+  simp [Prover.run, Prover.runToRound, Prover.processRound, oracleProver, Transcript.snoc]
+  ext i; fin_cases i; simp [Fin.snoc]
+
+theorem oracleVerifier_toVerifier_run {stmt : Statement} {oStmt : ∀ i, OStatement i}
+    {tr : (oraclePSpec Witness).FullTranscript}:
+    (oracleVerifier oSpec Statement OStatement Witness).toVerifier.run ⟨stmt, oStmt⟩ tr =
+      pure ⟨stmt, Sum.rec oStmt (fun i => by simpa using tr i)⟩ := by
+  simp [Verifier.run, OracleVerifier.toVerifier, oracleVerifier]
+  ext i; rcases i <;> simp
+
+variable [oSpec.FiniteRange] (oRelIn : Statement × (∀ i, OStatement i) → Witness → Prop)
 
 @[reducible, simp]
-def toORelOut : Statement × (∀ i, (OStatement ⊕ᵥ fun _ : Unit => Witness) i) → Unit → Prop :=
+def toORelOut : Statement × (∀ i, (OStatement ⊕ᵥ fun _ : Fin 1 => Witness) i) → Unit → Prop :=
   fun ⟨stmt, oStmtAndWit⟩ _ =>
-    oRelIn ⟨stmt, fun i => oStmtAndWit (Sum.inl i)⟩ (oStmtAndWit (Sum.inr ()))
+    oRelIn ⟨stmt, fun i => oStmtAndWit (Sum.inl i)⟩ (oStmtAndWit (Sum.inr 0))
 
 /-- The `SendSingleWitness` oracle reduction satisfies perfect completeness. -/
 @[simp]
 theorem oracleReduction_completeness :
     (oracleReduction oSpec Statement OStatement Witness).perfectCompleteness oRelIn
     (toORelOut oRelIn) := by
-  simp [OracleReduction.perfectCompleteness, OracleReduction.toReduction, OracleVerifier.toVerifier]
-  intro stmt oStmt wit hRelIn
-  unfold Reduction.run
-  simp [Prover.run, Prover.runToRound, Prover.processRound]
-  unfold oracleReduction oracleProver
-  sorry
+  simp [OracleReduction.perfectCompleteness, OracleReduction.toReduction]
+  simp_rw [Reduction.run, oracleReduction, oracleVerifier_toVerifier_run, oracleProver_run]
+  aesop
+
+theorem oracleReduction_rbr_knowledge_soundness : True := sorry
 
 end SendSingleWitness

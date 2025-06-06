@@ -22,3 +22,51 @@ import ArkLib.OracleReduction.Security.Basic
 
   Verifier performs this oracle computation, and may decide to keep the (oracle) statement or not
 -/
+
+open OracleComp ProtocolSpec
+
+namespace CheckPred
+
+variable {ι : Type} (oSpec : OracleSpec ι) (Statement : Type)
+
+section Reduction
+
+def prover : Prover (default : ProtocolSpec 0) oSpec Statement Unit Statement Unit where
+  PrvState := fun _ => Statement
+  input := fun stmt _ => stmt
+  sendMessage := fun i => nomatch i
+  receiveChallenge := fun i => nomatch i
+  output := fun stmt => (stmt, ())
+
+variable (pred : Statement → Prop) [DecidablePred pred]
+
+def verifier : Verifier (default : ProtocolSpec 0) oSpec Statement Statement where
+  verify := fun stmt _ => do guard (pred stmt); return stmt
+
+def reduction : Reduction (default : ProtocolSpec 0) oSpec Statement Unit Statement Unit where
+  prover := prover oSpec Statement
+  verifier := verifier oSpec Statement pred
+
+instance : ∀ i, VCVCompatible ((default : ProtocolSpec 0).Challenge i) := fun i => by aesop
+
+variable [oSpec.FiniteRange]
+
+/-- The `CheckPred` reduction satisfies perfect completeness. -/
+@[simp]
+theorem reduction_completeness :
+    (reduction oSpec Statement pred).perfectCompleteness (fun stmt _ => pred stmt)
+    (fun stmt _ => pred stmt) := by
+  simp [reduction, Reduction.run, Prover.run, Prover.runToRound, Prover.processRound, Verifier.run,
+    prover, verifier]
+  aesop
+
+theorem reduction_rbr_knowledge_soundness : True := sorry
+
+end Reduction
+
+section OracleReduction
+
+
+end OracleReduction
+
+end CheckPred
