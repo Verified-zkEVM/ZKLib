@@ -86,20 +86,12 @@ lemma out_of_domain_sampling_rs_le_bound
     Pr_{ r ← F }
       [ ∃ u u' : smoothCode F ι φ m,
         u.val ≠ u'.val ∧
-        u.val ∈ relHammingBall ↑C f δ ∧
-        u'.val ∈ relHammingBall ↑C f δ ∧
+        u.val ∈ relHammingBall C f δ ∧
+        u'.val ∈ relHammingBall C f δ ∧
         ∀ i : Fin s,
           let ri := GenFun r i
           let rVec := fun j : Fin m => ri ^ (2^(j : ℕ))
           (mVdecode u).eval (rVec) = (mVdecode u').eval (rVec)
       ] ≤ l^2 / 2 • ((2^m) / Fintype.card F)^s := by sorry
-
-
-
-
-
-
-
--- lemma agreement_randompoint_crsc
 
 end OutOfDomSmpl

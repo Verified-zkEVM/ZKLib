@@ -7,7 +7,6 @@ Authors: Least Authority
 import ArkLib.Data.CodingTheory.RelativeHammingDistance
 import ArkLib.Data.Probability.NotationSingleSampl
 
-
 namespace Generator
 
 open NNReal
@@ -16,10 +15,10 @@ variable  {F : Type*} [Semiring F] [Fintype F] [DecidableEq F]
           {ι : Type*} [Fintype ι] [Nonempty ι]
 
 /-- For `l` functions `fᵢ : ι → 𝔽`, distance `δ`, generator function `GenFun: 𝔽 → 𝔽ˡ`and linear
-    code `C` the predicate `linear_comb_in_distance(r)` is true, if the linear
-    combination f := ∑ⱼ GenFun(r)ⱼ⬝fⱼ is within relative Hamming distance `δ` to the linear
+    code `C` the predicate `proximityCondition(r)` is true, if the linear
+    combination f := ∑ⱼ rⱼ • fⱼ is within relative Hamming distance `δ` to the linear
     code `C`.  -/
-noncomputable def linear_comb_in_distance
+noncomputable def proximityCondition
   {l : ℕ} (f : Fin l → ι → F) (δ : ℝ≥0) (GenFun : F → Fin l → F) (C : LinearCode ι F): F → Prop
    | r => δᵣ( (fun x => ∑ j : Fin l, (GenFun r j) • f j x) , C ) ≤ (δ : ℝ)
 
@@ -36,19 +35,18 @@ structure ProximityGenerator
   GenFun    : F → Fin l → F
   -- Distance threshold parameter
   B         : (LinearCode ι F) → ℕ → ℝ≥0
-  -- Error function bounding the probability of hitting within distance `δ`
+  -- Error function bounding the probability of distance within `δ`
   err       : (LinearCode ι F) → ℕ → ℝ≥0 → ℝ≥0
   /- Proximity:
-      For all `l`-tuples of functions `fᵢ : ι → 𝔽` and distance parameter `δ ∈ (0, 1-BStar(C,l))`:
-
-      If the probability that `linear_comb_in_distance(r)` is true for uniformly random
-      sampled  `r ← 𝔽 ` exceeds `err(C,l,δ)`, then there exists a  subset `S ⊆ ι ` of size
+      For all `l`-tuples of functions `fᵢ : ι → 𝔽` and distance parameter `δ ∈ (0, 1-BStar(C,l))` :
+      If the probability that `proximityCondition(r)` is true for uniformly random
+      sampled  `r ← 𝔽 `, exceeds `err(C,l,δ)`, then there exists a  subset `S ⊆ ι ` of size
       `|S| ≥ (1-δ)⬝|ι|`) on which each `fᵢ` agrees with some codeword in `C`. -/
   proximity:
     ∀ (f : Fin l → ι → F)
       (δ : ℝ≥0)
       (_hδ : δ < 1 - (B C l)) ,
-      Pr_{r ← F}[ (linear_comb_in_distance f δ GenFun C r) ] > (err C l δ) →
+      Pr_{r ← F}[ (proximityCondition f δ GenFun C r) ] > (err C l δ) →
         ∃ S : Finset ι,
           S.card ≥ (1 - δ) * Fintype.card ι ∧
           ∀ i : Fin l, ∃ u ∈ C, ∀ x ∈ S, f i x = u x
