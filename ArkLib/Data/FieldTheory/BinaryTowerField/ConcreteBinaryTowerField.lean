@@ -65,20 +65,28 @@ instance ConcreteBinaryTower.instDepCast_local : DepCast ℕ ConcreteBinaryTower
     intro k_idx; funext x
     simp only [id_eq, BitVec.cast, BitVec.ofNatLT_toNat]
 
+theorem dcast_bitvec_zero_eq {l r: ℕ} (h_width_eq: l = r): dcast (h_width_eq) 0#(l) = 0#(r) := sorry
+
 -- Zero element
 def zero {k : ℕ} : ConcreteBinaryTower k := BitVec.zero (2^k)
 
 -- One element
 def one {k : ℕ} : ConcreteBinaryTower k := 1#(2^k)
 
+instance instZeroConcreteBinaryTower (k : ℕ) : Zero (ConcreteBinaryTower k) where
+  zero := zero
+instance instOneConcreteBinaryTower (k : ℕ) : One (ConcreteBinaryTower k) where
+  one := one
+
 -- Generic OfNat instance for ConcreteBinaryTower
-instance (k : ℕ) (n : Nat): OfNat (ConcreteBinaryTower k) n where
-  ofNat := fromNat n
+-- instance (k : ℕ) (n : Nat): OfNat (ConcreteBinaryTower k) n where
+  -- ofNat := fromNat n
 
 -- Special element Z_k for each level k
 def Z (k : ℕ) : ConcreteBinaryTower k :=
   if k = 0 then one
-  else fromNat (2^(2^(k-1)))
+  else BitVec.ofNat (2^k) (1 <<< 2^(k-1))
+  -- fromNat (2^(2^(k-1)))
     -- For k > 0, Z_k is defined based on the irreducible polynomial
     -- TODO: Define Z_k properly for k > 0
 
@@ -103,10 +111,10 @@ instance (k : ℕ) : HAdd (ConcreteBinaryTower k) (ConcreteBinaryTower k) (Concr
 instance (k : ℕ) : Add (ConcreteBinaryTower k) where
   add := add
 
-instance (k: ℕ) : OfNat (ConcreteBinaryTower k) 0 where
-  ofNat := zero
-instance (k: ℕ) : OfNat (ConcreteBinaryTower k) 1 where
-  ofNat := one
+-- instance (k: ℕ) : OfNat (ConcreteBinaryTower k) 0 where
+  -- ofNat := zero
+-- instance (k: ℕ) : OfNat (ConcreteBinaryTower k) 1 where
+  -- ofNat := one
 
 -- Basic lemmas for addition
 lemma add_self_cancel {k : ℕ} (a : ConcreteBinaryTower k) : a + a = 0 := by
@@ -132,6 +140,12 @@ lemma add_zero {k : ℕ} (a : ConcreteBinaryTower k) : a + 0 = a := by
 -- Negation is additive inverse (in char 2, neg = id)
 lemma neg_add_cancel {k : ℕ} (a : ConcreteBinaryTower k) : neg a + a = 0 := by
   exact BitVec.xor_self (x:=a)
+
+lemma if_self_rfl {α : Type*} [DecidableEq α] (a b : α) :
+  (if a = b then b else a) = a := by
+  by_cases h : a = b
+  · rw [if_pos h, h]
+  · rw [if_neg h]
 
 -- Proof that Z_{k+1} is a root of the irreducible polynomial from level k
 theorem Z_is_root {k : ℕ} [Semiring (ConcreteBinaryTower k)] [Semiring (ConcreteBinaryTower (k+1))]:
@@ -283,7 +297,7 @@ by
   }
 
 instance (k : ℕ) : AddCommGroup (ConcreteBinaryTower k) where
-  zero := zero
+  toZero := inferInstance
   neg := neg
   sub := fun x y => add x y
   add_assoc := add_assoc
@@ -298,7 +312,7 @@ instance (k : ℕ) : AddCommGroup (ConcreteBinaryTower k) where
   add := add
   zsmul_neg' := zsmul_neg' (k := k)
 
-lemma zero_is_0 {k: ℕ}: (zero (k:=k)) = 0 := by rfl
+lemma zero_is_0 {k: ℕ}: (zero (k:=k)) = (0: ConcreteBinaryTower k) := by rfl
 lemma one_is_1 {k: ℕ}: (one (k:=k)) = 1 := by rfl
 lemma concrete_one_ne_zero {k : ℕ} : (one (k:=k)) ≠ (zero (k:=k)) := by
   intro h_eq
@@ -308,6 +322,25 @@ lemma concrete_one_ne_zero {k : ℕ} : (one (k:=k)) ≠ (zero (k:=k)) := by
 instance {k: ℕ}: NeZero (1 : ConcreteBinaryTower k) := by
   unfold ConcreteBinaryTower
   exact {out := concrete_one_ne_zero (k:=k) }
+
+lemma one_le_sub_middle_of_pow2 {k: ℕ} (h_k: 1 ≤ k): 1 ≤ 2 ^ k - 2 ^ (k - 1) := by
+  have l1: 2 ^ (k - 1 + 1) = 2^k := by congr 1; omega
+  have res := one_le_sub_consecutive_two_pow (n:=k-1)
+  rw [l1] at res
+  exact res
+
+lemma sub_middle_of_pow2_with_one_canceled {k: ℕ} (h_k: 1 ≤ k): 2 ^ k - 1 - 2 ^ (k - 1) + 1 = 2 ^ (k - 1) := by
+  calc 2 ^ k - 1 - 2 ^ (k - 1) + 1 = 2 ^ k - 2 ^ (k - 1) - 1 + 1 := by omega
+    _ = 2 ^ k - 2 ^ (k - 1) := by rw [Nat.sub_add_cancel]; exact one_le_sub_middle_of_pow2 (h_k:=h_k)
+    _ = 2^(k-1) * 2 - 2 ^ (k - 1):= by
+      congr 1
+      rw [← Nat.pow_succ]
+      congr
+      simp only [Nat.succ_eq_add_one]
+      rw [Nat.sub_add_cancel]
+      omega
+    _ = 2^(k-1) + 2^(k-1) - 2^(k-1) := by rw [Nat.mul_two]
+    _ = 2^(k-1) := Nat.add_sub_self_left (2 ^ (k - 1)) (2 ^ (k - 1))
 
 -- Split a field element into high and low parts
 def split {k : ℕ} (h : k > 0) (x : ConcreteBinaryTower k) :
@@ -319,23 +352,7 @@ def split {k : ℕ} (h : k > 0) (x : ConcreteBinaryTower k) :
   have h_lo: 2 ^ (k - 1) - 1 - 0 + 1 = 2 ^ (k - 1) := by
     calc 2 ^ (k - 1) - 1 - 0 + 1 = 2 ^ (k - 1) - 1 + 1 := by norm_num
       _ = 2^(k-1) := by rw [Nat.sub_add_cancel]; exact one_le_two_pow_n (n:=k-1)
-  have one_le: 1 ≤ 2 ^ k - 2 ^ (k - 1) := by
-    have l1: 2 ^ (k - 1 + 1) = 2^k := by congr 1; omega
-    have res := one_le_sub_consecutive_two_pow (n:=k-1)
-    rw [l1] at res
-    exact res
-  have h_hi: 2 ^ k - 1 - 2 ^ (k - 1) + 1 = 2 ^ (k - 1) := by
-    calc 2 ^ k - 1 - 2 ^ (k - 1) + 1 = 2 ^ k - 2 ^ (k - 1) - 1 + 1 := by omega
-      _ = 2 ^ k - 2 ^ (k - 1) := by rw [Nat.sub_add_cancel]; exact one_le
-      _ = 2^(k-1) * 2 - 2 ^ (k - 1):= by
-        congr 1
-        rw [← Nat.pow_succ]
-        congr
-        simp only [Nat.succ_eq_add_one]
-        rw [Nat.sub_add_cancel]
-        omega
-      _ = 2^(k-1) + 2^(k-1) - 2^(k-1) := by rw [Nat.mul_two]
-      _ = 2^(k-1) := by omega
+  have h_hi := sub_middle_of_pow2_with_one_canceled (k:=k) (h_k:=by omega)
   -- Use cast to avoid overuse of fromNat & toNat
   let lo: BitVec (2^(k-1)) := dcast h_lo lo_bits
   let hi: BitVec (2^(k-1)) := dcast h_hi hi_bits
@@ -377,7 +394,17 @@ theorem split_of_join {k : ℕ} (h_pos : k > 0) (x : ConcreteBinaryTower k)
   have ⟨h_hi, h_lo⟩ := (join_eq_iff h_pos x hi_btf lo_btf).mp h_join
   exact ((split_eq_iff h_pos x hi_btf lo_btf).mpr ⟨h_hi, h_lo⟩).symm
 
-theorem split_zero {k: ℕ} (h_pos: k > 0): split h_pos zero = (zero, zero) := by sorry
+theorem split_zero {k: ℕ} (h_pos: k > 0): split h_pos zero = (zero, zero) := by
+  rw [split]
+  simp only [zero, BitVec.zero_eq, BitVec.extractLsb_ofNat, Nat.zero_mod, Nat.zero_shiftRight,
+    Nat.sub_zero, Nat.shiftRight_zero, Prod.mk.injEq, dcast_bitvec_zero_eq, and_self]
+theorem split_one {k: ℕ} (h_pos: k > 0): split h_pos one = (zero, one) := by
+  rw [split]
+  simp only [zero, one, BitVec.zero_eq, BitVec.extractLsb_ofNat, Nat.zero_mod, Nat.zero_shiftRight,
+    Nat.sub_zero, Nat.shiftRight_zero, Prod.mk.injEq, dcast_bitvec_zero_eq, and_self]
+  sorry
+theorem join_zero {k: ℕ} (h_pos: k > 0): join h_pos zero zero = zero := by sorry
+theorem join_one {k: ℕ} (h_pos: k > 0): join h_pos zero one = one := by sorry
 
 def equivProd {k : ℕ} (h_k_pos : k > 0) :
   ConcreteBinaryTower k ≃ ConcreteBinaryTower (k - 1) × ConcreteBinaryTower (k - 1) where
@@ -439,7 +466,8 @@ termination_by (k, a.toNat, b.toNat)
 instance (k : ℕ) : HMul (ConcreteBinaryTower k) (ConcreteBinaryTower k) (ConcreteBinaryTower k) where
   hMul := concrete_mul
 
-#eval bitVecToString 4 (BitVec.ofNat 4 5)  -- 5 in 4 bits is 0101
+#eval bitVecToString 5 (BitVec.ofNat 5 1)  -- 5 in 4 bits is 0101
+#eval split (k:=5) (by omega) (fromNat (k:=5) 1) -- 1 => (0, 1)
 #eval (Z 2).toBitString -- 01|00
 #eval (one (k:=2)).toBitString -- 0001
 #eval (zero (k:=2)).toBitString -- 0000
@@ -702,6 +730,14 @@ def natCast_succ {k: ℕ} (n : ℕ) : natCast (k:=k) (n + 1) = natCast (k:=k) n 
 instance {k: ℕ} : NatCast (ConcreteBinaryTower k) where
   natCast n:= natCast n
 
+@[simp]
+lemma concrete_natCast_zero_eq_zero {k:ℕ} : natCast 0 = (0: ConcreteBinaryTower k) := by
+  simp only [natCast, Nat.zero_mod, ↓reduceIte, zero_is_0]
+
+@[simp]
+lemma concrete_natCast_one_eq_one {k:ℕ} : natCast 1 = (1: ConcreteBinaryTower k) := by
+  simp only [natCast, Nat.mod_succ, one_ne_zero, ↓reduceIte, one_is_1]
+
 -- help simp recognize the NatCast coercion
 @[simp] lemma natCast_eq {k: ℕ} (n : ℕ) : (↑n : ConcreteBinaryTower k) = natCast n := rfl
 
@@ -752,92 +788,8 @@ def intCast_negSucc {k:ℕ} (n : ℕ) : intCast (k:=k) (Int.negSucc n) = - (↑(
     rw [h_nat]
     rfl
 
-instance instRingConcreteBTF0: Ring (ConcreteBinaryTower 0) where
-  toAddCommGroup := inferInstance
-  one := one (k:=0)
-  mul := concrete_mul
-  mul_assoc := concrete_mul_assoc0
-  one_mul := concrete_one_mul0
-  mul_one := concrete_mul_one0
-  left_distrib := concrete_mul_left_distrib0
-  right_distrib := concrete_mul_right_distrib0
-  zero_mul := concrete_zero_mul0
-  mul_zero := concrete_mul_zero0
-
-  -- Natural number casting: n%2 = 0 => 0, n%2 = 1 => 1
-  natCast n := natCast n
-  natCast_zero := natCast_zero
-  natCast_succ n := natCast_succ n
-  intCast n := intCast n
-  intCast_ofNat n := intCast_ofNat n
-  intCast_negSucc n := intCast_negSucc n
-
-instance instInvConcreteBTF0: Inv (ConcreteBinaryTower 0) where
-  inv := concrete_inv
-
-lemma concrete_inv_zero0 : (0 : ConcreteBinaryTower 0)⁻¹ = 0 := by
-  unfold Inv.inv
-  dsimp only [instInvConcreteBTF0]
-  simp only [concrete_inv, zero_is_0, ↓reduceIte]
-
-lemma concrete_inv_one0 : (1 : ConcreteBinaryTower 0)⁻¹ = 1 := by
-  unfold Inv.inv
-  dsimp only [instInvConcreteBTF0]
-  simp only [concrete_inv, zero_is_0]; norm_num;
-  simp only [concrete_pow_nat, ↓reduceIte, one_is_1];
-
-instance instHDivConcreteBTF0 : HDiv (ConcreteBinaryTower 0) (ConcreteBinaryTower 0) (ConcreteBinaryTower 0) where
-  hDiv a b := a * (concrete_inv b)
-
-lemma concrete_div_eq_mul_inv0 (a b : ConcreteBinaryTower 0) : a / b = a * (concrete_inv b) := by
-  rfl
-
-instance instHPowConcreteBTF0: HPow (ConcreteBinaryTower 0) ℤ (ConcreteBinaryTower 0) where
-  hPow a n :=
-    match n with
-    | Int.ofNat m => concrete_pow_nat a m
-    | Int.negSucc m =>
-      -- n = -(m+1)
-      if a = 0 then 0
-      else concrete_pow_nat (concrete_inv a) (m + 1) -- a^(-(m+1)) = (a^(-1))^(m+1)
-
-lemma concrete_zpow_zero'0 (a : ConcreteBinaryTower 0) : zpowRec npowRec 0 a = 1 := by
-  simp only [zpowRec, npowRec]
-
-lemma concrete_zpow_succ'0 (n : ℕ) (a : ConcreteBinaryTower 0) :
-  zpowRec npowRec (↑n.succ) a = zpowRec npowRec (↑n) a * a := by
-  simp only [zpowRec, npowRec]
-
-instance : Div (ConcreteBinaryTower 0) where
-  div a b := a * (concrete_inv b)
-
-instance : RatCast (ConcreteBinaryTower 0) where
-  ratCast x := Rat.castRec x
-
-instance : NNRatCast (ConcreteBinaryTower 0) where
-  nnratCast x := NNRat.castRec x
-
-#eval (14 : ConcreteBinaryTower 2)  -- 14
-#eval (15 : ConcreteBinaryTower 2)  -- 15
-#eval (16 : ConcreteBinaryTower 2)  -- 0
-
-instance instDivisionRingConcreteBTF0 : DivisionRing (ConcreteBinaryTower 0) where
-  toRing := inferInstance
-  inv := concrete_inv
-  exists_pair_ne := concrete_exists_pair_ne (k := 0)
-  mul_inv_cancel := concrete_mul_inv_cancel0
-  inv_zero := concrete_inv_zero0
-  qsmul := (Rat.castRec · * ·)
-  nnqsmul := (NNRat.castRec · * ·)
-
-instance instFieldConcreteBTF0: Field (ConcreteBinaryTower 0) where
-  toDivisionRing := inferInstance
-  mul_comm := concrete_mul_comm0
-
-instance toBTFieldLevel0: ConcreteBinaryTower 0 ≃+* BinaryTower.BTField 0 := sorry
-instance fromBTFieldLevel0 : BinaryTower.BTField 0 ≃+* ConcreteBinaryTower 0 := toBTFieldLevel0.symm
-
 end BaseDefinitions
+
 -------------------------------------------------------------------------------------------
 -- Structure to hold properties at a given level k
 structure ConcreteBTFStepResult (k : ℕ) where
@@ -846,10 +798,26 @@ structure ConcreteBTFStepResult (k : ℕ) where
            (h_a : (a₁, a₀) = split h_k a)
            (h_b : (b₁, b₀) = split h_k b),
            a * b = join h_k (a₀*b₁ + b₀*a₁ + a₁*b₁ * Z (k - 1)) (a₀*b₀ + a₁*b₁)
-  instField: Field (ConcreteBinaryTower k)
+  mul_eq_concrete_mul(a b : ConcreteBinaryTower k): a * b = concrete_mul a b := rfl -- HMul instance
+  zero_mul : ∀ a : ConcreteBinaryTower k, concrete_mul zero a = zero
+  zero_mul' : ∀ a : ConcreteBinaryTower k, concrete_mul 0 a = 0
+  mul_zero : ∀ a : ConcreteBinaryTower k, concrete_mul a zero = zero
+  mul_zero' : ∀ a : ConcreteBinaryTower k, concrete_mul a 0 = 0
+  one_mul : ∀ a : ConcreteBinaryTower k, concrete_mul one a = a
+  mul_one : ∀ a : ConcreteBinaryTower k, concrete_mul a one = a
+  mul_assoc : ∀ a b c : ConcreteBinaryTower k, concrete_mul (concrete_mul a b) c = concrete_mul a (concrete_mul b c)
+  mul_comm : ∀ a b : ConcreteBinaryTower k, concrete_mul a b = concrete_mul b a
+  mul_left_distrib : ∀ a b c : ConcreteBinaryTower k, concrete_mul a (b + c) = concrete_mul a b + concrete_mul a c
+  mul_right_distrib : ∀ a b c : ConcreteBinaryTower k, concrete_mul (a + b) c = concrete_mul a c + concrete_mul b c
+  add_assoc : ∀ a b c : ConcreteBinaryTower k, (a + b) + c = a + (b + c)
+  add_comm : ∀ a b : ConcreteBinaryTower k, a + b = b + a
+  add_zero : ∀ a : ConcreteBinaryTower k, a + zero = a
+  zero_add : ∀ a : ConcreteBinaryTower k, zero + a = a
+  add_neg : ∀ a : ConcreteBinaryTower k, a + (neg a) = zero
+  mul_inv_cancel : ∀ a : ConcreteBinaryTower k, a ≠ zero → concrete_mul a (concrete_inv a) = one
 
 -------------------------------------------------------------------------------------------
-section InductiveConcreteBTFProofs -- for k > 0
+section InductiveConcreteBTFPropertiesProofs -- for k > 0
 variable {k : ℕ} (h_k: k > 0) (recArgument : (m : ℕ) → m < k → ConcreteBTFStepResult m)
 
 theorem concrete_mul_eq (a b: ConcreteBinaryTower k) (h_k: k > 0)
@@ -857,98 +825,107 @@ theorem concrete_mul_eq (a b: ConcreteBinaryTower k) (h_k: k > 0)
   (h_a: (a₁, a₀) = split h_k a)
   (h_b: (b₁, b₀) = split h_k b):
   a * b = join h_k (a₀*b₁ + b₀*a₁ + a₁*b₁ * Z (k - 1)) (a₀*b₀ + a₁*b₁) := by
+  -- unfold concrete_mul
+  -- simp only [dif_neg (Nat.ne_of_gt h_k_gt_0)]
+  -- let (a₁, a₀) := split h_k_gt_0 a
+  -- let (b₁, b₀) := split h_k_gt_0 b
+  -- simp only [split_of_join, join_of_split, h_k_gt_0, Nat.sub_add_cancel, Nat.sub_zero, Nat.pow_one]
+  -- conv =>
+  --   lhs
+  --   rw [concrete_mul]
+  -- rfl
   sorry
 
-lemma concrete_zero_mul (b : ConcreteBinaryTower k) :
-  concrete_mul (zero (k:=k)) b = zero (k:=k) := by
+lemma concrete_zero_mul {recArg : (m : ℕ) → m < k → ConcreteBTFStepResult m} (a : ConcreteBinaryTower k) :
+  concrete_mul (zero (k:=k)) a = zero (k:=k) := by
   unfold concrete_mul
   by_cases h_k_zero : k = 0
-  · -- Case: k = 0 (base case)
+  · -- Base case: k = 0
     simp only [h_k_zero, ↓reduceDIte, zero, dif_pos, ite_true]
-  · -- Case: k > 0 (inductive case)
-    simp only [↓reduceDIte, dif_neg h_k_zero]
-    have h_k_gt_0 : k > 0 := by omega
+  · -- Inductive case: k > 0
+    simp only [dif_neg h_k_zero]
+    -- Obtain h_k_gt_0 from h_k_zero
+    have h_k_gt_0_proof : k > 0 := by omega
+    -- Split zero into (zero, zero)
+    have h_zero_split : split h_k_gt_0_proof (zero (k:=k)) = (zero, zero) := by rw [split_zero]
+    let (a₁, a₀) := (zero (k:=k-1), zero (k:=k-1))
+    let (b₁, b₀) := split h_k_gt_0_proof a
+    rw [h_zero_split]
+    simp only
+    -- Apply the inductive hypothesis to a₁*b₁, a₀*b₀, a₁*b₀, a₀*b₁
+    let recArgPrevLevel := recArg (k-1) (Nat.sub_one_lt_of_lt h_k_gt_0_proof)
+    simp only [zero_is_0, zero_add, recArgPrevLevel.zero_mul']
+    simp only [← zero_is_0, join_zero h_k_gt_0_proof]
 
-    -- Split the zero into high and low parts (both zero)
-    have split_zero : split h_k_gt_0 (zero (k:=k)) = (zero (k:=k-1), zero (k:=k-1)) := split_zero h_k_gt_0
-
-    -- Use induction on the recursive calls
-    have IH_hi : concrete_mul (zero (k:=k-1)) (split h_k_gt_0 b).1 = zero (k:=k-1) := by sorry
-      -- apply concrete_zero_mul (k:=k-1)
-    have IH_lo : concrete_mul (zero (k:=k-1)) (split h_k_gt_0 b).2 = zero (k:=k-1) := by sorry
-      -- apply concrete_zero_mul (k:=k-1)
-
-    -- The sum of zeros is zero
-    have sum_zero : zero (k:=k-1) + zero (k:=k-1) = zero (k:=k-1) := by
-      simp [zero, add_zero]
-      sorry
-
-    -- Putting it all together
-    simp [split_zero, sum_zero, IH_hi, IH_lo, add_zero]
-    -- The join of (zero, zero) is zero
-    sorry -- Final join proof
-
-lemma concrete_mul_zero (a : ConcreteBinaryTower k) :
+lemma concrete_mul_zero {recArg : (m : ℕ) → m < k → ConcreteBTFStepResult m} (a : ConcreteBinaryTower k) :
   concrete_mul a (zero (k:=k)) = zero (k:=k) := by
   unfold concrete_mul
   by_cases h_k_zero : k = 0
-  · -- Case: k = 0 (base case)
-    simp only [h_k_zero, ↓reduceDIte, dif_pos]
-    by_cases h_a_zero : a = zero
-    · -- Case: a = 0
-      simp only [h_a_zero, ite_true]
-    · -- Case: a ≠ 0
-      simp only [h_a_zero, ite_false, zero]
-      -- In GF(2), a must be 1
-      -- have a_is_one : a = one := by
-        -- apply eq_zero_or_eq_one.elim h_a_zero
-        -- intro h; contradiction
-      -- simp [a_is_one, ite_true]
-      sorry
-  · -- Case: k > 0 (inductive case)
-    simp only [↓reduceDIte, dif_neg h_k_zero]
-    have h_k_gt_0 : k > 0 := by omega
+  · -- Base case: k = 0
+    simp only [h_k_zero, ↓reduceDIte, zero, BitVec.zero_eq, ↓reduceIte, ite_self]
+  · -- Inductive case: k > 0
+    simp only [dif_neg h_k_zero]
+    -- Obtain h_k_gt_0 from h_k_zero
+    have h_k_gt_0_proof : k > 0 := by omega
+    -- Split zero into (zero, zero)
+    have h_zero_split : split h_k_gt_0_proof (zero (k:=k)) = (zero, zero) := by rw [split_zero]
+    -- Split a into (a₁, a₀)
+    let (a₁, a₀) := split h_k_gt_0_proof a
+    let (b₁, b₀) := (zero (k:=k-1), zero (k:=k-1))
+    -- Rewrite with the zero split
+    rw [h_zero_split]
+    simp only
+    -- Apply the inductive hypothesis
+    let recArgPrevLevel := recArg (k-1) (Nat.sub_one_lt_of_lt h_k_gt_0_proof)
+    simp only [zero_is_0, zero_add, recArgPrevLevel.mul_zero']
+    -- Use join_zero to complete the proof
+    simp only [← zero_is_0, recArgPrevLevel.zero_mul, join_zero h_k_gt_0_proof]
 
-    -- Similar structure to the previous proof, using induction and the recursive definition
-    sorry -- Complete with induction on the structure
-
-lemma concrete_mul_one (a : ConcreteBinaryTower k) :
-  concrete_mul a 1 = a := by
-  unfold concrete_mul
-  sorry
-
-lemma concrete_one_mul (a : ConcreteBinaryTower k) :
+lemma concrete_one_mul {recArg : (m : ℕ) → m < k → ConcreteBTFStepResult m} (a : ConcreteBinaryTower k) :
   concrete_mul (one (k:=k)) a = a := by
   unfold concrete_mul
-  sorry
-  -- by_cases h_k_zero : k = 0
-  -- · -- Case: k = 0 (base case)
-  --   simp only [h_k_zero, ↓reduceDIte, dif_pos]
-  --   by_cases h_a_zero : a = zero
-  --   · -- Case: a = 0
-  --     simp only [h_a_zero, ite_true, one, ite_false, concrete_one_ne_zero]
-  --   · -- Case: a ≠ 0
-  --     simp only [h_a_zero, ite_false, one]
-  --     -- In GF(2), a must be 1
-  --     have a_is_one : a = one := by
-  --       apply eq_zero_or_eq_one.elim h_a_zero
-  --       intro h; contradiction
-  --     simp [a_is_one, ite_true]
-  -- · -- Case: k > 0 (inductive case)
-  --   simp only [↓reduceDIte, dif_neg h_k_zero]
-  --   have h_k_gt_0 : k > 0 := by omega
+  by_cases h_k_zero : k = 0
+  · -- Base case: k = 0
+    simp [h_k_zero, ↓reduceDIte, dif_pos, one_is_1, zero_is_0]; intro h; exact h.symm
+  · -- Inductive case: k > 0
+    have h_k_gt_0 : k > 0 := by omega
+    let recArgPrevLevel := recArg (k-1) (Nat.sub_one_lt_of_lt h_k_gt_0)
+    simp only [dif_neg h_k_zero]
+    let (a₁, a₀) := split h_k_gt_0 a
+    have h_split_a: split h_k_gt_0 a = (a₁, a₀) := by sorry
+    rw [split_one]
+    simp only [zero_is_0, zero_add, recArgPrevLevel.one_mul, recArgPrevLevel.zero_mul', add_zero]
+    simp [add_assoc, add_self_cancel]
+    have join_result : join h_k_gt_0 a₁ a₀ = a := by
+      have split_join := join_of_split h_k_gt_0 a a₁ a₀
+      exact (split_join h_split_a).symm
+    exact join_result
 
-  --   -- For k > 0, we need to use the structure of multiplication
-  --   -- One would split into (0, 1) typically in tower fields
-  --   have split_one : split h_k_gt_0 (one (k:=k)) = (zero (k:=k-1), one (k:=k-1)) := by
-  --     sorry -- Lemma about splitting one
+lemma concrete_mul_one {recArg : (m : ℕ) → m < k → ConcreteBTFStepResult m} (a : ConcreteBinaryTower k) :
+  concrete_mul a (one (k:=k)) = a := by
+  unfold concrete_mul
+  by_cases h_k_zero : k = 0
+  · -- Base case: k = 0
+    simp [h_k_zero, ↓reduceDIte, dif_pos, one_is_1, zero_is_0];
+    conv =>
+      lhs
+      simp only [if_self_rfl]
+  · -- Inductive case: k > 0
+    have h_k_gt_0 : k > 0 := by omega
+    let recArgPrevLevel := recArg (k-1) (Nat.sub_one_lt_of_lt h_k_gt_0)
+    simp only [dif_neg h_k_zero]
+    let (a₁, a₀) := split h_k_gt_0 a
+    have h_split_a: split h_k_gt_0 a = (a₁, a₀) := by sorry
+    rw [split_one]
+    simp only [zero_is_0, zero_add, recArgPrevLevel.mul_one, recArgPrevLevel.mul_zero',
+      recArgPrevLevel.zero_mul', add_zero]
+    simp [add_assoc, add_self_cancel]
+    have join_result : join h_k_gt_0 a₁ a₀ = a := by
+      have split_join := join_of_split h_k_gt_0 a a₁ a₀
+      exact (split_join h_split_a).symm
+    exact join_result
 
-  --   -- Use induction and the field structure properties
-  --   -- This uses the fact that in the higher level field:
-  --   -- (0,1) * (a₁,a₀) = (0*a₁ + 1*a₀ + 0*a₀*Z, 0*a₀ + 1*a₁) = (a₀, a₁)
-  --   sorry -- Complete with field structure properties
-
-lemma concrete_pow_base_one (n : ℕ) : concrete_pow_nat (k:=k) (x:=1) n = 1 := by
+lemma concrete_pow_base_one {recArg : (m : ℕ) → m < k → ConcreteBTFStepResult m} (n : ℕ) : concrete_pow_nat (k:=k) (x:=1) n = 1 := by
   induction n using Nat.strong_induction_on with
   | h n ih =>
     -- ih: ∀ m, m < n → concrete_pow_nat (k:=k) (x:=1) m = 1
@@ -964,7 +941,7 @@ lemma concrete_pow_base_one (n : ℕ) : concrete_pow_nat (k:=k) (x:=1) n = 1 := 
         rw [if_pos h_mod]
         have h_square : concrete_mul (1 : ConcreteBinaryTower k) 1 = 1 := by
           rw [← one_is_1]
-          rw [concrete_one_mul]  -- Assume concrete_mul 1 1 = 1
+          rw [concrete_one_mul (recArg:=recArg)]  -- Assume concrete_mul 1 1 = 1
         rw [h_square]
         have h_div_lt : n / 2 < n := by
           apply Nat.div_lt_self
@@ -975,7 +952,7 @@ lemma concrete_pow_base_one (n : ℕ) : concrete_pow_nat (k:=k) (x:=1) n = 1 := 
         rw [if_neg h_mod]
         have h_square : concrete_mul (1 : ConcreteBinaryTower k) 1 = 1 := by
           rw [← one_is_1]
-          rw [concrete_one_mul]  -- Assume concrete_mul 1 1 = 1
+          rw [concrete_one_mul (recArg:=recArg)]  -- Assume concrete_mul 1 1 = 1
         rw [h_square]
         have h_div_lt : n / 2 < n := by
           apply Nat.div_lt_self
@@ -983,42 +960,76 @@ lemma concrete_pow_base_one (n : ℕ) : concrete_pow_nat (k:=k) (x:=1) n = 1 := 
           exact Nat.le_refl 2
         rw [ih (n / 2) h_div_lt]  -- Use ih for n / 2 < n
         rw [← one_is_1]
-        rw [concrete_one_mul]  -- Assume concrete_mul 1 1 = 1
+        rw [concrete_one_mul (recArg:=recArg)]  -- Assume concrete_mul 1 1 = 1
 
 lemma concrete_mul_assoc (a b c : ConcreteBinaryTower k) :
   concrete_mul (concrete_mul a b) c = concrete_mul a (concrete_mul b c) := by
+  unfold concrete_mul
   sorry
 
 lemma concrete_mul_comm (a b : ConcreteBinaryTower k) :
   concrete_mul a b = concrete_mul b a := by
+  unfold concrete_mul
   sorry
 
 lemma concrete_mul_left_distrib (a b c : ConcreteBinaryTower k) :
   concrete_mul a (b + c) = concrete_mul a b + concrete_mul a c := by
-  sorry
+  unfold concrete_mul
+  by_cases h_k_zero : k = 0
+  · -- Base case k = 0
+    simp only [h_k_zero, ↓reduceDIte, dif_pos]
+    -- In GF(2), this is true: a * (b + c) = a*b + a*c.
+    -- (a AND (b XOR c)) = (a AND b) XOR (a AND c)
+    -- This is a property of XOR and AND.
+    -- BitVec.xor is add, BitVec.and is mul.
+    -- The multiplication `concrete_mul` for k=0 is not BitVec.and!
+    -- It's a special case, so we need to expand it.
+    -- cases BitVec.eq_zero_or_eq_one rfl a with
+    -- | inl ha0 => simp [ha0]
+    -- | inr ha1 => simp [ha1]
+    sorry
+  · -- Inductive case k > 0
+    simp only [dif_neg h_k_zero]
+    have h_k_gt_0' : k > 0 := by omega
+    -- This is another very involved proof. It requires:
+    -- 1. Splitting (b+c) into (b₁+c₁, b₀+c₀)
+    -- 2. Expanding both sides using `concrete_mul_eq`
+    -- 3. Applying the distributive property at level k-1 (from `recArgument (k-1)`)
+    -- 4. Using associativity and commutativity of `+` and `*` at level k-1.
+    -- It is very similar to the proof of associativity for Karatsuba.
+    sorry
 
 lemma concrete_mul_right_distrib (a b c : ConcreteBinaryTower k) :
   concrete_mul (a + b) c = concrete_mul a c + concrete_mul b c := by
-  sorry
-
-lemma concrete_mul_inv_cancel (a : ConcreteBinaryTower k) (h : a ≠ 0) :
-  concrete_mul a (concrete_inv a) = one := by
-  sorry
+  rw [concrete_mul_comm (a:=(a+b)) (b:=c)]
+  rw [concrete_mul_comm (a:=a) (b:=c)]
+  rw [concrete_mul_comm (a:=b) (b:=c)]
+  exact concrete_mul_left_distrib (a:=c) (b:=a) (c:=b)
 
 instance instInvConcreteBTF: Inv (ConcreteBinaryTower k) where
   inv := concrete_inv
 
-lemma concrete_inv_zero : (0 : ConcreteBinaryTower k)⁻¹ = 0 := by
-  unfold Inv.inv
-  dsimp only [instInvConcreteBTF]
+lemma concrete_mul_inv_cancel {recArg : (m : ℕ) → m < k → ConcreteBTFStepResult m} (a : ConcreteBinaryTower k) (h : a ≠ 0) :
+  concrete_mul a (concrete_inv a) = one := by
+  unfold concrete_inv
+  -- simp only [h, ↓reduceIte]
+  -- unfold concrete_pow_nat
+  -- This proof requires that `concrete_pow_nat x (2^k - 2)` is the inverse.
+  -- This is a property of finite fields, x^(|F|-2) = x^(-1) for x != 0.
+  -- This is usually proved by showing x^(|F|-1) = 1 (Fermat's Little Theorem for fields)
+  -- The base case (k=0, GF(2)) is shown by direct computation.
+  -- For k > 0, this needs the field structure of `ConcreteBinaryTower k`.
+  -- Since `instField` is the goal, this proof is typically *after* the field instance is established, or relies on a recursive argument.
+  -- Given the structure, it needs to be proven by induction as well.
+  -- The base case for k=0 is provided (`concrete_mul_inv_cancel0`).
+  -- For k>0, we need to show that the recursive definition of multiplication and inversion works.
+  sorry
+
+lemma concrete_inv_zero : concrete_inv (k:=k) 0 = 0 := by
   simp only [concrete_inv, zero_is_0, ↓reduceIte]
 
-lemma concrete_inv_one : (1 : ConcreteBinaryTower k)⁻¹ = 1 := by
-  unfold Inv.inv
-  dsimp only [instInvConcreteBTF]
-  simp only [concrete_inv, zero_is_0]; norm_num;
-  sorry -- TODO: needs theorem about pow of 1
-  -- simp only [concrete_pow_nat, ↓reduceIte, one_is_1];
+lemma concrete_inv_one {recArg : (m : ℕ) → m < k → ConcreteBTFStepResult m} : concrete_inv (k:=k) 1 = 1 := by
+  simp only [concrete_inv, zero_is_0, one_ne_zero, ↓reduceIte, concrete_pow_base_one (recArg:=recArg)]
 
 instance instHDivConcreteBTF: HDiv (ConcreteBinaryTower k) (ConcreteBinaryTower k) (ConcreteBinaryTower k) where
   hDiv a b := a * (concrete_inv b)
@@ -1038,17 +1049,78 @@ instance instHPowConcreteBTF: HPow (ConcreteBinaryTower k) ℤ (ConcreteBinaryTo
 instance : Div (ConcreteBinaryTower k) where
   div a b := a * (concrete_inv b)
 
-instance : Ring (ConcreteBinaryTower k) where
+-- Ring equivalence
+-- instance toBTField: ConcreteBinaryTower k ≃+* BinaryTower.BTField k := sorry
+-- instance fromBTField : BinaryTower.BTField k ≃+* ConcreteBinaryTower k := toBTField.symm
+-- theorem toBTField_preserves_Z: toBTField (Z k) = BinaryTower.Z k := sorry
+
+end InductiveConcreteBTFPropertiesProofs
+-------------------------------------------------------------------------------------------
+
+def InductiveConcreteBTFPropertiesAux (k : ℕ) (rec : ∀ m : ℕ, m < k → ConcreteBTFStepResult m): ConcreteBTFStepResult k :=
+  match k with
+  | 0 =>
+    let result: ConcreteBTFStepResult 0 :={
+      mul_eq := fun a b h_k _ _ _ _ _ _ => by
+        have h_l_ne_lt_0 := Nat.not_lt_zero 0
+        exact absurd h_k h_l_ne_lt_0,
+      mul_eq_concrete_mul := by sorry,
+      zero_mul := concrete_zero_mul0,
+      zero_mul' := concrete_zero_mul0,
+      mul_zero := concrete_mul_zero0,
+      mul_zero' := concrete_mul_zero0,
+      one_mul := concrete_one_mul0,
+      mul_one := concrete_mul_one0,
+      mul_assoc := concrete_mul_assoc0,
+      mul_comm := concrete_mul_comm0,
+      mul_left_distrib := concrete_mul_left_distrib0,
+      mul_right_distrib := concrete_mul_right_distrib0,
+      add_assoc := add_assoc,
+      add_comm := add_comm,
+      add_zero := add_zero,
+      zero_add := zero_add,
+      add_neg := neg_add_cancel,
+      mul_inv_cancel := concrete_mul_inv_cancel0
+    }
+    result
+  | k + 1 =>
+    -- rec : (m : ℕ) → m < k + 1 → ConcreteBTFStepResult m
+    let result: ConcreteBTFStepResult (k+1) :={
+      mul_eq_concrete_mul := by sorry,
+      zero_mul := concrete_zero_mul (recArg := rec),
+      zero_mul' := fun a => by rw [←zero_is_0]; exact concrete_zero_mul (recArg := rec) a
+      mul_zero := concrete_mul_zero (recArg := rec),
+      mul_zero' := fun a => by rw [←zero_is_0]; exact concrete_mul_zero (recArg := rec) a
+      one_mul := concrete_one_mul (recArg := rec),
+      mul_one := concrete_mul_one (recArg := rec),
+      mul_assoc := concrete_mul_assoc,
+      mul_comm := concrete_mul_comm,
+      mul_left_distrib := concrete_mul_left_distrib,
+      mul_right_distrib := concrete_mul_right_distrib,
+      add_assoc := add_assoc,
+      add_comm := add_comm,
+      add_zero := add_zero,
+      zero_add := zero_add,
+      add_neg := neg_add_cancel,
+      mul_inv_cancel := concrete_mul_inv_cancel (k:=k+1) (recArg := rec),
+      mul_eq := concrete_mul_eq (k:=k+1),
+    }
+    result
+
+def InductiveConcreteBTFProperties (k : ℕ) : ConcreteBTFStepResult k :=
+  WellFounded.fix (measure id).wf (fun k rec => InductiveConcreteBTFPropertiesAux k rec) k
+
+instance instRingConcrete {k:ℕ}: Ring (ConcreteBinaryTower k) where
   toAddCommGroup := inferInstance
-  one := one (k:=k)
+  toOne := inferInstance
   mul := concrete_mul
-  mul_assoc := concrete_mul_assoc
-  one_mul := concrete_one_mul
-  mul_one := concrete_mul_one
-  left_distrib := concrete_mul_left_distrib
-  right_distrib := concrete_mul_right_distrib
-  zero_mul := concrete_zero_mul
-  mul_zero := concrete_mul_zero
+  mul_assoc := (InductiveConcreteBTFProperties (k:=k)).mul_assoc
+  one_mul := (InductiveConcreteBTFProperties (k:=k)).one_mul
+  mul_one := (InductiveConcreteBTFProperties (k:=k)).mul_one
+  left_distrib := (InductiveConcreteBTFProperties (k:=k)).mul_left_distrib
+  right_distrib := (InductiveConcreteBTFProperties (k:=k)).mul_right_distrib
+  zero_mul := (InductiveConcreteBTFProperties (k:=k)).zero_mul
+  mul_zero := (InductiveConcreteBTFProperties (k:=k)).mul_zero
 
   natCast n := natCast n
   natCast_zero := natCast_zero
@@ -1057,50 +1129,20 @@ instance : Ring (ConcreteBinaryTower k) where
   intCast_ofNat n := intCast_ofNat n
   intCast_negSucc n := intCast_negSucc n
 
-instance instDivisionRingConcrete : DivisionRing (ConcreteBinaryTower k) where
-  toRing := inferInstance
+instance instDivisionRingConcrete {k:ℕ}: DivisionRing (ConcreteBinaryTower k) where
+  toRing := instRingConcrete (k:=k)
   inv := concrete_inv
   exists_pair_ne := concrete_exists_pair_ne (k := k)
-  mul_inv_cancel := concrete_mul_inv_cancel
+  mul_inv_cancel := (InductiveConcreteBTFProperties (k:=k)).mul_inv_cancel
   inv_zero := concrete_inv_zero
   qsmul := (Rat.castRec · * ·)
   nnqsmul := (NNRat.castRec · * ·)
 
-instance instFieldConcrete: Field (ConcreteBinaryTower k) where
-  toDivisionRing := inferInstance
-  mul_comm := concrete_mul_comm
+instance instFieldConcrete {k:ℕ}: Field (ConcreteBinaryTower k) where
+  toDivisionRing := instDivisionRingConcrete (k:=k)
+  mul_comm := (InductiveConcreteBTFProperties (k:=k)).mul_comm
 
--- Ring equivalence
-instance toBTField: ConcreteBinaryTower k ≃+* BinaryTower.BTField k := sorry
-instance fromBTField : BinaryTower.BTField k ≃+* ConcreteBinaryTower k := toBTField.symm
-theorem toBTField_preserves_Z: toBTField (Z k) = BinaryTower.Z k := sorry
-
-end InductiveConcreteBTFProofs
--------------------------------------------------------------------------------------------
-
-def InductiveConcreteBTFAux (k : ℕ) (rec : ∀ m : ℕ, m < k → ConcreteBTFStepResult m): ConcreteBTFStepResult k :=
-  match k with
-  | 0 =>
-    let result: ConcreteBTFStepResult 0 :={
-      mul_eq := fun a b h_k _ _ _ _ _ _ => by
-        have h_l_ne_lt_0 := Nat.not_lt_zero 0
-        exact absurd h_k h_l_ne_lt_0
-      instField := instFieldConcreteBTF0
-    }
-    result
-  | k + 1 =>
-    -- rec : (m : ℕ) → m < k + 1 → ConcreteBTFStepResult m
-    let result: ConcreteBTFStepResult (k+1) :={
-      mul_eq := ConcreteDefinition.concrete_mul_eq (k:=k+1),
-      instField := ConcreteDefinition.instFieldConcrete (k:=k+1)
-    }
-    result
-
-def InductiveConcreteBTF (k : ℕ) : ConcreteBTFStepResult k :=
-  WellFounded.fix (measure id).wf (fun k rec => InductiveConcreteBTFAux k rec) k
-
--- After the section
-#check InductiveConcreteBTF 0  -- Ring (ConcreteBinaryTower 0)
-#check (InductiveConcreteBTF 5).instField  -- DivisionRing (ConcreteBinaryTower 5)
+#check instFieldConcrete (k:=0)
+#check instFieldConcrete (k:=5)
 
 end ConcreteDefinition
