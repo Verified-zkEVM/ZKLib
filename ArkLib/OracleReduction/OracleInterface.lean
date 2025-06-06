@@ -27,12 +27,25 @@ import Mathlib.Algebra.Polynomial.Roots
   - Vectors. This instance turns vectors into oracles for which one can query specific positions.
 -/
 
+universe u v
+
 /-- `⊕ᵥ` is notation for `Sum.elim`, e.g. sending `α → γ` and `β → γ` to `α ⊕ β → γ`. -/
 infixr:35 " ⊕ᵥ " => Sum.elim
 
 open OracleComp OracleSpec OracleQuery
 
-variable {ι ιₜ : Type}
+variable {ι ι' ιₜ : Type*} {spec : OracleSpec ι}
+    {spec' : OracleSpec ι'} {specₜ : OracleSpec ιₜ}
+    {m : Type u → Type v} {α β γ σ : Type u}
+
+/-- Canonical lifting of a function `OracleQuery spec α → m α`, for an arbitrary monad `m`,
+to a new function on computations `OracleComp spec α` that _never_ fails. -/
+def simulateQNeverFails [Monad m] (so : QueryImpl spec m) (oa : OracleComp spec α)
+    (h : oa.neverFails) : m α := by
+  induction oa using OracleComp.construct with
+  | pure x => exact pure x
+  | query_bind q r ih => exact (do let b ← so.impl q; ih b (by simp at h; exact h b))
+  | failure => simp [neverFails] at h
 
 @[reducible]
 def SimOracle.Stateful (spec : OracleSpec ι) (specₜ : OracleSpec ιₜ) (σ : Type) :=
@@ -132,6 +145,12 @@ def toOracleSpec {ι : Type} (v : ι → Type) [O : ∀ i, OracleInterface (v i)
     OracleSpec ι := fun i => ((O i).Query, (O i).Response)
 
 @[inherit_doc] notation "[" term "]ₒ" => toOracleSpec term
+
+/-- Given an underlying data for an indexed type family of oracle interfaces `v`,
+    we can give an implementation of all queries to the interface defined by `v` -/
+def toOracleImpl {ι : Type} (v : ι → Type) [O : ∀ i, OracleInterface (v i)]
+    (data : ∀ i, v i) : QueryImpl [v]ₒ Id where
+  impl | query i t => (O i).oracle (data i) t
 
 instance {ι : Type} (v : ι → Type) [O : ∀ i, OracleInterface (v i)]
     [h : ∀ i, DecidableEq (Query (v i))]

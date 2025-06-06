@@ -157,6 +157,10 @@ end OracleInterfaces
 /-- There is only one protocol specification with 0 messages (the empty one) -/
 instance : Unique (ProtocolSpec 0) := inferInstance
 
+instance : ∀ i, VCVCompatible ((default : ProtocolSpec 0).Challenge i) := fun i => by aesop
+instance : ∀ i, OracleInterface ((default : ProtocolSpec 0).Message i) := fun i => by
+  simp [default] at i; exact Fin.elim0 i.1
+
 /-- A (partial) transcript of a protocol specification, indexed by some `k : Fin (n + 1)`, is a
     list of messages from the protocol for all indices `i` less than `k`. -/
 @[reducible, inline, specialize]
