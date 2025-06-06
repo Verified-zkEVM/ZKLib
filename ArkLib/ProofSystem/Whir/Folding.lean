@@ -110,12 +110,12 @@ for a set of smooth ReedSolomon codes. It contains the following fields:
     (finiteness, nonemptiness, and decidable equality).
 - `φ_i`: per-round embeddings from `ι^(2ⁱ)` into `F`.
 - `inst4`: smoothness assumption for each `φ_i`.
-- `Genᵢ`: the base proximity generators at each round `i`.
-- `Gen_αᵢ`: the proximity generators wrt the generator function Gen(l,α) : {1,α,α²,..,α^{l-1}}
+- `Gen i`: the base proximity generators at each round `i`.
+- `Gen_α i`: the proximity generators wrt the generator function Gen(l,α) : {1,α,α²,..,α^{l-1}}
     defined as per `hgen`
-- `BStarᵢ`, `errStarᵢ`: parameters denoting code agreement thresholds
+- `BStar`, `errStar`: parameters denoting code agreement thresholds
     and error probabilities per round.
-- `h`: main agreement assumption, stating that each `Gen_αᵢ` satisfies mutual correlated agreement
+- `h`: main agreement assumption, stating that each `Gen_α` satisfies mutual correlated agreement
     for its underlying code.
 -/
 class GenMutualCorrParams (S : Finset ι) (φ : ι ↪ F) (k : ℕ) where
@@ -128,14 +128,14 @@ class GenMutualCorrParams (S : Finset ι) (φ : ι ↪ F) (k : ℕ) where
   φ_i : ∀ i : Fin (k+1), (indexPowT S φ i) ↪ F
   inst4 : ∀ i : Fin (k+1), Smooth (φ_i i)
 
-  Genᵢ : ∀ i : Fin (k+1), ProximityGenerator (indexPowT S φ i) F
-  Gen_αᵢ : ∀ i : Fin (k+1), ProximityGenerator (indexPowT S φ i) F
-  hgen : ∀ i : Fin (k+1), ∀ α : F, Gen_αᵢ i = proximityGenerator_α (Genᵢ i) α (φ_i i) (m-i)
-  BStarᵢ : ∀ i : Fin (k+1), (Set (indexPowT S φ i → F)) → ℕ → ℝ≥0
-  errStarᵢ : ∀ i : Fin (k+1), (Set (indexPowT S φ i → F)) → ℕ → ℝ≥0 → ℝ≥0
-  h : ∀ i : Fin (k+1), genMutualCorrAgreement (Gen_αᵢ i)
-        (BStarᵢ i (Gen_αᵢ i).C (Gen_αᵢ i).l)
-        (errStarᵢ i (Gen_αᵢ i).C (Gen_αᵢ i).l)
+  Gen : ∀ i : Fin (k+1), ProximityGenerator (indexPowT S φ i) F
+  Gen_α : ∀ i : Fin (k+1), ProximityGenerator (indexPowT S φ i) F
+  hgen : ∀ i : Fin (k+1), ∀ α : F, Gen_α i = proximityGenerator_α (Gen i) α (φ_i i) (m-i)
+  BStar : ∀ i : Fin (k+1), (Set (indexPowT S φ i → F)) → ℕ → ℝ≥0
+  errStar : ∀ i : Fin (k+1), (Set (indexPowT S φ i → F)) → ℕ → ℝ≥0 → ℝ≥0
+  h : ∀ i : Fin (k+1), genMutualCorrAgreement (Gen_α i)
+        (BStar i (Gen_α i).C (Gen_α i).l)
+        (errStar i (Gen_α i).C (Gen_α i).l)
 
 /--Lemma 4.20
   Let C = RS[F,ι,m] be a smooth ReedSolomon code, for k ≤ m and 0 ≤ i < k
@@ -169,18 +169,18 @@ theorem folding_listdecoding_if_genMutualCorrAgreement
     let _ : Fintype (indexPowT S φ k) := params.inst1 ⟨k, Nat.lt_succ_self _⟩
 
     Pr_{α ← F} [  ∀ {f : (indexPowT S φ 0) → F}
-                  (hδLe : δ ≤ 1 - Finset.univ.sup (fun j => params.BStarᵢ j (params.Gen_αᵢ j).C 2)),
+                  (hδLe : δ ≤ 1 - Finset.univ.sup (fun j => params.BStar j (params.Gen_α j).C 2)),
 
                     let listBlock : Set ((indexPowT S φ 0) → F) := Λᵣ(0, k, f, S', C, hcode, δ)
                     let vec_α := GenFunₐ α
                     let fold := fold_k f vec_α
                     let foldSet := fold_k_set listBlock vec_α
                     let kFin : Fin (k + 1) := ⟨k, sorry⟩
-                    let Cₖ := (params.Gen_αᵢ kFin).C
+                    let Cₖ := (params.Gen_α kFin).C
                     let listHamming := relHammingBall Cₖ fold δ
 
                     foldSet ≠ listHamming
-                ] < (∑ i : Fin (k+1), params.errStarᵢ i (params.Gen_αᵢ i).C 2 δ) := by sorry
+                ] < (∑ i : Fin (k+1), params.errStar i (params.Gen_α i).C 2 δ) := by sorry
 
 /--Lemma 4.21
   Let `C = RS[F,ι,m]` be a smooth ReedSolomon code and k ≤ m
