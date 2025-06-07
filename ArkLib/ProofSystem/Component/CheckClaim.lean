@@ -32,7 +32,7 @@ section Reduction
 
 /-- The prover for the `CheckClaim` reduction. -/
 @[inline, specialize]
-def prover : Prover (default : ProtocolSpec 0) oSpec Statement Unit Statement Unit where
+def prover : Prover ![] oSpec Statement Unit Statement Unit where
   PrvState := fun _ => Statement
   input := fun stmt _ => stmt
   sendMessage := fun i => nomatch i
@@ -43,12 +43,12 @@ variable (pred : Statement → Prop) [DecidablePred pred]
 
 /-- The verifier for the `CheckClaim` reduction. -/
 @[inline, specialize]
-def verifier : Verifier (default : ProtocolSpec 0) oSpec Statement Statement where
+def verifier : Verifier ![] oSpec Statement Statement where
   verify := fun stmt _ => do guard (pred stmt); return stmt
 
 /-- The reduction for the `CheckClaim` reduction. -/
 @[inline, specialize]
-def reduction : Reduction (default : ProtocolSpec 0) oSpec Statement Unit Statement Unit where
+def reduction : Reduction ![] oSpec Statement Unit Statement Unit where
   prover := prover oSpec Statement
   verifier := verifier oSpec Statement pred
 
@@ -73,7 +73,7 @@ variable {ιₛ : Type} (OStatement : ιₛ → Type) [∀ i, OracleInterface (O
 
 /-- The oracle prover for the `CheckClaim` oracle reduction. -/
 @[inline, specialize]
-def oracleProver : OracleProver (default : ProtocolSpec 0) oSpec
+def oracleProver : OracleProver ![] oSpec
     Statement Unit Statement Unit OStatement OStatement where
   PrvState := fun _ => Statement × (∀ i, OStatement i)
   input := fun stmt _ => stmt
@@ -86,7 +86,7 @@ variable (pred : ReaderT Statement (OracleComp [OStatement]ₒ) Prop)
 
 /-- The oracle verifier for the `CheckClaim` oracle reduction. -/
 @[inline, specialize]
-def oracleVerifier : OracleVerifier (default : ProtocolSpec 0) oSpec
+def oracleVerifier : OracleVerifier ![] oSpec
     Statement Statement OStatement OStatement where
   verify := fun stmt _ => do let _ ← pred stmt; return stmt
   embed := Embedding.inl
@@ -94,7 +94,7 @@ def oracleVerifier : OracleVerifier (default : ProtocolSpec 0) oSpec
 
 /-- The oracle reduction for the `CheckClaim` oracle reduction. -/
 @[inline, specialize]
-def oracleReduction : OracleReduction (default : ProtocolSpec 0) oSpec
+def oracleReduction : OracleReduction ![] oSpec
     Statement Unit Statement Unit OStatement OStatement where
   prover := oracleProver oSpec Statement OStatement
   verifier := oracleVerifier oSpec Statement OStatement pred

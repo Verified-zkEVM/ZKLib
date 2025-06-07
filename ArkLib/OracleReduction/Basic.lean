@@ -157,9 +157,13 @@ end OracleInterfaces
 /-- There is only one protocol specification with 0 messages (the empty one) -/
 instance : Unique (ProtocolSpec 0) := inferInstance
 
-instance : ∀ i, VCVCompatible ((default : ProtocolSpec 0).Challenge i) := fun i => by aesop
-instance : ∀ i, OracleInterface ((default : ProtocolSpec 0).Message i) := fun i => by
-  simp [default] at i; exact Fin.elim0 i.1
+-- Two different ways to write the empty protocol specification: `![]` and `default`
+
+instance : ∀ i, VCVCompatible (Challenge ![] i) := fun ⟨i, _⟩ => Fin.elim0 i
+instance : ∀ i, OracleInterface (Message ![] i) := fun ⟨i, _⟩ => Fin.elim0 i
+
+instance : ∀ i, VCVCompatible ((default : ProtocolSpec 0).Challenge i) := fun ⟨i, _⟩ => Fin.elim0 i
+instance : ∀ i, OracleInterface ((default : ProtocolSpec 0).Message i) := fun ⟨i, _⟩ => Fin.elim0 i
 
 /-- A (partial) transcript of a protocol specification, indexed by some `k : Fin (n + 1)`, is a
     list of messages from the protocol for all indices `i` less than `k`. -/
@@ -341,6 +345,8 @@ structure OracleVerifier (pSpec : ProtocolSpec n) {ι : Type} (oSpec : OracleSpe
     [Oₘ : ∀ i, OracleInterface (pSpec.Message i)] (StmtIn StmtOut : Type)
     {ιₛᵢ : Type} (OStmtIn : ιₛᵢ → Type) [Oₛᵢ : ∀ i, OracleInterface (OStmtIn i)]
     {ιₛₒ : Type} (OStmtOut : ιₛₒ → Type) where
+    -- This will be needed after the switch to `simOStmt`
+    -- [Oₛₒ : ∀ i, OracleInterface (OStmtOut i)]
 
   /-- The core verification logic. Takes the input statement `stmtIn` and all verifier challenges
   `challenges` (which are determined outside this function, typically by sampling for
@@ -349,6 +355,12 @@ structure OracleVerifier (pSpec : ProtocolSpec n) {ι : Type} (oSpec : OracleSpe
   oracles `pSpec.Message`. -/
   verify : StmtIn → pSpec.Challenges →
     OracleComp (oSpec ++ₒ ([OStmtIn]ₒ ++ₒ [pSpec.Message]ₒ)) StmtOut
+
+  -- TODO: this seems like the right way for compositionality
+  -- Makes it potentially more difficult for compilation with commitment schemes
+  -- Can recover the old version (with `embed` and `hEq`) via a constructor `QueryImpl.ofEmbed`
+
+  -- simOStmt : QueryImpl [OStmtOut]ₒ (OracleComp ([OStmtIn]ₒ ++ₒ [pSpec.Message]ₒ))
 
   /-- An embedding that specifies how each output oracle statement (indexed by `ιₛₒ`) is derived.
   It maps an index `i : ιₛₒ` to either an index `j : ιₛᵢ` (meaning `OStmtOut i` comes from
