@@ -353,7 +353,7 @@ section RoundByRound
 instance : Fintype (pSpec.ChallengeIdx) := Subtype.fintype (fun i => pSpec.getDir i = .V_to_P)
 
 /-- A (deterministic) state function for a verifier, with respect to input language `langIn` and
-  output language `langOut`. This is used to define round-by-round (knowledge) soundness. -/
+  output language `langOut`. This is used to define round-by-round soundness. -/
 structure StateFunction (pSpec : ProtocolSpec n) (oSpec : OracleSpec ι) [oSpec.FiniteRange]
     (langIn : Set StmtIn) (langOut : Set StmtOut)
     (verifier : Verifier pSpec oSpec StmtIn StmtOut)
@@ -371,6 +371,24 @@ structure StateFunction (pSpec : ProtocolSpec n) (oSpec : OracleSpec ι) [oSpec.
     in the output language -/
   toFun_full : ∀ stmt tr, toFun (.last n) stmt tr = False →
     [(· ∈ langOut) | verifier.run stmt tr] = 0
+
+/-- A knowledge state function for a verifier, with respect to input relation `relIn`, output
+  relation `relOut`, and intermediate witness types `WitMid`. This is used to define
+  round-by-round knowledge soundness. -/
+structure KnowledgeStateFunction (pSpec : ProtocolSpec n) (oSpec : OracleSpec ι) [oSpec.FiniteRange]
+    (relIn : StmtIn → WitIn → Prop) (relOut : StmtOut → WitOut → Prop)
+    (verifier : Verifier pSpec oSpec StmtIn StmtOut) (WitMid : Fin n → Type)
+    -- (WitMid : Fin n → Type) (witTrans : )
+    where
+  toFun : (m : Fin (n + 1)) → StmtIn → Transcript m pSpec →
+    Fin.cons (α := fun _ => Type) WitIn WitMid m → Prop
+  toFun_empty : ∀ stmt wit, relIn stmt wit = False → toFun 0 stmt default wit = False
+  toFun_next : ∀ m, pSpec.getDir m = .P_to_V →
+    ∀ stmt tr wit wit', toFun m.castSucc stmt tr wit = False →
+    ∀ msg, toFun m.succ stmt (tr.snoc msg) wit' = False
+  -- TODO: finish
+  toFun_full : ∀ stmt tr wit, toFun (.last n) stmt tr wit = False → True
+    -- relOut (verifier.run stmt tr) wit = False
 
 instance {langIn : Set StmtIn} {langOut : Set StmtOut}
     {verifier : Verifier pSpec oSpec StmtIn StmtOut} :
