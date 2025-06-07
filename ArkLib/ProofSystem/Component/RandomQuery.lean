@@ -71,7 +71,8 @@ and outputs the same `q`.
 
 We keep track of `(a, b)` in the prover's state, along with the single random query `q`.
 -/
-def prover : OracleProver (pSpec OStatement) oSpec Unit Unit
+@[inline, specialize]
+def oracleProver : OracleProver (pSpec OStatement) oSpec Unit Unit
     (Query OStatement) Unit
     (fun _ : Fin 2 => OStatement) (fun _ : Fin 2 => OStatement) where
 
@@ -90,7 +91,8 @@ def prover : OracleProver (pSpec OStatement) oSpec Unit Unit
 /--
 The oracle verifier simply returns the challenge, and performs no checks.
 -/
-def verifier : OracleVerifier (pSpec OStatement) oSpec Unit (Query OStatement)
+@[inline, specialize]
+def oracleVerifier : OracleVerifier (pSpec OStatement) oSpec Unit (Query OStatement)
     (fun _ : Fin 2 => OStatement) (fun _ : Fin 2 => OStatement) where
 
   verify := fun _ chal => do
@@ -106,23 +108,24 @@ Combine the trivial prover and this verifier to form the `RandomQuery` oracle re
 the input oracles are `(a, b)`, and the output oracles are the same `(a, b)`
 its output statement also contains the challenge `q`.
 -/
+@[inline, specialize]
 def oracleReduction :
   OracleReduction (pSpec OStatement) oSpec Unit Unit
     (Query OStatement) Unit
     (fun _ : Fin 2 => OStatement) (fun _ : Fin 2 => OStatement) where
-  prover := prover oSpec OStatement
-  verifier := verifier oSpec OStatement
+  prover := oracleProver oSpec OStatement
+  verifier := oracleVerifier oSpec OStatement
 
 variable [oSpec.FiniteRange]
 
 /-- The `RandomQuery` oracle reduction is perfectly complete. -/
 @[simp]
-theorem completeness : (oracleReduction oSpec OStatement).perfectCompleteness
+theorem oracleReduction_completeness : (oracleReduction oSpec OStatement).perfectCompleteness
     (relIn OStatement) (relOut OStatement) := by
   simp [OracleReduction.perfectCompleteness, oracleReduction, relIn, relOut]
   intro _ oStmt _ hOStmt
   simp [Reduction.run, Prover.run, Verifier.run, Prover.runToRound, Prover.processRound,
-    OracleReduction.toReduction, OracleVerifier.toVerifier, verifier, prover,
+    OracleReduction.toReduction, OracleVerifier.toVerifier, oracleVerifier, oracleProver,
     Transcript.snoc, FullTranscript.challenges]
   intro q oStmt' q' oStmt'' transcript h1 h2 h3 h4
   apply congrFun at h3
@@ -135,7 +138,7 @@ theorem completeness : (oracleReduction oSpec OStatement).perfectCompleteness
 -- def langOut : Set ((Query OStatement) × (∀ _ : Fin 2, OStatement)) := setOf fun ⟨q, oracles⟩ =>
 --   OracleInterface.oracle (oracles 0) q = OracleInterface.oracle (oracles 1) q
 
-def stateFunction : (verifier oSpec OStatement).StateFunction (pSpec OStatement) oSpec
+def stateFunction : (oracleVerifier oSpec OStatement).StateFunction (pSpec OStatement) oSpec
     (relIn OStatement).language (relOut OStatement).language where
   toFun
   | 0 => fun ⟨_, oracles⟩ _ => oracles 0 = oracles 1
@@ -147,7 +150,7 @@ def stateFunction : (verifier oSpec OStatement).StateFunction (pSpec OStatement)
   toFun_full := fun ⟨stmt, oStmt⟩ tr h => by
     simp_all [relOut, Function.language]
     intro a b hSupp
-    simp [Verifier.run, OracleVerifier.toVerifier, verifier] at hSupp
+    simp [OracleVerifier.toVerifier, Verifier.run, oracleVerifier] at hSupp
     simp [hSupp.1, hSupp.2, h]
 
 /-- The extractor is trivial since the output witness is `Unit`. -/
@@ -171,7 +174,7 @@ open NNReal
 /-- The `RandomQuery` oracle reduction is knowledge sound. -/
 @[simp]
 theorem rbr_knowledge_soundness {d : ℕ} (h : OracleInterface.distanceLE OStatement d) :
-    (verifier oSpec OStatement).rbrKnowledgeSoundness
+    (oracleVerifier oSpec OStatement).rbrKnowledgeSoundness
       (relIn OStatement)
       (relOut OStatement)
       (fun _ => (d : ℝ≥0) / (Fintype.card (Query OStatement) : ℝ≥0)) := by

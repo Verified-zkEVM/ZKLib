@@ -22,6 +22,7 @@ variable {ι : Type} (oSpec : OracleSpec ι) (Statement Witness : Type)
 section Reduction
 
 /-- The prover for the `DoNothing` reduction. -/
+@[inline, specialize]
 def prover : Prover ![] oSpec Statement Witness Statement Witness where
   PrvState | 0 => Statement × Witness
   input := id.curry
@@ -30,6 +31,7 @@ def prover : Prover ![] oSpec Statement Witness Statement Witness where
   output := id
 
 /-- The verifier for the `DoNothing` reduction. -/
+@[inline, specialize]
 def verifier : Verifier ![] oSpec Statement Statement where
   verify := fun stmt _ => pure stmt
 
@@ -37,6 +39,7 @@ def verifier : Verifier ![] oSpec Statement Statement where
   - Prover simply returns the statement and witness.
   - Verifier simply returns the statement.
 -/
+@[inline, specialize]
 def reduction : Reduction ![] oSpec Statement Witness Statement Witness where
   prover := prover oSpec Statement Witness
   verifier := verifier oSpec Statement
@@ -62,6 +65,7 @@ section OracleReduction
 variable {ιₛ : Type} (OStatement : ιₛ → Type) [∀ i, OracleInterface (OStatement i)]
 
 /-- The oracle prover for the `DoNothing` oracle reduction. -/
+@[inline, specialize]
 def oracleProver : OracleProver ![] oSpec Statement Witness Statement Witness
     OStatement OStatement where
   PrvState | 0 => (Statement × (∀ i, OStatement i)) × Witness
@@ -71,6 +75,7 @@ def oracleProver : OracleProver ![] oSpec Statement Witness Statement Witness
   output := id
 
 /-- The oracle verifier for the `DoNothing` oracle reduction. -/
+@[inline, specialize]
 def oracleVerifier : OracleVerifier ![] oSpec Statement Statement OStatement OStatement where
   verify := fun stmt _ => pure stmt
   embed := Function.Embedding.inl
@@ -80,6 +85,7 @@ def oracleVerifier : OracleVerifier ![] oSpec Statement Statement OStatement OSt
   - Prover simply returns the (non-oracle and oracle) statement and witness.
   - Verifier simply returns the (non-oracle and oracle) statement.
 -/
+@[inline, specialize]
 def oracleReduction : OracleReduction ![] oSpec Statement Witness Statement Witness
     OStatement OStatement where
   prover := oracleProver oSpec Statement Witness OStatement

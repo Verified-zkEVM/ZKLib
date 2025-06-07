@@ -218,6 +218,7 @@ def oracleVerifier : OracleVerifier (oraclePSpec Witness) oSpec
     <|.symm (subtypeUnivEquiv (by simp))
   hEq := by intro i; rcases i <;> simp
 
+@[inline, specialize]
 def oracleReduction : OracleReduction (oraclePSpec Witness) oSpec
     Statement Witness Statement Unit
     OStatement (OStatement ⊕ᵥ (fun _ : Fin 1 => Witness)) where

@@ -19,7 +19,8 @@ import ArkLib.OracleReduction.Security.Basic
      `ReaderT`), and returning a `Prop`. Verifier performs this oracle computation, and returns the
      same statement & oracle statement if successful.
 
-  In both cases, the output relation is trivial.
+  In both cases, the output relation is trivial (since the input relation has been checked by the
+  verifier).
 -/
 
 open OracleComp OracleInterface ProtocolSpec Function
@@ -114,9 +115,9 @@ variable [oSpec.FiniteRange]
 theorem oracleReduction_completeness :
     (oracleReduction oSpec Statement OStatement pred).perfectCompleteness (toRelInput pred hPred)
     (fun _ _ => True) := by
-  simp [Reduction.run, Prover.run, Prover.runToRound, Prover.processRound, Verifier.run,
-    OracleReduction.perfectCompleteness, oracleReduction, oracleProver,
-    oracleVerifier]
+  simp [OracleReduction.perfectCompleteness, OracleReduction.toReduction, OracleVerifier.toVerifier,
+    oracleReduction, oracleProver, oracleVerifier, toRelInput]
+  simp [Reduction.run, Prover.run, Verifier.run, simOracle2]
   sorry
 
 theorem oracleReduction_rbr_knowledge_soundness : True := sorry
