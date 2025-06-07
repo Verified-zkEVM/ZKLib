@@ -7,7 +7,7 @@ Authors: Quang Dao
 import ArkLib.OracleReduction.Security.Basic
 
 /-!
-  # Simple (Oracle) Reduction: Check if a predicate on a statement is satisfied
+  # Simple (Oracle) Reduction: Check if a predicate / claim on a statement is satisfied
 
   This is a zero-round (oracle) reduction. There is no witness.
 
@@ -24,13 +24,13 @@ import ArkLib.OracleReduction.Security.Basic
 
 open OracleComp OracleInterface ProtocolSpec Function
 
-namespace CheckPred
+namespace CheckClaim
 
 variable {ι : Type} (oSpec : OracleSpec ι) (Statement : Type)
 
 section Reduction
 
-/-- The prover for the `CheckPred` reduction. -/
+/-- The prover for the `CheckClaim` reduction. -/
 @[inline, specialize]
 def prover : Prover (default : ProtocolSpec 0) oSpec Statement Unit Statement Unit where
   PrvState := fun _ => Statement
@@ -41,12 +41,12 @@ def prover : Prover (default : ProtocolSpec 0) oSpec Statement Unit Statement Un
 
 variable (pred : Statement → Prop) [DecidablePred pred]
 
-/-- The verifier for the `CheckPred` reduction. -/
+/-- The verifier for the `CheckClaim` reduction. -/
 @[inline, specialize]
 def verifier : Verifier (default : ProtocolSpec 0) oSpec Statement Statement where
   verify := fun stmt _ => do guard (pred stmt); return stmt
 
-/-- The reduction for the `CheckPred` reduction. -/
+/-- The reduction for the `CheckClaim` reduction. -/
 @[inline, specialize]
 def reduction : Reduction (default : ProtocolSpec 0) oSpec Statement Unit Statement Unit where
   prover := prover oSpec Statement
@@ -54,7 +54,7 @@ def reduction : Reduction (default : ProtocolSpec 0) oSpec Statement Unit Statem
 
 variable [oSpec.FiniteRange]
 
-/-- The `CheckPred` reduction satisfies perfect completeness. -/
+/-- The `CheckClaim` reduction satisfies perfect completeness. -/
 @[simp]
 theorem reduction_completeness :
     (reduction oSpec Statement pred).perfectCompleteness (fun stmt _ => pred stmt)
@@ -62,7 +62,7 @@ theorem reduction_completeness :
   simp [reduction, Reduction.run, Prover.run, Prover.runToRound, Prover.processRound, Verifier.run,
     prover, verifier]
 
-/-- The `CheckPred` reduction satisfies perfect round-by-round knowledge soundness. -/
+/-- The `CheckClaim` reduction satisfies perfect round-by-round knowledge soundness. -/
 theorem reduction_rbr_knowledge_soundness : True := sorry
 
 end Reduction
@@ -71,7 +71,7 @@ section OracleReduction
 
 variable {ιₛ : Type} (OStatement : ιₛ → Type) [∀ i, OracleInterface (OStatement i)]
 
-/-- The oracle prover for the `CheckPred` oracle reduction. -/
+/-- The oracle prover for the `CheckClaim` oracle reduction. -/
 @[inline, specialize]
 def oracleProver : OracleProver (default : ProtocolSpec 0) oSpec
     Statement Unit Statement Unit OStatement OStatement where
@@ -84,7 +84,7 @@ def oracleProver : OracleProver (default : ProtocolSpec 0) oSpec
 variable (pred : ReaderT Statement (OracleComp [OStatement]ₒ) Prop)
   (hPred : ∀ stmt, (pred stmt).neverFails)
 
-/-- The oracle verifier for the `CheckPred` oracle reduction. -/
+/-- The oracle verifier for the `CheckClaim` oracle reduction. -/
 @[inline, specialize]
 def oracleVerifier : OracleVerifier (default : ProtocolSpec 0) oSpec
     Statement Statement OStatement OStatement where
@@ -92,7 +92,7 @@ def oracleVerifier : OracleVerifier (default : ProtocolSpec 0) oSpec
   embed := Embedding.inl
   hEq := by intro i; simp
 
-/-- The oracle reduction for the `CheckPred` oracle reduction. -/
+/-- The oracle reduction for the `CheckClaim` oracle reduction. -/
 @[inline, specialize]
 def oracleReduction : OracleReduction (default : ProtocolSpec 0) oSpec
     Statement Unit Statement Unit OStatement OStatement where
@@ -109,7 +109,7 @@ def toRelInput : Statement × (∀ i, OStatement i) → Unit → Prop :=
 
 variable [oSpec.FiniteRange]
 
-/-- The `CheckPred` reduction satisfies perfect completeness. -/
+/-- The `CheckClaim` reduction satisfies perfect completeness. -/
 @[simp]
 theorem oracleReduction_completeness :
     (oracleReduction oSpec Statement OStatement pred).perfectCompleteness (toRelInput pred hPred)
@@ -123,4 +123,4 @@ theorem oracleReduction_rbr_knowledge_soundness : True := sorry
 
 end OracleReduction
 
-end CheckPred
+end CheckClaim
