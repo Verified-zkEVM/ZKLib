@@ -24,33 +24,50 @@ section Instances
 
 variable {m : ℕ} {n : Fin (m + 1) → ℕ} {pSpec : ∀ i, ProtocolSpec (n i)}
 
+namespace ProtocolSpec
+
+/-- The equivalence between the challenge indices of the individual protocols and the challenge
+    indices of the sequential composition. -/
+def composeChallengeEquiv :
+    (i : Fin (m + 1)) × (pSpec i).ChallengeIdx ≃ (compose m n pSpec).ChallengeIdx where
+  -- TODO: write lemmas about `finSigmaFinEquiv` in mathlib with the one defined via `Fin.dfoldl`
+  toFun := fun ⟨i, ⟨chalIdx, h⟩⟩ => ⟨finSigmaFinEquiv ⟨i, chalIdx⟩, by
+    unfold compose; sorry⟩
+  invFun := fun ⟨composedChalIdx, h⟩ =>
+    let ⟨i, chalIdx⟩ := finSigmaFinEquiv.symm composedChalIdx
+    ⟨i, chalIdx, sorry⟩
+  left_inv := by intro ⟨_, _⟩; simp; rw! [finSigmaFinEquiv.left_inv']; simp
+  right_inv := by intro ⟨_, _⟩; simp
+
+/-- The equivalence between the message indices of the individual protocols and the message
+    indices of the sequential composition. -/
+def composeMessageEquiv :
+    (i : Fin (m + 1)) × (pSpec i).MessageIdx ≃ (compose m n pSpec).MessageIdx where
+  toFun := fun ⟨i, ⟨msgIdx, h⟩⟩ => ⟨finSigmaFinEquiv ⟨i, msgIdx⟩, by
+    unfold compose; sorry⟩
+  invFun := fun ⟨composedMsgIdx, h⟩ =>
+    let ⟨i, msgIdx⟩ := finSigmaFinEquiv.symm composedMsgIdx
+    ⟨i, msgIdx, sorry⟩
+  left_inv := by intro ⟨_, _⟩; simp; rw! [finSigmaFinEquiv.left_inv']; simp
+  right_inv := by intro ⟨_, _⟩; simp
+
+end ProtocolSpec
+
 /-- If all protocols have sampleable challenges, then the challenges of their sequential
   composition also have sampleable challenges. -/
-instance [h : ∀ i, ∀ j, Sampleable ((pSpec i).Challenge j)] :
-    ∀ j, Sampleable ((compose m n pSpec).Challenge j) := fun ⟨⟨i, isLt⟩, h⟩ => by
-  dsimp [ProtocolSpec.compose, Fin.append, Fin.addCases, Fin.castLT, Fin.subNat, Fin.cast] at h ⊢
-  sorry
-  -- by_cases h' : i < m <;> simp [h'] at h ⊢
-  -- · exact h₁ ⟨⟨i, by omega⟩, h⟩
-  -- · exact h₂ ⟨⟨i - m, by omega⟩, h⟩
+instance [inst : ∀ i, ∀ j, Sampleable ((pSpec i).Challenge j)] :
+    ∀ j, Sampleable ((compose m n pSpec).Challenge j) := fun combinedIdx => by
+  let combinedIdx' := composeChallengeEquiv.symm combinedIdx
+  let this := inst combinedIdx'.1 combinedIdx'.2
+  convert this using 1; sorry
 
 /-- If all protocols' messages have oracle interfaces, then the messages of their sequential
   composition also have oracle interfaces. -/
 instance [O : ∀ i, ∀ j, OracleInterface ((pSpec i).Message j)] :
-    ∀ i, OracleInterface ((compose m n pSpec).Message i) := fun ⟨⟨i, isLt⟩, h⟩ => by
-  dsimp [ProtocolSpec.compose, ProtocolSpec.getDir, Fin.append, Fin.addCases,
-    Fin.castLT, Fin.subNat, Fin.cast] at h ⊢
-  sorry
-  -- by_cases h' : i < m <;> simp [h'] at h ⊢
-  -- · exact O₁ ⟨⟨i, by omega⟩, h⟩
-  -- · exact O₂ ⟨⟨i - m, by omega⟩, h⟩
-
--- open OracleComp OracleSpec SubSpec
-
--- variable [∀ i, ∀ j, Sampleable ((pSpec i).Challenge j)]
-
--- instance : SubSpec (challengeOracle pSpec₁ ++ₒ challengeOracle pSpec₂)
---     (challengeOracle (compose m n pSpec)) := sorry
+    ∀ i, OracleInterface ((compose m n pSpec).Message i) := fun combinedIdx => by
+  let combinedIdx' := composeMessageEquiv.symm combinedIdx
+  let this := O combinedIdx'.1 combinedIdx'.2
+  convert this using 1; sorry
 
 end Instances
 
@@ -174,7 +191,9 @@ theorem compose_rbrSoundness
     (verify : ∀ i, Stmt i.castSucc → (pSpec i).FullTranscript → Stmt i.succ)
     (hVerify : ∀ i, V i = ⟨fun stmt tr => pure (verify i stmt tr)⟩) :
       (Verifier.compose m n pSpec Stmt V).rbrSoundness (lang 0) (lang (Fin.last (m + 1)))
-        (fun _ => sorry) := by -- TODO: figure out the right way to compose RBR errors
+        (fun combinedIdx =>
+          let ⟨i, idx⟩ := composeChallengeEquiv.symm combinedIdx
+          rbrSoundnessError i idx) := by
   sorry
 
 /-- If all verifiers in a sequence satisfy round-by-round knowledge soundness with respective RBR
@@ -189,7 +208,9 @@ theorem compose_rbrKnowledgeSoundness
     (verify : ∀ i, Stmt i.castSucc → (pSpec i).FullTranscript → Stmt i.succ)
     (hVerify : ∀ i, V i = ⟨fun stmt tr => pure (verify i stmt tr)⟩) :
       (Verifier.compose m n pSpec Stmt V).rbrKnowledgeSoundness (rel 0) (rel (Fin.last (m + 1)))
-        (fun _ => sorry) := by -- TODO: figure out the right way to compose RBR errors
+        (fun combinedIdx =>
+          let ⟨i, idx⟩ := composeChallengeEquiv.symm combinedIdx
+          rbrKnowledgeError i idx) := by
   sorry
 
 end Verifier

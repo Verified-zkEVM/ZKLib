@@ -110,17 +110,6 @@ def oracleProver : OracleProver (oraclePSpec Witness) oSpec
   receiveChallenge := fun i => nomatch i
   output := fun ⟨stmt, oStmt, wit⟩ => (⟨stmt, Sum.rec oStmt wit⟩, ())
 
-  -- -- Need to provide an embedding `ιₛ₃ ↪ ιₛ₁ ⊕ (pSpec₁ ++ₚ pSpec₂).MessageIdx`
-  -- embed :=
-  --   -- `ιₛ₃ ↪ ιₛ₂ ⊕ pSpec₂.MessageIdx`
-  --   .trans V₂.embed <|
-  --   -- `ιₛ₂ ⊕ pSpec₂.MessageIdx ↪ (ιₛ₁ ⊕ pSpec₁.MessageIdx) ⊕ pSpec₂.MessageIdx`
-  --   .trans (.sumMap V₁.embed (.refl _)) <|
-  --   -- re-associate the sum `_ ↪ ιₛ₁ ⊕ (pSpec₁.MessageIdx ⊕ pSpec₂.MessageIdx)`
-  --   .trans (Equiv.sumAssoc _ _ _).toEmbedding <|
-  --   -- use the equivalence `pSpec₁.MessageIdx ⊕ pSpec₂.MessageIdx ≃ (pSpec₁ ++ₚ pSpec₂).MessageIdx`
-  --   .sumMap (.refl _) MessageIdx.sumEquiv.toEmbedding
-
 /-- The oracle verifier for the `SendWitness` oracle reduction.
 
 It receives the input statement `stmt` and returns it, and also specifying the combination of

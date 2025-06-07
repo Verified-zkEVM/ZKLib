@@ -105,9 +105,9 @@ def toRelInput : Statement × (∀ i, OStatement i) → Unit → Prop :=
   fun ⟨stmt, oStmt⟩ _ =>
     simulateQNeverFails (toOracleImpl OStatement oStmt) (pred stmt) (hPred stmt)
 
-variable [oSpec.FiniteRange]
-
 -- theorem oracleProver_run
+
+variable [oSpec.FiniteRange]
 
 /-- The `CheckPred` reduction satisfies perfect completeness. -/
 @[simp]
