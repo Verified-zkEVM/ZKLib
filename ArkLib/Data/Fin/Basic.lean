@@ -703,6 +703,9 @@ lemma liftF'_liftF_succ {f : Fin (n + 1) → α} {x : Fin n} :
 lemma liftF'_liftF : Function.LeftInverse liftF' (liftF (α := α) (n := n)) := by
   aesop (add simp [Function.LeftInverse, liftF, liftF'])
 
+@[simp]
+lemma liftF'_liftF_eq : liftF' (liftF f') = f' := by unfold liftF' liftF; simp
+
 lemma liftF_liftF'_of_lt (h : m < n) : liftF (liftF' (n := n) f) m = f m := by
   aesop (add simp liftF)
 
@@ -739,13 +742,17 @@ lemma contract_eq_liftF_of_lt {k : ℕ} (h₁ : k < m) :
 
 attribute [simp] contract.eq_def
 
-variable {F : Type} [Field F] {p : Polynomial F}
+variable {F : Type*} [Semiring F] {p : Polynomial F}
 
 open Polynomial
 
 lemma eval_liftF_of_lt {f : Fin m → F} (h : n < m) :
   eval (liftF f n) p = eval (f ⟨n, h⟩) p := by
   aesop (add simp liftF)
+
+@[simp]
+lemma liftF'_p_coeff {p : F[X]} {k : ℕ} {i : Fin k} : liftF' p.coeff i = p.coeff i := by 
+  simp [liftF']
 
 end Lift
 
