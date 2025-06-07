@@ -129,12 +129,20 @@ end SimOracle
 
 /-- `OracleInterface` is a type class that provides an oracle interface for a type `Message`. It
     consists of a query type `Query`, a response type `Response`, and a function `oracle` that
-    transforms a message `m : Message` into a function `Query → Response`. -/
+    transforms a message `m : Message` into a function `Query → Response`.
+
+  TODO: turn `(Query, Response)` into a general `PFunctor` (i.e. `Response : Query → Type`) This
+  allows for better compositionality of `OracleInterface`, including (indexed) sum, instead of
+  requiring indexed family of `OracleInterface`s.
+
+  However, this won't be possible until `OracleSpec` is changed to be an alias for `PFunctor` -/
 @[ext]
 class OracleInterface (Message : Type) where
   Query : Type
   Response : Type
   oracle : Message → Query → Response
+
+#check PFunctor
 
 namespace OracleInterface
 
