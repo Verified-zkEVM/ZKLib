@@ -52,8 +52,10 @@ import ArkLib.OracleReduction.Security.Basic
 import ArkLib.OracleReduction.Transform.BCS
 import ArkLib.OracleReduction.Transform.FiatShamir
 import ArkLib.OracleReduction.VectorIOR
-import ArkLib.ProofSystem.Component.CheckPred
+import ArkLib.ProofSystem.Component.CheckClaim
+import ArkLib.ProofSystem.Component.DoNothing
 import ArkLib.ProofSystem.Component.RandomQuery
+import ArkLib.ProofSystem.Component.ReduceClaim
 import ArkLib.ProofSystem.Component.SendClaim
 import ArkLib.ProofSystem.Component.SendWitness
 import ArkLib.ProofSystem.ConstraintSystem.IndexedLookup
