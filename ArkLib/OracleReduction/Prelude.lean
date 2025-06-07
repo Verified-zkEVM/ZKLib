@@ -57,6 +57,16 @@ section Relation
 def Function.language {α β} (rel : α → β → Prop) : Set α :=
   {stmt | ∃ wit, rel stmt wit}
 
+@[simp]
+theorem Function.mem_language_iff {α β} (rel : α → β → Prop) (stmt : α) :
+    stmt ∈ rel.language ↔ ∃ wit, rel stmt wit := by
+  simp [Function.language]
+
+@[simp]
+theorem Function.not_mem_language_iff {α β} (rel : α → β → Prop) (stmt : α) :
+    stmt ∉ rel.language ↔ ∀ wit, ¬ rel stmt wit := by
+  simp [Function.language]
+
 /-- The trivial relation on Boolean statement and unit witness, which outputs the Boolean (i.e.
   accepts or rejects). -/
 def acceptRejectRel : Bool → Unit → Prop := fun b _ => b

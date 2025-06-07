@@ -361,15 +361,15 @@ structure StateFunction (pSpec : ProtocolSpec n) (oSpec : OracleSpec ι) [oSpec.
   toFun : (m : Fin (n + 1)) → StmtIn → Transcript m pSpec → Prop
   /-- For all input statement not in the language, the state function is false for the empty
     transcript -/
-  toFun_empty : ∀ stmt ∉ langIn, toFun 0 stmt default = False
+  toFun_empty : ∀ stmt ∉ langIn, ¬ toFun 0 stmt default
   /-- If the state function is false for a partial transcript, and the next message is from the
     prover to the verifier, then the state function is also false for the new partial transcript
     regardless of the message -/
-  toFun_next : ∀ m, pSpec.getDir m = .P_to_V → ∀ stmt tr, toFun m.castSucc stmt tr = False →
-    ∀ msg, toFun m.succ stmt (tr.snoc msg) = False
+  toFun_next : ∀ m, pSpec.getDir m = .P_to_V → ∀ stmt tr, ¬ toFun m.castSucc stmt tr →
+    ∀ msg, ¬ toFun m.succ stmt (tr.snoc msg)
   /-- If the state function is false for a full transcript, the verifier will not output a statement
     in the output language -/
-  toFun_full : ∀ stmt tr, toFun (.last n) stmt tr = False →
+  toFun_full : ∀ stmt tr, ¬ toFun (.last n) stmt tr →
     [(· ∈ langOut) | verifier.run stmt tr] = 0
 
 /-- A knowledge state function for a verifier, with respect to input relation `relIn`, output
@@ -377,23 +377,59 @@ structure StateFunction (pSpec : ProtocolSpec n) (oSpec : OracleSpec ι) [oSpec.
   round-by-round knowledge soundness. -/
 structure KnowledgeStateFunction (pSpec : ProtocolSpec n) (oSpec : OracleSpec ι) [oSpec.FiniteRange]
     (relIn : StmtIn → WitIn → Prop) (relOut : StmtOut → WitOut → Prop)
-    (verifier : Verifier pSpec oSpec StmtIn StmtOut) (WitMid : Fin n → Type)
-    -- (WitMid : Fin n → Type) (witTrans : )
+    (verifier : Verifier pSpec oSpec StmtIn StmtOut)
+    (WitMid : Fin (n + 1) → Type)
     where
-  toFun : (m : Fin (n + 1)) → StmtIn → Transcript m pSpec →
-    Fin.cons (α := fun _ => Type) WitIn WitMid m → Prop
-  toFun_empty : ∀ stmt wit, relIn stmt wit = False → toFun 0 stmt default wit = False
+  /-- The knowledge state function: takes in round index, input statement, transcript up to that
+      round, and intermediate witness of that round, and returns True/False. -/
+  toFun : (m : Fin (n + 1)) → StmtIn → Transcript m pSpec → WitMid m → Prop
+  /-- For all input statement such that for all input witness, the statement and witness is not
+    in the input relation, the state function is false for the empty transcript and any witness. -/
+  toFun_empty : ∀ stmtIn, (∀ witIn, ¬ relIn stmtIn witIn) →
+    ∀ witMid, ¬ toFun 0 stmtIn default witMid
+  /-- If the state function is false for a partial transcript, and the next message is from the
+    prover to the verifier, then the state function is also false for the new partial transcript
+    regardless of the message and the next intermediate witness. -/
   toFun_next : ∀ m, pSpec.getDir m = .P_to_V →
-    ∀ stmt tr wit wit', toFun m.castSucc stmt tr wit = False →
-    ∀ msg, toFun m.succ stmt (tr.snoc msg) wit' = False
-  -- TODO: finish
-  toFun_full : ∀ stmt tr wit, toFun (.last n) stmt tr wit = False → True
-    -- relOut (verifier.run stmt tr) wit = False
+    ∀ stmtIn tr, (∀ witMid, ¬ toFun m.castSucc stmtIn tr witMid) →
+    ∀ msg, (∀ witMid', ¬ toFun m.succ stmtIn (tr.snoc msg) witMid')
+  toFun_full : ∀ stmtIn tr, (∀ witMid, ¬ toFun (.last n) stmtIn tr witMid) →
+    [fun stmtOut => ∃ witOut, relOut stmtOut witOut | verifier.run stmtIn tr ] = 0
+
+/-- A knowledge state function gives rise to a state function -/
+def KnowledgeStateFunction.toStateFunction
+    {relIn : StmtIn → WitIn → Prop} {relOut : StmtOut → WitOut → Prop}
+    {verifier : Verifier pSpec oSpec StmtIn StmtOut} {WitMid : Fin (n + 1) → Type}
+    (kSF : KnowledgeStateFunction pSpec oSpec relIn relOut verifier WitMid) :
+      StateFunction pSpec oSpec relIn.language relOut.language verifier where
+  toFun := fun m stmtIn tr => ∃ witMid, kSF.toFun m stmtIn tr witMid
+  toFun_empty := fun stmtIn hStmtIn => by
+    simp; exact kSF.toFun_empty stmtIn (by simpa [Function.language] using hStmtIn)
+  toFun_next := fun m hDir stmtIn tr hToFunNext msg => by
+    simp; exact kSF.toFun_next m hDir stmtIn tr (by simpa [Function.language] using hToFunNext) msg
+  toFun_full := fun stmtIn tr hToFunFull => by
+    exact kSF.toFun_full stmtIn tr (by simpa [Function.language] using hToFunFull)
+
+/-- A round-by-round extractor basically goes backwards, extracting witnesses round-by-round in
+opposite to the prover. -/
+structure NewRBRExtractor (WitMid : Fin (n + 1) → Type) where
+  -- what if, just one function?
+  -- extract : (m : Fin (n + 1)) → StmtIn → Transcript m pSpec → WitMid m → QueryLog oSpec → WitIn
+  extractIn : WitMid 0 → WitIn
+  extractMid : (m : Fin n) → StmtIn → Transcript m.succ pSpec →
+    WitMid m.succ → QueryLog oSpec → WitMid m.castSucc
+  extractOut : WitOut → WitMid (.last n)
 
 instance {langIn : Set StmtIn} {langOut : Set StmtOut}
     {verifier : Verifier pSpec oSpec StmtIn StmtOut} :
     CoeFun (verifier.StateFunction pSpec oSpec langIn langOut)
     (fun _ => (m : Fin (n + 1)) → StmtIn → Transcript m pSpec → Prop) := ⟨fun f => f.toFun⟩
+
+instance {relIn : StmtIn → WitIn → Prop} {relOut : StmtOut → WitOut → Prop}
+    {verifier : Verifier pSpec oSpec StmtIn StmtOut} {WitMid : Fin (n + 1) → Type} :
+    CoeFun (verifier.KnowledgeStateFunction pSpec oSpec relIn relOut WitMid)
+    (fun _ => (m : Fin (n + 1)) → StmtIn → Transcript m pSpec → WitMid m → Prop) :=
+      ⟨fun f => f.toFun⟩
 
 /--
   A protocol with `verifier` satisfies round-by-round soundness with respect to input language
@@ -475,6 +511,28 @@ def rbrKnowledgeSoundness (relIn : StmtIn → WitIn → Prop) (relOut : StmtOut 
       ¬ relIn stmtIn extractedWitIn ∧
         ¬ stateFunction i.1.castSucc stmtIn transcript ∧
           stateFunction i.1.succ stmtIn (transcript.snoc challenge)
+    | ex] ≤ rbrKnowledgeError i
+
+-- Tentative new definition of rbr knowledge soundness, using the knowledge state function
+def newRbrKnowledgeSoundness (relIn : StmtIn → WitIn → Prop) (relOut : StmtOut → WitOut → Prop)
+    (verifier : Verifier pSpec oSpec StmtIn StmtOut)
+    (rbrKnowledgeError : pSpec.ChallengeIdx → ℝ≥0) : Prop :=
+  ∃ WitMid : Fin (n + 1) → Type,
+  ∃ kSF : verifier.KnowledgeStateFunction pSpec oSpec relIn relOut WitMid,
+  ∃ extractor : NewRBRExtractor WitMid (WitIn := WitIn) (WitOut := WitOut),
+  ∀ stmtIn : StmtIn,
+  ∀ witIn : WitIn,
+  ∀ prover : Prover pSpec oSpec StmtIn WitIn StmtOut WitOut,
+  ∀ i : pSpec.ChallengeIdx,
+    let ex : OracleComp (oSpec ++ₒ [pSpec.Challenge]ₒ) _ := (do
+      let result ← prover.runWithLogToRound i.1.castSucc stmtIn witIn
+      let chal ← pSpec.getChallenge i
+      return (result, chal))
+    [fun ⟨⟨transcript, _, proveQueryLog⟩, challenge⟩ =>
+      ∃ witMid,
+        ¬ kSF i.1.castSucc stmtIn transcript
+          (extractor.extractMid i.1 stmtIn (transcript.snoc challenge) witMid proveQueryLog) ∧
+          kSF i.1.succ stmtIn (transcript.snoc challenge) witMid
     | ex] ≤ rbrKnowledgeError i
 
 /-- Type class for round-by-round knowledge soundness for a verifier
