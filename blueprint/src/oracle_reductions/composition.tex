@@ -132,7 +132,7 @@ We begin by defining how to compose protocol specifications and their associated
         \item Outputting the final context from $P_2$
     \end{itemize}
     \lean{Prover.append}
-    \uses{def:prover}
+    \uses{def:prover, def:protocol_spec_append}
 \end{definition}
 
 \begin{definition}[Verifier Append]
@@ -142,7 +142,7 @@ We begin by defining how to compose protocol specifications and their associated
 
     The composed verifier first runs $V_1$ on the first part of the transcript, then runs $V_2$ on the second part using the intermediate statement from $V_1$.
     \lean{Verifier.append}
-    \uses{def:verifier}
+    \uses{def:verifier, def:protocol_spec_append}
 \end{definition}
 
 \begin{definition}[Reduction Append]
@@ -157,7 +157,7 @@ We begin by defining how to compose protocol specifications and their associated
     \label{def:oracle_reduction_append}
     Sequential composition extends naturally to oracle reductions by composing the oracle provers and oracle verifiers.
     \lean{OracleReduction.append}
-    \uses{def:oracle_reduction}
+    \uses{def:oracle_reduction, def:prover_append, def:verifier_append}
 \end{definition}
 
 \subsubsection{General Sequential Composition}
@@ -181,13 +181,13 @@ For composing an arbitrary number of reductions, we provide a general compositio
 \begin{definition}[General Verifier Composition]
     \label{def:verifier_compose}
     \lean{Verifier.compose}
-    \uses{def:protocol_spec_compose}
+    \uses{def:verifier, def:protocol_spec_compose}
 \end{definition}
 
 \begin{definition}[General Reduction Composition]
     \label{def:reduction_compose}
     \lean{Reduction.compose}
-    \uses{def:prover_compose, def:verifier_compose}
+    \uses{def:reduction, def:prover_compose, def:verifier_compose}
 \end{definition}
 
 \subsubsection{Security Properties of Sequential Composition}
@@ -198,36 +198,42 @@ The key insight is that security properties are preserved under sequential compo
     \label{thm:completeness_append}
     If reductions $R_1$ and $R_2$ satisfy completeness with compatible relations and respective errors $\epsilon_1$ and $\epsilon_2$, then their sequential composition $R_1.\append\ R_2$ satisfies completeness with error $\epsilon_1 + \epsilon_2$.
     \lean{Reduction.completeness_append}
+    \uses{def:completeness, def:reduction_append}
 \end{theorem}
 
 \begin{theorem}[Perfect Completeness Preservation under Append]
     \label{thm:perfect_completeness_append}
     If reductions $R_1$ and $R_2$ satisfy perfect completeness with compatible relations, then their sequential composition also satisfies perfect completeness.
     \lean{Reduction.perfectCompleteness_append}
+    \uses{def:perfect_completeness, def:reduction_append}
 \end{theorem}
 
 \begin{theorem}[Soundness Preservation under Append]
     \label{thm:soundness_append}
     If verifiers $V_1$ and $V_2$ satisfy soundness with respective errors $\epsilon_1$ and $\epsilon_2$, then their sequential composition satisfies soundness with error $\epsilon_1 + \epsilon_2$.
     \lean{Verifier.append_soundness}
+    \uses{def:soundness, def:verifier_append}
 \end{theorem}
 
 \begin{theorem}[Knowledge Soundness Preservation under Append]
     \label{thm:knowledge_soundness_append}
     If verifiers $V_1$ and $V_2$ satisfy knowledge soundness with respective errors $\epsilon_1$ and $\epsilon_2$, then their sequential composition satisfies knowledge soundness with error $\epsilon_1 + \epsilon_2$.
     \lean{Verifier.append_knowledgeSoundness}
+    \uses{def:knowledge_soundness, def:verifier_append}
 \end{theorem}
 
 \begin{theorem}[Round-by-Round Soundness Preservation under Append]
     \label{thm:rbr_soundness_append}
     If verifiers $V_1$ and $V_2$ satisfy round-by-round soundness, then their sequential composition also satisfies round-by-round soundness.
     \lean{Verifier.append_rbrSoundness}
+    \uses{def:round_by_round_soundness, def:verifier_append}
 \end{theorem}
 
 \begin{theorem}[Round-by-Round Knowledge Soundness Preservation under Append]
     \label{thm:rbr_knowledge_soundness_append}
     If verifiers $V_1$ and $V_2$ satisfy round-by-round knowledge soundness, then their sequential composition also satisfies round-by-round knowledge soundness.
     \lean{Verifier.append_rbrKnowledgeSoundness}
+    \uses{def:round_by_round_knowledge_soundness, def:verifier_append}
 \end{theorem}
 
 Similar preservation theorems hold for the general composition of multiple reductions:
@@ -235,16 +241,19 @@ Similar preservation theorems hold for the general composition of multiple reduc
 \begin{theorem}[General Completeness Preservation]
     \label{thm:completeness_compose}
     \lean{Reduction.completeness_compose}
+    \uses{def:completeness, def:reduction_compose}
 \end{theorem}
 
 \begin{theorem}[General Soundness Preservation]
     \label{thm:soundness_compose}
     \lean{Verifier.compose_soundness}
+    \uses{def:soundness, def:verifier_compose}
 \end{theorem}
 
 \begin{theorem}[General Knowledge Soundness Preservation]
     \label{thm:knowledge_soundness_compose}
     \lean{Verifier.compose_knowledgeSoundness}
+    \uses{def:knowledge_soundness, def:verifier_compose}
 \end{theorem}
 
 \subsection{Lifting Contexts}\label{sec:lifting_contexts}
@@ -286,7 +295,7 @@ The fundamental abstraction for context adaptation is a \emph{context lens}, whi
     \label{def:oracle_context_lens}
     For oracle reductions, we additionally need lenses for oracle statements that can simulate oracle access between contexts.
     \lean{OracleContextLens}
-    \uses{def:context_lens}
+    \uses{def:context_lens, def:oracle_interface}
 \end{definition}
 
 \subsubsection{Lifting Reductions}
@@ -302,17 +311,19 @@ Given a context lens, we can lift reductions from inner contexts to outer contex
         \item Lifting the output back to the outer context
     \end{itemize}
     \lean{Prover.liftContext}
+    \uses{def:prover, def:context_lens}
 \end{definition}
 
 \begin{definition}[Verifier Context Lifting]
     \label{def:verifier_lift_context}
     \lean{Verifier.liftContext}
+    \uses{def:verifier, def:statement_lens}
 \end{definition}
 
 \begin{definition}[Reduction Context Lifting]
     \label{def:reduction_lift_context}
     \lean{Reduction.liftContext}
-    \uses{def:prover_lift_context, def:verifier_lift_context}
+    \uses{def:reduction, def:prover_lift_context, def:verifier_lift_context}
 \end{definition}
 
 \subsubsection{Conditions for Security Preservation}
@@ -323,24 +334,28 @@ For lifting to preserve security properties, the context lens must satisfy certa
     \label{def:context_lens_is_complete}
     A context lens preserves completeness if it maintains relation satisfaction under projection and lifting.
     \lean{ContextLens.IsComplete}
+    \uses{def:context_lens}
 \end{definition}
 
 \begin{definition}[Soundness-Preserving Statement Lens]
     \label{def:statement_lens_is_sound}
     A statement lens preserves soundness if it maps invalid statements to invalid statements.
     \lean{StatementLens.IsSound}
+    \uses{def:statement_lens}
 \end{definition}
 
 \begin{definition}[RBR Soundness-Preserving Statement Lens]
     \label{def:statement_lens_is_rbr_sound}
     For round-by-round soundness, we need a slightly relaxed soundness condition.
     \lean{StatementLens.IsRBRSound}
+    \uses{def:statement_lens}
 \end{definition}
 
 \begin{definition}[Knowledge Soundness-Preserving Context Lens]
     \label{def:context_lens_is_knowledge_sound}
     A context lens preserves knowledge soundness if it maintains witness extractability.
     \lean{ContextLens.IsKnowledgeSound}
+    \uses{def:context_lens}
 \end{definition}
 
 \subsubsection{Security Preservation Theorems for Context Lifting}
@@ -349,30 +364,35 @@ For lifting to preserve security properties, the context lens must satisfy certa
     \label{thm:lift_context_completeness}
     If a reduction satisfies completeness and the context lens is completeness-preserving, then the lifted reduction also satisfies completeness.
     \lean{Reduction.liftContext_completeness}
+    \uses{def:completeness, def:reduction_lift_context, def:context_lens_is_complete}
 \end{theorem}
 
 \begin{theorem}[Soundness Preservation under Context Lifting]
     \label{thm:lift_context_soundness}
     If a verifier satisfies soundness and the statement lens is soundness-preserving, then the lifted verifier also satisfies soundness.
     \lean{Verifier.liftContext_soundness}
+    \uses{def:soundness, def:verifier_lift_context, def:statement_lens_is_sound}
 \end{theorem}
 
 \begin{theorem}[Knowledge Soundness Preservation under Context Lifting]
     \label{thm:lift_context_knowledge_soundness}
     If a verifier satisfies knowledge soundness and the context lens is knowledge soundness-preserving, then the lifted verifier also satisfies knowledge soundness.
     \lean{Verifier.liftContext_knowledgeSoundness}
+    \uses{def:knowledge_soundness, def:verifier_lift_context, def:context_lens_is_knowledge_sound}
 \end{theorem}
 
 \begin{theorem}[RBR Soundness Preservation under Context Lifting]
     \label{thm:lift_context_rbr_soundness}
     If a verifier satisfies round-by-round soundness and the statement lens is RBR soundness-preserving, then the lifted verifier also satisfies round-by-round soundness.
     \lean{Verifier.liftContext_rbr_soundness}
+    \uses{def:round_by_round_soundness, def:verifier_lift_context, def:statement_lens_is_rbr_sound}
 \end{theorem}
 
 \begin{theorem}[RBR Knowledge Soundness Preservation under Context Lifting]
     \label{thm:lift_context_rbr_knowledge_soundness}
     If a verifier satisfies round-by-round knowledge soundness and the context lens is knowledge soundness-preserving, then the lifted verifier also satisfies round-by-round knowledge soundness.
     \lean{Verifier.liftContext_rbr_knowledgeSoundness}
+    \uses{def:round_by_round_knowledge_soundness, def:verifier_lift_context, def:context_lens_is_knowledge_sound}
 \end{theorem}
 
 \subsubsection{Extractors and State Functions}
@@ -382,16 +402,19 @@ Context lifting also applies to extractors and state functions used in knowledge
 \begin{definition}[Straightline Extractor Lifting]
     \label{def:straightline_extractor_lift_context}
     \lean{StraightlineExtractor.liftContext}
+    \uses{def:straightline_extractor, def:context_lens}
 \end{definition}
 
 \begin{definition}[Round-by-Round Extractor Lifting]
     \label{def:rbr_extractor_lift_context}
     \lean{RBRExtractor.liftContext}
+    \uses{def:rbr_extractor, def:context_lens}
 \end{definition}
 
 \begin{definition}[State Function Lifting]
     \label{def:state_function_lift_context}
     \lean{Verifier.StateFunction.liftContext}
+    \uses{def:state_function, def:statement_lens}
 \end{definition}
 
 These composition and lifting operators provide the essential building blocks for constructing complex oracle reductions from simpler components while preserving their security properties.

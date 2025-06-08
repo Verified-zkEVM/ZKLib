@@ -2,7 +2,7 @@
 
 We start by introducing a number of simple oracle reductions that serve as fundamental building blocks for more complex proof systems. These components can be composed together to construct larger protocols.
 
-\subsection{The Trivial Reduction: DoNothing}
+\subsection{Trivial Reduction}
 
 The simplest possible oracle reduction is one that performs no computation at all. Both the prover and verifier simply pass their inputs through unchanged. While seemingly trivial, this reduction serves as an important identity element for composition and provides a base case for lifting and lens operations.
 
@@ -27,7 +27,7 @@ The simplest possible oracle reduction is one that performs no computation at al
 
 The oracle version of DoNothing handles oracle statements by passing them through unchanged as well. The prover receives both non-oracle and oracle statements as input, and outputs them in the same form to the verifier.
 
-\subsection{Witness Transmission: SendWitness}
+\subsection{Sending the Witness}
 
 A fundamental building block in many proof systems is the ability for the prover to transmit witness information to the verifier. The SendWitness reduction provides this functionality in both direct and oracle settings.
 
@@ -82,7 +82,7 @@ In the oracle setting, we consider two variants:
     \uses{def:sendsinglewitness_oracle_reduction}
 \end{theorem}
 
-\subsection{Oracle Equality Testing: RandomQuery}
+\subsection{Oracle Equality Testing}
 
 One of the most fundamental oracle reductions is testing whether two oracles of the same type are equal. This is achieved through random sampling from the query space.
 
@@ -135,7 +135,9 @@ The key security property of RandomQuery depends on the notion of oracle distanc
     \uses{def:randomquery_oracle_reduction}
 \end{definition}
 
-\subsection{Polynomial Equality Testing}
+We mention two special cases of RandomQuery that are useful for specific applications.
+
+\subsubsection{Polynomial Equality Testing}
 
 A common application of oracle reductions is testing equality between polynomial oracles. This is a specific instance of the RandomQuery reduction applied to polynomial evaluation oracles.
 
@@ -161,7 +163,7 @@ A common application of oracle reductions is testing equality between polynomial
 
 The state function for this reduction corresponds precisely to the input and output relations, transitioning from checking polynomial equality to checking evaluation equality at the sampled point.
 
-\subsection{Batching Polynomial Evaluation Claims}
+\subsubsection{Batching Polynomial Evaluation Claims}
 
 Another important building block is the ability to batch multiple polynomial evaluation claims into a single check using random linear combinations.
 
@@ -191,7 +193,37 @@ variables are the random linear combination coefficients.
     The security of this reduction depends on the degree and non-degeneracy properties of the polynomial map $E$. The specific error bounds depend on the structure of $E$ and require careful analysis of the polynomial's properties.
 \end{remark}
 
-\subsection{Claim Reduction: ReduceClaim}
+\subsection{Sending a Claim}
+
+The SendClaim reduction enables a prover to transmit a claim (oracle statement) to the verifier, who then verifies a relationship between the original and transmitted claims.
+
+\begin{definition}[SendClaim Oracle Reduction]
+    \label{def:sendclaim_oracle_reduction}
+    The SendClaim reduction is a one-round protocol for claim transmission:
+    \begin{itemize}
+        \item \textbf{Protocol specification}: $\pSpec := [(\PtoVdir, \OStmtIn)]$ (single oracle message)
+        \item \textbf{Input}: Statement and single oracle statement (via $\mathsf{Unique}$ index type)
+        \item \textbf{Prover}: Sends the input oracle statement as protocol message
+        \item \textbf{Verifier}: Executes oracle computation $\mathsf{relComp} : \StmtIn \to \OracleComp[\OStmtIn]_{\mathcal{O}} \Unit$
+        \item \textbf{Output oracle statements}: Sum type $\OStmtIn \oplus \OStmtIn$ containing both original and transmitted claims
+        \item \textbf{Output relation}: $R_{\mathsf{out}}((), \mathsf{oracles}) := \mathsf{oracles}(\mathsf{inl}) = \mathsf{oracles}(\mathsf{inr})$
+    \end{itemize}
+    \lean{SendClaim.oracleReduction}
+    \uses{def:oracle_reduction}
+\end{definition}
+
+\begin{theorem}[SendClaim Perfect Completeness]
+    The SendClaim oracle reduction satisfies perfect completeness when the input relation matches the oracle computation requirement.
+    \lean{SendClaim.completeness}
+    \uses{def:sendclaim_oracle_reduction}
+\end{theorem}
+
+\begin{remark}[SendClaim Development Status]
+    The SendClaim reduction is currently under active development in the Lean formalization. Several components including the verifier embedding and completeness proof require further implementation. The current version represents a specialized case that may be generalized in future iterations.
+    % TODO: Complete implementation as noted in the Lean code
+\end{remark}
+
+\subsection{Claim Reduction}
 
 A fundamental building block for constructing complex proof systems is the ability to locally reduce one type of claim to another. The ReduceClaim reduction provides this functionality through mappings between statement and witness types.
 
@@ -235,7 +267,7 @@ A fundamental building block for constructing complex proof systems is the abili
     % TODO: Complete when oracleReduction_completeness is implemented
 \end{remark}
 
-\subsection{Claim Verification: CheckClaim}
+\subsection{Claim Verification}
 
 Another essential building block is the ability to verify that a given predicate holds for a statement without requiring additional witness information.
 
@@ -281,34 +313,4 @@ Another essential building block is the ability to verify that a given predicate
 
 \begin{remark}[CheckClaim Security Analysis]
     The round-by-round knowledge soundness proofs for both reduction and oracle versions are currently under development in the Lean formalization.
-\end{remark}
-
-\subsection{Claim Transmission: SendClaim}
-
-The SendClaim reduction enables a prover to transmit a claim (oracle statement) to the verifier, who then verifies a relationship between the original and transmitted claims.
-
-\begin{definition}[SendClaim Oracle Reduction]
-    \label{def:sendclaim_oracle_reduction}
-    The SendClaim reduction is a one-round protocol for claim transmission:
-    \begin{itemize}
-        \item \textbf{Protocol specification}: $\pSpec := [(\PtoVdir, \OStmtIn)]$ (single oracle message)
-        \item \textbf{Input}: Statement and single oracle statement (via $\mathsf{Unique}$ index type)
-        \item \textbf{Prover}: Sends the input oracle statement as protocol message
-        \item \textbf{Verifier}: Executes oracle computation $\mathsf{relComp} : \StmtIn \to \OracleComp[\OStmtIn]_{\mathcal{O}} \Unit$
-        \item \textbf{Output oracle statements}: Sum type $\OStmtIn \oplus \OStmtIn$ containing both original and transmitted claims
-        \item \textbf{Output relation}: $R_{\mathsf{out}}((), \mathsf{oracles}) := \mathsf{oracles}(\mathsf{inl}) = \mathsf{oracles}(\mathsf{inr})$
-    \end{itemize}
-    \lean{SendClaim.oracleReduction}
-    \uses{def:oracle_reduction}
-\end{definition}
-
-\begin{theorem}[SendClaim Perfect Completeness]
-    The SendClaim oracle reduction satisfies perfect completeness when the input relation matches the oracle computation requirement.
-    \lean{SendClaim.completeness}
-    \uses{def:sendclaim_oracle_reduction}
-\end{theorem}
-
-\begin{remark}[SendClaim Development Status]
-    The SendClaim reduction is currently under active development in the Lean formalization. Several components including the verifier embedding and completeness proof require further implementation. The current version represents a specialized case that may be generalized in future iterations.
-    % TODO: Complete implementation as noted in the Lean code
 \end{remark}
