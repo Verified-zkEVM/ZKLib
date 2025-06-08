@@ -74,7 +74,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">35</span><span class="definition_thmtitle">Code Distance</span></div>
+      <span class="definition_thmlabel">40</span><span class="definition_thmtitle">Code Distance</span></div>
     <div class="thm_thmcontent">
 </div>
 
@@ -104,7 +104,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">10</span><span class="definition_thmtitle">Completeness</span></div>
+      <span class="definition_thmlabel">15</span><span class="definition_thmtitle">Completeness</span></div>
     <div class="thm_thmcontent">
 </div>
 
@@ -134,7 +134,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">34</span><span class="definition_thmtitle">Computable Multilinear Polynomials</span></div>
+      <span class="definition_thmlabel">39</span><span class="definition_thmtitle">Computable Multilinear Polynomials</span></div>
     <div class="thm_thmcontent">
 </div>
 
@@ -164,7 +164,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">33</span><span class="definition_thmtitle">Computable Univariate Polynomials</span></div>
+      <span class="definition_thmlabel">38</span><span class="definition_thmtitle">Computable Univariate Polynomials</span></div>
     <div class="thm_thmcontent">
 </div>
 
@@ -194,9 +194,9 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">2</span><span class="definition_thmtitle">Context</span></div>
-    <div class="thm_thmcontent"><p> In an oracle reduction, its <em>context</em> (denoted \(\Gamma \)) consists of a list of public inputs, a list of witness inputs, a list of oracle inputs, and a shared oracle (possibly represented as a list of lazily sampled query-response pairs). These inputs have the expected visibility. </p>
-<p>For simplicity, we imagine the context as <em>append-only</em>, as we add new messages from the protocol execution. </p>
+      <span class="definition_thmlabel">3</span><span class="definition_thmtitle">Context</span></div>
+    <div class="thm_thmcontent"><p>  In an (oracle) reduction, its <em>(oracle) context</em> consists of a statement type, a witness type, and (in the oracle case) an indexed list of oracle statement types. </p>
+<p>Currently, we do not abstract out / bundle the context as a separate structure, but rather specifies the types explicitly. This may change in the future. </p>
 </div>
 
     <a class="latex_link" href="chap-oracle_reductions.html#def:context">LaTeX</a>
@@ -225,7 +225,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">36</span><span class="definition_thmtitle">Distance from a Code</span></div>
+      <span class="definition_thmlabel">41</span><span class="definition_thmtitle">Distance from a Code</span></div>
     <div class="thm_thmcontent">
 </div>
 
@@ -255,7 +255,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">37</span><span class="definition_thmtitle">Generator Matrix</span></div>
+      <span class="definition_thmlabel">42</span><span class="definition_thmtitle">Generator Matrix</span></div>
     <div class="thm_thmcontent">
 </div>
 
@@ -285,7 +285,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">45</span><span class="definition_thmtitle">Handling Oracle Queries</span></div>
+      <span class="definition_thmlabel">50</span><span class="definition_thmtitle">Handling Oracle Queries</span></div>
     <div class="thm_thmcontent"><p>  To actually run oracle computations, we need a way to handle (or implement) the oracle queries. An oracle implementation consists a mapping from oracle queries to values in another monad. Depending on the monad, this may allow for various interpretations of the oracle queries.   </p>
 </div>
 
@@ -315,7 +315,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">7</span><span class="definition_thmtitle">Interactive Oracle Reduction</span></div>
+      <span class="definition_thmlabel">13</span><span class="definition_thmtitle">Interactive Oracle Reduction</span></div>
     <div class="thm_thmcontent"><p>   An interactive oracle reduction for a given context \(\Gamma \) is a combination a prover and a verifier of the types specified above.  </p>
 </div>
 
@@ -323,6 +323,36 @@
     
     
   <a class="lean_link lean_decl" href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/OracleReduction">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="def:interactive_reduction_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="def:interactive_reduction" style="display: none">
+    <div class="thm_thmheading">
+      <span class="definition_thmcaption">
+      Definition
+      </span>
+      <span class="definition_thmlabel">12</span><span class="definition_thmtitle">Interactive Reduction</span></div>
+    <div class="thm_thmcontent"><p>   An interactive reduction is a combination of a type signature <code class="verbatim">ProtocolSpec</code>, a prover for <code class="verbatim">ProtocolSpec</code>, and a verifier for <code class="verbatim">ProtocolSpec</code>.  </p>
+</div>
+
+    <a class="latex_link" href="chap-oracle_reductions.html#def:interactive_reduction">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Reduction">Lean</a>
     
     
   
@@ -345,7 +375,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">39</span><span class="definition_thmtitle">Interleaved Code</span></div>
+      <span class="definition_thmlabel">44</span><span class="definition_thmtitle">Interleaved Code</span></div>
     <div class="thm_thmcontent">
 </div>
 
@@ -375,7 +405,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">12</span><span class="definition_thmtitle">Knowledge Soundness</span></div>
+      <span class="definition_thmlabel">17</span><span class="definition_thmtitle">Knowledge Soundness</span></div>
     <div class="thm_thmcontent">
 </div>
 
@@ -405,7 +435,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">48</span><span class="definition_thmtitle">Logging &amp; Caching Oracle Queries</span></div>
+      <span class="definition_thmlabel">53</span><span class="definition_thmtitle">Logging &amp; Caching Oracle Queries</span></div>
     <div class="thm_thmcontent"><p>  Using the simulation framework, we can add logging and caching behaviors to oracle queries: </p>
 <ul class="itemize">
   <li><p>Logging records all queries made during a computation </p>
@@ -451,7 +481,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">30</span><span class="definition_thmtitle">Multilinear Extension</span></div>
+      <span class="definition_thmlabel">35</span><span class="definition_thmtitle">Multilinear Extension</span></div>
     <div class="thm_thmcontent">
 </div>
 
@@ -481,7 +511,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">44</span><span class="definition_thmtitle">Oracle Computation</span></div>
+      <span class="definition_thmlabel">49</span><span class="definition_thmtitle">Oracle Computation</span></div>
     <div class="thm_thmcontent"><p>  An oracle computation represents a program that can make oracle queries. It can: </p>
 <ul class="itemize">
   <li><p>Return a pure value without making any queries (via <span class="ttfamily">pure</span>) </p>
@@ -509,25 +539,34 @@
 
 
     
-    <div class="dep-modal-container" id="def:oracle_reduction_execution_modal">
+    <div class="dep-modal-container" id="def:oracle_interface_modal">
       <div class="dep-modal-content">
           <button class="dep-closebtn">
 <svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
 </button>
         
-  <div class="thm" id="def:oracle_reduction_execution" style="display: none">
+  <div class="thm" id="def:oracle_interface" style="display: none">
     <div class="thm_thmheading">
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">8</span><span class="definition_thmtitle">Execution of an Oracle Reduction</span></div>
-    <div class="thm_thmcontent">
+      <span class="definition_thmlabel">2</span><span class="definition_thmtitle">Oracle Interface</span></div>
+    <div class="thm_thmcontent"><p>  An oracle interface for an underlying data type \(\mathsf{D}\) consists of the following: </p>
+<ul class="itemize">
+  <li><p>A type \(\mathsf{Q}\) for queries to the oracle, </p>
+</li>
+  <li><p>A type \(\mathsf{R}\) for responses from the oracle, </p>
+</li>
+  <li><p>A function \(\mathsf{oracle} : \mathsf{D} \to \mathsf{Q} \to \mathsf{R}\) that specifies the oracle’s behavior given the underlying data and a query. </p>
+</li>
+</ul>
+
 </div>
 
-    <a class="latex_link" href="chap-oracle_reductions.html#def:oracle_reduction_execution">LaTeX</a>
+    <a class="latex_link" href="chap-oracle_reductions.html#def:oracle_interface">LaTeX</a>
     
     
-  <a class="lean_link lean_decl" href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/OracleReduction.run">Lean</a>
+  <a class="lean_link lean_decl" href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/OracleInterface">Lean</a>
     
     
   
@@ -539,34 +578,55 @@
 
 
     
-    <div class="dep-modal-container" id="def:oracle_reduction_type_signature_modal">
+    <div class="dep-modal-container" id="def:oracle_prover_modal">
       <div class="dep-modal-content">
           <button class="dep-closebtn">
 <svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
 </button>
         
-  <div class="thm" id="def:oracle_reduction_type_signature" style="display: none">
+  <div class="thm" id="def:oracle_prover" style="display: none">
     <div class="thm_thmheading">
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">1</span><span class="definition_thmtitle">Type Signature of an Oracle Reduction</span></div>
-    <div class="thm_thmcontent"><p>  A protocol specification \(\rho : \mathsf{PSpec}\;  n\) of an oracle reduction is parametrized by a fixed number of messages sent in total. For each step of interaction, it specifies a direction for the message (prover to verifier, or vice versa), and a type for the message. If a message from the prover to the verifier is further marked as oracle, then we also expect an oracle interface for that message. In Lean, we handle these oracle interfaces via the \(\mathsf{OracleInterface}\) type class.  </p>
+      <span class="definition_thmlabel">9</span><span class="definition_thmtitle">Type Signature of an Oracle Prover</span></div>
+    <div class="thm_thmcontent">
 </div>
 
-    <a class="latex_link" href="chap-oracle_reductions.html#def:oracle_reduction_type_signature">LaTeX</a>
+    <a class="latex_link" href="chap-oracle_reductions.html#def:oracle_prover">LaTeX</a>
     
     
-  <div class="tooltip">
-      <span class="lean_link">Lean</span>
-      <ul class="tooltip_list">
-        
-           <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/ProtocolSpec" class="lean_decl">ProtocolSpec</a></li>
-        
-           <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/OracleInterface" class="lean_decl">OracleInterface</a></li>
-        
-      </ul>
+  <a class="lean_link lean_decl" href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/OracleProver">Lean</a>
+    
+    
+  
+    
   </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="def:oracle_reduction_execution_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="def:oracle_reduction_execution" style="display: none">
+    <div class="thm_thmheading">
+      <span class="definition_thmcaption">
+      Definition
+      </span>
+      <span class="definition_thmlabel">14</span><span class="definition_thmtitle">Execution of an Oracle Reduction</span></div>
+    <div class="thm_thmcontent">
+</div>
+
+    <a class="latex_link" href="chap-oracle_reductions.html#def:oracle_reduction_execution">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/OracleReduction.run">Lean</a>
     
     
   
@@ -589,7 +649,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">43</span><span class="definition_thmtitle">Specification of Oracles</span></div>
+      <span class="definition_thmlabel">48</span><span class="definition_thmtitle">Specification of Oracles</span></div>
     <div class="thm_thmcontent"><p>  An oracle specification describes a collection of available oracles, each with its own input and output types. Formally, it’s given by an indexed family where each oracle is specified by: </p>
 <ul class="itemize">
   <li><p>A domain type (what inputs it accepts) </p>
@@ -615,6 +675,36 @@
 
 
     
+    <div class="dep-modal-container" id="def:oracle_verifier_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="def:oracle_verifier" style="display: none">
+    <div class="thm_thmheading">
+      <span class="definition_thmcaption">
+      Definition
+      </span>
+      <span class="definition_thmlabel">11</span><span class="definition_thmtitle">Type Signature of an Oracle Verifier</span></div>
+    <div class="thm_thmcontent">
+</div>
+
+    <a class="latex_link" href="chap-oracle_reductions.html#def:oracle_verifier">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/OracleVerifier">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
     <div class="dep-modal-container" id="def:parity_check_matrix_modal">
       <div class="dep-modal-content">
           <button class="dep-closebtn">
@@ -626,7 +716,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">38</span><span class="definition_thmtitle">Parity Check Matrix</span></div>
+      <span class="definition_thmlabel">43</span><span class="definition_thmtitle">Parity Check Matrix</span></div>
     <div class="thm_thmcontent">
 </div>
 
@@ -656,7 +746,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">46</span><span class="definition_thmtitle">Probabilistic Semantics of Oracle Computations</span></div>
+      <span class="definition_thmlabel">51</span><span class="definition_thmtitle">Probabilistic Semantics of Oracle Computations</span></div>
     <div class="thm_thmcontent"><p>  We can view oracle computations as probabilistic programs by considering what happens when oracles respond uniformly at random. This gives rise to a probability distribution over possible outputs (including the possibility of failure). The semantics maps each oracle query to a uniform distribution over its possible responses.   </p>
 </div>
 
@@ -675,22 +765,120 @@
 
 
     
-    <div class="dep-modal-container" id="def:prover_type_signature_modal">
+    <div class="dep-modal-container" id="def:protocol_spec_modal">
       <div class="dep-modal-content">
           <button class="dep-closebtn">
 <svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
 </button>
         
-  <div class="thm" id="def:prover_type_signature" style="display: none">
+  <div class="thm" id="def:protocol_spec" style="display: none">
     <div class="thm_thmheading">
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">5</span><span class="definition_thmtitle">Type Signature of a Prover</span></div>
-    <div class="thm_thmcontent"><p>  A prover \(\mathcal{P}\) in an oracle reduction, given a context, is a stateful oracle computation that at each step of the protocol, either takes in a new message from the verifier, or sends a new message to the verifier.  </p>
+      <span class="definition_thmlabel">4</span><span class="definition_thmtitle">Protocol Specification</span></div>
+    <div class="thm_thmcontent"><p>  A protocol specification for an \(n\)-message (oracle) reduction, is an element of the following type: <div class="displaymath" id="a0000000017">
+  
+</div> ProtocolSpec n := Fin n Direction×Type. <div class="displaymath" id="a0000000018">
+  
+</div> In the above, \(\mathsf{Direction}:= \{  \mathsf{P \! \! \rightarrow \! \!  V}, \mathsf{V \! \! \rightarrow \! \!  P}\} \) is the type of possible directions of messages, and \(\mathsf{Fin}\  n := \{  i : \mathbb {N}\mathbin {/\! /}i {\lt} n \} \) is the type of all natural numbers less than \(n\). </p>
+<p>In other words, for each step \(i\) of interaction, the protocol specification describes the <em>direction</em> of the message sent in that step, i.e., whether it is from the prover or from the verifier. It also describes the <em>type</em> of that message. </p>
+<p>In the oracle setting, we also expect an oracle interface for each message from the prover to the verifier.  </p>
 </div>
 
-    <a class="latex_link" href="chap-oracle_reductions.html#def:prover_type_signature">LaTeX</a>
+    <a class="latex_link" href="chap-oracle_reductions.html#def:protocol_spec">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/ProtocolSpec">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="def:protocol_spec_components_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="def:protocol_spec_components" style="display: none">
+    <div class="thm_thmheading">
+      <span class="definition_thmcaption">
+      Definition
+      </span>
+      <span class="definition_thmlabel">5</span><span class="definition_thmtitle">Protocol Specification Components</span></div>
+    <div class="thm_thmcontent"><p>  Given a protocol specification \(\mathsf{pSpec}: \mathsf{ProtocolSpec}\  n\), we define: </p>
+<ul class="itemize">
+  <li><p>\(\mathsf{pSpec}.\mathsf{Dir}\  i := (\mathsf{pSpec}\  i).\mathsf{fst}\) extracts the direction of the \(i\)-th message. </p>
+</li>
+  <li><p>\(\mathsf{pSpec}.\mathsf{Type}\  i := (\mathsf{pSpec}\  i).\mathsf{snd}\) extracts the type of the \(i\)-th message. </p>
+</li>
+  <li><p>\(\mathsf{pSpec}.\mathsf{MessageIdx}:= \{ i : \mathsf{Fin}\  n \mathbin {/\! /}\mathsf{pSpec}.\mathsf{Dir}\  i = \mathsf{P \! \! \rightarrow \! \!  V}\} \) is the subtype of indices corresponding to prover messages. </p>
+</li>
+  <li><p>\(\mathsf{pSpec}.\mathsf{ChallengeIdx}:= \{ i : \mathsf{Fin}\  n \mathbin {/\! /}\mathsf{pSpec}.\mathsf{Dir}\  i = \mathsf{V \! \! \rightarrow \! \!  P}\} \) is the subtype of indices corresponding to verifier challenges. </p>
+</li>
+  <li><p>\(\mathsf{pSpec}.\mathsf{Message}\  i := (i : \mathsf{pSpec}.\mathsf{MessageIdx}) \to \mathsf{pSpec}.\mathsf{Type}\  i.\mathsf{val}\) is an indexed family of message types in the protocol. </p>
+</li>
+  <li><p>\(\mathsf{pSpec}.\mathsf{Challenge}\  i := (i : \mathsf{pSpec}.\mathsf{ChallengeIdx}) \to \mathsf{pSpec}.\mathsf{Type}\  i.\mathsf{val}\) is an indexed family of challenge types in the protocol. </p>
+</li>
+</ul>
+
+</div>
+
+    <a class="latex_link" href="chap-oracle_reductions.html#def:protocol_spec_components">LaTeX</a>
+    
+    
+  <div class="tooltip">
+      <span class="lean_link">Lean</span>
+      <ul class="tooltip_list">
+        
+           <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/ProtocolSpec.Dir" class="lean_decl">ProtocolSpec.Dir</a></li>
+        
+           <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/ProtocolSpec.getType" class="lean_decl">ProtocolSpec.getType</a></li>
+        
+           <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/ProtocolSpec.MessageIdx" class="lean_decl">ProtocolSpec.MessageIdx</a></li>
+        
+           <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/ProtocolSpec.ChallengeIdx" class="lean_decl">ProtocolSpec.ChallengeIdx</a></li>
+        
+           <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/ProtocolSpec.Message" class="lean_decl">ProtocolSpec.Message</a></li>
+        
+           <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/ProtocolSpec.Challenge" class="lean_decl">ProtocolSpec.Challenge</a></li>
+        
+      </ul>
+  </div>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="def:prover_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="def:prover" style="display: none">
+    <div class="thm_thmheading">
+      <span class="definition_thmcaption">
+      Definition
+      </span>
+      <span class="definition_thmlabel">8</span><span class="definition_thmtitle">Type Signature of a Prover</span></div>
+    <div class="thm_thmcontent"><p>  A prover \(\mathcal{P}\) in a reduction, given a context, is a stateful oracle computation that at each step of the protocol, either takes in a new message from the verifier, or sends a new message to the verifier.  </p>
+</div>
+
+    <a class="latex_link" href="chap-oracle_reductions.html#def:prover">LaTeX</a>
     
     
   <a class="lean_link lean_decl" href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Prover">Lean</a>
@@ -716,7 +904,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">42</span><span class="definition_thmtitle">Proximity Gap</span></div>
+      <span class="definition_thmlabel">47</span><span class="definition_thmtitle">Proximity Gap</span></div>
     <div class="thm_thmcontent">
 </div>
 
@@ -746,7 +934,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">41</span><span class="definition_thmtitle">Proximity Measure</span></div>
+      <span class="definition_thmlabel">46</span><span class="definition_thmtitle">Proximity Measure</span></div>
     <div class="thm_thmcontent">
 </div>
 
@@ -776,7 +964,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">49</span><span class="definition_thmtitle">Random Oracle</span></div>
+      <span class="definition_thmlabel">54</span><span class="definition_thmtitle">Random Oracle</span></div>
     <div class="thm_thmcontent"><p>  A random oracle is implemented as a caching oracle that uses lazy sampling: </p>
 <ul class="itemize">
   <li><p>On first query: generates a uniform random response and caches it </p>
@@ -813,7 +1001,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">40</span><span class="definition_thmtitle">Reed-Solomon Code</span></div>
+      <span class="definition_thmlabel">45</span><span class="definition_thmtitle">Reed-Solomon Code</span></div>
     <div class="thm_thmcontent">
 </div>
 
@@ -843,7 +1031,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">15</span><span class="definition_thmtitle">Round-by-Round Knowledge Soundness</span></div>
+      <span class="definition_thmlabel">20</span><span class="definition_thmtitle">Round-by-Round Knowledge Soundness</span></div>
     <div class="thm_thmcontent">
 </div>
 
@@ -873,7 +1061,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">14</span><span class="definition_thmtitle">Round-by-Round Soundness</span></div>
+      <span class="definition_thmlabel">19</span><span class="definition_thmtitle">Round-by-Round Soundness</span></div>
     <div class="thm_thmcontent">
 </div>
 
@@ -903,7 +1091,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">47</span><span class="definition_thmtitle">Simulating Oracle Queries with Other Oracles</span></div>
+      <span class="definition_thmlabel">52</span><span class="definition_thmtitle">Simulating Oracle Queries with Other Oracles</span></div>
     <div class="thm_thmcontent"><p>  We can simulate complex oracles using simpler ones by providing a translation mechanism. A simulation oracle specifies how to implement queries in one specification using computations in another specification, possibly maintaining additional state information during the simulation. </p>
 </div>
 
@@ -933,7 +1121,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">11</span><span class="definition_thmtitle">Soundness</span></div>
+      <span class="definition_thmlabel">16</span><span class="definition_thmtitle">Soundness</span></div>
     <div class="thm_thmcontent">
 </div>
 
@@ -963,7 +1151,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">13</span><span class="definition_thmtitle">State Function</span></div>
+      <span class="definition_thmlabel">18</span><span class="definition_thmtitle">State Function</span></div>
     <div class="thm_thmcontent">
 </div>
 
@@ -993,7 +1181,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">21</span><span class="definition_thmtitle">Single Round Protocol</span></div>
+      <span class="definition_thmlabel">26</span><span class="definition_thmtitle">Single Round Protocol</span></div>
     <div class="thm_thmcontent"><p>  The \(i\)-th round of sum-check consists of: </p>
 <ol class="enumerate">
   <li><p><b class="bfseries">Input:</b> A statement containing target value and prior challenges, along with an oracle for the multivariate polynomial </p>
@@ -1022,22 +1210,43 @@
 
 
     
-    <div class="dep-modal-container" id="def:transcript_and_related_defs_modal">
+    <div class="dep-modal-container" id="def:transcript_modal">
       <div class="dep-modal-content">
           <button class="dep-closebtn">
 <svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
 </button>
         
-  <div class="thm" id="def:transcript_and_related_defs" style="display: none">
+  <div class="thm" id="def:transcript" style="display: none">
     <div class="thm_thmheading">
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">3</span><span class="definition_thmtitle">Transcript &amp; Related Definitions</span></div>
-    <div class="thm_thmcontent"><p>  Given protocol specification \(\rho : \mathsf{PSpec}\;  n\), its <em>transcript</em> up to round \(i\) is an element of type \(\rho _{[:i]} ::= \prod _{j {\lt} i} \rho \;  j\). We define the type of all challenges sent by the verifier as \(\rho .\mathsf{Chals} ::= \prod _{i \text{ s.t. } (\rho \;  i).\mathsf{fst} = \mathsf{V2P}} (\rho \;  i).\mathsf{snd}\).  </p>
+      <span class="definition_thmlabel">6</span><span class="definition_thmtitle">Protocol Transcript</span></div>
+    <div class="thm_thmcontent"><p>  Given protocol specification \(\mathsf{pSpec}: \mathsf{ProtocolSpec}\  n\), we define: </p>
+<ul class="itemize">
+  <li><p>A <em>transcript</em> up to round \(k : \mathsf{Fin}\  (n + 1)\) is an element of type </p>
+<div class="displaymath" id="a0000000019">
+  \[  \mathsf{Transcript}\  k\  \mathsf{pSpec}:= (i : \mathsf{Fin}\  k) \to \mathsf{pSpec}.\mathsf{Type}\  (\uparrow i : \mathsf{Fin}\  n)  \]
+</div>
+<p> where \(\uparrow i : \mathsf{Fin}\  n\) denotes casting \(i : \mathsf{Fin}\  k\) to \(\mathsf{Fin}\  n\) (valid since \(k \leq n + 1\)). </p>
+</li>
+  <li><p>A <em>full transcript</em> is \(\mathsf{FullTranscript}\  \mathsf{pSpec}:= (i : \mathsf{Fin}\  n) \to \mathsf{pSpec}.\mathsf{Type}\  i\). </p>
+</li>
+  <li><p>The type of all <em>messages</em> from prover to verifier is </p>
+<div class="displaymath" id="a0000000020">
+  \[  \mathsf{pSpec}.\mathsf{Messages}:= \prod _{i : \mathsf{pSpec}.\mathsf{MessageIdx}} \mathsf{pSpec}.\mathsf{Message}\  i  \]
+</div>
+</li>
+  <li><p>The type of all <em>challenges</em> from verifier to prover is </p>
+<div class="displaymath" id="a0000000021">
+  \[  \mathsf{pSpec}.\mathsf{Challenges}:= \prod _{i : \mathsf{pSpec}.\mathsf{ChallengeIdx}} \mathsf{pSpec}.\mathsf{Challenge}\  i  \]
+</div>
+</li>
+</ul>
+
 </div>
 
-    <a class="latex_link" href="chap-oracle_reductions.html#def:transcript_and_related_defs">LaTeX</a>
+    <a class="latex_link" href="chap-oracle_reductions.html#def:transcript">LaTeX</a>
     
     
   <div class="tooltip">
@@ -1063,22 +1272,22 @@
 
 
     
-    <div class="dep-modal-container" id="def:verifier_type_signature_modal">
+    <div class="dep-modal-container" id="def:verifier_modal">
       <div class="dep-modal-content">
           <button class="dep-closebtn">
 <svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
 </button>
         
-  <div class="thm" id="def:verifier_type_signature" style="display: none">
+  <div class="thm" id="def:verifier" style="display: none">
     <div class="thm_thmheading">
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">6</span><span class="definition_thmtitle">Type Signature of a Verifier</span></div>
+      <span class="definition_thmlabel">10</span><span class="definition_thmtitle">Type Signature of a Verifier</span></div>
     <div class="thm_thmcontent"><p>  A verifier \(\mathcal{V}\) in an oracle reduction is an oracle computation that may perform a series of checks (i.e. ‘Bool‘-valued, or ‘Option Unit‘) on the given context.  </p>
 </div>
 
-    <a class="latex_link" href="chap-oracle_reductions.html#def:verifier_type_signature">LaTeX</a>
+    <a class="latex_link" href="chap-oracle_reductions.html#def:verifier">LaTeX</a>
     
     
   <a class="lean_link lean_decl" href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Verifier">Lean</a>
@@ -1104,7 +1313,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">16</span><span class="definition_thmtitle">Mapping into Virtual Context</span></div>
+      <span class="definition_thmlabel">21</span><span class="definition_thmtitle">Mapping into Virtual Context</span></div>
     <div class="thm_thmcontent"><p>  In order to apply an oracle reduction on virtual data, we will need to provide a mapping from the current context to the virtual context. This includes: </p>
 <ul class="itemize">
   <li><p>A mapping from the current public inputs to the virtual public inputs. </p>
@@ -1144,7 +1353,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">17</span><span class="definition_thmtitle">Virtual Oracle Reduction</span></div>
+      <span class="definition_thmlabel">22</span><span class="definition_thmtitle">Virtual Oracle Reduction</span></div>
     <div class="thm_thmcontent"><p>  Given a suitable mapping into a virtual context, we may define an oracle reduction via the following construction: </p>
 <ul class="itemize">
   <li><p>The prover first applies the mappings to obtain the virtual context. The verifier does the same, but only for the non-private inputs. </p>
@@ -1180,7 +1389,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">25</span></div>
+      <span class="definition_thmlabel">30</span></div>
     <div class="thm_thmcontent">
 <ol class="enumerate">
   <li><p>In this protocol, the context is a pair \((p, d)\), where \(p\) is now a <em>univariate</em> polynomial of bounded degree. The predicate / relation is that \(p(0) + p(1) = d\). </p>
@@ -1220,7 +1429,7 @@
       <span class="definition_thmcaption">
       Definition
       </span>
-      <span class="definition_thmlabel">28</span><span class="definition_thmtitle">State Function</span></div>
+      <span class="definition_thmlabel">33</span><span class="definition_thmtitle">State Function</span></div>
     <div class="thm_thmcontent"><p>  The state function for the virtual sum-check round protocol is given by: </p>
 <ol class="enumerate">
   <li><p>The initial state function is the same as the predicate on the initial context, namely that \(p(0) + p(1) = d\). </p>
@@ -1259,7 +1468,7 @@
       <span class="theorem_thmcaption">
       Theorem
       </span>
-      <span class="theorem_thmlabel">31</span><span class="theorem_thmtitle">Multilinear Extension is Unique</span></div>
+      <span class="theorem_thmlabel">36</span><span class="theorem_thmtitle">Multilinear Extension is Unique</span></div>
     <div class="thm_thmcontent">
 </div>
 
@@ -1289,7 +1498,7 @@
       <span class="theorem_thmcaption">
       Theorem
       </span>
-      <span class="theorem_thmlabel">32</span><span class="theorem_thmtitle">Schwartz-Zippel Lemma</span></div>
+      <span class="theorem_thmlabel">37</span><span class="theorem_thmtitle">Schwartz-Zippel Lemma</span></div>
     <div class="thm_thmcontent">
 </div>
 
@@ -1319,7 +1528,7 @@
       <span class="theorem_thmcaption">
       Theorem
       </span>
-      <span class="theorem_thmlabel">19</span><span class="theorem_thmtitle">Knowledge Soundness</span></div>
+      <span class="theorem_thmlabel">24</span><span class="theorem_thmtitle">Knowledge Soundness</span></div>
     <div class="thm_thmcontent"><p>  The sum-check protocol satisfies knowledge soundness. The soundness error is bounded by \(n \cdot d / |R|\), where \(n\) is the number of rounds, \(d\) is the degree bound, and \(|R|\) is the size of the field. </p>
 </div>
 
@@ -1349,7 +1558,7 @@
       <span class="theorem_thmcaption">
       Theorem
       </span>
-      <span class="theorem_thmlabel">18</span><span class="theorem_thmtitle">Perfect Completeness</span></div>
+      <span class="theorem_thmlabel">23</span><span class="theorem_thmtitle">Perfect Completeness</span></div>
     <div class="thm_thmcontent"><p>  The sum-check protocol satisfies perfect completeness. That is, for any valid input statement and oracle statement satisfying the input relation, the protocol accepts with probability 1. </p>
 </div>
 
@@ -1379,7 +1588,7 @@
       <span class="theorem_thmcaption">
       Theorem
       </span>
-      <span class="theorem_thmlabel">24</span><span class="theorem_thmtitle">Round-by-Round Knowledge Soundness</span></div>
+      <span class="theorem_thmlabel">29</span><span class="theorem_thmtitle">Round-by-Round Knowledge Soundness</span></div>
     <div class="thm_thmcontent"><p>  The sum-check protocol satisfies round-by-round knowledge soundness. Each individual round can be analyzed independently, and the soundness error in each round is bounded by \(d / |R|\). </p>
 </div>
 
@@ -1409,7 +1618,7 @@
       <span class="theorem_thmcaption">
       Theorem
       </span>
-      <span class="theorem_thmlabel">20</span><span class="theorem_thmtitle">Round-by-Round Knowledge Soundness</span></div>
+      <span class="theorem_thmlabel">25</span><span class="theorem_thmtitle">Round-by-Round Knowledge Soundness</span></div>
     <div class="thm_thmcontent"><p>  The sum-check protocol satisfies round-by-round knowledge soundness with respect to an appropriate state function (to be specified). Each round maintains the security properties compositionally, allowing for modular security analysis. </p>
 </div>
 
@@ -1439,7 +1648,7 @@
       <span class="theorem_thmcaption">
       Theorem
       </span>
-      <span class="theorem_thmlabel">22</span><span class="theorem_thmtitle">Single Round Completeness</span></div>
+      <span class="theorem_thmlabel">27</span><span class="theorem_thmtitle">Single Round Completeness</span></div>
     <div class="thm_thmcontent"><p>  Each individual round of the sum-check protocol is perfectly complete. </p>
 </div>
 
@@ -1469,7 +1678,7 @@
       <span class="theorem_thmcaption">
       Theorem
       </span>
-      <span class="theorem_thmlabel">23</span><span class="theorem_thmtitle">Single Round Soundness</span></div>
+      <span class="theorem_thmlabel">28</span><span class="theorem_thmtitle">Single Round Soundness</span></div>
     <div class="thm_thmcontent"><p>  Each individual round of the sum-check protocol is sound with error probability at most \(d / |R|\), where \(d\) is the degree bound and \(|R|\) is the size of the field. </p>
 </div>
 
@@ -1499,7 +1708,7 @@
       <span class="theorem_thmcaption">
       Theorem
       </span>
-      <span class="theorem_thmlabel">27</span></div>
+      <span class="theorem_thmlabel">32</span></div>
     <div class="thm_thmcontent"><p>The virtual sum-check round protocol is knowledge sound.   </p>
 </div>
 
@@ -1529,7 +1738,7 @@
       <span class="theorem_thmcaption">
       Theorem
       </span>
-      <span class="theorem_thmlabel">29</span></div>
+      <span class="theorem_thmlabel">34</span></div>
     <div class="thm_thmcontent"><p>The virtual sum-check round protocol is round-by-round sound.   </p>
 </div>
 
@@ -1559,7 +1768,7 @@
       <span class="theorem_thmcaption">
       Theorem
       </span>
-      <span class="theorem_thmlabel">26</span></div>
+      <span class="theorem_thmlabel">31</span></div>
     <div class="thm_thmcontent"><p>The virtual sum-check round protocol is sound.   </p>
 </div>
 
@@ -1594,7 +1803,7 @@ graphContainer.graphviz({useWorker: true})
     .width(width)
     .height(height)
     .fit(true)
-    .renderDot(`strict digraph "" {	graph [bgcolor=transparent];	node [label="\N",		penwidth=1.8	];	edge [arrowhead=vee];	"def:round_by_round_knowledge_soundness"	[label=round_by_round_knowledge_soundness,		shape=box];	"def:virtual_context_mapping"	[color=blue,		fillcolor="#A3D6FF",		label=virtual_context_mapping,		shape=box,		style=filled];	"def:virtual_sumcheck_round_protocol"	[color=blue,		fillcolor="#A3D6FF",		label=virtual_sumcheck_round_protocol,		shape=box,		style=filled];	"thm:virtual_sumcheck_round_protocol_sound"	[label=virtual_sumcheck_round_protocol_sound,		shape=ellipse];	"def:virtual_sumcheck_round_protocol" -> "thm:virtual_sumcheck_round_protocol_sound"	[style=dashed];	"def:virtual_sumcheck_round_protocol_state_function"	[label=virtual_sumcheck_round_protocol_state_function,		shape=box];	"def:virtual_sumcheck_round_protocol" -> "def:virtual_sumcheck_round_protocol_state_function"	[style=dashed];	"thm:virtual_sumcheck_round_protocol_knowledge_sound"	[label=virtual_sumcheck_round_protocol_knowledge_sound,		shape=ellipse];	"def:virtual_sumcheck_round_protocol" -> "thm:virtual_sumcheck_round_protocol_knowledge_sound"	[style=dashed];	"thm:virtual_sumcheck_round_protocol_rbr_sound"	[label=virtual_sumcheck_round_protocol_rbr_sound,		shape=ellipse];	"def:virtual_sumcheck_round_protocol_state_function" -> "thm:virtual_sumcheck_round_protocol_rbr_sound"	[style=dashed];	"def:computable_multilinear_polynomials"	[color=blue,		fillcolor="#A3D6FF",		label=computable_multilinear_polynomials,		shape=box,		style=filled];	"def:reed_solomon_code"	[color=blue,		fillcolor="#A3D6FF",		label=reed_solomon_code,		shape=box,		style=filled];	"def:proximity_measure"	[label=proximity_measure,		shape=box];	"def:probabilistic_semantics_of_oracle_computations"	[label=probabilistic_semantics_of_oracle_computations,		shape=box];	"def:logging_caching_oracle_queries"	[label=logging_caching_oracle_queries,		shape=box];	"def:sumcheck_single_round"	[color=blue,		fillcolor="#A3D6FF",		label=sumcheck_single_round,		shape=box,		style=filled];	"def:transcript_and_related_defs"	[color=blue,		fillcolor="#A3D6FF",		label=transcript_and_related_defs,		shape=box,		style=filled];	"def:soundness"	[label=soundness,		shape=box];	"def:soundness" -> "thm:virtual_sumcheck_round_protocol_sound"	[style=dashed];	"def:sim_oracle"	[color=blue,		fillcolor="#A3D6FF",		label=sim_oracle,		shape=box,		style=filled];	"thm:schwartz_zippel"	[color=blue,		label=schwartz_zippel,		shape=ellipse];	"def:completeness"	[label=completeness,		shape=box];	"def:computable_univariate_polynomials"	[color=blue,		fillcolor="#A3D6FF",		label=computable_univariate_polynomials,		shape=box,		style=filled];	"def:distance_from_code"	[color=blue,		fillcolor="#A3D6FF",		label=distance_from_code,		shape=box,		style=filled];	"def:distance_from_code" -> "def:proximity_measure"	[style=dashed];	"def:proximity_gap"	[label=proximity_gap,		shape=box];	"def:distance_from_code" -> "def:proximity_gap"	[style=dashed];	"def:generator_matrix"	[color=blue,		fillcolor="#A3D6FF",		label=generator_matrix,		shape=box,		style=filled];	"def:interleaved_code"	[color=blue,		fillcolor="#A3D6FF",		label=interleaved_code,		shape=box,		style=filled];	"def:round_by_round_soundness"	[label=round_by_round_soundness,		shape=box];	"def:round_by_round_soundness" -> "thm:virtual_sumcheck_round_protocol_rbr_sound"	[style=dashed];	"def:oracle_reduction_execution"	[color=blue,		fillcolor="#A3D6FF",		label=oracle_reduction_execution,		shape=box,		style=filled];	"def:handling_oracle_queries"	[color=blue,		fillcolor="#A3D6FF",		label=handling_oracle_queries,		shape=box,		style=filled];	"def:handling_oracle_queries" -> "def:logging_caching_oracle_queries"	[style=dashed];	"def:random_oracle"	[label=random_oracle,		shape=box];	"def:handling_oracle_queries" -> "def:random_oracle"	[style=dashed];	"thm:sumcheck_rbr_knowledge_soundness"	[color=blue,		label=sumcheck_rbr_knowledge_soundness,		shape=ellipse];	"thm:multilinear_extension_unique"	[color=blue,		label=multilinear_extension_unique,		shape=ellipse];	"def:parity_check_matrix"	[color=blue,		fillcolor="#A3D6FF",		label=parity_check_matrix,		shape=box,		style=filled];	"thm:sumcheck_perfect_completeness"	[color=blue,		label=sumcheck_perfect_completeness,		shape=ellipse];	"def:verifier_type_signature"	[color=blue,		fillcolor="#A3D6FF",		label=verifier_type_signature,		shape=box,		style=filled];	"def:context"	[color=blue,		fillcolor="#A3D6FF",		label=context,		shape=box,		style=filled];	"def:knowledge_soundness"	[label=knowledge_soundness,		shape=box];	"def:knowledge_soundness" -> "thm:virtual_sumcheck_round_protocol_knowledge_sound"	[style=dashed];	"def:virtual_oracle_reduction"	[color=blue,		fillcolor="#A3D6FF",		label=virtual_oracle_reduction,		shape=box,		style=filled];	"def:multilinear_extension"	[color=blue,		fillcolor="#A3D6FF",		label=multilinear_extension,		shape=box,		style=filled];	"def:oracle_spec"	[color=green,		fillcolor="#B0ECA3",		label=oracle_spec,		shape=box,		style=filled];	"def:oracle_spec" -> "def:handling_oracle_queries"	[style=dashed];	"def:oracle_computation"	[color=blue,		fillcolor="#A3D6FF",		label=oracle_computation,		shape=box,		style=filled];	"def:oracle_spec" -> "def:oracle_computation"	[style=dashed];	"def:oracle_computation" -> "def:probabilistic_semantics_of_oracle_computations"	[style=dashed];	"def:oracle_computation" -> "def:logging_caching_oracle_queries"	[style=dashed];	"def:oracle_computation" -> "def:random_oracle"	[style=dashed];	"thm:sumcheck_knowledge_soundness"	[color=blue,		label=sumcheck_knowledge_soundness,		shape=ellipse];	"thm:sumcheck_single_round_completeness"	[color=blue,		label=sumcheck_single_round_completeness,		shape=ellipse];	"thm:sumcheck_single_round_soundness"	[color=blue,		label=sumcheck_single_round_soundness,		shape=ellipse];	"def:code_distance"	[color=blue,		fillcolor="#A3D6FF",		label=code_distance,		shape=box,		style=filled];	"thm:sumcheck_rbr_knowledge_soundness_standard"	[color=blue,		label=sumcheck_rbr_knowledge_soundness_standard,		shape=ellipse];	"def:oracle_reduction_type_signature"	[color=blue,		fillcolor="#A3D6FF",		label=oracle_reduction_type_signature,		shape=box,		style=filled];	"def:interactive_oracle_reduction"	[label=interactive_oracle_reduction,		shape=box];	"def:oracle_reduction_type_signature" -> "def:interactive_oracle_reduction"	[style=dashed];	"def:interactive_oracle_reduction" -> "def:round_by_round_knowledge_soundness"	[style=dashed];	"def:interactive_oracle_reduction" -> "def:soundness"	[style=dashed];	"def:interactive_oracle_reduction" -> "def:completeness"	[style=dashed];	"def:interactive_oracle_reduction" -> "def:round_by_round_soundness"	[style=dashed];	"def:interactive_oracle_reduction" -> "def:knowledge_soundness"	[style=dashed];	"def:prover_type_signature"	[color=blue,		fillcolor="#A3D6FF",		label=prover_type_signature,		shape=box,		style=filled];	"def:state_function"	[color=blue,		fillcolor="#A3D6FF",		label=state_function,		shape=box,		style=filled];	"def:state_function" -> "def:virtual_sumcheck_round_protocol_state_function"	[style=dashed];}`)
+    .renderDot(`strict digraph "" {	graph [bgcolor=transparent];	node [label="\N",		penwidth=1.8	];	edge [arrowhead=vee];	"def:knowledge_soundness"	[label=knowledge_soundness,		shape=box];	"thm:virtual_sumcheck_round_protocol_knowledge_sound"	[label=virtual_sumcheck_round_protocol_knowledge_sound,		shape=ellipse];	"def:knowledge_soundness" -> "thm:virtual_sumcheck_round_protocol_knowledge_sound"	[style=dashed];	"def:interleaved_code"	[color=blue,		fillcolor="#A3D6FF",		label=interleaved_code,		shape=box,		style=filled];	"def:oracle_computation"	[color=blue,		fillcolor="#A3D6FF",		label=oracle_computation,		shape=box,		style=filled];	"def:random_oracle"	[label=random_oracle,		shape=box];	"def:oracle_computation" -> "def:random_oracle"	[style=dashed];	"def:probabilistic_semantics_of_oracle_computations"	[label=probabilistic_semantics_of_oracle_computations,		shape=box];	"def:oracle_computation" -> "def:probabilistic_semantics_of_oracle_computations"	[style=dashed];	"def:logging_caching_oracle_queries"	[label=logging_caching_oracle_queries,		shape=box];	"def:oracle_computation" -> "def:logging_caching_oracle_queries"	[style=dashed];	"def:context"	[color=blue,		fillcolor="#A3D6FF",		label=context,		shape=box,		style=filled];	"def:computable_univariate_polynomials"	[color=blue,		fillcolor="#A3D6FF",		label=computable_univariate_polynomials,		shape=box,		style=filled];	"def:distance_from_code"	[color=blue,		fillcolor="#A3D6FF",		label=distance_from_code,		shape=box,		style=filled];	"def:proximity_measure"	[label=proximity_measure,		shape=box];	"def:distance_from_code" -> "def:proximity_measure"	[style=dashed];	"def:proximity_gap"	[label=proximity_gap,		shape=box];	"def:distance_from_code" -> "def:proximity_gap"	[style=dashed];	"def:reed_solomon_code"	[color=blue,		fillcolor="#A3D6FF",		label=reed_solomon_code,		shape=box,		style=filled];	"def:sim_oracle"	[color=blue,		fillcolor="#A3D6FF",		label=sim_oracle,		shape=box,		style=filled];	"thm:sumcheck_knowledge_soundness"	[color=blue,		label=sumcheck_knowledge_soundness,		shape=ellipse];	"thm:sumcheck_rbr_knowledge_soundness"	[color=blue,		label=sumcheck_rbr_knowledge_soundness,		shape=ellipse];	"thm:virtual_sumcheck_round_protocol_sound"	[label=virtual_sumcheck_round_protocol_sound,		shape=ellipse];	"thm:virtual_sumcheck_round_protocol_rbr_sound"	[label=virtual_sumcheck_round_protocol_rbr_sound,		shape=ellipse];	"thm:schwartz_zippel"	[color=blue,		label=schwartz_zippel,		shape=ellipse];	"def:virtual_sumcheck_round_protocol"	[color=blue,		fillcolor="#A3D6FF",		label=virtual_sumcheck_round_protocol,		shape=box,		style=filled];	"def:virtual_sumcheck_round_protocol" -> "thm:virtual_sumcheck_round_protocol_knowledge_sound"	[style=dashed];	"def:virtual_sumcheck_round_protocol" -> "thm:virtual_sumcheck_round_protocol_sound"	[style=dashed];	"def:virtual_sumcheck_round_protocol_state_function"	[label=virtual_sumcheck_round_protocol_state_function,		shape=box];	"def:virtual_sumcheck_round_protocol" -> "def:virtual_sumcheck_round_protocol_state_function"	[style=dashed];	"def:virtual_sumcheck_round_protocol_state_function" -> "thm:virtual_sumcheck_round_protocol_rbr_sound"	[style=dashed];	"def:computable_multilinear_polynomials"	[color=blue,		fillcolor="#A3D6FF",		label=computable_multilinear_polynomials,		shape=box,		style=filled];	"thm:sumcheck_rbr_knowledge_soundness_standard"	[color=blue,		label=sumcheck_rbr_knowledge_soundness_standard,		shape=ellipse];	"def:oracle_prover"	[color=blue,		fillcolor="#A3D6FF",		label=oracle_prover,		shape=box,		style=filled];	"def:interactive_oracle_reduction"	[label=interactive_oracle_reduction,		shape=box];	"def:oracle_prover" -> "def:interactive_oracle_reduction"	[style=dashed];	"def:interactive_oracle_reduction" -> "def:knowledge_soundness"	[style=dashed];	"def:round_by_round_knowledge_soundness"	[label=round_by_round_knowledge_soundness,		shape=box];	"def:interactive_oracle_reduction" -> "def:round_by_round_knowledge_soundness"	[style=dashed];	"def:completeness"	[label=completeness,		shape=box];	"def:interactive_oracle_reduction" -> "def:completeness"	[style=dashed];	"def:soundness"	[label=soundness,		shape=box];	"def:interactive_oracle_reduction" -> "def:soundness"	[style=dashed];	"def:round_by_round_soundness"	[label=round_by_round_soundness,		shape=box];	"def:interactive_oracle_reduction" -> "def:round_by_round_soundness"	[style=dashed];	"def:soundness" -> "thm:virtual_sumcheck_round_protocol_sound"	[style=dashed];	"def:round_by_round_soundness" -> "thm:virtual_sumcheck_round_protocol_rbr_sound"	[style=dashed];	"def:interactive_reduction"	[label=interactive_reduction,		shape=box];	"def:code_distance"	[color=blue,		fillcolor="#A3D6FF",		label=code_distance,		shape=box,		style=filled];	"def:virtual_oracle_reduction"	[color=blue,		fillcolor="#A3D6FF",		label=virtual_oracle_reduction,		shape=box,		style=filled];	"def:oracle_spec"	[color=green,		fillcolor="#B0ECA3",		label=oracle_spec,		shape=box,		style=filled];	"def:oracle_spec" -> "def:oracle_computation"	[style=dashed];	"def:handling_oracle_queries"	[color=blue,		fillcolor="#A3D6FF",		label=handling_oracle_queries,		shape=box,		style=filled];	"def:oracle_spec" -> "def:handling_oracle_queries"	[style=dashed];	"def:handling_oracle_queries" -> "def:random_oracle"	[style=dashed];	"def:handling_oracle_queries" -> "def:logging_caching_oracle_queries"	[style=dashed];	"thm:multilinear_extension_unique"	[color=blue,		label=multilinear_extension_unique,		shape=ellipse];	"def:transcript"	[label=transcript,		shape=box];	"def:oracle_verifier"	[color=blue,		fillcolor="#A3D6FF",		label=oracle_verifier,		shape=box,		style=filled];	"def:oracle_verifier" -> "def:interactive_oracle_reduction"	[style=dashed];	"thm:sumcheck_single_round_soundness"	[color=blue,		label=sumcheck_single_round_soundness,		shape=ellipse];	"def:oracle_interface"	[color=blue,		fillcolor="#A3D6FF",		label=oracle_interface,		shape=box,		style=filled];	"def:protocol_spec_components"	[label=protocol_spec_components,		shape=box];	"def:protocol_spec_components" -> "def:transcript"	[style=dashed];	"def:verifier"	[color=blue,		fillcolor="#A3D6FF",		label=verifier,		shape=box,		style=filled];	"def:verifier" -> "def:interactive_reduction"	[style=dashed];	"def:oracle_reduction_execution"	[color=blue,		fillcolor="#A3D6FF",		label=oracle_reduction_execution,		shape=box,		style=filled];	"def:state_function"	[color=blue,		fillcolor="#A3D6FF",		label=state_function,		shape=box,		style=filled];	"def:state_function" -> "def:virtual_sumcheck_round_protocol_state_function"	[style=dashed];	"def:virtual_context_mapping"	[color=blue,		fillcolor="#A3D6FF",		label=virtual_context_mapping,		shape=box,		style=filled];	"def:parity_check_matrix"	[color=blue,		fillcolor="#A3D6FF",		label=parity_check_matrix,		shape=box,		style=filled];	"thm:sumcheck_perfect_completeness"	[color=blue,		label=sumcheck_perfect_completeness,		shape=ellipse];	"thm:sumcheck_single_round_completeness"	[color=blue,		label=sumcheck_single_round_completeness,		shape=ellipse];	"def:protocol_spec"	[color=blue,		fillcolor="#A3D6FF",		label=protocol_spec,		shape=box,		style=filled];	"def:protocol_spec" -> "def:protocol_spec_components"	[style=dashed];	"def:prover"	[color=blue,		fillcolor="#A3D6FF",		label=prover,		shape=box,		style=filled];	"def:prover" -> "def:interactive_reduction"	[style=dashed];	"def:sumcheck_single_round"	[color=blue,		fillcolor="#A3D6FF",		label=sumcheck_single_round,		shape=box,		style=filled];	"def:multilinear_extension"	[color=blue,		fillcolor="#A3D6FF",		label=multilinear_extension,		shape=box,		style=filled];	"def:generator_matrix"	[color=blue,		fillcolor="#A3D6FF",		label=generator_matrix,		shape=box,		style=filled];}`)
     .on("end", interactive);
 
 latexLabelEscaper = function(label) {

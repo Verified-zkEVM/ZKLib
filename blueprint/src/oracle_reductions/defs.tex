@@ -93,9 +93,9 @@ See \texttt{OracleInterface.lean} for common instances of $\mathsf{OracleInterfa
     \label{def:protocol_spec}
     A protocol specification for an $n$-message (oracle) reduction, is an element of the following type:
     \begin{align*}
-        \ProtocolSpec\; n &:= \Fin\; n \to \Direction \times \Type.
+        \ProtocolSpec\ n &:= \Fin\ n \to \Direction \times \Type.
     \end{align*}
-    In the above, $\Direction := \{ \PtoVdir, \VtoPdir \}$ is the type of possible directions of messages, and $\Fin\; n := \{ i : \bbN \quotient i < n \}$ is the type of all natural numbers less than $n$.
+    In the above, $\Direction := \{ \PtoVdir, \VtoPdir \}$ is the type of possible directions of messages, and $\Fin\ n := \{ i : \bbN \quotient i < n \}$ is the type of all natural numbers less than $n$.
 
     In other words, for each step $i$ of interaction, the protocol specification describes the \emph{direction} of the message sent in that step, i.e., whether it is from the prover or from the verifier. It also describes the \emph{type} of that message.
 
@@ -107,35 +107,37 @@ We define some supporting definitions for a protocol specification.
 
 \begin{definition}[Protocol Specification Components]
     \label{def:protocol_spec_components}
-    Given a protocol specification $\mathsf{pSpec} : \ProtocolSpec\; n$, we define:
+    Given a protocol specification $\pSpec : \ProtocolSpec\ n$, we define:
     \begin{itemize}
-        \item $\mathsf{pSpec}.\mathsf{Dir}\; i := (\mathsf{pSpec}\; i).\mathsf{fst}$ extracts the direction of the $i$-th message.
-        \item $\mathsf{pSpec}.\Type\; i := (\mathsf{pSpec}\; i).\mathsf{snd}$ extracts the type of the $i$-th message.
-        \item $\mathsf{pSpec}.\MessageIdx := \{i : \Fin\; n \quotient \mathsf{pSpec}.\mathsf{Dir}\; i = \PtoVdir\}$ is the subtype of indices corresponding to prover messages.
-        \item $\mathsf{pSpec}.\ChallengeIdx := \{i : \Fin\; n \quotient \mathsf{pSpec}.\mathsf{Dir}\; i = \VtoPdir\}$ is the subtype of indices corresponding to verifier challenges.
-        \item $\mathsf{pSpec}.\mathsf{Message}\; i := (i : \mathsf{pSpec}.\MessageIdx) \to \mathsf{pSpec}.\Type\; i.\mathsf{val}$ is the type of all messages in the protocol.
-        \item $\mathsf{pSpec}.\mathsf{Challenge}\; i := (i : \mathsf{pSpec}.\ChallengeIdx) \to \mathsf{pSpec}.\Type\; i.\mathsf{val}$ is the type of all challenges in the protocol.
+        \item $\pSpec.\Dir\ i := (\pSpec\ i).\mathsf{fst}$ extracts the direction of the $i$-th message.
+        \item $\pSpec.\Type\ i := (\pSpec\ i).\mathsf{snd}$ extracts the type of the $i$-th message.
+        \item $\pSpec.\MessageIdx := \{i : \Fin\ n \quotient \pSpec.\Dir\ i = \PtoVdir\}$ is the subtype of indices corresponding to prover messages.
+        \item $\pSpec.\ChallengeIdx := \{i : \Fin\ n \quotient \pSpec.\Dir\ i = \VtoPdir\}$ is the subtype of indices corresponding to verifier challenges.
+        \item $\pSpec.\mathsf{Message}\ i := (i : \pSpec.\MessageIdx) \to \pSpec.\Type\ i.\mathsf{val}$ is an indexed family of message types in the protocol.
+        \item $\pSpec.\mathsf{Challenge}\ i := (i : \pSpec.\ChallengeIdx) \to \pSpec.\Type\ i.\mathsf{val}$ is an indexed family of challenge types in the protocol.
     \end{itemize}
     \lean{ProtocolSpec.Dir, ProtocolSpec.getType, ProtocolSpec.MessageIdx, ProtocolSpec.ChallengeIdx, ProtocolSpec.Message, ProtocolSpec.Challenge}
+    \uses{def:protocol_spec}
 \end{definition}
 
-\begin{definition}[Transcript \& Related Definitions]
-    \label{def:transcript_and_related_defs}
-        Given protocol specification $\mathsf{pSpec} : \ProtocolSpec\; n$, we define:
+\begin{definition}[Protocol Transcript]
+    \label{def:transcript}
+        Given protocol specification $\pSpec : \ProtocolSpec\ n$, we define:
     \begin{itemize}
-        \item A \emph{transcript} up to round $k : \Fin\; (n + 1)$ is an element of type
-                \[ \Transcript\; k\; \mathsf{pSpec} := (i : \Fin\; k) \to \mathsf{pSpec}.\Type\; (i^{\uparrow \Fin\; n}) \]
-        where $i^{\uparrow \Fin\; n}$ denotes casting $i : \Fin\; k$ to $\Fin\; n$ (valid since $k \leq n + 1$).
+        \item A \emph{transcript} up to round $k : \Fin\ (n + 1)$ is an element of type
+                \[ \Transcript\ k\ \pSpec := (i : \Fin\ k) \to \pSpec.\Type\ (\uparrow i : \Fin\ n) \]
+        where $\uparrow i : \Fin\ n$ denotes casting $i : \Fin\ k$ to $\Fin\ n$ (valid since $k \leq n + 1$).
 
-        \item A \emph{full transcript} is $\FullTranscript\; \mathsf{pSpec} := (i : \Fin\; n) \to \mathsf{pSpec}.\Type\; i$.
+        \item A \emph{full transcript} is $\FullTranscript\ \pSpec := (i : \Fin\ n) \to \pSpec.\Type\ i$.
 
         \item The type of all \emph{messages} from prover to verifier is
-        \[ \mathsf{pSpec}.\mathsf{Messages} := \prod_{i : \mathsf{pSpec}.\MessageIdx} \mathsf{pSpec}.\mathsf{Message}\; i \]
+        \[ \pSpec.\Messages := \prod_{i : \pSpec.\MessageIdx} \pSpec.\Message\ i \]
 
         \item The type of all \emph{challenges} from verifier to prover is
-        \[ \mathsf{pSpec}.\mathsf{Challenges} := \prod_{i : \mathsf{pSpec}.\ChallengeIdx} \mathsf{pSpec}.\mathsf{Challenge}\; i \]
+        \[ \pSpec.\Challenges := \prod_{i : \pSpec.\ChallengeIdx} \pSpec.\Challenge\ i \]
     \end{itemize}
     \lean{ProtocolSpec.Transcript, ProtocolSpec.Message, ProtocolSpec.Challenge}
+    \uses{def:protocol_spec, def:protocol_spec_components}
 \end{definition}
 
 % In the interactive protocols we consider, both parties $P$ and $V$ may have access to a shared
@@ -151,17 +153,22 @@ We define some supporting definitions for a protocol specification.
 \end{remark}
 
 \begin{definition}[Type Signature of a Prover]
-    \label{def:prover_type_signature}
-    A prover $\mathcal{P}$ in an oracle reduction, given a context, is a stateful oracle computation
+    \label{def:prover}
+    A prover $\calP$ in a reduction, given a context, is a stateful oracle computation
     that at each step of the protocol, either takes in a new message from the verifier, or sends a
     new message to the verifier.
     \lean{Prover}
 \end{definition}
 
-Our modeling of oracle reductions only consider \emph{public-coin} verifiers; that is, verifiers who
-only outputs uniformly random challenges drawn from the (finite) types, and uses no other
-randomness. Because of this fixed functionality, we can bake the verifier's behavior in the
-interaction phase directly into the protocol execution semantics.
+\begin{definition}[Type Signature of an Oracle Prover]
+    \label{def:oracle_prover}
+    \lean{OracleProver}
+\end{definition}
+
+% Our modeling of oracle reductions only consider \emph{public-coin} verifiers; that is, verifiers who
+% only outputs uniformly random challenges drawn from the (finite) types, and uses no other
+% randomness. Because of this fixed functionality, we can bake the verifier's behavior in the
+% interaction phase directly into the protocol execution semantics.
 
 After the interaction phase, the verifier may then run some verification procedure to check the
 validity of the prover's responses. In this procedure, the verifier gets access to the public part
@@ -172,32 +179,35 @@ of the context, and oracle access to either the shared oracle, or the oracle inp
 % \emph{interactive reduction (IR)}.
 
 \begin{definition}[Type Signature of a Verifier]
-    \label{def:verifier_type_signature}
+    \label{def:verifier}
     A verifier $\mathcal{V}$ in an oracle reduction is an oracle computation that may perform a
     series of checks (i.e. `Bool`-valued, or `Option Unit`) on the given context.
     \lean{Verifier}
 \end{definition}
 
-% \begin{definition}[Type Signature of an Oracle Verifier]
-%     \label{def:oracle_verifier_type_signature}
-%     \lean{OracleVerifier}
-% \end{definition}
+\begin{definition}[Type Signature of an Oracle Verifier]
+    \label{def:oracle_verifier}
+    \lean{OracleVerifier}
+\end{definition}
 
 An oracle reduction then consists of a type signature for the interaction, and a pair of prover and
 verifier for that type signature.
 
-% \begin{definition}[Interactive Reduction]
-%     \label{def:interactive_reduction}
-%     \lean{Reduction}
-%     An interactive reduction is a combination of a type signature \verb|ProtocolSpec|, a prover for \verb|ProtocolSpec|, and a verifier for \verb|ProtocolSpec|.
-% \end{definition}
-l
+\begin{definition}[Interactive Reduction]
+    \label{def:interactive_reduction}
+    \lean{Reduction}
+    An interactive reduction is a combination of a type signature \verb|ProtocolSpec|, a prover for \verb|ProtocolSpec|, and a verifier for \verb|ProtocolSpec|.
+    \uses{def:prover, def:verifier}
+\end{definition}
+
 \begin{definition}[Interactive Oracle Reduction]
     \label{def:interactive_oracle_reduction}
     \lean{OracleReduction}
     An interactive oracle reduction for a given context $\Gamma$ is a combination a prover and a verifier of the types specified above.
-    \uses{def:protocol_spec}
+    \uses{def:oracle_prover, def:oracle_verifier}
 \end{definition}
+
+\subsection{Execution Semantics}\label{sec:execution_semantics}
 
 We now define what it means to execute an oracle reduction. This is essentially achieved by first
 executing the prover, interspersed with oracle queries to get the verifier's challenges (these will
@@ -209,6 +219,7 @@ about the execution, such as the log of oracle queries for the shared oracles, f
 \begin{definition}[Execution of an Oracle Reduction]
     \label{def:oracle_reduction_execution}
     \lean{OracleReduction.run}
+    \uses{def:oracle_reduction}
 \end{definition}
 
 % \begin{remark}[More efficient representation of oracle reductions]
@@ -221,7 +232,7 @@ about the execution, such as the log of oracle queries for the shared oracles, f
 %     of observational equivalence between the stateless and stateful reductions.
 % \end{remark}
 
-\subsection{Security properties}
+\subsection{Security Properties}\label{sec:security}
 
 We can now define properties of interactive reductions. The two main properties we consider in this
 project are completeness and various notions of soundness. We will cover zero-knowledge at a later
@@ -302,9 +313,9 @@ To define round-by-round (knowledge) soundness, we need to define the notion of 
 %         \mathsf{Dir} &::=& \mathsf{P2V.Pub} \mid \mathsf{P2V.Orac} \mid \mathsf{V2P} \\
 %         \mathsf{OI}\; (\mathrm{M} : \Type) &::=& \langle \mathrm{Q}, \mathrm{R}, \mathrm{M} \to \mathrm{Q} \to \mathrm{R} \rangle \\
 %         % Protocol type signature
-%         \mathsf{PSpec}\; (n : \mathbb{N}) &::=& \mathsf{Fin}\; n \to (d : \mathsf{Dir}) \times (M : \Type) \times (\mathsf{if}\; d = \mathsf{P2V.Orac} \; \mathsf{then} \; \mathsf{OI}(M) \; \mathsf{else} \; \mathsf{Unit}) \\
+%         \pSpec\; (n : \mathbb{N}) &::=& \mathsf{Fin}\; n \to (d : \mathsf{Dir}) \times (M : \Type) \times (\mathsf{if}\; d = \mathsf{P2V.Orac} \; \mathsf{then} \; \mathsf{OI}(M) \; \mathsf{else} \; \mathsf{Unit}) \\
 %         % Oracle type signature
-%         \mathsf{OSpec} \; (\iota : \mathsf{Type}) &::=& (i : \iota) \to \mathsf{dom}\; i \times \mathsf{range}\; i \\[1em]
+%         \oSpec \; (\iota : \mathsf{Type}) &::=& (i : \iota) \to \mathsf{dom}\; i \times \mathsf{range}\; i \\[1em]
 %         % Contexts
 %         \varSigma &::=& \emptyset \mid \varSigma \times \Type \\
 %         \Omega &::=& \emptyset \mid \Omega \times \langle \mathrm{M} : \Type, \mathsf{OI}(\mathrm{M}) \rangle \\
@@ -334,8 +345,8 @@ To define round-by-round (knowledge) soundness, we need to define the notion of 
 %     \item $\Psi$ represents the witness (private) inputs
 %     \item $\Theta$ represents the oracle inputs
 %     \item $\varSigma$ represents the public inputs (i.e. statements)
-%     \item $\mathcal{O} : \mathsf{OSpec}\; \iota$ represents the shared oracle
-%     \item $\rho : \mathsf{PSpec}\; n$ represents the protocol type signature
+%     \item $\mathcal{O} : \oSpec\; \iota$ represents the shared oracle
+%     \item $\rho : \pSpec\; n$ represents the protocol type signature
 %     \item $\mathcal{P}$ and $\mathcal{V}$ are the prover and verifier, respectively, being of the given types $\tau_{\mathsf{P}}(\Gamma)$ and $\tau_{\mathsf{V}}(\Gamma)$.
 % \end{itemize}
 
