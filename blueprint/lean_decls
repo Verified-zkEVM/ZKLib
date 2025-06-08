@@ -1,6 +1,6 @@
 OracleInterface
 ProtocolSpec
-ProtocolSpec.Dir
+ProtocolSpec.getDir
 ProtocolSpec.getType
 ProtocolSpec.MessageIdx
 ProtocolSpec.ChallengeIdx

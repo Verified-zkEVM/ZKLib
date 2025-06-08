@@ -107,7 +107,7 @@ We define some supporting definitions for a protocol specification.
 
 \begin{definition}[Protocol Specification Components]
     \label{def:protocol_spec_components}
-    Given a protocol specification $\pSpec : \ProtocolSpec\ n$, we define:
+    Given a protocol spec $\pSpec : \ProtocolSpec\ n$, we define:
     \begin{itemize}
         \item $\pSpec.\Dir\ i := (\pSpec\ i).\mathsf{fst}$ extracts the direction of the $i$-th message.
         \item $\pSpec.\Type\ i := (\pSpec\ i).\mathsf{snd}$ extracts the type of the $i$-th message.
@@ -116,7 +116,7 @@ We define some supporting definitions for a protocol specification.
         \item $\pSpec.\mathsf{Message}\ i := (i : \pSpec.\MessageIdx) \to \pSpec.\Type\ i.\mathsf{val}$ is an indexed family of message types in the protocol.
         \item $\pSpec.\mathsf{Challenge}\ i := (i : \pSpec.\ChallengeIdx) \to \pSpec.\Type\ i.\mathsf{val}$ is an indexed family of challenge types in the protocol.
     \end{itemize}
-    \lean{ProtocolSpec.Dir, ProtocolSpec.getType, ProtocolSpec.MessageIdx, ProtocolSpec.ChallengeIdx, ProtocolSpec.Message, ProtocolSpec.Challenge}
+    \lean{ProtocolSpec.getDir, ProtocolSpec.getType, ProtocolSpec.MessageIdx, ProtocolSpec.ChallengeIdx, ProtocolSpec.Message, ProtocolSpec.Challenge}
     \uses{def:protocol_spec}
 \end{definition}
 
