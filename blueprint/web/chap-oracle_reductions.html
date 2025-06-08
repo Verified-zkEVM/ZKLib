@@ -57,20 +57,14 @@
   </ul>
  </li>
 <li class="">
-  <a href="chap-oracle_reductions.html#a0000000004"><span class="toc_ref">2.2</span> <span class="toc_entry">A Program Logic for Oracle Reductions</span></a>
+  <a href="chap-oracle_reductions.html#sec:composition_oracle_reductions"><span class="toc_ref">2.2</span> <span class="toc_entry">Composition of Oracle Reductions</span></a>
   <span class="expand-toc">▶</span>
   <ul class="sub-toc-2">
      <li class="">
-  <a href="chap-oracle_reductions.html#a0000000005"><span class="toc_ref">2.2.1</span> <span class="toc_entry">Changing Relations and Oracles</span></a>
+  <a href="chap-oracle_reductions.html#sec:sequential_composition"><span class="toc_ref">2.2.1</span> <span class="toc_entry">Sequential Composition</span></a>
  </li>
 <li class="">
-  <a href="chap-oracle_reductions.html#a0000000006"><span class="toc_ref">2.2.2</span> <span class="toc_entry">Sequential Composition</span></a>
- </li>
-<li class="">
-  <a href="chap-oracle_reductions.html#a0000000007"><span class="toc_ref">2.2.3</span> <span class="toc_entry">Virtualization</span></a>
- </li>
-<li class="">
-  <a href="chap-oracle_reductions.html#a0000000008"><span class="toc_ref">2.2.4</span> <span class="toc_entry">Substitution</span></a>
+  <a href="chap-oracle_reductions.html#sec:lifting_contexts"><span class="toc_ref">2.2.2</span> <span class="toc_entry">Lifting Contexts</span></a>
  </li>
 
   </ul>
@@ -83,14 +77,14 @@
   <span class="expand-toc">▶</span>
   <ul class="sub-toc-1">
      <li class="">
-  <a href="chap-proof_systems.html#a0000000009"><span class="toc_ref">3.1</span> <span class="toc_entry">Simple Oracle Reductions</span></a>
+  <a href="chap-proof_systems.html#a0000000004"><span class="toc_ref">3.1</span> <span class="toc_entry">Simple Oracle Reductions</span></a>
   <span class="expand-toc">▶</span>
   <ul class="sub-toc-2">
      <li class="">
-  <a href="chap-proof_systems.html#a0000000010"><span class="toc_ref">3.1.1</span> <span class="toc_entry">Polynomial Equality Testing</span></a>
+  <a href="chap-proof_systems.html#a0000000005"><span class="toc_ref">3.1.1</span> <span class="toc_entry">Polynomial Equality Testing</span></a>
  </li>
 <li class="">
-  <a href="chap-proof_systems.html#a0000000011"><span class="toc_ref">3.1.2</span> <span class="toc_entry">Batching Polynomial Evaluation Claims</span></a>
+  <a href="chap-proof_systems.html#a0000000006"><span class="toc_ref">3.1.2</span> <span class="toc_entry">Batching Polynomial Evaluation Claims</span></a>
  </li>
 
   </ul>
@@ -109,10 +103,10 @@
   </ul>
  </li>
 <li class="">
-  <a href="chap-proof_systems.html#a0000000012"><span class="toc_ref">3.3</span> <span class="toc_entry">The Spartan Protocol</span></a>
+  <a href="chap-proof_systems.html#a0000000007"><span class="toc_ref">3.3</span> <span class="toc_entry">The Spartan Protocol</span></a>
  </li>
 <li class="">
-  <a href="chap-proof_systems.html#a0000000013"><span class="toc_ref">3.4</span> <span class="toc_entry">The Ligero Polynomial Commitment Scheme</span></a>
+  <a href="chap-proof_systems.html#a0000000008"><span class="toc_ref">3.4</span> <span class="toc_entry">The Ligero Polynomial Commitment Scheme</span></a>
  </li>
 
   </ul>
@@ -122,7 +116,7 @@
   <span class="expand-toc">▶</span>
   <ul class="sub-toc-1">
      <li class="">
-  <a href="chap-commitment_schemes.html#a0000000014"><span class="toc_ref">4.1</span> <span class="toc_entry">Definitions</span></a>
+  <a href="chap-commitment_schemes.html#a0000000009"><span class="toc_ref">4.1</span> <span class="toc_entry">Definitions</span></a>
  </li>
 <li class="">
   <a href="chap-commitment_schemes.html#sec:merkle_trees"><span class="toc_ref">4.2</span> <span class="toc_entry">Merkle Trees</span></a>
@@ -180,7 +174,7 @@
 </li>
   <li><p><em>Private inputs</em> (or <em>witness</em>) \(\mathbb {w}\): available only to the prover; </p>
 </li>
-  <li><p><em>Oracle inputs</em> (or <em>oracle statement</em>) \(\mathbb {o}\): the underlying data is available to the prover, but it’s only exposed as an oracle to the verifier. See&#160;<a href="chap-oracle_reductions.html#def:oracle_interface">Definition 2</a> for more information. </p>
+  <li><p><em>Oracle inputs</em> (or <em>oracle statement</em>) \(\mathbb {ox}\): the underlying data is available to the prover, but it’s only exposed as an oracle to the verifier. See&#160;<a href="chap-oracle_reductions.html#def:oracle_interface">Definition 2</a> for more information. </p>
 </li>
   <li><p><em>Shared oracle</em> \(\mathcal{O}\): the oracle is available to both parties via an interface; in most cases, it is either empty, a probabilistic sampling oracle, a random oracle, or a group oracle (for the Algebraic Group Model). See&#160;<a href="chap-supporting_theories.html#sec:vcvio">Section 5.3</a> for more information on oracle computations. </p>
 </li>
@@ -201,7 +195,7 @@
 </ul>
 </li>
 </ol>
-<div class="remark_thmwrapper theorem-style-definition" id="a0000000015">
+<div class="remark_thmwrapper theorem-style-definition" id="a0000000010">
   <div class="remark_thmheading">
     <span class="remark_thmcaption">
     Remark
@@ -213,7 +207,7 @@
         </div>
     <div class="thm_header_hidden_extras">
 
-    <a class="icon proof" href="chap-oracle_reductions.html#a0000000015">#</a>
+    <a class="icon proof" href="chap-oracle_reductions.html#a0000000010">#</a>
     
     
     
@@ -350,9 +344,9 @@
         </div>
   </div>
   <div class="definition_thmcontent">
-  <p>  A protocol specification for an \(n\)-message (oracle) reduction, is an element of the following type: <div class="displaymath" id="a0000000016">
+  <p>  A protocol specification for an \(n\)-message (oracle) reduction, is an element of the following type: <div class="displaymath" id="a0000000011">
   
-</div> ProtocolSpec n := Fin n Direction×Type. <div class="displaymath" id="a0000000017">
+</div> ProtocolSpec n := Fin n Direction×Type. <div class="displaymath" id="a0000000012">
   
 </div> In the above, \(\mathsf{Direction}:= \{  \mathsf{P \! \! \rightarrow \! \!  V}, \mathsf{V \! \! \rightarrow \! \!  P}\} \) is the type of possible directions of messages, and \(\mathsf{Fin}\  n := \{  i : \mathbb {N}\mathbin {/\! /}i {\lt} n \} \) is the type of all natural numbers less than \(n\). </p>
 <p>In other words, for each step \(i\) of interaction, the protocol specification describes the <em>direction</em> of the message sent in that step, i.e., whether it is from the prover or from the verifier. It also describes the <em>type</em> of that message. </p>
@@ -515,7 +509,7 @@
   <p>  Given protocol specification \(\mathsf{pSpec}: \mathsf{ProtocolSpec}\  n\), we define: </p>
 <ul class="itemize">
   <li><p>A <em>transcript</em> up to round \(k : \mathsf{Fin}\  (n + 1)\) is an element of type </p>
-<div class="displaymath" id="a0000000018">
+<div class="displaymath" id="a0000000013">
   \[  \mathsf{Transcript}\  k\  \mathsf{pSpec}:= (i : \mathsf{Fin}\  k) \to \mathsf{pSpec}.\mathsf{Type}\  (\uparrow i : \mathsf{Fin}\  n)  \]
 </div>
 <p> where \(\uparrow i : \mathsf{Fin}\  n\) denotes casting \(i : \mathsf{Fin}\  k\) to \(\mathsf{Fin}\  n\) (valid since \(k \leq n + 1\)). </p>
@@ -523,12 +517,12 @@
   <li><p>A <em>full transcript</em> is \(\mathsf{FullTranscript}\  \mathsf{pSpec}:= (i : \mathsf{Fin}\  n) \to \mathsf{pSpec}.\mathsf{Type}\  i\). </p>
 </li>
   <li><p>The type of all <em>messages</em> from prover to verifier is </p>
-<div class="displaymath" id="a0000000019">
+<div class="displaymath" id="a0000000014">
   \[  \mathsf{pSpec}.\mathsf{Messages}:= \prod _{i : \mathsf{pSpec}.\mathsf{MessageIdx}} \mathsf{pSpec}.\mathsf{Message}\  i  \]
 </div>
 </li>
   <li><p>The type of all <em>challenges</em> from verifier to prover is </p>
-<div class="displaymath" id="a0000000020">
+<div class="displaymath" id="a0000000015">
   \[  \mathsf{pSpec}.\mathsf{Challenges}:= \prod _{i : \mathsf{pSpec}.\mathsf{ChallengeIdx}} \mathsf{pSpec}.\mathsf{Challenge}\  i  \]
 </div>
 </li>
@@ -537,7 +531,7 @@
 
   </div>
 </div>
-<div class="remark_thmwrapper theorem-style-definition" id="a0000000021">
+<div class="remark_thmwrapper theorem-style-definition" id="a0000000016">
   <div class="remark_thmheading">
     <span class="remark_thmcaption">
     Remark
@@ -549,7 +543,7 @@
         </div>
     <div class="thm_header_hidden_extras">
 
-    <a class="icon proof" href="chap-oracle_reductions.html#a0000000021">#</a>
+    <a class="icon proof" href="chap-oracle_reductions.html#a0000000016">#</a>
     
     
     
@@ -589,6 +583,14 @@
           
           <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Prover" class="lean_decl">Prover</a></li>
           
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/ProverState" class="lean_decl">ProverState</a></li>
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/ProverIn" class="lean_decl">ProverIn</a></li>
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/ProverRound" class="lean_decl">ProverRound</a></li>
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/ProverOut" class="lean_decl">ProverOut</a></li>
+          
         </ul>
     
       </div>
@@ -598,7 +600,36 @@
         </div>
   </div>
   <div class="definition_thmcontent">
-  <p>  A prover \(\mathcal{P}\) in a reduction, given a context, is a stateful oracle computation that at each step of the protocol, either takes in a new message from the verifier, or sends a new message to the verifier.  </p>
+  <p>  A prover \(\mathcal{P}\) in a reduction consists of the following components: </p>
+<ul class="itemize">
+  <li><p><b class="bfseries">Prover State</b>: A family of types \(\mathsf{PrvState} : \mathsf{Fin}(n+1) \to \mathsf{Type}\) representing the prover’s internal state at each round of the protocol. </p>
+</li>
+  <li><p><b class="bfseries">Input Processing</b>: A function </p>
+<div class="displaymath" id="a0000000017">
+  \[  \mathsf{input} : \mathsf{StmtIn}\to \mathsf{WitIn}\to \mathsf{PrvState}(0)  \]
+</div>
+<p> that initializes the prover’s state from the input statement and witness. </p>
+</li>
+  <li><p><b class="bfseries">Message Sending</b>: For each message index \(i : \mathsf{pSpec}.\mathsf{MessageIdx}\), a function </p>
+<div class="displaymath" id="a0000000018">
+  \[  \mathsf{sendMessage}_i : \mathsf{PrvState}(i.\mathsf{val}.\mathsf{castSucc}) \to \mathsf{OracleComp}(\mathsf{oSpec}, \mathsf{pSpec}.\mathsf{Message}(i) \times \mathsf{PrvState}(i.\mathsf{val}.\mathsf{succ}))  \]
+</div>
+<p> that generates the message and updates the prover’s state. </p>
+</li>
+  <li><p><b class="bfseries">Challenge Processing</b>: For each challenge index \(i : \mathsf{pSpec}.\mathsf{ChallengeIdx}\), a function </p>
+<div class="displaymath" id="a0000000019">
+  \[  \mathsf{receiveChallenge}_i : \mathsf{PrvState}(i.\mathsf{val}.\mathsf{castSucc}) \to \mathsf{pSpec}.\mathsf{Challenge}(i) \to \mathsf{PrvState}(i.\mathsf{val}.\mathsf{succ})  \]
+</div>
+<p> that updates the prover’s state upon receiving a challenge. </p>
+</li>
+  <li><p><b class="bfseries">Output Generation</b>: A function </p>
+<div class="displaymath" id="a0000000020">
+  \[  \mathsf{output} : \mathsf{PrvState}(\mathsf{Fin}.\mathsf{last}(n)) \to \mathsf{StmtOut}\times \mathsf{WitOut} \]
+</div>
+<p> that produces the final output statement and witness from the prover’s final state. </p>
+</li>
+</ul>
+
 
   </div>
 </div>
@@ -640,7 +671,14 @@
         </div>
   </div>
   <div class="definition_thmcontent">
-  
+  <p>  An oracle prover is a prover whose input statement includes the underlying data for oracle statements, and whose output includes oracle statements. Formally, it is a prover with input statement type \(\mathsf{StmtIn}\times (\forall i : \iota _{\mathsf{si}}, \mathsf{OStmtIn}(i))\) and output statement type \(\mathsf{StmtOut}\times (\forall i : \iota _{\mathsf{so}}, \mathsf{OStmtOut}(i))\), where: </p>
+<ul class="itemize">
+  <li><p>\(\mathsf{OStmtIn}: \iota _{\mathsf{si}} \to \mathsf{Type}\) are the input oracle statement types </p>
+</li>
+  <li><p>\(\mathsf{OStmtOut}: \iota _{\mathsf{so}} \to \mathsf{Type}\) are the output oracle statement types </p>
+</li>
+</ul>
+
 
   </div>
 </div>
@@ -683,7 +721,12 @@
         </div>
   </div>
   <div class="definition_thmcontent">
-  <p>  A verifier \(\mathcal{V}\) in an oracle reduction is an oracle computation that may perform a series of checks (i.e. ‘Bool‘-valued, or ‘Option Unit‘) on the given context.  </p>
+  <p>  A verifier \(\mathcal{V}\) in a reduction is specified by a single function: </p>
+<div class="displaymath" id="a0000000021">
+  \[  \mathsf{verify} : \mathsf{StmtIn}\to \mathsf{FullTranscript}(\mathsf{pSpec}) \to \mathsf{OracleComp}(\mathsf{oSpec}, \mathsf{StmtOut})  \]
+</div>
+<p>This function takes the input statement and the complete transcript of the protocol interaction, and performs an oracle computation (potentially querying the shared oracle \(\mathsf{oSpec}\)) to produce an output statement. </p>
+<p>The verifier is assumed to be <em>public-coin</em>, meaning it only sends uniformly random challenges and uses no other randomness beyond what is provided by the shared oracle.  </p>
 
   </div>
 </div>
@@ -725,7 +768,101 @@
         </div>
   </div>
   <div class="definition_thmcontent">
-  
+  <p>  An oracle verifier \(\mathcal{V}\) consists of the following components: </p>
+<ul class="itemize">
+  <li><p><b class="bfseries">Verification Logic</b>: A function </p>
+<div class="displaymath" id="a0000000022">
+  \[  \mathsf{verify} : \mathsf{StmtIn}\to \mathsf{pSpec}.\mathsf{Challenges}\to \mathsf{OracleComp}(\mathsf{oSpec}\mathrel {++_\mathsf {o}} ([\mathsf{OStmtIn}]_\mathsf {o} \mathrel {++_\mathsf {o}} [\mathsf{pSpec}.\mathsf{Message}]_\mathsf {o}), \mathsf{StmtOut})  \]
+</div>
+<p> that takes the input statement and verifier challenges, and performs oracle queries to the shared oracle, input oracle statements, and prover messages to produce an output statement. </p>
+</li>
+  <li><p><b class="bfseries">Output Oracle Embedding</b>: An injective function </p>
+<div class="displaymath" id="a0000000023">
+  \[  \mathsf{embed} : \iota _{\mathsf{so}} \hookrightarrow \iota _{\mathsf{si}} \oplus \mathsf{pSpec}.\mathsf{MessageIdx} \]
+</div>
+<p> that specifies how each output oracle statement is derived from either an input oracle statement or a prover message. </p>
+</li>
+  <li><p><b class="bfseries">Type Compatibility</b>: A proof term </p>
+<div class="displaymath" id="a0000000024">
+  \[  \mathsf{hEq} : \forall i : \iota _{\mathsf{so}}, \mathsf{OStmtOut}(i) = \begin{cases} \end{cases} \mathsf{OStmtIn}(j) &  \text{if } \mathsf{embed}(i) = \mathsf{inl}(j) \\ \mathsf{pSpec}.\mathsf{Message}(k) &  \text{if } \mathsf{embed}(i) = \mathsf{inr}(k) \end{cases}  \]
+</div>
+<p> ensuring that output oracle statement types match their sources. </p>
+</li>
+</ul>
+<p>This design ensures that output oracle statements are always a subset of the available input oracle statements and prover messages.  </p>
+
+  </div>
+</div>
+<div class="definition_thmwrapper theorem-style-definition" id="def:oracle_verifier_to_verifier">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">12</span>
+    <span class="definition_thmtitle">Oracle Verifier to Verifier Conversion</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:oracle_verifier_to_verifier">#</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-oracle_reductions.html#def:oracle_verifier">Definition 11</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/OracleVerifier.toVerifier" class="lean_decl">OracleVerifier.toVerifier</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  An oracle verifier can be converted to a standard verifier through a natural simulation process. The key insight is that while an oracle verifier only has oracle access to certain data (input oracle statements and prover messages), a standard verifier can be given the actual underlying data directly. </p>
+<p>The conversion works as follows: when the oracle verifier needs to make an oracle query to some data, the converted verifier can respond to this query immediately using the actual underlying data it possesses. This is accomplished through the <span class="ttfamily">OracleInterface</span> type class, which specifies for each data type how to respond to queries given the underlying data. </p>
+<p>Specifically, given an oracle verifier \(\mathcal{V}_{\text{oracle}}\): </p>
+<ul class="itemize">
+  <li><p>The converted verifier \(\mathcal{V}_{\text{oracle}}.\mathsf{toVerifier}\) takes as input both the statement <em>and</em> the actual underlying data for all oracle statements </p>
+</li>
+  <li><p>When \(\mathcal{V}_{\text{oracle}}\) attempts to query an oracle statement or prover message, the converted verifier uses the corresponding <span class="ttfamily">OracleInterface</span> instance to compute the response from the actual data </p>
+</li>
+  <li><p>The output oracle statements are constructed according to the embedding specification, selecting the appropriate subset of input oracle statements and prover messages </p>
+</li>
+</ul>
+
 
   </div>
 </div>
@@ -735,7 +872,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">12</span>
+    <span class="definition_thmlabel">13</span>
     <span class="definition_thmtitle">Interactive Reduction</span>
     <div class="thm_header_extras">
 
@@ -790,7 +927,14 @@
         </div>
   </div>
   <div class="definition_thmcontent">
-  <p>   An interactive reduction is a combination of a type signature <code class="verbatim">ProtocolSpec</code>, a prover for <code class="verbatim">ProtocolSpec</code>, and a verifier for <code class="verbatim">ProtocolSpec</code>.  </p>
+  <p>  An interactive reduction for protocol specification \(\mathsf{pSpec}: \mathsf{ProtocolSpec}(n)\) and oracle specification \(\mathsf{oSpec}\) consists of: </p>
+<ul class="itemize">
+  <li><p>A <b class="bfseries">prover</b> \(\mathcal{P} : \mathsf{Prover}(\mathsf{pSpec}, \mathsf{oSpec}, \mathsf{StmtIn}, \mathsf{WitIn}, \mathsf{StmtOut}, \mathsf{WitOut})\) </p>
+</li>
+  <li><p>A <b class="bfseries">verifier</b> \(\mathcal{V} : \mathsf{Verifier}(\mathsf{pSpec}, \mathsf{oSpec}, \mathsf{StmtIn}, \mathsf{StmtOut})\) </p>
+</li>
+</ul>
+<p>The reduction establishes a relationship between input relations on \((\mathsf{StmtIn}, \mathsf{WitIn})\) and output relations on \((\mathsf{StmtOut}, \mathsf{WitOut})\) through the interactive protocol defined by \(\mathsf{pSpec}\).   </p>
 
   </div>
 </div>
@@ -799,7 +943,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">13</span>
+    <span class="definition_thmlabel">14</span>
     <span class="definition_thmtitle">Interactive Oracle Reduction</span>
     <div class="thm_header_extras">
 
@@ -854,27 +998,393 @@
         </div>
   </div>
   <div class="definition_thmcontent">
-  <p>   An interactive oracle reduction for a given context \(\Gamma \) is a combination a prover and a verifier of the types specified above.  </p>
+  <p>  An interactive oracle reduction for protocol specification \(\mathsf{pSpec}: \mathsf{ProtocolSpec}(n)\) with oracle interfaces for all prover messages, and oracle specification \(\mathsf{oSpec}\), consists of: </p>
+<ul class="itemize">
+  <li><p>An <b class="bfseries">oracle prover</b> \(\mathcal{P} : \mathsf{OracleProver}(\mathsf{pSpec}, \mathsf{oSpec}, \mathsf{StmtIn}, \mathsf{WitIn}, \mathsf{StmtOut}, \mathsf{WitOut}, \mathsf{OStmtIn}, \mathsf{OStmtOut})\) </p>
+</li>
+  <li><p>An <b class="bfseries">oracle verifier</b> \(\mathcal{V} : \mathsf{OracleVerifier}(\mathsf{pSpec}, \mathsf{oSpec}, \mathsf{StmtIn}, \mathsf{StmtOut}, \mathsf{OStmtIn}, \mathsf{OStmtOut})\) </p>
+</li>
+</ul>
+<p>where: </p>
+<ul class="itemize">
+  <li><p>\(\mathsf{OStmtIn}: \iota _{\mathsf{si}} \to \mathsf{Type}\) are the input oracle statement types with oracle interfaces </p>
+</li>
+  <li><p>\(\mathsf{OStmtOut}: \iota _{\mathsf{so}} \to \mathsf{Type}\) are the output oracle statement types </p>
+</li>
+</ul>
+<p>The oracle reduction allows the verifier to access prover messages and oracle statements only through specified oracle interfaces, enabling more flexible and composable protocol designs.   </p>
 
   </div>
 </div>
 <h2 id="sec:execution_semantics">2.1.2 Execution Semantics</h2>
 
 <p>We now define what it means to execute an oracle reduction. This is essentially achieved by first executing the prover, interspersed with oracle queries to get the verifier’s challenges (these will be given uniform random probability semantics later on), and then executing the verifier’s checks. Any message exchanged in the protocol will be added to the context. We may also log information about the execution, such as the log of oracle queries for the shared oracles, for analysis purposes (i.e. feeding information into the extractor). </p>
-<div class="definition_thmwrapper theorem-style-definition" id="def:oracle_reduction_execution">
+<div class="definition_thmwrapper theorem-style-definition" id="def:prover_run_to_round">
   <div class="definition_thmheading">
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">14</span>
-    <span class="definition_thmtitle">Execution of an Oracle Reduction</span>
+    <span class="definition_thmlabel">15</span>
+    <span class="definition_thmtitle">Prover Execution to Round</span>
     <div class="thm_header_extras">
 
         </div>
     <div class="thm_header_hidden_extras">
 
-    <a class="icon proof" href="chap-oracle_reductions.html#def:oracle_reduction_execution">#</a>
+    <a class="icon proof" href="chap-oracle_reductions.html#def:prover_run_to_round">#</a>
     
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Prover.runToRound" class="lean_decl">Prover.runToRound</a></li>
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Prover.processRound" class="lean_decl">Prover.processRound</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  The execution of a prover up to round \(i : \mathsf{Fin}(n+1)\) is defined inductively: </p>
+<div class="displaymath" id="a0000000025">
+  \[  \mathsf{Prover}.\mathsf{runToRound}(i, \mathsf{stmt}, \mathsf{wit}) :=  \]
+</div>
+<div class="displaymath" id="a0000000026">
+  \[  \mathsf{Fin}.\mathsf{induction}(  \]
+</div>
+<div class="displaymath" id="a0000000027">
+  \[  \quad \mathsf{pure}(\langle \mathsf{default}, \mathsf{prover}.\mathsf{input}(\mathsf{stmt}, \mathsf{wit}) \rangle ),  \]
+</div>
+<div class="displaymath" id="a0000000028">
+  \[  \quad \mathsf{prover}.\mathsf{processRound},  \]
+</div>
+<div class="displaymath" id="a0000000029">
+  \[  \quad i  \]
+</div>
+<div class="displaymath" id="a0000000030">
+  \[  )  \]
+</div>
+<p>where \(\mathsf{processRound}\) handles individual rounds by either: </p>
+<ul class="itemize">
+  <li><p><b class="bfseries">Verifier Challenge</b> (\(\mathsf{pSpec}.\mathsf{getDir}(j) = \mathsf{V\_ to\_ P}\)): Query for a challenge and update prover state </p>
+</li>
+  <li><p><b class="bfseries">Prover Message</b> (\(\mathsf{pSpec}.\mathsf{getDir}(j) = \mathsf{P\_ to\_ V}\)): Generate message via \(\mathsf{sendMessage}\) and update state </p>
+</li>
+</ul>
+<p>Returns the transcript up to round \(i\) and the prover’s state after round \(i\).  </p>
+
+  </div>
+</div>
+<div class="definition_thmwrapper theorem-style-definition" id="def:prover_run">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">16</span>
+    <span class="definition_thmtitle">Complete Prover Execution</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:prover_run">#</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-oracle_reductions.html#def:prover_run_to_round">Definition 15</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Prover.run" class="lean_decl">Prover.run</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  The complete execution of a prover is defined as: </p>
+<div class="displaymath" id="a0000000031">
+  \[  \mathsf{Prover}.\mathsf{run}(\mathsf{stmt}, \mathsf{wit}) := \mathsf{do} \;  \{   \]
+</div>
+<div class="displaymath" id="a0000000032">
+  \[  \quad \langle \mathsf{transcript}, \mathsf{state} \rangle \leftarrow \mathsf{prover}.\mathsf{runToRound}(\mathsf{Fin}.\mathsf{last}(n), \mathsf{stmt}, \mathsf{wit})  \]
+</div>
+<div class="displaymath" id="a0000000033">
+  \[  \quad \langle \mathsf{stmtOut}, \mathsf{witOut} \rangle := \mathsf{prover}.\mathsf{output}(\mathsf{state})  \]
+</div>
+<div class="displaymath" id="a0000000034">
+  \[  \quad \mathsf{return} \;  \langle \mathsf{stmtOut}, \mathsf{witOut}, \mathsf{transcript} \rangle  \]
+</div>
+<div class="displaymath" id="a0000000035">
+  \[  \}   \]
+</div>
+<p>Returns the output statement, output witness, and complete transcript.   </p>
+
+  </div>
+</div>
+<div class="definition_thmwrapper theorem-style-definition" id="def:verifier_run">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">17</span>
+    <span class="definition_thmtitle">Verifier Execution</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:verifier_run">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Verifier.run" class="lean_decl">Verifier.run</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  The execution of a verifier is simply the application of its verification function: </p>
+<div class="displaymath" id="a0000000036">
+  \[  \mathsf{Verifier}.\mathsf{run}(\mathsf{stmt}, \mathsf{transcript}) := \mathsf{verifier}.\mathsf{verify}(\mathsf{stmt}, \mathsf{transcript})  \]
+</div>
+<p>This takes the input statement and full transcript, and returns the output statement via an oracle computation.  </p>
+
+  </div>
+</div>
+<div class="definition_thmwrapper theorem-style-definition" id="def:oracle_verifier_run">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">18</span>
+    <span class="definition_thmtitle">Oracle Verifier Execution</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:oracle_verifier_run">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/OracleVerifier.run" class="lean_decl">OracleVerifier.run</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  The execution of an oracle verifier is defined as: </p>
+<div class="displaymath" id="a0000000037">
+  \[  \mathsf{OracleVerifier}.\mathsf{run}(\mathsf{stmt}, \mathsf{oStmtIn}, \mathsf{transcript}) := \mathsf{do} \;  \{   \]
+</div>
+<div class="displaymath" id="a0000000038">
+  \[  \quad \mathsf{f} := \mathsf{simOracle2}(\mathsf{oSpec}, \mathsf{oStmtIn}, \mathsf{transcript}.\mathsf{messages})  \]
+</div>
+<div class="displaymath" id="a0000000039">
+  \[  \quad \mathsf{stmtOut} \leftarrow \mathsf{simulateQ}(\mathsf{f}, \mathsf{verifier}.\mathsf{verify}(\mathsf{stmt}, \mathsf{transcript}.\mathsf{challenges}))  \]
+</div>
+<div class="displaymath" id="a0000000040">
+  \[  \quad \mathsf{return} \;  \mathsf{stmtOut}  \]
+</div>
+<div class="displaymath" id="a0000000041">
+  \[  \}   \]
+</div>
+<p>This simulates the oracle access to input oracle statements and prover messages, then executes the verification logic.  </p>
+
+  </div>
+</div>
+<div class="definition_thmwrapper theorem-style-definition" id="def:reduction_run">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">19</span>
+    <span class="definition_thmtitle">Interactive Reduction Execution</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:reduction_run">#</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-oracle_reductions.html#def:prover_run">Definition 16</a></li>
+          
+          <li><a href="chap-oracle_reductions.html#def:verifier_run">Definition 17</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Reduction.run" class="lean_decl">Reduction.run</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  The execution of an interactive reduction consists of running the prover followed by the verifier: </p>
+<div class="displaymath" id="a0000000042">
+  \[  \mathsf{Reduction}.\mathsf{run}(\mathsf{stmt}, \mathsf{wit}) := \mathsf{do} \;  \{   \]
+</div>
+<div class="displaymath" id="a0000000043">
+  \[  \quad \langle \mathsf{prvStmtOut}, \mathsf{witOut}, \mathsf{transcript} \rangle \leftarrow \mathsf{reduction}.\mathsf{prover}.\mathsf{run}(\mathsf{stmt}, \mathsf{wit})  \]
+</div>
+<div class="displaymath" id="a0000000044">
+  \[  \quad \mathsf{stmtOut} \leftarrow \mathsf{reduction}.\mathsf{verifier}.\mathsf{run}(\mathsf{stmt}, \mathsf{transcript})  \]
+</div>
+<div class="displaymath" id="a0000000045">
+  \[  \quad \mathsf{return} \;  ((\mathsf{prvStmtOut}, \mathsf{witOut}), \mathsf{stmtOut}, \mathsf{transcript})  \]
+</div>
+<div class="displaymath" id="a0000000046">
+  \[  \}   \]
+</div>
+<p>Returns both the prover’s output (statement and witness) and the verifier’s output statement, along with the complete transcript.   </p>
+
+  </div>
+</div>
+<div class="definition_thmwrapper theorem-style-definition" id="def:oracle_reduction_run">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">20</span>
+    <span class="definition_thmtitle">Oracle Reduction Execution</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:oracle_reduction_run">#</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-oracle_reductions.html#def:oracle_verifier_run">Definition 18</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
     
     
     <button class="modal lean">L∃∀N</button>
@@ -899,7 +1409,29 @@
         </div>
   </div>
   <div class="definition_thmcontent">
-  
+  <p>  The execution of an interactive oracle reduction is similar to a standard reduction but includes logging of oracle queries: </p>
+<div class="displaymath" id="a0000000047">
+  \[  \mathsf{OracleReduction}.\mathsf{run}(\mathsf{stmt}, \mathsf{wit}, \mathsf{oStmt}) := \mathsf{do} \;  \{   \]
+</div>
+<div class="displaymath" id="a0000000048">
+  \[  \quad \langle \langle \mathsf{prvStmtOut}, \mathsf{witOut}, \mathsf{transcript} \rangle , \mathsf{proveQueryLog} \rangle \leftarrow  \]
+</div>
+<div class="displaymath" id="a0000000049">
+  \[  \qquad (\mathsf{simulateQ}(\mathsf{loggingOracle}, \mathsf{reduction}.\mathsf{prover}.\mathsf{run}(\langle \mathsf{stmt}, \mathsf{oStmt} \rangle , \mathsf{wit}))).\mathsf{run}  \]
+</div>
+<div class="displaymath" id="a0000000050">
+  \[  \quad \langle \mathsf{stmtOut}, \mathsf{verifyQueryLog} \rangle \leftarrow  \]
+</div>
+<div class="displaymath" id="a0000000051">
+  \[  \qquad (\mathsf{simulateQ}(\mathsf{loggingOracle}, \mathsf{reduction}.\mathsf{verifier}.\mathsf{run}(\mathsf{stmt}, \mathsf{oStmt}, \mathsf{transcript}))).\mathsf{run}  \]
+</div>
+<div class="displaymath" id="a0000000052">
+  \[  \quad \mathsf{return} \;  ((\mathsf{prvStmtOut}, \mathsf{witOut}), \mathsf{stmtOut}, \mathsf{transcript}, \mathsf{proveQueryLog}, \mathsf{verifyQueryLog})  \]
+</div>
+<div class="displaymath" id="a0000000053">
+  \[  \}   \]
+</div>
+<p>Returns the same outputs as a standard reduction, plus logs of all oracle queries made by both the prover and verifier.   </p>
 
   </div>
 </div>
@@ -912,7 +1444,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">15</span>
+    <span class="definition_thmlabel">21</span>
     <span class="definition_thmtitle">Completeness</span>
     <div class="thm_header_extras">
 
@@ -934,7 +1466,7 @@
         
         <ul class="uses">
           
-          <li><a href="chap-oracle_reductions.html#def:interactive_oracle_reduction">Definition 13</a></li>
+          <li><a href="chap-oracle_reductions.html#def:interactive_oracle_reduction">Definition 14</a></li>
           
         </ul>
     
@@ -983,7 +1515,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">16</span>
+    <span class="definition_thmlabel">22</span>
     <span class="definition_thmtitle">Soundness</span>
     <div class="thm_header_extras">
 
@@ -1005,7 +1537,7 @@
         
         <ul class="uses">
           
-          <li><a href="chap-oracle_reductions.html#def:interactive_oracle_reduction">Definition 13</a></li>
+          <li><a href="chap-oracle_reductions.html#def:interactive_oracle_reduction">Definition 14</a></li>
           
         </ul>
     
@@ -1047,7 +1579,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">17</span>
+    <span class="definition_thmlabel">23</span>
     <span class="definition_thmtitle">Knowledge Soundness</span>
     <div class="thm_header_extras">
 
@@ -1069,7 +1601,7 @@
         
         <ul class="uses">
           
-          <li><a href="chap-oracle_reductions.html#def:interactive_oracle_reduction">Definition 13</a></li>
+          <li><a href="chap-oracle_reductions.html#def:interactive_oracle_reduction">Definition 14</a></li>
           
         </ul>
     
@@ -1110,7 +1642,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">18</span>
+    <span class="definition_thmlabel">24</span>
     <span class="definition_thmtitle">State Function</span>
     <div class="thm_header_extras">
 
@@ -1152,7 +1684,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">19</span>
+    <span class="definition_thmlabel">25</span>
     <span class="definition_thmtitle">Round-by-Round Soundness</span>
     <div class="thm_header_extras">
 
@@ -1174,7 +1706,7 @@
         
         <ul class="uses">
           
-          <li><a href="chap-oracle_reductions.html#def:interactive_oracle_reduction">Definition 13</a></li>
+          <li><a href="chap-oracle_reductions.html#def:interactive_oracle_reduction">Definition 14</a></li>
           
         </ul>
     
@@ -1214,7 +1746,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">20</span>
+    <span class="definition_thmlabel">26</span>
     <span class="definition_thmtitle">Round-by-Round Knowledge Soundness</span>
     <div class="thm_header_extras">
 
@@ -1236,7 +1768,7 @@
         
         <ul class="uses">
           
-          <li><a href="chap-oracle_reductions.html#def:interactive_oracle_reduction">Definition 13</a></li>
+          <li><a href="chap-oracle_reductions.html#def:interactive_oracle_reduction">Definition 14</a></li>
           
         </ul>
     
@@ -1271,118 +1803,1833 @@
 
   </div>
 </div>
-<h1 id="a0000000004">2.2 A Program Logic for Oracle Reductions</h1>
-<p>In this section, we describe a program logic for reasoning about oracle reductions. In other words, we define a number of rules (or theorems) that govern how oracle reductions can be composed to form larger reductions, and how the resulting reduction inherits the security properties of the components. </p>
-<p>The first group of rules changes relations and shared oracles. </p>
-<h2 id="a0000000005">2.2.1 Changing Relations and Oracles</h2>
-<p>Here we express the consequence rule. Namely, if we have an oracle reduction for \(\mathcal{R}_1 \implies \mathcal{R}_2\), along with \(\mathcal{R}_1' \implies \mathcal{R}_1\) and \(\mathcal{R}_2 \implies \mathcal{R}_2'\), then we obtain an oracle reduction for \(\mathcal{R}_1' \implies \mathcal{R}_2'\). </p>
-<div class="displaymath" id="a0000000022">
-  \[  \frac{\begin{array}{c} \Psi ; \Theta ; \Sigma \vdash \{ \mathcal{R}_1\} \;  \langle \mathcal{P},\,  \mathcal{V},\,  \mathcal{E}\rangle ^{\mathcal{O}} : \tau \; \{ \! \! \{ \mathcal{R}_2; \, \mathsf{St};\,  \epsilon \} \! \! \}  \\[1.5ex] \mathcal{R}_1’ \implies \mathcal{R}_1 \\[1.5ex] \mathcal{R}_2 \implies \mathcal{R}_2’ \end{array}}{\Psi ; \Theta ; \Sigma \vdash \{ \mathcal{R}_1'\} \;  \langle \mathcal{P},\,  \mathcal{V},\,  \mathcal{E}\rangle ^{\mathcal{O}} : \tau \; \{ \! \! \{ \mathcal{R}_2'; \, \mathsf{St};\,  \epsilon \} \! \! \}  } \quad \text{(Conseq)}  \]
-</div>
-<div class="displaymath" id="a0000000023">
-  \[  \frac{\Psi ; \Theta ; \Sigma \vdash \{ \mathcal{R}_1\}  \;  \langle \mathcal{P}, \mathcal{V}, \mathcal{E}\rangle ^{\mathcal{O}} : \tau \;  \{ \! \! \{ \mathcal{R}_2; \mathsf{St}; \epsilon \} \! \! \}  }{\Psi ; \Theta ; \Sigma \vdash \{ \mathcal{R} \times \mathcal{R}_1\}  \;  \langle \mathcal{P}, \mathcal{V}, \mathcal{E}\rangle ^{\mathcal{O}} : \tau \;  \{ \! \! \{ \mathcal{R} \times \mathcal{R}_2; \mathsf{St}; \epsilon \} \! \! \}  } \quad \text{(Frame)}  \]
-</div>
-<div class="displaymath" id="a0000000024">
-  \[  \frac{\begin{array}{c} \Psi ; \Theta ; \Sigma \vdash \{ \mathcal{R}_1\}  \;  \langle \mathcal{P}, \mathcal{V}, \mathcal{E}\rangle ^{\mathcal{O}_1} : \tau \;  \{ \! \! \{ \mathcal{R}_2; \mathsf{St}; \epsilon \} \! \! \}  \\[1.5ex] \mathcal{O}_1 \subset \mathcal{O}_2 \end{array}}{\Psi ; \Theta ; \Sigma \vdash \{ \mathcal{R}_1\}  \;  \langle \mathcal{P}, \mathcal{V}, \mathcal{E}\rangle ^{\mathcal{O}_2} : \tau \;  \{ \! \! \{ \mathcal{R}_2; \mathsf{St}; \epsilon \} \! \! \}  } \quad \text{(Oracle-Lift)}  \]
-</div>
-<p>TODO: figure out how the state function needs to change for these rules (they are basically the same, but not exactly) </p>
-<h2 id="a0000000006">2.2.2 Sequential Composition</h2>
-<p>The reason why we consider interactive (oracle) reductions at the core of our formalism is that we can <em>compose</em> these reductions to form larger reductions. Equivalently, we can take a complex <em>interactive (oracle) proof</em> (which differs only in that it reduces a relation to the <em>trivial</em> relation that always outputs true) and break it down into a series of smaller reductions. The advantage of this approach is that we can prove security properties (completeness and soundness) for each of the smaller reductions, and these properties will automatically transfer to the larger reductions. </p>
-<p>This section is devoted to the composition of interactive (oracle) reductions, and proofs that the resulting reductions inherit the security properties of the two (or more) constituent reductions. </p>
-<p>Sequential composition can be expressed as the folowing rule: </p>
-<div class="displaymath" id="a0000000025">
-  \[  \frac{\begin{array}{c} \Psi ; \Theta ; \varSigma \vdash \{ \mathcal{R}_1\}  \;  \langle \mathcal{P}_1, \mathcal{V}_1, \mathcal{E}_1\rangle ^{\mathcal{O}} : \tau _1 \;  \{ \! \! \{ \mathcal{R}_2; \mathsf{St}_1; \epsilon _1\} \! \! \}  \\[1.5ex] \Psi ; (\Theta :: \tau _1) ; \varSigma \vdash \{ \mathcal{R}_2\}  \;  \langle \mathcal{P}_2, \mathcal{V}_2, \mathcal{E}_2\rangle ^{\mathcal{O}} : \tau _2 \;  \{ \! \! \{ \mathcal{R}_3; \mathsf{St}_2; \epsilon _2\} \! \! \}  \end{array}}{\Psi ; (\Theta :: \tau _1 :: \tau _2) \  ; \varSigma \vdash \{ \mathcal{R}_1\}  \;  \langle \mathcal{P}_1 \circ \mathcal{P}_2, \mathcal{V}_1 \circ \mathcal{V}_2, \mathcal{E}_1 \circ _{\mathcal{V}_2} \mathcal{E}_2\rangle ^{\mathcal{O}} : \tau _1 \oplus \tau _2 \;  \{ \! \! \{ \mathcal{R}_3; \mathsf{St}_1 \oplus \mathsf{St}_2; \epsilon _1 \oplus \epsilon _2\} \! \! \}  } \quad \text{(Seq-Comp)}  \]
-</div>
-<h2 id="a0000000007">2.2.3 Virtualization</h2>
-<p>Another tool we will repeatedly use is the ability to change the context of an oracle reduction. This is often needed when we want to adapt an oracle reduction in a simple context into one for a more complex context. </p>
-<p>See the section on sum-check&#160;<a href="chap-proof_systems.html#sec:sumcheck">3.2</a> for an example. </p>
-<div class="definition_thmwrapper theorem-style-definition" id="def:virtual_context_mapping">
+<h1 id="sec:composition_oracle_reductions">2.2 Composition of Oracle Reductions</h1>
+
+<p>In this section, we describe a suite of composition operators for building secure oracle reductions from simpler secure components. In other words, we define a number of definitions that govern how oracle reductions can be composed to form larger reductions, and how the resulting reduction inherits the security properties of the components. </p>
+<h2 id="sec:sequential_composition">2.2.1 Sequential Composition</h2>
+
+<p>Sequential composition allows us to chain together oracle reductions where the output context of one reduction becomes the input context of the next reduction. This is fundamental for building complex protocols from simpler components. </p>
+<h3 id="a0000000054">Composition of Protocol Specifications</h3>
+<p>We begin by defining how to compose protocol specifications and their associated structures. </p>
+<div class="definition_thmwrapper theorem-style-definition" id="def:protocol_spec_append">
   <div class="definition_thmheading">
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">21</span>
-    <span class="definition_thmtitle">Mapping into Virtual Context</span>
+    <span class="definition_thmlabel">27</span>
+    <span class="definition_thmtitle">Protocol Specification Append</span>
     <div class="thm_header_extras">
 
         </div>
     <div class="thm_header_hidden_extras">
 
-    <a class="icon proof" href="chap-oracle_reductions.html#def:virtual_context_mapping">#</a>
+    <a class="icon proof" href="chap-oracle_reductions.html#def:protocol_spec_append">#</a>
     
     
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/ProtocolSpec.append" class="lean_decl">ProtocolSpec.append</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
     
         </div>
   </div>
   <div class="definition_thmcontent">
-  <p>  In order to apply an oracle reduction on virtual data, we will need to provide a mapping from the current context to the virtual context. This includes: </p>
-<ul class="itemize">
-  <li><p>A mapping from the current public inputs to the virtual public inputs. </p>
-</li>
-  <li><p>A simulation of the oracle inputs for the virtual context using the public and oracle inputs for the current context. </p>
-</li>
-  <li><p>A mapping from the current private inputs to the virtual private inputs. </p>
-</li>
-  <li><p>A simulation of the shared oracle for the virtual context using the shared oracle for the current context. </p>
-</li>
-</ul>
+  <p>  Given two protocol specifications \(\mathsf{pSpec}_1 : \mathsf{ProtocolSpec}\  m\) and \(\mathsf{pSpec}_2 : \mathsf{ProtocolSpec}\  n\), their sequential composition is: </p>
+<div class="displaymath" id="a0000000055">
+  \[  \mathsf{pSpec}_1 \mathrel {++_\mathsf {p}} \mathsf{pSpec}_2 : \mathsf{ProtocolSpec}\  (m + n)  \]
+</div>
+
 
   </div>
 </div>
-<div class="definition_thmwrapper theorem-style-definition" id="def:virtual_oracle_reduction">
+<div class="definition_thmwrapper theorem-style-definition" id="def:full_transcript_append">
   <div class="definition_thmheading">
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">22</span>
-    <span class="definition_thmtitle">Virtual Oracle Reduction</span>
+    <span class="definition_thmlabel">28</span>
+    <span class="definition_thmtitle">Full Transcript Append</span>
     <div class="thm_header_extras">
 
         </div>
     <div class="thm_header_hidden_extras">
 
-    <a class="icon proof" href="chap-oracle_reductions.html#def:virtual_oracle_reduction">#</a>
+    <a class="icon proof" href="chap-oracle_reductions.html#def:full_transcript_append">#</a>
     
     
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/ProtocolSpec.FullTranscript.append" class="lean_decl">ProtocolSpec.FullTranscript.append</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
     
         </div>
   </div>
   <div class="definition_thmcontent">
-  <p>  Given a suitable mapping into a virtual context, we may define an oracle reduction via the following construction: </p>
-<ul class="itemize">
-  <li><p>The prover first applies the mappings to obtain the virtual context. The verifier does the same, but only for the non-private inputs. </p>
-</li>
-  <li><p>The prover and verifier then run the virtual oracle reduction on the virtual context. </p>
-</li>
-</ul>
+  <p>  Given full transcripts \(T_1 : \mathsf{FullTranscript}\  \mathsf{pSpec}_1\) and \(T_2 : \mathsf{FullTranscript}\  \mathsf{pSpec}_2\), their sequential composition is: </p>
+<div class="displaymath" id="a0000000056">
+  \[  T_1 \mathrel {++_\mathsf {t}} T_2 : \mathsf{FullTranscript}\  (\mathsf{pSpec}_1 \mathrel {++_\mathsf {p}} \mathsf{pSpec}_2)  \]
+</div>
+
 
   </div>
 </div>
-<p>We will show security properties for this virtualization process. One can see that completeness and soundness are inherited from the completeness and soundness of the virtual oracle reduction. However, (round-by-round) knowledge soundness is more tricky; this is because we must extract back to the witness of the original context from the virtual context. </p>
-<div class="displaymath" id="a0000000026">
-  \[  \frac{\begin{array}{c} \Psi ’; \Theta ’; \Sigma ’ \vdash \{ \mathcal{R}_1\}  \;  \langle \mathcal{P}, \mathcal{V}, \mathcal{E}\rangle ^{\mathcal{O}} : \tau \;  \{ \! \! \{ \mathcal{R}_2; \mathsf{St}; \epsilon \} \! \! \}  \\[1.5ex] f : (\Psi , \Theta , \Sigma ) \to (\Psi ’, \Theta ’, \Sigma ’) \\[1.5ex] g : \Psi ’ \to \Psi \\[1.5ex] f.\mathsf{fst} \circ g = \mathsf{id} \end{array}}{\Psi ; \Theta ; \Sigma \vdash \{ \mathcal{R}_1 \circ f\}  \;  \langle \mathcal{P} \circ f, \mathcal{V} \circ f, \mathcal{E} \circ (f, g)\rangle ^{\mathcal{O}} : \tau \;  \{ \! \! \{ \mathcal{R}_2 \circ f; \mathsf{St} \circ f; \epsilon \} \! \! \}  } \quad \text{(Virtual-Ctx)}  \]
+<h3 id="a0000000057">Composition of Provers and Verifiers</h3>
+<div class="definition_thmwrapper theorem-style-definition" id="def:prover_append">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">29</span>
+    <span class="definition_thmtitle">Prover Append</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:prover_append">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Prover.append" class="lean_decl">Prover.append</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  Given provers \(P_1 : \mathsf{Prover}\  \mathsf{pSpec}_1\  \mathsf{oSpec}\  \mathsf{StmtIn}_1\  \mathsf{WitIn}_1\  \mathsf{StmtOut}_1\  \mathsf{WitOut}_1\) and \(P_2 : \mathsf{Prover}\  \mathsf{pSpec}_2\  \mathsf{oSpec}\  \mathsf{StmtOut}_1\  \mathsf{WitOut}_1\  \mathsf{StmtOut}_2\  \mathsf{WitOut}_2\), their sequential composition is: </p>
+<div class="displaymath" id="a0000000058">
+  \[  P_1.\mathsf{append}\  P_2 : \mathsf{Prover}\  (\mathsf{pSpec}_1 \mathrel {++_\mathsf {p}} \mathsf{pSpec}_2)\  \mathsf{oSpec}\  \mathsf{StmtIn}_1\  \mathsf{WitIn}_1\  \mathsf{StmtOut}_2\  \mathsf{WitOut}_2  \]
 </div>
-<h2 id="a0000000008">2.2.4 Substitution</h2>
-<p>Finally, we need a transformation / inference rule that allows us to change the message type in a given round of an oracle reduction. In other words, we substitute a value in the round with another value, followed by a reduction establishing the relationship between the new and old values. </p>
-<p>Examples include: </p>
-<ol class="enumerate">
-  <li><p>Substituting an oracle input by a public input: </p>
+<p>The composed prover works by: </p>
 <ul class="itemize">
-  <li><p>Often by just revealing the underlying data. This has no change on the prover, and for the verifier, this means that any query to the oracle input can be locally computed. </p>
+  <li><p>Running \(P_1\) on the input context to produce an intermediate context </p>
 </li>
-  <li><p>A variant of this is when the oracle input consists of a data along with a proof that the data satisfies some predicate. In this case, the verifier needs to additionally check that the predicate holds for the substituted data. </p>
+  <li><p>Using this intermediate context as input to \(P_2\) </p>
 </li>
-  <li><p>Another common substitution is to replace a vector with its Merkle commitment, or a polynomial with its polynomial commitment. </p>
+  <li><p>Outputting the final context from \(P_2\) </p>
 </li>
 </ul>
-</li>
-  <li><p>Substituting an oracle input by another oracle input, followed by a reduction for each oracle query the verifier makes to the old oracle: </p>
+
+
+  </div>
+</div>
+<div class="definition_thmwrapper theorem-style-definition" id="def:verifier_append">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">30</span>
+    <span class="definition_thmtitle">Verifier Append</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:verifier_append">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Verifier.append" class="lean_decl">Verifier.append</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  Given verifiers \(V_1 : \mathsf{Verifier}\  \mathsf{pSpec}_1\  \mathsf{oSpec}\  \mathsf{StmtIn}_1\  \mathsf{StmtOut}_1\) and \(V_2 : \mathsf{Verifier}\  \mathsf{pSpec}_2\  \mathsf{oSpec}\  \mathsf{StmtOut}_1\  \mathsf{StmtOut}_2\), their sequential composition is: </p>
+<div class="displaymath" id="a0000000059">
+  \[  V_1.\mathsf{append}\  V_2 : \mathsf{Verifier}\  (\mathsf{pSpec}_1 \mathrel {++_\mathsf {p}} \mathsf{pSpec}_2)\  \mathsf{oSpec}\  \mathsf{StmtIn}_1\  \mathsf{StmtOut}_2  \]
+</div>
+<p>The composed verifier first runs \(V_1\) on the first part of the transcript, then runs \(V_2\) on the second part using the intermediate statement from \(V_1\).  </p>
+
+  </div>
+</div>
+<div class="definition_thmwrapper theorem-style-definition" id="def:reduction_append">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">31</span>
+    <span class="definition_thmtitle">Reduction Append</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:reduction_append">#</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-oracle_reductions.html#def:prover_append">Definition 29</a></li>
+          
+          <li><a href="chap-oracle_reductions.html#def:verifier_append">Definition 30</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Reduction.append" class="lean_decl">Reduction.append</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  Sequential composition of reductions combines the corresponding provers and verifiers: </p>
+<div class="displaymath" id="a0000000060">
+  \[  R_1.\mathsf{append}\  R_2 : \mathsf{Reduction}\  (\mathsf{pSpec}_1 \mathrel {++_\mathsf {p}} \mathsf{pSpec}_2)\  \mathsf{oSpec}\  \mathsf{StmtIn}_1\  \mathsf{WitIn}_1\  \mathsf{StmtOut}_2\  \mathsf{WitOut}_2  \]
+</div>
+
+
+  </div>
+</div>
+<div class="definition_thmwrapper theorem-style-definition" id="def:oracle_reduction_append">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">32</span>
+    <span class="definition_thmtitle">Oracle Reduction Append</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:oracle_reduction_append">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/OracleReduction.append" class="lean_decl">OracleReduction.append</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  Sequential composition extends naturally to oracle reductions by composing the oracle provers and oracle verifiers.  </p>
+
+  </div>
+</div>
+<h3 id="a0000000061">General Sequential Composition</h3>
+<p>For composing an arbitrary number of reductions, we provide a general composition operation. </p>
+<div class="definition_thmwrapper theorem-style-definition" id="def:protocol_spec_compose">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">33</span>
+    <span class="definition_thmtitle">General Protocol Specification Composition</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:protocol_spec_compose">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/ProtocolSpec.compose" class="lean_decl">ProtocolSpec.compose</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  Given a family of protocol specifications \(\mathsf{pSpec}: \forall i : \mathsf{Fin}(m+1), \mathsf{ProtocolSpec}\  (n\  i)\), their composition is: </p>
+<div class="displaymath" id="a0000000062">
+  \[  \mathsf{compose}\  m\  n\  \mathsf{pSpec}: \mathsf{ProtocolSpec}\  (\sum _{i} n\  i)  \]
+</div>
+
+
+  </div>
+</div>
+<div class="definition_thmwrapper theorem-style-definition" id="def:prover_compose">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">34</span>
+    <span class="definition_thmtitle">General Prover Composition</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:prover_compose">#</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-oracle_reductions.html#def:protocol_spec_compose">Definition 33</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Prover.compose" class="lean_decl">Prover.compose</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  
+
+  </div>
+</div>
+<div class="definition_thmwrapper theorem-style-definition" id="def:verifier_compose">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">35</span>
+    <span class="definition_thmtitle">General Verifier Composition</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:verifier_compose">#</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-oracle_reductions.html#def:protocol_spec_compose">Definition 33</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Verifier.compose" class="lean_decl">Verifier.compose</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  
+
+  </div>
+</div>
+<div class="definition_thmwrapper theorem-style-definition" id="def:reduction_compose">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">36</span>
+    <span class="definition_thmtitle">General Reduction Composition</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:reduction_compose">#</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-oracle_reductions.html#def:prover_compose">Definition 34</a></li>
+          
+          <li><a href="chap-oracle_reductions.html#def:verifier_compose">Definition 35</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Reduction.compose" class="lean_decl">Reduction.compose</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  
+
+  </div>
+</div>
+<h3 id="a0000000063">Security Properties of Sequential Composition</h3>
+<p>The key insight is that security properties are preserved under sequential composition. </p>
+<div class="theorem_thmwrapper theorem-style-plain" id="thm:completeness_append">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">37</span>
+    <span class="theorem_thmtitle">Completeness Preservation under Append</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#thm:completeness_append">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Reduction.completeness_append" class="lean_decl">Reduction.completeness_append</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  <p>  If reductions \(R_1\) and \(R_2\) satisfy completeness with compatible relations and respective errors \(\epsilon _1\) and \(\epsilon _2\), then their sequential composition \(R_1.\mathsf{append}\  R_2\) satisfies completeness with error \(\epsilon _1 + \epsilon _2\).  </p>
+
+  </div>
+</div>
+<div class="theorem_thmwrapper theorem-style-plain" id="thm:perfect_completeness_append">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">38</span>
+    <span class="theorem_thmtitle">Perfect Completeness Preservation under Append</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#thm:perfect_completeness_append">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Reduction.perfectCompleteness_append" class="lean_decl">Reduction.perfectCompleteness_append</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  <p>  If reductions \(R_1\) and \(R_2\) satisfy perfect completeness with compatible relations, then their sequential composition also satisfies perfect completeness.  </p>
+
+  </div>
+</div>
+<div class="theorem_thmwrapper theorem-style-plain" id="thm:soundness_append">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">39</span>
+    <span class="theorem_thmtitle">Soundness Preservation under Append</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#thm:soundness_append">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Verifier.append_soundness" class="lean_decl">Verifier.append_soundness</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  <p>  If verifiers \(V_1\) and \(V_2\) satisfy soundness with respective errors \(\epsilon _1\) and \(\epsilon _2\), then their sequential composition satisfies soundness with error \(\epsilon _1 + \epsilon _2\).  </p>
+
+  </div>
+</div>
+<div class="theorem_thmwrapper theorem-style-plain" id="thm:knowledge_soundness_append">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">40</span>
+    <span class="theorem_thmtitle">Knowledge Soundness Preservation under Append</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#thm:knowledge_soundness_append">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Verifier.append_knowledgeSoundness" class="lean_decl">Verifier.append_knowledgeSoundness</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  <p>  If verifiers \(V_1\) and \(V_2\) satisfy knowledge soundness with respective errors \(\epsilon _1\) and \(\epsilon _2\), then their sequential composition satisfies knowledge soundness with error \(\epsilon _1 + \epsilon _2\).  </p>
+
+  </div>
+</div>
+<div class="theorem_thmwrapper theorem-style-plain" id="thm:rbr_soundness_append">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">41</span>
+    <span class="theorem_thmtitle">Round-by-Round Soundness Preservation under Append</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#thm:rbr_soundness_append">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Verifier.append_rbrSoundness" class="lean_decl">Verifier.append_rbrSoundness</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  <p>  If verifiers \(V_1\) and \(V_2\) satisfy round-by-round soundness, then their sequential composition also satisfies round-by-round soundness.  </p>
+
+  </div>
+</div>
+<div class="theorem_thmwrapper theorem-style-plain" id="thm:rbr_knowledge_soundness_append">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">42</span>
+    <span class="theorem_thmtitle">Round-by-Round Knowledge Soundness Preservation under Append</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#thm:rbr_knowledge_soundness_append">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Verifier.append_rbrKnowledgeSoundness" class="lean_decl">Verifier.append_rbrKnowledgeSoundness</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  <p>  If verifiers \(V_1\) and \(V_2\) satisfy round-by-round knowledge soundness, then their sequential composition also satisfies round-by-round knowledge soundness.  </p>
+
+  </div>
+</div>
+<p>Similar preservation theorems hold for the general composition of multiple reductions: </p>
+<div class="theorem_thmwrapper theorem-style-plain" id="thm:completeness_compose">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">43</span>
+    <span class="theorem_thmtitle">General Completeness Preservation</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#thm:completeness_compose">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Reduction.completeness_compose" class="lean_decl">Reduction.completeness_compose</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  
+
+  </div>
+</div>
+<div class="theorem_thmwrapper theorem-style-plain" id="thm:soundness_compose">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">44</span>
+    <span class="theorem_thmtitle">General Soundness Preservation</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#thm:soundness_compose">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Verifier.compose_soundness" class="lean_decl">Verifier.compose_soundness</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  
+
+  </div>
+</div>
+<div class="theorem_thmwrapper theorem-style-plain" id="thm:knowledge_soundness_compose">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">45</span>
+    <span class="theorem_thmtitle">General Knowledge Soundness Preservation</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#thm:knowledge_soundness_compose">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Verifier.compose_knowledgeSoundness" class="lean_decl">Verifier.compose_knowledgeSoundness</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  
+
+  </div>
+</div>
+<h2 id="sec:lifting_contexts">2.2.2 Lifting Contexts</h2>
+
+<p>Another essential tool for modular oracle reductions is the ability to adapt reductions from one context to another. This allows us to apply reductions designed for simple contexts to more complex scenarios. </p>
+<h3 id="a0000000064">Context Lenses</h3>
+<p>The fundamental abstraction for context adaptation is a <em>context lens</em>, which provides bidirectional mappings between outer and inner contexts. </p>
+<div class="definition_thmwrapper theorem-style-definition" id="def:statement_lens">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">46</span>
+    <span class="definition_thmtitle">Statement Lens</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:statement_lens">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/StatementLens" class="lean_decl">StatementLens</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  A statement lens between outer context types \((\mathsf{StmtIn}_{\mathsf{outer}}, \mathsf{StmtOut}_{\mathsf{outer}})\) and inner context types \((\mathsf{StmtIn}_{\mathsf{inner}}, \mathsf{StmtOut}_{\mathsf{inner}})\) consists of: </p>
 <ul class="itemize">
-  <li><p>This is also a variant of the previous case, where we do not fully substitute with a public input, but do a “half-substitution” by substituting with another oracle input. This happens e.g. when using a polynomial commitment scheme that is itself based on a vector commitment scheme. One can cast protocols like Ligero / Brakedown / FRI / STIR in this two-step process. </p>
+  <li><p>\(\mathsf{projStmt}: \mathsf{StmtIn}_{\mathsf{outer}} \to \mathsf{StmtIn}_{\mathsf{inner}}\) (projection to inner context) </p>
+</li>
+  <li><p>\(\mathsf{liftStmt}: \mathsf{StmtIn}_{\mathsf{outer}} \times \mathsf{StmtOut}_{\mathsf{inner}} \to \mathsf{StmtOut}_{\mathsf{outer}}\) (lifting back to outer context) </p>
 </li>
 </ul>
+
+
+  </div>
+</div>
+<div class="definition_thmwrapper theorem-style-definition" id="def:witness_lens">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">47</span>
+    <span class="definition_thmtitle">Witness Lens</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:witness_lens">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/WitnessLens" class="lean_decl">WitnessLens</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  A witness lens between outer witness types \((\mathsf{WitIn}_{\mathsf{outer}}, \mathsf{WitOut}_{\mathsf{outer}})\) and inner witness types \((\mathsf{WitIn}_{\mathsf{inner}}, \mathsf{WitOut}_{\mathsf{inner}})\) consists of: </p>
+<ul class="itemize">
+  <li><p>\(\mathsf{projWit}: \mathsf{WitIn}_{\mathsf{outer}} \to \mathsf{WitIn}_{\mathsf{inner}}\) (projection to inner context) </p>
 </li>
-</ol>
+  <li><p>\(\mathsf{liftWit}: \mathsf{WitIn}_{\mathsf{outer}} \times \mathsf{WitOut}_{\mathsf{inner}} \to \mathsf{WitOut}_{\mathsf{outer}}\) (lifting back to outer context) </p>
+</li>
+</ul>
+
+
+  </div>
+</div>
+<div class="definition_thmwrapper theorem-style-definition" id="def:context_lens">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">48</span>
+    <span class="definition_thmtitle">Context Lens</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:context_lens">#</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-oracle_reductions.html#def:statement_lens">Definition 46</a></li>
+          
+          <li><a href="chap-oracle_reductions.html#def:witness_lens">Definition 47</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/ContextLens" class="lean_decl">ContextLens</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  A context lens combines a statement lens and a witness lens for adapting complete reduction contexts.   </p>
+
+  </div>
+</div>
+<div class="definition_thmwrapper theorem-style-definition" id="def:oracle_context_lens">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">49</span>
+    <span class="definition_thmtitle">Oracle Context Lens</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:oracle_context_lens">#</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-oracle_reductions.html#def:context_lens">Definition 48</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/OracleContextLens" class="lean_decl">OracleContextLens</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  For oracle reductions, we additionally need lenses for oracle statements that can simulate oracle access between contexts.   </p>
+
+  </div>
+</div>
+<h3 id="a0000000065">Lifting Reductions</h3>
+<p>Given a context lens, we can lift reductions from inner contexts to outer contexts. </p>
+<div class="definition_thmwrapper theorem-style-definition" id="def:prover_lift_context">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">50</span>
+    <span class="definition_thmtitle">Prover Context Lifting</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:prover_lift_context">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Prover.liftContext" class="lean_decl">Prover.liftContext</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  Given a prover \(P\) for the inner context and a context lens, the lifted prover works by: </p>
+<ul class="itemize">
+  <li><p>Projecting the outer input to the inner context </p>
+</li>
+  <li><p>Running the inner prover </p>
+</li>
+  <li><p>Lifting the output back to the outer context </p>
+</li>
+</ul>
+
+
+  </div>
+</div>
+<div class="definition_thmwrapper theorem-style-definition" id="def:verifier_lift_context">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">51</span>
+    <span class="definition_thmtitle">Verifier Context Lifting</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:verifier_lift_context">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Verifier.liftContext" class="lean_decl">Verifier.liftContext</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  
+
+  </div>
+</div>
+<div class="definition_thmwrapper theorem-style-definition" id="def:reduction_lift_context">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">52</span>
+    <span class="definition_thmtitle">Reduction Context Lifting</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:reduction_lift_context">#</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-oracle_reductions.html#def:prover_lift_context">Definition 50</a></li>
+          
+          <li><a href="chap-oracle_reductions.html#def:verifier_lift_context">Definition 51</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Reduction.liftContext" class="lean_decl">Reduction.liftContext</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  
+
+  </div>
+</div>
+<h3 id="a0000000066">Conditions for Security Preservation</h3>
+<p>For lifting to preserve security properties, the context lens must satisfy certain conditions. </p>
+<div class="definition_thmwrapper theorem-style-definition" id="def:context_lens_is_complete">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">53</span>
+    <span class="definition_thmtitle">Completeness-Preserving Context Lens</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:context_lens_is_complete">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/ContextLens.IsComplete" class="lean_decl">ContextLens.IsComplete</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  A context lens preserves completeness if it maintains relation satisfaction under projection and lifting.  </p>
+
+  </div>
+</div>
+<div class="definition_thmwrapper theorem-style-definition" id="def:statement_lens_is_sound">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">54</span>
+    <span class="definition_thmtitle">Soundness-Preserving Statement Lens</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:statement_lens_is_sound">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/StatementLens.IsSound" class="lean_decl">StatementLens.IsSound</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  A statement lens preserves soundness if it maps invalid statements to invalid statements.  </p>
+
+  </div>
+</div>
+<div class="definition_thmwrapper theorem-style-definition" id="def:statement_lens_is_rbr_sound">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">55</span>
+    <span class="definition_thmtitle">RBR Soundness-Preserving Statement Lens</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:statement_lens_is_rbr_sound">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/StatementLens.IsRBRSound" class="lean_decl">StatementLens.IsRBRSound</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  For round-by-round soundness, we need a slightly relaxed soundness condition.  </p>
+
+  </div>
+</div>
+<div class="definition_thmwrapper theorem-style-definition" id="def:context_lens_is_knowledge_sound">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">56</span>
+    <span class="definition_thmtitle">Knowledge Soundness-Preserving Context Lens</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:context_lens_is_knowledge_sound">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/ContextLens.IsKnowledgeSound" class="lean_decl">ContextLens.IsKnowledgeSound</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  A context lens preserves knowledge soundness if it maintains witness extractability.  </p>
+
+  </div>
+</div>
+<h3 id="a0000000067">Security Preservation Theorems for Context Lifting</h3>
+<div class="theorem_thmwrapper theorem-style-plain" id="thm:lift_context_completeness">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">57</span>
+    <span class="theorem_thmtitle">Completeness Preservation under Context Lifting</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#thm:lift_context_completeness">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Reduction.liftContext_completeness" class="lean_decl">Reduction.liftContext_completeness</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  <p>  If a reduction satisfies completeness and the context lens is completeness-preserving, then the lifted reduction also satisfies completeness.  </p>
+
+  </div>
+</div>
+<div class="theorem_thmwrapper theorem-style-plain" id="thm:lift_context_soundness">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">58</span>
+    <span class="theorem_thmtitle">Soundness Preservation under Context Lifting</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#thm:lift_context_soundness">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Verifier.liftContext_soundness" class="lean_decl">Verifier.liftContext_soundness</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  <p>  If a verifier satisfies soundness and the statement lens is soundness-preserving, then the lifted verifier also satisfies soundness.  </p>
+
+  </div>
+</div>
+<div class="theorem_thmwrapper theorem-style-plain" id="thm:lift_context_knowledge_soundness">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">59</span>
+    <span class="theorem_thmtitle">Knowledge Soundness Preservation under Context Lifting</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#thm:lift_context_knowledge_soundness">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Verifier.liftContext_knowledgeSoundness" class="lean_decl">Verifier.liftContext_knowledgeSoundness</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  <p>  If a verifier satisfies knowledge soundness and the context lens is knowledge soundness-preserving, then the lifted verifier also satisfies knowledge soundness.  </p>
+
+  </div>
+</div>
+<div class="theorem_thmwrapper theorem-style-plain" id="thm:lift_context_rbr_soundness">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">60</span>
+    <span class="theorem_thmtitle">RBR Soundness Preservation under Context Lifting</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#thm:lift_context_rbr_soundness">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Verifier.liftContext_rbr_soundness" class="lean_decl">Verifier.liftContext_rbr_soundness</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  <p>  If a verifier satisfies round-by-round soundness and the statement lens is RBR soundness-preserving, then the lifted verifier also satisfies round-by-round soundness.  </p>
+
+  </div>
+</div>
+<div class="theorem_thmwrapper theorem-style-plain" id="thm:lift_context_rbr_knowledge_soundness">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">61</span>
+    <span class="theorem_thmtitle">RBR Knowledge Soundness Preservation under Context Lifting</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#thm:lift_context_rbr_knowledge_soundness">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Verifier.liftContext_rbr_knowledgeSoundness" class="lean_decl">Verifier.liftContext_rbr_knowledgeSoundness</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  <p>  If a verifier satisfies round-by-round knowledge soundness and the context lens is knowledge soundness-preserving, then the lifted verifier also satisfies round-by-round knowledge soundness.  </p>
+
+  </div>
+</div>
+<h3 id="a0000000068">Extractors and State Functions</h3>
+<p>Context lifting also applies to extractors and state functions used in knowledge soundness and round-by-round soundness. </p>
+<div class="definition_thmwrapper theorem-style-definition" id="def:straightline_extractor_lift_context">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">62</span>
+    <span class="definition_thmtitle">Straightline Extractor Lifting</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:straightline_extractor_lift_context">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/StraightlineExtractor.liftContext" class="lean_decl">StraightlineExtractor.liftContext</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  
+
+  </div>
+</div>
+<div class="definition_thmwrapper theorem-style-definition" id="def:rbr_extractor_lift_context">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">63</span>
+    <span class="definition_thmtitle">Round-by-Round Extractor Lifting</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:rbr_extractor_lift_context">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/RBRExtractor.liftContext" class="lean_decl">RBRExtractor.liftContext</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  
+
+  </div>
+</div>
+<div class="definition_thmwrapper theorem-style-definition" id="def:state_function_lift_context">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">64</span>
+    <span class="definition_thmtitle">State Function Lifting</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:state_function_lift_context">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Verifier.StateFunction.liftContext" class="lean_decl">Verifier.StateFunction.liftContext</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  
+
+  </div>
+</div>
+<p>These composition and lifting operators provide the essential building blocks for constructing complex oracle reductions from simpler components while preserving their security properties. </p>
 
 </div> <!--main-text -->
 </div> <!-- content-wrapper -->

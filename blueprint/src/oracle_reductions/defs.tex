@@ -20,7 +20,7 @@ following setting:
     \begin{itemize}
         \item \emph{Public inputs} (or \emph{statement}) $\mathbbm{x}$: available to both parties;
         \item \emph{Private inputs} (or \emph{witness}) $\mathbbm{w}$: available only to the prover;
-        \item \emph{Oracle inputs} (or \emph{oracle statement}) $\mathbbm{o}$: the underlying data
+        \item \emph{Oracle inputs} (or \emph{oracle statement}) $\mathbbm{ox}$: the underlying data
         is available to the prover, but it's only exposed as an oracle to the verifier. See~\Cref{def:oracle_interface} for more information.
         \item \emph{Shared oracle} $\mathcal{O}$: the oracle is available to both parties via an
         interface; in most cases, it is either empty, a probabilistic sampling oracle, a random
@@ -154,14 +154,37 @@ We define some supporting definitions for a protocol specification.
 
 \begin{definition}[Type Signature of a Prover]
     \label{def:prover}
-    A prover $\calP$ in a reduction, given a context, is a stateful oracle computation
-    that at each step of the protocol, either takes in a new message from the verifier, or sends a
-    new message to the verifier.
-    \lean{Prover}
+    A prover $\mathcal{P}$ in a reduction consists of the following components:
+
+    \begin{itemize}
+        \item \textbf{Prover State}: A family of types $\mathsf{PrvState} : \Fin(n+1) \to \Type$ representing the prover's internal state at each round of the protocol.
+
+        \item \textbf{Input Processing}: A function
+        \[ \mathsf{input} : \StmtIn \to \WitIn \to \mathsf{PrvState}(0) \]
+        that initializes the prover's state from the input statement and witness.
+
+        \item \textbf{Message Sending}: For each message index $i : \pSpec.\MessageIdx$, a function
+        \[ \mathsf{sendMessage}_i : \mathsf{PrvState}(i.\mathsf{val}.\mathsf{castSucc}) \to \OracleComp(\oSpec, \pSpec.\Message(i) \times \mathsf{PrvState}(i.\mathsf{val}.\mathsf{succ})) \]
+        that generates the message and updates the prover's state.
+
+        \item \textbf{Challenge Processing}: For each challenge index $i : \pSpec.\ChallengeIdx$, a function
+        \[ \mathsf{receiveChallenge}_i : \mathsf{PrvState}(i.\mathsf{val}.\mathsf{castSucc}) \to \pSpec.\Challenge(i) \to \mathsf{PrvState}(i.\mathsf{val}.\mathsf{succ}) \]
+        that updates the prover's state upon receiving a challenge.
+
+        \item \textbf{Output Generation}: A function
+        \[ \mathsf{output} : \mathsf{PrvState}(\Fin.\mathsf{last}(n)) \to \StmtOut \times \WitOut \]
+        that produces the final output statement and witness from the prover's final state.
+    \end{itemize}
+    \lean{Prover, ProverState, ProverIn, ProverRound, ProverOut}
 \end{definition}
 
 \begin{definition}[Type Signature of an Oracle Prover]
     \label{def:oracle_prover}
+    An oracle prover is a prover whose input statement includes the underlying data for oracle statements, and whose output includes oracle statements. Formally, it is a prover with input statement type $\StmtIn \times (\forall i : \iota_{\mathsf{si}}, \OStmtIn(i))$ and output statement type $\StmtOut \times (\forall i : \iota_{\mathsf{so}}, \OStmtOut(i))$, where:
+    \begin{itemize}
+        \item $\OStmtIn : \iota_{\mathsf{si}} \to \Type$ are the input oracle statement types
+        \item $\OStmtOut : \iota_{\mathsf{so}} \to \Type$ are the output oracle statement types
+    \end{itemize}
     \lean{OracleProver}
 \end{definition}
 
@@ -180,14 +203,54 @@ of the context, and oracle access to either the shared oracle, or the oracle inp
 
 \begin{definition}[Type Signature of a Verifier]
     \label{def:verifier}
-    A verifier $\mathcal{V}$ in an oracle reduction is an oracle computation that may perform a
-    series of checks (i.e. `Bool`-valued, or `Option Unit`) on the given context.
+    A verifier $\mathcal{V}$ in a reduction is specified by a single function:
+    \[ \mathsf{verify} : \StmtIn \to \FullTranscript(\pSpec) \to \OracleComp(\oSpec, \StmtOut) \]
+
+    This function takes the input statement and the complete transcript of the protocol interaction, and performs an oracle computation (potentially querying the shared oracle $\oSpec$) to produce an output statement.
+
+    The verifier is assumed to be \emph{public-coin}, meaning it only sends uniformly random challenges and uses no other randomness beyond what is provided by the shared oracle.
     \lean{Verifier}
 \end{definition}
 
 \begin{definition}[Type Signature of an Oracle Verifier]
     \label{def:oracle_verifier}
+    An oracle verifier $\mathcal{V}$ consists of the following components:
+
+    \begin{itemize}
+        \item \textbf{Verification Logic}: A function
+        \[ \mathsf{verify} : \StmtIn \to \pSpec.\Challenges \to \OracleComp(\oSpec \mathrel{++_\mathsf{o}} ([\OStmtIn]_\mathsf{o} \mathrel{++_\mathsf{o}} [\pSpec.\Message]_\mathsf{o}), \StmtOut) \]
+        that takes the input statement and verifier challenges, and performs oracle queries to the shared oracle, input oracle statements, and prover messages to produce an output statement.
+
+        \item \textbf{Output Oracle Embedding}: An injective function
+        \[ \mathsf{embed} : \iota_{\mathsf{so}} \hookrightarrow \iota_{\mathsf{si}} \oplus \pSpec.\MessageIdx \]
+        that specifies how each output oracle statement is derived from either an input oracle statement or a prover message.
+
+        \item \textbf{Type Compatibility}: A proof term
+        \[ \mathsf{hEq} : \forall i : \iota_{\mathsf{so}}, \OStmtOut(i) = \begin{cases}
+            \OStmtIn(j) & \text{if } \mathsf{embed}(i) = \mathsf{inl}(j) \\
+            \pSpec.\Message(k) & \text{if } \mathsf{embed}(i) = \mathsf{inr}(k)
+        \end{cases} \]
+        ensuring that output oracle statement types match their sources.
+    \end{itemize}
+
+    This design ensures that output oracle statements are always a subset of the available input oracle statements and prover messages.
     \lean{OracleVerifier}
+\end{definition}
+
+\begin{definition}[Oracle Verifier to Verifier Conversion]
+    \label{def:oracle_verifier_to_verifier}
+    An oracle verifier can be converted to a standard verifier through a natural simulation process. The key insight is that while an oracle verifier only has oracle access to certain data (input oracle statements and prover messages), a standard verifier can be given the actual underlying data directly.
+
+    The conversion works as follows: when the oracle verifier needs to make an oracle query to some data, the converted verifier can respond to this query immediately using the actual underlying data it possesses. This is accomplished through the \texttt{OracleInterface} type class, which specifies for each data type how to respond to queries given the underlying data.
+
+    Specifically, given an oracle verifier $\mathcal{V}_{\text{oracle}}$:
+    \begin{itemize}
+        \item The converted verifier $\mathcal{V}_{\text{oracle}}.\mathsf{toVerifier}$ takes as input both the statement \emph{and} the actual underlying data for all oracle statements
+        \item When $\mathcal{V}_{\text{oracle}}$ attempts to query an oracle statement or prover message, the converted verifier uses the corresponding \texttt{OracleInterface} instance to compute the response from the actual data
+        \item The output oracle statements are constructed according to the embedding specification, selecting the appropriate subset of input oracle statements and prover messages
+    \end{itemize}
+    \lean{OracleVerifier.toVerifier}
+    \uses{def:oracle_verifier}
 \end{definition}
 
 An oracle reduction then consists of a type signature for the interaction, and a pair of prover and
@@ -195,15 +258,33 @@ verifier for that type signature.
 
 \begin{definition}[Interactive Reduction]
     \label{def:interactive_reduction}
+    An interactive reduction for protocol specification $\pSpec : \ProtocolSpec(n)$ and oracle specification $\oSpec$ consists of:
+    \begin{itemize}
+        \item A \textbf{prover} $\mathcal{P} : \Prover(\pSpec, \oSpec, \StmtIn, \WitIn, \StmtOut, \WitOut)$
+        \item A \textbf{verifier} $\mathcal{V} : \Verifier(\pSpec, \oSpec, \StmtIn, \StmtOut)$
+    \end{itemize}
+
+    The reduction establishes a relationship between input relations on $(\StmtIn, \WitIn)$ and output relations on $(\StmtOut, \WitOut)$ through the interactive protocol defined by $\pSpec$.
     \lean{Reduction}
-    An interactive reduction is a combination of a type signature \verb|ProtocolSpec|, a prover for \verb|ProtocolSpec|, and a verifier for \verb|ProtocolSpec|.
     \uses{def:prover, def:verifier}
 \end{definition}
 
 \begin{definition}[Interactive Oracle Reduction]
     \label{def:interactive_oracle_reduction}
+    An interactive oracle reduction for protocol specification $\pSpec : \ProtocolSpec(n)$ with oracle interfaces for all prover messages, and oracle specification $\oSpec$, consists of:
+    \begin{itemize}
+        \item An \textbf{oracle prover} $\mathcal{P} : \OracleProver(\pSpec, \oSpec, \StmtIn, \WitIn, \StmtOut, \WitOut, \OStmtIn, \OStmtOut)$
+        \item An \textbf{oracle verifier} $\mathcal{V} : \OracleVerifier(\pSpec, \oSpec, \StmtIn, \StmtOut, \OStmtIn, \OStmtOut)$
+    \end{itemize}
+
+    where:
+    \begin{itemize}
+        \item $\OStmtIn : \iota_{\mathsf{si}} \to \Type$ are the input oracle statement types with oracle interfaces
+        \item $\OStmtOut : \iota_{\mathsf{so}} \to \Type$ are the output oracle statement types
+    \end{itemize}
+
+    The oracle reduction allows the verifier to access prover messages and oracle statements only through specified oracle interfaces, enabling more flexible and composable protocol designs.
     \lean{OracleReduction}
-    An interactive oracle reduction for a given context $\Gamma$ is a combination a prover and a verifier of the types specified above.
     \uses{def:oracle_prover, def:oracle_verifier}
 \end{definition}
 
@@ -216,21 +297,97 @@ Any message exchanged in the protocol will be added to the context. We may also 
 about the execution, such as the log of oracle queries for the shared oracles, for analysis purposes
 (i.e. feeding information into the extractor).
 
-\begin{definition}[Execution of an Oracle Reduction]
-    \label{def:oracle_reduction_execution}
-    \lean{OracleReduction.run}
-    \uses{def:oracle_reduction}
+\begin{definition}[Prover Execution to Round]
+    \label{def:prover_run_to_round}
+    The execution of a prover up to round $i : \Fin(n+1)$ is defined inductively:
+
+    \[ \mathsf{Prover}.\mathsf{runToRound}(i, \mathsf{stmt}, \mathsf{wit}) := \]
+    \[ \mathsf{Fin}.\mathsf{induction}( \]
+    \[ \quad \mathsf{pure}(\langle \mathsf{default}, \mathsf{prover}.\mathsf{input}(\mathsf{stmt}, \mathsf{wit}) \rangle), \]
+    \[ \quad \mathsf{prover}.\mathsf{processRound}, \]
+    \[ \quad i \]
+    \[ ) \]
+
+    where $\mathsf{processRound}$ handles individual rounds by either:
+    \begin{itemize}
+        \item \textbf{Verifier Challenge} ($\pSpec.\mathsf{getDir}(j) = \mathsf{V\_to\_P}$): Query for a challenge and update prover state
+        \item \textbf{Prover Message} ($\pSpec.\mathsf{getDir}(j) = \mathsf{P\_to\_V}$): Generate message via $\mathsf{sendMessage}$ and update state
+    \end{itemize}
+
+    Returns the transcript up to round $i$ and the prover's state after round $i$.
+    \lean{Prover.runToRound, Prover.processRound}
 \end{definition}
 
-% \begin{remark}[More efficient representation of oracle reductions]
-%     The presentation of oracle reductions as protocols on an append-only context is useful for
-%     reasoning, but it does not lead to the most efficient implementation for the prover and
-%     verifier. In particular, the prover cannot keep intermediate state, and thus needs to recompute
-%     everything from scratch for each new message.
+\begin{definition}[Complete Prover Execution]
+    \label{def:prover_run}
+    The complete execution of a prover is defined as:
 
-%     To fix this mismatch, we will also define a stateful variant of the prover, and define a notion
-%     of observational equivalence between the stateless and stateful reductions.
-% \end{remark}
+    \[ \mathsf{Prover}.\mathsf{run}(\mathsf{stmt}, \mathsf{wit}) := \mathsf{do} \; \{ \]
+    \[ \quad \langle \mathsf{transcript}, \mathsf{state} \rangle \leftarrow \mathsf{prover}.\mathsf{runToRound}(\Fin.\mathsf{last}(n), \mathsf{stmt}, \mathsf{wit}) \]
+    \[ \quad \langle \mathsf{stmtOut}, \mathsf{witOut} \rangle := \mathsf{prover}.\mathsf{output}(\mathsf{state}) \]
+    \[ \quad \mathsf{return} \; \langle \mathsf{stmtOut}, \mathsf{witOut}, \mathsf{transcript} \rangle \]
+    \[ \} \]
+
+    Returns the output statement, output witness, and complete transcript.
+    \lean{Prover.run}
+    \uses{def:prover_run_to_round}
+\end{definition}
+
+\begin{definition}[Verifier Execution]
+    \label{def:verifier_run}
+    The execution of a verifier is simply the application of its verification function:
+
+    \[ \mathsf{Verifier}.\mathsf{run}(\mathsf{stmt}, \mathsf{transcript}) := \mathsf{verifier}.\mathsf{verify}(\mathsf{stmt}, \mathsf{transcript}) \]
+
+    This takes the input statement and full transcript, and returns the output statement via an oracle computation.
+    \lean{Verifier.run}
+\end{definition}
+
+\begin{definition}[Oracle Verifier Execution]
+    \label{def:oracle_verifier_run}
+    The execution of an oracle verifier is defined as:
+
+    \[ \mathsf{OracleVerifier}.\mathsf{run}(\mathsf{stmt}, \mathsf{oStmtIn}, \mathsf{transcript}) := \mathsf{do} \; \{ \]
+    \[ \quad \mathsf{f} := \mathsf{simOracle2}(\oSpec, \mathsf{oStmtIn}, \mathsf{transcript}.\mathsf{messages}) \]
+    \[ \quad \mathsf{stmtOut} \leftarrow \mathsf{simulateQ}(\mathsf{f}, \mathsf{verifier}.\mathsf{verify}(\mathsf{stmt}, \mathsf{transcript}.\mathsf{challenges})) \]
+    \[ \quad \mathsf{return} \; \mathsf{stmtOut} \]
+    \[ \} \]
+
+    This simulates the oracle access to input oracle statements and prover messages, then executes the verification logic.
+    \lean{OracleVerifier.run}
+\end{definition}
+
+\begin{definition}[Interactive Reduction Execution]
+    \label{def:reduction_run}
+    The execution of an interactive reduction consists of running the prover followed by the verifier:
+
+    \[ \mathsf{Reduction}.\mathsf{run}(\mathsf{stmt}, \mathsf{wit}) := \mathsf{do} \; \{ \]
+    \[ \quad \langle \mathsf{prvStmtOut}, \mathsf{witOut}, \mathsf{transcript} \rangle \leftarrow \mathsf{reduction}.\mathsf{prover}.\mathsf{run}(\mathsf{stmt}, \mathsf{wit}) \]
+    \[ \quad \mathsf{stmtOut} \leftarrow \mathsf{reduction}.\mathsf{verifier}.\mathsf{run}(\mathsf{stmt}, \mathsf{transcript}) \]
+    \[ \quad \mathsf{return} \; ((\mathsf{prvStmtOut}, \mathsf{witOut}), \mathsf{stmtOut}, \mathsf{transcript}) \]
+    \[ \} \]
+
+    Returns both the prover's output (statement and witness) and the verifier's output statement, along with the complete transcript.
+    \lean{Reduction.run}
+    \uses{def:prover_run, def:verifier_run}
+\end{definition}
+
+\begin{definition}[Oracle Reduction Execution]
+    \label{def:oracle_reduction_run}
+    The execution of an interactive oracle reduction is similar to a standard reduction but includes logging of oracle queries:
+
+    \[ \mathsf{OracleReduction}.\mathsf{run}(\mathsf{stmt}, \mathsf{wit}, \mathsf{oStmt}) := \mathsf{do} \; \{ \]
+    \[ \quad \langle \langle \mathsf{prvStmtOut}, \mathsf{witOut}, \mathsf{transcript} \rangle, \mathsf{proveQueryLog} \rangle \leftarrow \]
+    \[ \qquad (\mathsf{simulateQ}(\mathsf{loggingOracle}, \mathsf{reduction}.\mathsf{prover}.\mathsf{run}(\langle \mathsf{stmt}, \mathsf{oStmt} \rangle, \mathsf{wit}))).\mathsf{run} \]
+    \[ \quad \langle \mathsf{stmtOut}, \mathsf{verifyQueryLog} \rangle \leftarrow \]
+    \[ \qquad (\mathsf{simulateQ}(\mathsf{loggingOracle}, \mathsf{reduction}.\mathsf{verifier}.\mathsf{run}(\mathsf{stmt}, \mathsf{oStmt}, \mathsf{transcript}))).\mathsf{run} \]
+    \[ \quad \mathsf{return} \; ((\mathsf{prvStmtOut}, \mathsf{witOut}), \mathsf{stmtOut}, \mathsf{transcript}, \mathsf{proveQueryLog}, \mathsf{verifyQueryLog}) \]
+    \[ \} \]
+
+    Returns the same outputs as a standard reduction, plus logs of all oracle queries made by both the prover and verifier.
+    \lean{OracleReduction.run}
+    \uses{def:oracle_verifier_run}
+\end{definition}
 
 \subsection{Security Properties}\label{sec:security}
 

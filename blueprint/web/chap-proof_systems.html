@@ -57,20 +57,14 @@
   </ul>
  </li>
 <li class="">
-  <a href="chap-oracle_reductions.html#a0000000004"><span class="toc_ref">2.2</span> <span class="toc_entry">A Program Logic for Oracle Reductions</span></a>
+  <a href="chap-oracle_reductions.html#sec:composition_oracle_reductions"><span class="toc_ref">2.2</span> <span class="toc_entry">Composition of Oracle Reductions</span></a>
   <span class="expand-toc">▶</span>
   <ul class="sub-toc-2">
      <li class="">
-  <a href="chap-oracle_reductions.html#a0000000005"><span class="toc_ref">2.2.1</span> <span class="toc_entry">Changing Relations and Oracles</span></a>
+  <a href="chap-oracle_reductions.html#sec:sequential_composition"><span class="toc_ref">2.2.1</span> <span class="toc_entry">Sequential Composition</span></a>
  </li>
 <li class="">
-  <a href="chap-oracle_reductions.html#a0000000006"><span class="toc_ref">2.2.2</span> <span class="toc_entry">Sequential Composition</span></a>
- </li>
-<li class="">
-  <a href="chap-oracle_reductions.html#a0000000007"><span class="toc_ref">2.2.3</span> <span class="toc_entry">Virtualization</span></a>
- </li>
-<li class="">
-  <a href="chap-oracle_reductions.html#a0000000008"><span class="toc_ref">2.2.4</span> <span class="toc_entry">Substitution</span></a>
+  <a href="chap-oracle_reductions.html#sec:lifting_contexts"><span class="toc_ref">2.2.2</span> <span class="toc_entry">Lifting Contexts</span></a>
  </li>
 
   </ul>
@@ -83,14 +77,14 @@
   <span class="expand-toc">▼</span>
   <ul class="sub-toc-1 active">
      <li class="">
-  <a href="chap-proof_systems.html#a0000000009"><span class="toc_ref">3.1</span> <span class="toc_entry">Simple Oracle Reductions</span></a>
+  <a href="chap-proof_systems.html#a0000000004"><span class="toc_ref">3.1</span> <span class="toc_entry">Simple Oracle Reductions</span></a>
   <span class="expand-toc">▶</span>
   <ul class="sub-toc-2">
      <li class="">
-  <a href="chap-proof_systems.html#a0000000010"><span class="toc_ref">3.1.1</span> <span class="toc_entry">Polynomial Equality Testing</span></a>
+  <a href="chap-proof_systems.html#a0000000005"><span class="toc_ref">3.1.1</span> <span class="toc_entry">Polynomial Equality Testing</span></a>
  </li>
 <li class="">
-  <a href="chap-proof_systems.html#a0000000011"><span class="toc_ref">3.1.2</span> <span class="toc_entry">Batching Polynomial Evaluation Claims</span></a>
+  <a href="chap-proof_systems.html#a0000000006"><span class="toc_ref">3.1.2</span> <span class="toc_entry">Batching Polynomial Evaluation Claims</span></a>
  </li>
 
   </ul>
@@ -109,10 +103,10 @@
   </ul>
  </li>
 <li class="">
-  <a href="chap-proof_systems.html#a0000000012"><span class="toc_ref">3.3</span> <span class="toc_entry">The Spartan Protocol</span></a>
+  <a href="chap-proof_systems.html#a0000000007"><span class="toc_ref">3.3</span> <span class="toc_entry">The Spartan Protocol</span></a>
  </li>
 <li class="">
-  <a href="chap-proof_systems.html#a0000000013"><span class="toc_ref">3.4</span> <span class="toc_entry">The Ligero Polynomial Commitment Scheme</span></a>
+  <a href="chap-proof_systems.html#a0000000008"><span class="toc_ref">3.4</span> <span class="toc_entry">The Ligero Polynomial Commitment Scheme</span></a>
  </li>
 
   </ul>
@@ -122,7 +116,7 @@
   <span class="expand-toc">▶</span>
   <ul class="sub-toc-1">
      <li class="">
-  <a href="chap-commitment_schemes.html#a0000000014"><span class="toc_ref">4.1</span> <span class="toc_entry">Definitions</span></a>
+  <a href="chap-commitment_schemes.html#a0000000009"><span class="toc_ref">4.1</span> <span class="toc_entry">Definitions</span></a>
  </li>
 <li class="">
   <a href="chap-commitment_schemes.html#sec:merkle_trees"><span class="toc_ref">4.2</span> <span class="toc_entry">Merkle Trees</span></a>
@@ -163,9 +157,9 @@
 <div class="main-text">
 <h1 id="chap:proof_systems">3 Proof Systems</h1>
 
-<h1 id="a0000000009">3.1 Simple Oracle Reductions</h1>
+<h1 id="a0000000004">3.1 Simple Oracle Reductions</h1>
 <p>We start by introducing a number of simple oracle reductions. </p>
-<h2 id="a0000000010">3.1.1 Polynomial Equality Testing</h2>
+<h2 id="a0000000005">3.1.1 Polynomial Equality Testing</h2>
 <p>Context: two univariate polynomials \(P, Q \in \mathbb {F}[X]\) of degree at most \(d\), available as polynomial evaluation oracles </p>
 <p>Input relation: \(P = Q\) as polynomials </p>
 <p>Protocol type: a single message of type \(\mathbb {F}\) from the verifier to the prover. </p>
@@ -179,11 +173,11 @@
 <p>Round-by-round error: \(d / \lvert \mathbb {F} \rvert \) </p>
 <p>Round-by-round knowledge soundness: follows from Schwartz-Zippel </p>
 <p>To summarize, we have the following judgment: </p>
-<div class="displaymath" id="a0000000027">
+<div class="displaymath" id="a0000000069">
   \[  \begin{array}{c} \Psi := (); \;  \Theta := (P, Q); \;  \Sigma := (); \;  \tau := (\mathsf{V2P}, \mathbb {F}) \vdash \\[1ex] \{ P = Q\}  \quad \left( \begin{array}{l} \mathcal{P} := (), \\ \mathcal{V} := (P,Q,r) \mapsto [P(r) \stackrel{?}{=} Q(r)], \\ \mathcal{E} := () \end{array} \right)^{\emptyset } \quad \{ \! \! \{ P(r) = Q(r); \mathsf{St}_{P,Q}; \frac{d}{\lvert \mathbb {F} \rvert }\} \! \! \}  \end{array}  \]
 </div>
 <p> where \(\mathsf{St}(i) = \begin{cases} \end{cases} P \stackrel{?}{=} Q \text{ if } i = 0 \\ P(r) \stackrel{?}{=} Q(r) \text{ if } i = 1 \end{cases}\) </p>
-<h2 id="a0000000011">3.1.2 Batching Polynomial Evaluation Claims</h2>
+<h2 id="a0000000006">3.1.2 Batching Polynomial Evaluation Claims</h2>
 <p>Context: \(n\)-tuple of values \(v = (v_1, \ldots , v_n) \in \mathbb {F}^n\) </p>
 <p>Protocol type: one message of type \(\mathbb {F}^k\) from the verifier to the prover, and another message of type \(\mathbb {F}\) from the prover to the verifier </p>
 <p>Auxiliary function: a polynomial map \(E : \mathbb {F}^k \to \mathbb {F}^n\) </p>
@@ -196,7 +190,7 @@
 <p>This section documents our formalization of the sum-check protocol. We first describe the sum-check protocol as it is typically described in the literature, and then present a modular description that maximally relies on our general oracle reduction framework. </p>
 <h2 id="sec:sumcheck_standard">3.2.1 Standard Description</h2>
 
-<h3 id="a0000000028">Protocol Parameters</h3>
+<h3 id="a0000000070">Protocol Parameters</h3>
 <p>The sum-check protocol is parameterized by the following: </p>
 <ul class="itemize">
   <li><p>\(R\): the underlying ring (for soundness, required to be finite and an integral domain) </p>
@@ -210,42 +204,42 @@
   <li><p>\(\mathcal{O}\): the set of underlying oracles (e.g., random oracles) that may be needed for other reductions. However, the sum-check protocol itself does <em>not</em> use any oracles. </p>
 </li>
 </ul>
-<h3 id="a0000000029">Input and Output Statements</h3>
+<h3 id="a0000000071">Input and Output Statements</h3>
 <p>For the standard description of the sum-check protocol, we specify the complete input and output data: </p>
-<h4 id="a0000000030">Input Statement.</h4>
+<h4 id="a0000000072">Input Statement.</h4>
 <p> The claimed sum \(T \in R\). </p>
-<h4 id="a0000000031">Input Oracle Statement.</h4>
+<h4 id="a0000000073">Input Oracle Statement.</h4>
 <p> The polynomial \(P \in R[X_0, X_1, \ldots , X_{n-1}]_{\leq d}\) of \(n\) variables with bounded individual degrees \(d\). </p>
-<h4 id="a0000000032">Input Witness.</h4>
+<h4 id="a0000000074">Input Witness.</h4>
 <p> None (the unit type). </p>
-<h4 id="a0000000033">Input Relation.</h4>
+<h4 id="a0000000075">Input Relation.</h4>
 <p> The sum-check relation: </p>
-<div class="displaymath" id="a0000000034">
+<div class="displaymath" id="a0000000076">
   \[  \sum _{x \in (\text{Image}(\mathcal{D}))^n} P(x) = T  \]
 </div>
-<h4 id="a0000000035">Output Statement.</h4>
+<h4 id="a0000000077">Output Statement.</h4>
 <p> The claimed evaluation \(e \in R\) and the challenge vector \((r_0, r_1, \ldots , r_{n-1}) \in R^n\). </p>
-<h4 id="a0000000036">Output Oracle Statement.</h4>
+<h4 id="a0000000078">Output Oracle Statement.</h4>
 <p> The same polynomial \(P \in R[X_0, X_1, \ldots , X_{n-1}]_{\leq d}\). </p>
-<h4 id="a0000000037">Output Witness.</h4>
+<h4 id="a0000000079">Output Witness.</h4>
 <p> None (the unit type). </p>
-<h4 id="a0000000038">Output Relation.</h4>
+<h4 id="a0000000080">Output Relation.</h4>
 <p> The evaluation relation: </p>
-<div class="displaymath" id="a0000000039">
+<div class="displaymath" id="a0000000081">
   \[  P(r_0, r_1, \ldots , r_{n-1}) = e  \]
 </div>
-<h3 id="a0000000040">Protocol Description</h3>
+<h3 id="a0000000082">Protocol Description</h3>
 <p>The sum-check protocol proceeds in \(n\) rounds of interaction between the prover and verifier. The protocol reduces the claim that a multivariate polynomial \(P\) sums to a target value \(T\) over the domain \((\text{Image}(\mathcal{D}))^n\) to the claim that \(P\) evaluates to a specific value \(e\) at a random point \((r_0, r_1, \ldots , r_{n-1})\). </p>
 <p>In each round, the prover sends a univariate polynomial of bounded degree, and the verifier responds with a random challenge. The verifier performs consistency checks by querying the polynomial oracle at specific evaluation points. After \(n\) rounds, the protocol terminates with an output statement asserting that \(P(r_0, r_1, \ldots , r_{n-1}) = e\), where the challenges \((r_0, r_1, \ldots , r_{n-1})\) are the random values chosen by the verifier during the protocol execution. </p>
 <p>The protocol is described as an oracle reduction, where the polynomial \(P\) is accessed only through evaluation queries rather than being explicitly represented. </p>
-<h3 id="a0000000041">Security Properties</h3>
+<h3 id="a0000000083">Security Properties</h3>
 <p>We prove the following security properties for the sum-check protocol: </p>
 <div class="theorem_thmwrapper theorem-style-plain" id="thm:sumcheck_perfect_completeness">
   <div class="theorem_thmheading">
     <span class="theorem_thmcaption">
     Theorem
     </span>
-    <span class="theorem_thmlabel">23</span>
+    <span class="theorem_thmlabel">65</span>
     <span class="theorem_thmtitle">Perfect Completeness</span>
     <div class="thm_header_extras">
 
@@ -268,7 +262,7 @@
     <span class="theorem_thmcaption">
     Theorem
     </span>
-    <span class="theorem_thmlabel">24</span>
+    <span class="theorem_thmlabel">66</span>
     <span class="theorem_thmtitle">Knowledge Soundness</span>
     <div class="thm_header_extras">
 
@@ -291,7 +285,7 @@
     <span class="theorem_thmcaption">
     Theorem
     </span>
-    <span class="theorem_thmlabel">25</span>
+    <span class="theorem_thmlabel">67</span>
     <span class="theorem_thmtitle">Round-by-Round Knowledge Soundness</span>
     <div class="thm_header_extras">
 
@@ -309,19 +303,19 @@
 
   </div>
 </div>
-<h3 id="a0000000042">Implementation Notes</h3>
+<h3 id="a0000000084">Implementation Notes</h3>
 <p>Our formalization includes several important implementation considerations: </p>
-<h4 id="a0000000043">Oracle Reduction Level.</h4>
+<h4 id="a0000000085">Oracle Reduction Level.</h4>
 <p> This description of the sum-check protocol stays at the <b class="bfseries">oracle reduction</b> level, describing the protocol before being compiled with concrete cryptographic primitives such as polynomial commitment schemes for \(P\). The oracle model allows us to focus on the logical structure and security properties of the protocol without being concerned with the specifics of how polynomial evaluations are implemented or verified. </p>
-<h4 id="a0000000044">Abstract Protocol Description.</h4>
+<h4 id="a0000000086">Abstract Protocol Description.</h4>
 <p> The protocol description above does not consider implementation details and optimizations that would be necessary in practice. For instance, we do not address computational efficiency, concrete polynomial representations, or specific algorithms for polynomial evaluation. This abstraction allows us to establish the fundamental security properties that any concrete implementation must preserve. </p>
-<h4 id="a0000000045">Degree Constraints.</h4>
+<h4 id="a0000000087">Degree Constraints.</h4>
 <p> To represent sum-check as a series of Interactive Oracle Reductions (IORs), we implicitly constrain the degree of the polynomials via using subtypes such as \(R[X]_{\leq d}\) and appropriate multivariate polynomial degree bounds. This is necessary because the oracle verifier only gets oracle access to evaluating the polynomials, but does not see the polynomials in the clear. </p>
-<h4 id="a0000000046">Polynomial Commitments.</h4>
+<h4 id="a0000000088">Polynomial Commitments.</h4>
 <p> When this protocol is compiled to an interactive proof (rather than an oracle reduction), the corresponding polynomial commitment schemes will enforce that the declared degree bounds hold, by letting the (non-oracle) verifier perform explicit degree checks. </p>
-<h4 id="a0000000047">Formalization Alignment.</h4>
+<h4 id="a0000000089">Formalization Alignment.</h4>
 <p> <b class="bfseries">TODO:</b> Align the sum-check protocol formalization in Lean to use \(n\) variables and \(n\) rounds (as in this standard description) rather than \(n+1\) variables and \(n+1\) rounds. This should be achievable by refactoring the current implementation to better match the standard presentation. </p>
-<h3 id="a0000000048">Future Extensions</h3>
+<h3 id="a0000000090">Future Extensions</h3>
 <p>Several generalizations are considered for future work: </p>
 <ul class="itemize">
   <li><p><b class="bfseries">Variable Degree Bounds:</b> Generalize to \(d : \{ 0, 1, \ldots , n+1\}  \to \mathbb {N}\) and \(\mathcal{D} : \{ 0, 1, \ldots , n+1\}  \to (\{ 0, 1, \ldots , m-1\}  \hookrightarrow R)\), allowing different degree bounds and summation domains for each variable. </p>
@@ -332,24 +326,24 @@
 </li>
 </ul>
 <p>The sum-check protocol, as described in the original paper and many expositions thereafter, is a protocol to reduce the claim that </p>
-<div class="displaymath" id="a0000000049">
+<div class="displaymath" id="a0000000091">
   \[  \sum _{x \in \{ 0, 1\} ^n} P(x) = c,  \]
 </div>
 <p> where \(P\) is an \(n\)-variate polynomial of certain individual degree bounds, and \(c\) is some field element, to the claim that </p>
-<div class="displaymath" id="a0000000050">
+<div class="displaymath" id="a0000000092">
   \[  P(r) = v,  \]
 </div>
 <p> for some claimed value \(v\) (derived from the protocol transcript), where \(r\) is a vector of random challenges from the verifier sent during the protocol. </p>
 <p>In our language, the initial context of the sum-check protocol is the pair \((P, c)\), where \(P\) is an oracle input and \(c\) is public. The protocol proceeds in \(n\) rounds of interaction, where in each round \(i\) the prover sends a univariate polynomial \(s_i\) of bounded degree and the verifier sends a challenge \(r_i \gets \mathbb {F}\). The honest prover would compute </p>
-<div class="displaymath" id="a0000000051">
+<div class="displaymath" id="a0000000093">
   \[  s_i(X) = \sum _{x \in \{ 0, 1\} ^{n - i - 1}} P(r_1, \ldots , r_{i - 1}, X, x),  \]
 </div>
 <p> and the honest verifier would check that \(s_i(0) + s_i(1) = s_{i - 1}(r_{i - 1})\), with the convention that \(s_0(r_0) = c\). </p>
 <h2 id="sec:sumcheck_modular">3.2.2 Modular Description</h2>
 
-<h3 id="a0000000052">Round-by-Round Analysis</h3>
+<h3 id="a0000000094">Round-by-Round Analysis</h3>
 <p>Our modular approach breaks down the sum-check protocol into individual rounds, each of which can be analyzed as a two-message Interactive Oracle Reduction. This decomposition allows us to prove security properties compositionally and provides a more granular understanding of the protocol’s structure. </p>
-<h4 id="a0000000053">Round-Specific Statements.</h4>
+<h4 id="a0000000095">Round-Specific Statements.</h4>
 <p> For the \(i\)-th round, where \(i \in \{ 0, 1, \ldots , n\} \), the statement contains: </p>
 <ul class="itemize">
   <li><p>\(\text{target} \in R\): the target value for sum-check at this round </p>
@@ -358,17 +352,17 @@
 </li>
 </ul>
 <p>The oracle statement remains the same polynomial \(P \in R[X_0, X_1, \ldots , X_{n-1}]_{\leq d}\). </p>
-<h4 id="a0000000054">Round-Specific Relations.</h4>
+<h4 id="a0000000096">Round-Specific Relations.</h4>
 <p> The sum-check relation for the \(i\)-th round checks that: </p>
-<div class="displaymath" id="a0000000055">
+<div class="displaymath" id="a0000000097">
   \[  \sum _{x \in (\text{Image}(\mathcal{D}))^{n-i}} P(\text{challenges}, x) = \text{target}  \]
 </div>
 <p>Note that when \(i = n\), this becomes the output statement of the sum-check protocol, checking that \(P(\text{challenges}) = \text{target}\). </p>
-<h3 id="a0000000056">Individual Round Protocol</h3>
+<h3 id="a0000000098">Individual Round Protocol</h3>
 <p>For \(i = 0, 1, \ldots , n-1\), the \(i\)-th round of the sum-check protocol consists of the following: </p>
-<h4 id="a0000000057">Step 1: Prover’s Message.</h4>
+<h4 id="a0000000099">Step 1: Prover’s Message.</h4>
 <p> The prover sends a univariate polynomial \(p_i \in R[X]_{\leq d}\) of degree at most \(d\). If the prover is honest, then: </p>
-<div class="displaymath" id="a0000000058">
+<div class="displaymath" id="a0000000100">
   \[  p_i(X) = \sum _{x \in (\text{Image}(\mathcal{D}))^{n-i}} P(\text{challenges}_0, \ldots , \text{challenges}_{i-1}, X, x)  \]
 </div>
 <p>Here, \(P(\text{challenges}_0, \ldots , \text{challenges}_{i-1}, X, x)\) is the polynomial \(P\) evaluated at the concatenation of: </p>
@@ -381,11 +375,11 @@
 </li>
 </ul>
 <p>In the oracle protocol, this polynomial \(p_i\) is turned into an oracle for which the verifier can query evaluations at arbitrary points. </p>
-<h4 id="a0000000059">Step 2: Verifier’s Challenge.</h4>
+<h4 id="a0000000101">Step 2: Verifier’s Challenge.</h4>
 <p> The verifier sends the \(i\)-th challenge \(r_i\) sampled uniformly at random from \(R\). </p>
-<h4 id="a0000000060">Step 3: Verifier’s Check.</h4>
+<h4 id="a0000000102">Step 3: Verifier’s Check.</h4>
 <p> The (oracle) verifier performs queries for the evaluations of \(p_i\) at all points in \(\text{Image}(\mathcal{D})\), and checks that: </p>
-<div class="displaymath" id="a0000000061">
+<div class="displaymath" id="a0000000103">
   \[  \sum _{x \in \text{Image}(\mathcal{D})} p_i(x) = \text{target}  \]
 </div>
 <p>If the check fails, the verifier outputs \(\texttt{failure}\). Otherwise, it outputs a statement for the next round as follows: </p>
@@ -395,13 +389,13 @@
   <li><p>\(\text{challenges}\) is updated to the concatenation of the previous challenges and \(r_i\) </p>
 </li>
 </ul>
-<h3 id="a0000000062">Single Round Security Analysis</h3>
+<h3 id="a0000000104">Single Round Security Analysis</h3>
 <div class="definition_thmwrapper theorem-style-definition" id="def:sumcheck_single_round">
   <div class="definition_thmheading">
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">26</span>
+    <span class="definition_thmlabel">68</span>
     <span class="definition_thmtitle">Single Round Protocol</span>
     <div class="thm_header_extras">
 
@@ -434,7 +428,7 @@
     <span class="theorem_thmcaption">
     Theorem
     </span>
-    <span class="theorem_thmlabel">27</span>
+    <span class="theorem_thmlabel">69</span>
     <span class="theorem_thmtitle">Single Round Completeness</span>
     <div class="thm_header_extras">
 
@@ -457,7 +451,7 @@
     <span class="theorem_thmcaption">
     Theorem
     </span>
-    <span class="theorem_thmlabel">28</span>
+    <span class="theorem_thmlabel">70</span>
     <span class="theorem_thmtitle">Single Round Soundness</span>
     <div class="thm_header_extras">
 
@@ -480,7 +474,7 @@
     <span class="theorem_thmcaption">
     Theorem
     </span>
-    <span class="theorem_thmlabel">29</span>
+    <span class="theorem_thmlabel">71</span>
     <span class="theorem_thmtitle">Round-by-Round Knowledge Soundness</span>
     <div class="thm_header_extras">
 
@@ -498,7 +492,7 @@
 
   </div>
 </div>
-<h3 id="a0000000063">Virtual Protocol Decomposition</h3>
+<h3 id="a0000000105">Virtual Protocol Decomposition</h3>
 <p>We now proceed to break down this protocol into individual messages, and then specify the predicates that should hold before and after each message is exchanged. </p>
 <p>First, it is clear that we can consider each round in isolation. In fact, each round can be seen as an instantiation of the following simpler "virtual" protocol: </p>
 <div class="definition_thmwrapper theorem-style-definition" id="def:virtual_sumcheck_round_protocol">
@@ -506,7 +500,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">30</span>
+    <span class="definition_thmlabel">72</span>
     <div class="thm_header_extras">
 
         </div>
@@ -546,7 +540,7 @@
     <span class="theorem_thmcaption">
     Theorem
     </span>
-    <span class="theorem_thmlabel">31</span>
+    <span class="theorem_thmlabel">73</span>
     <div class="thm_header_extras">
 
         </div>
@@ -567,9 +561,9 @@
         
         <ul class="uses">
           
-          <li><a href="chap-oracle_reductions.html#def:soundness">Definition 16</a></li>
+          <li><a href="chap-oracle_reductions.html#def:soundness">Definition 22</a></li>
           
-          <li><a href="chap-proof_systems.html#def:virtual_sumcheck_round_protocol">Definition 30</a></li>
+          <li><a href="chap-proof_systems.html#def:virtual_sumcheck_round_protocol">Definition 72</a></li>
           
         </ul>
     
@@ -591,7 +585,7 @@
     <span class="theorem_thmcaption">
     Theorem
     </span>
-    <span class="theorem_thmlabel">32</span>
+    <span class="theorem_thmlabel">74</span>
     <div class="thm_header_extras">
 
         </div>
@@ -612,9 +606,9 @@
         
         <ul class="uses">
           
-          <li><a href="chap-oracle_reductions.html#def:knowledge_soundness">Definition 17</a></li>
+          <li><a href="chap-oracle_reductions.html#def:knowledge_soundness">Definition 23</a></li>
           
-          <li><a href="chap-proof_systems.html#def:virtual_sumcheck_round_protocol">Definition 30</a></li>
+          <li><a href="chap-proof_systems.html#def:virtual_sumcheck_round_protocol">Definition 72</a></li>
           
         </ul>
     
@@ -636,7 +630,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">33</span>
+    <span class="definition_thmlabel">75</span>
     <span class="definition_thmtitle">State Function</span>
     <div class="thm_header_extras">
 
@@ -658,9 +652,9 @@
         
         <ul class="uses">
           
-          <li><a href="chap-oracle_reductions.html#def:state_function">Definition 18</a></li>
+          <li><a href="chap-oracle_reductions.html#def:state_function">Definition 24</a></li>
           
-          <li><a href="chap-proof_systems.html#def:virtual_sumcheck_round_protocol">Definition 30</a></li>
+          <li><a href="chap-proof_systems.html#def:virtual_sumcheck_round_protocol">Definition 72</a></li>
           
         </ul>
     
@@ -691,7 +685,7 @@
     <span class="theorem_thmcaption">
     Theorem
     </span>
-    <span class="theorem_thmlabel">34</span>
+    <span class="theorem_thmlabel">76</span>
     <div class="thm_header_extras">
 
         </div>
@@ -712,11 +706,11 @@
         
         <ul class="uses">
           
-          <li><a href="chap-oracle_reductions.html#def:round_by_round_soundness">Definition 19</a></li>
+          <li><a href="chap-oracle_reductions.html#def:round_by_round_soundness">Definition 25</a></li>
           
-          <li><a href="chap-proof_systems.html#def:virtual_sumcheck_round_protocol">Definition 30</a></li>
+          <li><a href="chap-proof_systems.html#def:virtual_sumcheck_round_protocol">Definition 72</a></li>
           
-          <li><a href="chap-proof_systems.html#def:virtual_sumcheck_round_protocol_state_function">Definition 33</a></li>
+          <li><a href="chap-proof_systems.html#def:virtual_sumcheck_round_protocol_state_function">Definition 75</a></li>
           
         </ul>
     
@@ -733,8 +727,8 @@
   </div>
 </div>
 <p>In fact, we can break down this simpler protocol even more: consider the two sub-protocols that each consists of a single message. Then the intermediate state function is the same as the predicate on the intermediate context, and is given in a "strongest post-condition" style where it incorporates the verifier’s check along with the initial predicate. We can also view the final state function as a form of "canonical" post-condition, that is implied by the previous predicate except with small probability.  </p>
-<h1 id="a0000000012">3.3 The Spartan Protocol</h1>
-<h1 id="a0000000013">3.4 The Ligero Polynomial Commitment Scheme</h1>
+<h1 id="a0000000007">3.3 The Spartan Protocol</h1>
+<h1 id="a0000000008">3.4 The Ligero Polynomial Commitment Scheme</h1>
 
 </div> <!--main-text -->
 </div> <!-- content-wrapper -->

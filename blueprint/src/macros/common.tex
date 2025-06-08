@@ -21,9 +21,11 @@
 \newcommand{\Type}{\mathsf{Type}}
 \newcommand{\Dir}{\mathsf{Dir}}
 \newcommand{\OI}{\mathsf{OI}}
-\newcommand{\PSpec}{\mathsf{PSpec}}
-\newcommand{\OSpec}{\mathsf{OSpec}}
-\newcommand{\OComp}{\mathsf{OComp}}
+\newcommand{\PSpec}{\mathsf{ProtocolSpec}}
+\newcommand{\ProtocolSpec}{\mathsf{ProtocolSpec}}
+\newcommand{\OracleInterface}{\mathsf{OracleInterface}}
+\newcommand{\OracleSpec}{\mathsf{OracleSpec}}
+\newcommand{\OracleComp}{\mathsf{OracleComp}}
 
 \newcommand{\pSpec}{\mathsf{pSpec}}
 \newcommand{\oSpec}{\mathsf{oSpec}}
@@ -156,9 +158,6 @@
 \newcommand{\calZ}{\mathcal{Z}}
 
 % Additional protocol and oracle shortcuts from Basic.lean
-\newcommand{\ProtocolSpec}{\mathsf{ProtocolSpec}}
-\newcommand{\OracleInterface}{\mathsf{OracleInterface}}
-\newcommand{\OracleSpec}{\mathsf{OracleSpec}}
 \newcommand{\ProverState}{\mathsf{ProverState}}
 \newcommand{\ProverIn}{\mathsf{ProverIn}}
 \newcommand{\ProverRound}{\mathsf{ProverRound}}
@@ -200,3 +199,31 @@
 % Direction notation shortcuts
 \newcommand{\PtoVdir}{\mathsf{P \!\!\rightarrow\!\! V}}
 \newcommand{\VtoPdir}{\mathsf{V \!\!\rightarrow\!\! P}}
+
+\newcommand{\Statement}{\mathsf{Statement}}
+\newcommand{\StmtIn}{\mathsf{StmtIn}}
+\newcommand{\StmtOut}{\mathsf{StmtOut}}
+\newcommand{\Witness}{\mathsf{Witness}}
+\newcommand{\WitIn}{\mathsf{WitIn}}
+\newcommand{\WitOut}{\mathsf{WitOut}}
+\newcommand{\OStatement}{\mathsf{OStatement}}
+\newcommand{\OStmtIn}{\mathsf{OStmtIn}}
+\newcommand{\OStmtOut}{\mathsf{OStmtOut}}
+
+% Composition and lifting
+\newcommand{\append}{\mathsf{append}}
+\newcommand{\compose}{\mathsf{compose}}
+\newcommand{\liftContext}{\mathsf{liftContext}}
+\newcommand{\ContextLens}{\mathsf{ContextLens}}
+\newcommand{\StatementLens}{\mathsf{StatementLens}}
+\newcommand{\WitnessLens}{\mathsf{WitnessLens}}
+\newcommand{\OracleContextLens}{\mathsf{OracleContextLens}}
+\newcommand{\projStmt}{\mathsf{projStmt}}
+\newcommand{\liftStmt}{\mathsf{liftStmt}}
+\newcommand{\projWit}{\mathsf{projWit}}
+\newcommand{\liftWit}{\mathsf{liftWit}}
+\newcommand{\ContextLensIsComplete}{\mathsf{ContextLens.IsComplete}}
+\newcommand{\StatementLensIsSound}{\mathsf{StatementLens.IsSound}}
+\newcommand{\StatementLensIsRBRSound}{\mathsf{StatementLens.IsRBRSound}}
+\newcommand{\ContextLensIsKnowledgeSound}{\mathsf{ContextLens.IsKnowledgeSound}}
+\newcommand{\ContextLensIsRBRKnowledgeSound}{\mathsf{ContextLens.IsRBRKnowledgeSound}}
