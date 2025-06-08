@@ -176,11 +176,11 @@
 </li>
   <li><p>The prover and verifier has access to some inputs (called the <em>(oracle) context</em>) at the beginning of the protocol. These inputs are classified as follows: </p>
 <ul class="itemize">
-  <li><p><em>Public inputs</em> (or <em>statement</em>) \(\mathbbm {x}\): available to both parties; </p>
+  <li><p><em>Public inputs</em> (or <em>statement</em>) \(\mathbb {x}\): available to both parties; </p>
 </li>
-  <li><p><em>Private inputs</em> (or <em>witness</em>) \(\mathbbm {w}\): available only to the prover; </p>
+  <li><p><em>Private inputs</em> (or <em>witness</em>) \(\mathbb {w}\): available only to the prover; </p>
 </li>
-  <li><p><em>Oracle inputs</em> (or <em>oracle statement</em>) \(\mathbbm {ox}\): the underlying data is available to the prover, but it’s only exposed as an oracle to the verifier. See&#160;<a href="chap-oracle_reductions.html#def:oracle_interface">Definition 2</a> for more information. </p>
+  <li><p><em>Oracle inputs</em> (or <em>oracle statement</em>) \(\mathbb {o}\): the underlying data is available to the prover, but it’s only exposed as an oracle to the verifier. See&#160;<a href="chap-oracle_reductions.html#def:oracle_interface">Definition 2</a> for more information. </p>
 </li>
   <li><p><em>Shared oracle</em> \(\mathcal{O}\): the oracle is available to both parties via an interface; in most cases, it is either empty, a probabilistic sampling oracle, a random oracle, or a group oracle (for the Algebraic Group Model). See&#160;<a href="chap-supporting_theories.html#sec:vcvio">Section 5.3</a> for more information on oracle computations. </p>
 </li>
@@ -429,7 +429,7 @@
         </div>
   </div>
   <div class="definition_thmcontent">
-  <p>  Given a protocol specification \(\mathsf{pSpec}: \mathsf{ProtocolSpec}\  n\), we define: </p>
+  <p>  Given a protocol spec \(\mathsf{pSpec}: \mathsf{ProtocolSpec}\  n\), we define: </p>
 <ul class="itemize">
   <li><p>\(\mathsf{pSpec}.\mathsf{Dir}\  i := (\mathsf{pSpec}\  i).\mathsf{fst}\) extracts the direction of the \(i\)-th message. </p>
 </li>

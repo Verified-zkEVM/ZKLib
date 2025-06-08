@@ -178,7 +178,12 @@
 \newcommand{\simulateQ}{\mathsf{simulateQ}}
 \newcommand{\liftM}{\mathsf{liftM}}
 
-% Note: \mathbbm already defined in packages.tex via bbm package
+% Handle \mathbbm for plastex compatibility
+% plastex doesn't support \mathbbm, so we ensure it falls back to \mathbb
+\providecommand{\mathbbm}{\mathbb}
+
+% Note: For PDF compilation, bbm package in packages.tex will override this
+% For web compilation with plastex, this provides the fallback
 
 % Protocol flow notation (from Basic.lean)
 \newcommand{\PtoVmsg}[1]{\mathcal{P}——⟦#1⟧⟶\mathcal{V}}
