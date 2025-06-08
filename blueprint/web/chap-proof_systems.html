@@ -81,10 +81,19 @@
   <span class="expand-toc">▶</span>
   <ul class="sub-toc-2">
      <li class="">
-  <a href="chap-proof_systems.html#a0000000005"><span class="toc_ref">3.1.1</span> <span class="toc_entry">Polynomial Equality Testing</span></a>
+  <a href="chap-proof_systems.html#a0000000005"><span class="toc_ref">3.1.1</span> <span class="toc_entry">The Trivial Reduction: DoNothing</span></a>
  </li>
 <li class="">
-  <a href="chap-proof_systems.html#a0000000006"><span class="toc_ref">3.1.2</span> <span class="toc_entry">Batching Polynomial Evaluation Claims</span></a>
+  <a href="chap-proof_systems.html#a0000000006"><span class="toc_ref">3.1.2</span> <span class="toc_entry">Witness Transmission: SendWitness</span></a>
+ </li>
+<li class="">
+  <a href="chap-proof_systems.html#a0000000007"><span class="toc_ref">3.1.3</span> <span class="toc_entry">Oracle Equality Testing: RandomQuery</span></a>
+ </li>
+<li class="">
+  <a href="chap-proof_systems.html#a0000000008"><span class="toc_ref">3.1.4</span> <span class="toc_entry">Polynomial Equality Testing</span></a>
+ </li>
+<li class="">
+  <a href="chap-proof_systems.html#a0000000009"><span class="toc_ref">3.1.5</span> <span class="toc_entry">Batching Polynomial Evaluation Claims</span></a>
  </li>
 
   </ul>
@@ -103,10 +112,10 @@
   </ul>
  </li>
 <li class="">
-  <a href="chap-proof_systems.html#a0000000007"><span class="toc_ref">3.3</span> <span class="toc_entry">The Spartan Protocol</span></a>
+  <a href="chap-proof_systems.html#a0000000010"><span class="toc_ref">3.3</span> <span class="toc_entry">The Spartan Protocol</span></a>
  </li>
 <li class="">
-  <a href="chap-proof_systems.html#a0000000008"><span class="toc_ref">3.4</span> <span class="toc_entry">The Ligero Polynomial Commitment Scheme</span></a>
+  <a href="chap-proof_systems.html#a0000000011"><span class="toc_ref">3.4</span> <span class="toc_entry">The Ligero Polynomial Commitment Scheme</span></a>
  </li>
 
   </ul>
@@ -116,7 +125,7 @@
   <span class="expand-toc">▶</span>
   <ul class="sub-toc-1">
      <li class="">
-  <a href="chap-commitment_schemes.html#a0000000009"><span class="toc_ref">4.1</span> <span class="toc_entry">Definitions</span></a>
+  <a href="chap-commitment_schemes.html#a0000000012"><span class="toc_ref">4.1</span> <span class="toc_entry">Definitions</span></a>
  </li>
 <li class="">
   <a href="chap-commitment_schemes.html#sec:merkle_trees"><span class="toc_ref">4.2</span> <span class="toc_entry">Merkle Trees</span></a>
@@ -158,39 +167,897 @@
 <h1 id="chap:proof_systems">3 Proof Systems</h1>
 
 <h1 id="a0000000004">3.1 Simple Oracle Reductions</h1>
-<p>We start by introducing a number of simple oracle reductions. </p>
-<h2 id="a0000000005">3.1.1 Polynomial Equality Testing</h2>
-<p>Context: two univariate polynomials \(P, Q \in \mathbb {F}[X]\) of degree at most \(d\), available as polynomial evaluation oracles </p>
-<p>Input relation: \(P = Q\) as polynomials </p>
-<p>Protocol type: a single message of type \(\mathbb {F}\) from the verifier to the prover. </p>
-<p>Honest prover: does nothing </p>
-<p>Honest verifier: checks that \(P(r) = Q(r)\) </p>
-<p>Output relation: \(P(r) = Q(r)\) </p>
-<p>Extractor: trivial since there is no witness </p>
-<p>Completenes: trivial </p>
-<p>Round-by-round state function: corresponds precisely to input and output relation </p>
+<p>We start by introducing a number of simple oracle reductions that serve as fundamental building blocks for more complex proof systems. These components can be composed together to construct larger protocols. </p>
+<h2 id="a0000000005">3.1.1 The Trivial Reduction: DoNothing</h2>
+<p>The simplest possible oracle reduction is one that performs no computation at all. Both the prover and verifier simply pass their inputs through unchanged. While seemingly trivial, this reduction serves as an important identity element for composition and provides a base case for lifting and lens operations. </p>
+<div class="definition_thmwrapper theorem-style-definition" id="def:donothing_reduction">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">88</span>
+    <span class="definition_thmtitle">DoNothing Reduction</span>
+    <div class="thm_header_extras">
 
-<p>Round-by-round error: \(d / \lvert \mathbb {F} \rvert \) </p>
-<p>Round-by-round knowledge soundness: follows from Schwartz-Zippel </p>
-<p>To summarize, we have the following judgment: </p>
-<div class="displaymath" id="a0000000069">
-  \[  \begin{array}{c} \Psi := (); \;  \Theta := (P, Q); \;  \Sigma := (); \;  \tau := (\mathsf{V2P}, \mathbb {F}) \vdash \\[1ex] \{ P = Q\}  \quad \left( \begin{array}{l} \mathcal{P} := (), \\ \mathcal{V} := (P,Q,r) \mapsto [P(r) \stackrel{?}{=} Q(r)], \\ \mathcal{E} := () \end{array} \right)^{\emptyset } \quad \{ \! \! \{ P(r) = Q(r); \mathsf{St}_{P,Q}; \frac{d}{\lvert \mathbb {F} \rvert }\} \! \! \}  \end{array}  \]
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-proof_systems.html#def:donothing_reduction">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/DoNothing.reduction" class="lean_decl">DoNothing.reduction</a></li>
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/DoNothing.oracleReduction" class="lean_decl">DoNothing.oracleReduction</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  The DoNothing reduction is a zero-round protocol with the following components: </p>
+<ul class="itemize">
+  <li><p><b class="bfseries">Protocol specification</b>: \(\mathsf{pSpec}:= []\) (empty protocol, no messages exchanged) </p>
+</li>
+  <li><p><b class="bfseries">Prover</b>: Simply stores the input statement and witness, and outputs them unchanged </p>
+</li>
+  <li><p><b class="bfseries">Verifier</b>: Takes the input statement and outputs it directly </p>
+</li>
+  <li><p><b class="bfseries">Input relation</b>: Any relation \(R_{\mathsf{in}} : \mathsf{StmtIn}\to \mathsf{WitIn}\to \mathsf{Prop}\) </p>
+</li>
+  <li><p><b class="bfseries">Output relation</b>: The same relation \(R_{\mathsf{out}} := R_{\mathsf{in}}\) </p>
+</li>
+</ul>
+
+
+  </div>
 </div>
-<p> where \(\mathsf{St}(i) = \begin{cases} \end{cases} P \stackrel{?}{=} Q \text{ if } i = 0 \\ P(r) \stackrel{?}{=} Q(r) \text{ if } i = 1 \end{cases}\) </p>
-<h2 id="a0000000006">3.1.2 Batching Polynomial Evaluation Claims</h2>
-<p>Context: \(n\)-tuple of values \(v = (v_1, \ldots , v_n) \in \mathbb {F}^n\) </p>
-<p>Protocol type: one message of type \(\mathbb {F}^k\) from the verifier to the prover, and another message of type \(\mathbb {F}\) from the prover to the verifier </p>
-<p>Auxiliary function: a polynomial map \(E : \mathbb {F}^k \to \mathbb {F}^n\) </p>
-<p>Honest prover: given \(r \gets \mathbb {F}^k\) from the verifier’s message, computes \(\langle E(r), v\rangle := E(r)_1 \cdot v_1 + \cdots + E(r)_n \cdot v_n\) and sends it to the verifier </p>
-<p>Honest verifier: checks that the received value \(v'\) is equal to \(\langle E(r), v\rangle \) </p>
-<p>Extractor: trivial since there is no witness </p>
-<p>Security: depends on the degree &amp; non-degeneracy of the polynomial map \(E\) </p>
+<div class="theorem_thmwrapper theorem-style-plain" id="a0000000085">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">89</span>
+    <span class="theorem_thmtitle">DoNothing Perfect Completeness</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-proof_systems.html#a0000000085">#</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-proof_systems.html#def:donothing_reduction">Definition 88</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/DoNothing.reduction_completeness" class="lean_decl">DoNothing.reduction_completeness</a></li>
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/DoNothing.oracleReduction_completeness" class="lean_decl">DoNothing.oracleReduction_completeness</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  <p> The DoNothing reduction satisfies perfect completeness for any input relation.   </p>
+
+  </div>
+</div>
+<p>The oracle version of DoNothing handles oracle statements by passing them through unchanged as well. The prover receives both non-oracle and oracle statements as input, and outputs them in the same form to the verifier. </p>
+<h2 id="a0000000006">3.1.2 Witness Transmission: SendWitness</h2>
+<p>A fundamental building block in many proof systems is the ability for the prover to transmit witness information to the verifier. The SendWitness reduction provides this functionality in both direct and oracle settings. </p>
+<div class="definition_thmwrapper theorem-style-definition" id="def:sendwitness_reduction">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">90</span>
+    <span class="definition_thmtitle">SendWitness Reduction</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-proof_systems.html#def:sendwitness_reduction">#</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-oracle_reductions.html#def:interactive_reduction">Definition 13</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/SendWitness.reduction" class="lean_decl">SendWitness.reduction</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  The SendWitness reduction is a one-round protocol where the prover sends the complete witness to the verifier: </p>
+<ul class="itemize">
+  <li><p><b class="bfseries">Protocol specification</b>: \(\mathsf{pSpec}:= [(\mathsf{P \! \! \rightarrow \! \!  V}, \mathsf{WitIn})]\) (single message from prover to verifier) </p>
+</li>
+  <li><p><b class="bfseries">Prover</b>: Sends the witness \(\mathbb {w}\) as its single message </p>
+</li>
+  <li><p><b class="bfseries">Verifier</b>: Receives the witness and combines it with the input statement to form the output </p>
+</li>
+  <li><p><b class="bfseries">Input relation</b>: \(R_{\mathsf{in}} : \mathsf{StmtIn}\to \mathsf{WitIn}\to \mathsf{Prop}\) </p>
+</li>
+  <li><p><b class="bfseries">Output relation</b>: \(R_{\mathsf{out}} : (\mathsf{StmtIn}\times \mathsf{WitIn}) \to \mathsf{Unit}\to \mathsf{Prop}\) defined by \(((\mathsf{stmt}, \mathsf{wit}), ()) \mapsto R_{\mathsf{in}}(\mathsf{stmt}, \mathsf{wit})\) </p>
+</li>
+</ul>
+
+
+  </div>
+</div>
+<div class="theorem_thmwrapper theorem-style-plain" id="a0000000086">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">91</span>
+    <span class="theorem_thmtitle">SendWitness Perfect Completeness</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-proof_systems.html#a0000000086">#</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-proof_systems.html#def:sendwitness_reduction">Definition 90</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/SendWitness.reduction_completeness" class="lean_decl">SendWitness.reduction_completeness</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  <p> The SendWitness reduction satisfies perfect completeness.   </p>
+
+  </div>
+</div>
+<p>In the oracle setting, we consider two variants: </p>
+<div class="definition_thmwrapper theorem-style-definition" id="def:sendwitness_oracle_reduction">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">92</span>
+    <span class="definition_thmtitle">SendWitness Oracle Reduction</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-proof_systems.html#def:sendwitness_oracle_reduction">#</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-oracle_reductions.html#def:interactive_oracle_reduction">Definition 14</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  The oracle version handles witnesses that are indexed families of types with oracle interfaces: </p>
+<ul class="itemize">
+  <li><p><b class="bfseries">Witness type</b>: \(\mathsf{WitIn}: \iota _w \to \mathsf{Type}\) where each \(\mathsf{WitIn}(i)\) has an oracle interface </p>
+</li>
+  <li><p><b class="bfseries">Protocol specification</b>: \(\mathsf{pSpec}:= [(\mathsf{P \! \! \rightarrow \! \!  V}, \forall i, \mathsf{WitIn}(i))]\) </p>
+</li>
+  <li><p><b class="bfseries">Output oracle statements</b>: Combination of input oracle statements and the transmitted witness </p>
+</li>
+</ul>
+
+
+  </div>
+</div>
+<div class="definition_thmwrapper theorem-style-definition" id="def:sendsinglewitness_oracle_reduction">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">93</span>
+    <span class="definition_thmtitle">SendSingleWitness Oracle Reduction</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-proof_systems.html#def:sendsinglewitness_oracle_reduction">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/SendSingleWitness.oracleReduction" class="lean_decl">SendSingleWitness.oracleReduction</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  A specialized variant for a single witness with oracle interface: </p>
+<ul class="itemize">
+  <li><p><b class="bfseries">Witness type</b>: \(\mathsf{WitIn}: \mathsf{Type}\) with oracle interface </p>
+</li>
+  <li><p><b class="bfseries">Protocol specification</b>: \(\mathsf{pSpec}:= [(\mathsf{P \! \! \rightarrow \! \!  V}, \mathsf{WitIn})]\) </p>
+</li>
+  <li><p><b class="bfseries">Conversion</b>: Implicitly converts to indexed family \(\mathsf{WitIn}: \mathsf{Fin}(1) \to \mathsf{Type}\) </p>
+</li>
+</ul>
+
+
+  </div>
+</div>
+<div class="theorem_thmwrapper theorem-style-plain" id="a0000000087">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">94</span>
+    <span class="theorem_thmtitle">SendSingleWitness Perfect Completeness</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-proof_systems.html#a0000000087">#</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-proof_systems.html#def:sendsinglewitness_oracle_reduction">Definition 93</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/SendSingleWitness.oracleReduction_completeness" class="lean_decl">SendSingleWitness.oracleReduction_completeness</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  <p> The SendSingleWitness oracle reduction satisfies perfect completeness.   </p>
+
+  </div>
+</div>
+<h2 id="a0000000007">3.1.3 Oracle Equality Testing: RandomQuery</h2>
+<p>One of the most fundamental oracle reductions is testing whether two oracles of the same type are equal. This is achieved through random sampling from the query space. </p>
+<div class="definition_thmwrapper theorem-style-definition" id="def:randomquery_oracle_reduction">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">95</span>
+    <span class="definition_thmtitle">RandomQuery Oracle Reduction</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-proof_systems.html#def:randomquery_oracle_reduction">#</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-oracle_reductions.html#def:interactive_oracle_reduction">Definition 14</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/RandomQuery.oracleReduction" class="lean_decl">RandomQuery.oracleReduction</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  The RandomQuery reduction tests equality between two oracles by random querying: </p>
+<ul class="itemize">
+  <li><p><b class="bfseries">Input</b>: Two oracles \(\mathsf{a}, \mathsf{b}\) of the same type with oracle interface </p>
+</li>
+  <li><p><b class="bfseries">Protocol specification</b>: \(\mathsf{pSpec}:= [(\mathsf{V \! \! \rightarrow \! \!  P}, \mathsf{Query})]\) (single challenge from verifier) </p>
+</li>
+  <li><p><b class="bfseries">Input relation</b>: \(R_{\mathsf{in}}((), (\mathsf{a}, \mathsf{b}), ()) := (\mathsf{a} = \mathsf{b})\) </p>
+</li>
+  <li><p><b class="bfseries">Verifier</b>: Samples random query \(q\) and sends it to prover </p>
+</li>
+  <li><p><b class="bfseries">Prover</b>: Receives query \(q\), performs no computation </p>
+</li>
+  <li><p><b class="bfseries">Output relation</b>: \(R_{\mathsf{out}}((q, (\mathsf{a}, \mathsf{b})), ()) := (\mathsf{oracle}(\mathsf{a}, q) = \mathsf{oracle}(\mathsf{b}, q))\) </p>
+</li>
+</ul>
+
+
+  </div>
+</div>
+<div class="theorem_thmwrapper theorem-style-plain" id="a0000000088">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">96</span>
+    <span class="theorem_thmtitle">RandomQuery Perfect Completeness</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-proof_systems.html#a0000000088">#</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-proof_systems.html#def:randomquery_oracle_reduction">Definition 95</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/RandomQuery.oracleReduction_completeness" class="lean_decl">RandomQuery.oracleReduction_completeness</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  <p> The RandomQuery oracle reduction satisfies perfect completeness: if two oracles are equal, they will agree on any random query.   </p>
+
+  </div>
+</div>
+<p>The key security property of RandomQuery depends on the notion of oracle distance: </p>
+<div class="definition_thmwrapper theorem-style-definition" id="def:oracle_distance">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">97</span>
+    <span class="definition_thmtitle">Oracle Distance</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-proof_systems.html#def:oracle_distance">#</a>
+    
+    
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  For oracles \(\mathsf{a}, \mathsf{b}\) of the same type, we define their distance as: </p>
+<div class="displaymath" id="a0000000089">
+  \[  \mathsf{distance}(\mathsf{a}, \mathsf{b}) := |\{ q : \mathsf{Query} \mid \mathsf{oracle}(\mathsf{a}, q) \neq \mathsf{oracle}(\mathsf{b}, q)\} |  \]
+</div>
+<p>We say an oracle type has distance bound \(d\) if for any two distinct oracles \(\mathsf{a} \neq \mathsf{b}\), we have \(\mathsf{distance}(\mathsf{a}, \mathsf{b}) \geq |\mathsf{Query}| - d\). </p>
+
+  </div>
+</div>
+<div class="theorem_thmwrapper theorem-style-plain" id="a0000000090">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">98</span>
+    <span class="theorem_thmtitle">RandomQuery Knowledge Soundness</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-proof_systems.html#a0000000090">#</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-proof_systems.html#def:randomquery_oracle_reduction">Definition 95</a></li>
+          
+          <li><a href="chap-proof_systems.html#def:oracle_distance">Definition 97</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/RandomQuery.rbr_knowledge_soundness" class="lean_decl">RandomQuery.rbr_knowledge_soundness</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  <p> If the oracle type has distance bound \(d\), then the RandomQuery oracle reduction satisfies round-by-round knowledge soundness with error probability \(\frac{d}{|\mathsf{Query}|}\).   </p>
+
+  </div>
+</div>
+<div class="definition_thmwrapper theorem-style-definition" id="def:randomquery_with_response">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">99</span>
+    <span class="definition_thmtitle">RandomQueryWithResponse Variant</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-proof_systems.html#def:randomquery_with_response">#</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-proof_systems.html#def:randomquery_oracle_reduction">Definition 95</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  A variant of RandomQuery where the second oracle is replaced with an explicit response: </p>
+<ul class="itemize">
+  <li><p><b class="bfseries">Input</b>: Single oracle \(\mathsf{a}\) and target response \(r\) </p>
+</li>
+  <li><p><b class="bfseries">Output relation</b>: \(R_{\mathsf{out}}(((q, r), \mathsf{a}), ()) := (\mathsf{oracle}(\mathsf{a}, q) = r)\) </p>
+</li>
+</ul>
+<p> This variant is useful when one wants to verify a specific query-response pair rather than oracle equality.  </p>
+
+  </div>
+</div>
+<h2 id="a0000000008">3.1.4 Polynomial Equality Testing</h2>
+<p>A common application of oracle reductions is testing equality between polynomial oracles. This is a specific instance of the RandomQuery reduction applied to polynomial evaluation oracles. </p>
+<div class="definition_thmwrapper theorem-style-definition" id="def:polynomial_equality_testing">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">100</span>
+    <span class="definition_thmtitle">Polynomial Equality Testing</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-proof_systems.html#def:polynomial_equality_testing">#</a>
+    
+    
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  Consider two univariate polynomials \(P, Q \in \mathbb {F}[X]\) of degree at most \(d\), available as polynomial evaluation oracles. The polynomial equality testing reduction is defined as: </p>
+<ul class="itemize">
+  <li><p><b class="bfseries">Input relation</b>: \(P = Q\) as polynomials </p>
+</li>
+  <li><p><b class="bfseries">Protocol specification</b>: Single challenge of type \(\mathbb {F}\) from verifier to prover </p>
+</li>
+  <li><p><b class="bfseries">Honest prover</b>: Receives the random field element \(r\) but performs no computation </p>
+</li>
+  <li><p><b class="bfseries">Honest verifier</b>: Checks that \(P(r) = Q(r)\) by querying both polynomial oracles </p>
+</li>
+  <li><p><b class="bfseries">Output relation</b>: \(P(r) = Q(r)\) for the sampled point \(r\) </p>
+</li>
+</ul>
+
+  </div>
+</div>
+<div class="theorem_thmwrapper theorem-style-plain" id="a0000000091">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">101</span>
+    <span class="theorem_thmtitle">Polynomial Equality Testing Completeness</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-proof_systems.html#a0000000091">#</a>
+    
+    
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  <p> The polynomial equality testing reduction satisfies perfect completeness: if \(P = Q\) as polynomials, then \(P(r) = Q(r)\) for any field element \(r\). </p>
+
+  </div>
+</div>
+<div class="theorem_thmwrapper theorem-style-plain" id="a0000000092">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">102</span>
+    <span class="theorem_thmtitle">Polynomial Equality Testing Soundness</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-proof_systems.html#a0000000092">#</a>
+    
+    
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  <p> The polynomial equality testing reduction satisfies round-by-round knowledge soundness with error probability \(\frac{d}{|\mathbb {F}|}\), where \(d\) is the maximum degree bound. This follows from the Schwartz-Zippel lemma: distinct polynomials of degree at most \(d\) can agree on at most \(d\) points. </p>
+
+  </div>
+</div>
+<p>The state function for this reduction corresponds precisely to the input and output relations, transitioning from checking polynomial equality to checking evaluation equality at the sampled point. </p>
+<h2 id="a0000000009">3.1.5 Batching Polynomial Evaluation Claims</h2>
+<p>Another important building block is the ability to batch multiple polynomial evaluation claims into a single check using random linear combinations. </p>
+<p>TODO: express this as a lifted version of \(\mathsf{RandomQuery}\) over a virtual polynomial whose variables are the random linear combination coefficients. </p>
+<div class="definition_thmwrapper theorem-style-definition" id="def:batching_polynomial_evaluation">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">103</span>
+    <span class="definition_thmtitle">Batching Polynomial Evaluation Claims</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-proof_systems.html#def:batching_polynomial_evaluation">#</a>
+    
+    
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  Consider an \(n\)-tuple of values \(v = (v_1, \ldots , v_n) \in \mathbb {F}^n\) and a polynomial map \(E : \mathbb {F}^k \to \mathbb {F}^n\). The batching reduction is defined as: </p>
+<ul class="itemize">
+  <li><p><b class="bfseries">Protocol specification</b>: Two messages: </p>
+<ol class="enumerate">
+  <li><p>Verifier sends random \(r \in \mathbb {F}^k\) to prover </p>
+</li>
+  <li><p>Prover sends \(\langle E(r), v \rangle := \sum _{i=1}^n E(r)_i \cdot v_i\) to verifier </p>
+</li>
+</ol>
+</li>
+  <li><p><b class="bfseries">Honest prover</b>: Computes the inner product \(\langle E(r), v \rangle \) and sends it </p>
+</li>
+  <li><p><b class="bfseries">Honest verifier</b>: Verifies that the received value equals the expected inner product </p>
+</li>
+  <li><p><b class="bfseries">Extractor</b>: Trivial since there is no witness to extract </p>
+</li>
+</ul>
+
+  </div>
+</div>
+<div class="theorem_thmwrapper theorem-style-plain" id="a0000000093">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">104</span>
+    <span class="theorem_thmtitle">Batching Completeness</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-proof_systems.html#a0000000093">#</a>
+    
+    
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  <p> The batching polynomial evaluation reduction satisfies perfect completeness. </p>
+
+  </div>
+</div>
+<div class="remark_thmwrapper theorem-style-definition" id="a0000000094">
+  <div class="remark_thmheading">
+    <span class="remark_thmcaption">
+    Remark
+    </span>
+    <span class="remark_thmlabel">105</span>
+    <span class="remark_thmtitle">Batching Security</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-proof_systems.html#a0000000094">#</a>
+    
+    
+    
+        </div>
+  </div>
+  <div class="remark_thmcontent">
+  <p> The security of this reduction depends on the degree and non-degeneracy properties of the polynomial map \(E\). The specific error bounds depend on the structure of \(E\) and require careful analysis of the polynomial’s properties. </p>
+
+  </div>
+</div>
 <h1 id="sec:sumcheck">3.2 The Sum-Check Protocol</h1>
 
 <p>This section documents our formalization of the sum-check protocol. We first describe the sum-check protocol as it is typically described in the literature, and then present a modular description that maximally relies on our general oracle reduction framework. </p>
 <h2 id="sec:sumcheck_standard">3.2.1 Standard Description</h2>
 
-<h3 id="a0000000070">Protocol Parameters</h3>
+<h3 id="a0000000095">Protocol Parameters</h3>
 <p>The sum-check protocol is parameterized by the following: </p>
 <ul class="itemize">
   <li><p>\(R\): the underlying ring (for soundness, required to be finite and an integral domain) </p>
@@ -204,42 +1071,42 @@
   <li><p>\(\mathcal{O}\): the set of underlying oracles (e.g., random oracles) that may be needed for other reductions. However, the sum-check protocol itself does <em>not</em> use any oracles. </p>
 </li>
 </ul>
-<h3 id="a0000000071">Input and Output Statements</h3>
+<h3 id="a0000000096">Input and Output Statements</h3>
 <p>For the standard description of the sum-check protocol, we specify the complete input and output data: </p>
-<h4 id="a0000000072">Input Statement.</h4>
+<h4 id="a0000000097">Input Statement.</h4>
 <p> The claimed sum \(T \in R\). </p>
-<h4 id="a0000000073">Input Oracle Statement.</h4>
+<h4 id="a0000000098">Input Oracle Statement.</h4>
 <p> The polynomial \(P \in R[X_0, X_1, \ldots , X_{n-1}]_{\leq d}\) of \(n\) variables with bounded individual degrees \(d\). </p>
-<h4 id="a0000000074">Input Witness.</h4>
+<h4 id="a0000000099">Input Witness.</h4>
 <p> None (the unit type). </p>
-<h4 id="a0000000075">Input Relation.</h4>
+<h4 id="a0000000100">Input Relation.</h4>
 <p> The sum-check relation: </p>
-<div class="displaymath" id="a0000000076">
+<div class="displaymath" id="a0000000101">
   \[  \sum _{x \in (\text{Image}(\mathcal{D}))^n} P(x) = T  \]
 </div>
-<h4 id="a0000000077">Output Statement.</h4>
+<h4 id="a0000000102">Output Statement.</h4>
 <p> The claimed evaluation \(e \in R\) and the challenge vector \((r_0, r_1, \ldots , r_{n-1}) \in R^n\). </p>
-<h4 id="a0000000078">Output Oracle Statement.</h4>
+<h4 id="a0000000103">Output Oracle Statement.</h4>
 <p> The same polynomial \(P \in R[X_0, X_1, \ldots , X_{n-1}]_{\leq d}\). </p>
-<h4 id="a0000000079">Output Witness.</h4>
+<h4 id="a0000000104">Output Witness.</h4>
 <p> None (the unit type). </p>
-<h4 id="a0000000080">Output Relation.</h4>
+<h4 id="a0000000105">Output Relation.</h4>
 <p> The evaluation relation: </p>
-<div class="displaymath" id="a0000000081">
+<div class="displaymath" id="a0000000106">
   \[  P(r_0, r_1, \ldots , r_{n-1}) = e  \]
 </div>
-<h3 id="a0000000082">Protocol Description</h3>
+<h3 id="a0000000107">Protocol Description</h3>
 <p>The sum-check protocol proceeds in \(n\) rounds of interaction between the prover and verifier. The protocol reduces the claim that a multivariate polynomial \(P\) sums to a target value \(T\) over the domain \((\text{Image}(\mathcal{D}))^n\) to the claim that \(P\) evaluates to a specific value \(e\) at a random point \((r_0, r_1, \ldots , r_{n-1})\). </p>
 <p>In each round, the prover sends a univariate polynomial of bounded degree, and the verifier responds with a random challenge. The verifier performs consistency checks by querying the polynomial oracle at specific evaluation points. After \(n\) rounds, the protocol terminates with an output statement asserting that \(P(r_0, r_1, \ldots , r_{n-1}) = e\), where the challenges \((r_0, r_1, \ldots , r_{n-1})\) are the random values chosen by the verifier during the protocol execution. </p>
 <p>The protocol is described as an oracle reduction, where the polynomial \(P\) is accessed only through evaluation queries rather than being explicitly represented. </p>
-<h3 id="a0000000083">Security Properties</h3>
+<h3 id="a0000000108">Security Properties</h3>
 <p>We prove the following security properties for the sum-check protocol: </p>
 <div class="theorem_thmwrapper theorem-style-plain" id="thm:sumcheck_perfect_completeness">
   <div class="theorem_thmheading">
     <span class="theorem_thmcaption">
     Theorem
     </span>
-    <span class="theorem_thmlabel">65</span>
+    <span class="theorem_thmlabel">106</span>
     <span class="theorem_thmtitle">Perfect Completeness</span>
     <div class="thm_header_extras">
 
@@ -262,7 +1129,7 @@
     <span class="theorem_thmcaption">
     Theorem
     </span>
-    <span class="theorem_thmlabel">66</span>
+    <span class="theorem_thmlabel">107</span>
     <span class="theorem_thmtitle">Knowledge Soundness</span>
     <div class="thm_header_extras">
 
@@ -285,7 +1152,7 @@
     <span class="theorem_thmcaption">
     Theorem
     </span>
-    <span class="theorem_thmlabel">67</span>
+    <span class="theorem_thmlabel">108</span>
     <span class="theorem_thmtitle">Round-by-Round Knowledge Soundness</span>
     <div class="thm_header_extras">
 
@@ -303,19 +1170,19 @@
 
   </div>
 </div>
-<h3 id="a0000000084">Implementation Notes</h3>
+<h3 id="a0000000109">Implementation Notes</h3>
 <p>Our formalization includes several important implementation considerations: </p>
-<h4 id="a0000000085">Oracle Reduction Level.</h4>
+<h4 id="a0000000110">Oracle Reduction Level.</h4>
 <p> This description of the sum-check protocol stays at the <b class="bfseries">oracle reduction</b> level, describing the protocol before being compiled with concrete cryptographic primitives such as polynomial commitment schemes for \(P\). The oracle model allows us to focus on the logical structure and security properties of the protocol without being concerned with the specifics of how polynomial evaluations are implemented or verified. </p>
-<h4 id="a0000000086">Abstract Protocol Description.</h4>
+<h4 id="a0000000111">Abstract Protocol Description.</h4>
 <p> The protocol description above does not consider implementation details and optimizations that would be necessary in practice. For instance, we do not address computational efficiency, concrete polynomial representations, or specific algorithms for polynomial evaluation. This abstraction allows us to establish the fundamental security properties that any concrete implementation must preserve. </p>
-<h4 id="a0000000087">Degree Constraints.</h4>
+<h4 id="a0000000112">Degree Constraints.</h4>
 <p> To represent sum-check as a series of Interactive Oracle Reductions (IORs), we implicitly constrain the degree of the polynomials via using subtypes such as \(R[X]_{\leq d}\) and appropriate multivariate polynomial degree bounds. This is necessary because the oracle verifier only gets oracle access to evaluating the polynomials, but does not see the polynomials in the clear. </p>
-<h4 id="a0000000088">Polynomial Commitments.</h4>
+<h4 id="a0000000113">Polynomial Commitments.</h4>
 <p> When this protocol is compiled to an interactive proof (rather than an oracle reduction), the corresponding polynomial commitment schemes will enforce that the declared degree bounds hold, by letting the (non-oracle) verifier perform explicit degree checks. </p>
-<h4 id="a0000000089">Formalization Alignment.</h4>
+<h4 id="a0000000114">Formalization Alignment.</h4>
 <p> <b class="bfseries">TODO:</b> Align the sum-check protocol formalization in Lean to use \(n\) variables and \(n\) rounds (as in this standard description) rather than \(n+1\) variables and \(n+1\) rounds. This should be achievable by refactoring the current implementation to better match the standard presentation. </p>
-<h3 id="a0000000090">Future Extensions</h3>
+<h3 id="a0000000115">Future Extensions</h3>
 <p>Several generalizations are considered for future work: </p>
 <ul class="itemize">
   <li><p><b class="bfseries">Variable Degree Bounds:</b> Generalize to \(d : \{ 0, 1, \ldots , n+1\}  \to \mathbb {N}\) and \(\mathcal{D} : \{ 0, 1, \ldots , n+1\}  \to (\{ 0, 1, \ldots , m-1\}  \hookrightarrow R)\), allowing different degree bounds and summation domains for each variable. </p>
@@ -326,24 +1193,24 @@
 </li>
 </ul>
 <p>The sum-check protocol, as described in the original paper and many expositions thereafter, is a protocol to reduce the claim that </p>
-<div class="displaymath" id="a0000000091">
+<div class="displaymath" id="a0000000116">
   \[  \sum _{x \in \{ 0, 1\} ^n} P(x) = c,  \]
 </div>
 <p> where \(P\) is an \(n\)-variate polynomial of certain individual degree bounds, and \(c\) is some field element, to the claim that </p>
-<div class="displaymath" id="a0000000092">
+<div class="displaymath" id="a0000000117">
   \[  P(r) = v,  \]
 </div>
 <p> for some claimed value \(v\) (derived from the protocol transcript), where \(r\) is a vector of random challenges from the verifier sent during the protocol. </p>
 <p>In our language, the initial context of the sum-check protocol is the pair \((P, c)\), where \(P\) is an oracle input and \(c\) is public. The protocol proceeds in \(n\) rounds of interaction, where in each round \(i\) the prover sends a univariate polynomial \(s_i\) of bounded degree and the verifier sends a challenge \(r_i \gets \mathbb {F}\). The honest prover would compute </p>
-<div class="displaymath" id="a0000000093">
+<div class="displaymath" id="a0000000118">
   \[  s_i(X) = \sum _{x \in \{ 0, 1\} ^{n - i - 1}} P(r_1, \ldots , r_{i - 1}, X, x),  \]
 </div>
 <p> and the honest verifier would check that \(s_i(0) + s_i(1) = s_{i - 1}(r_{i - 1})\), with the convention that \(s_0(r_0) = c\). </p>
 <h2 id="sec:sumcheck_modular">3.2.2 Modular Description</h2>
 
-<h3 id="a0000000094">Round-by-Round Analysis</h3>
+<h3 id="a0000000119">Round-by-Round Analysis</h3>
 <p>Our modular approach breaks down the sum-check protocol into individual rounds, each of which can be analyzed as a two-message Interactive Oracle Reduction. This decomposition allows us to prove security properties compositionally and provides a more granular understanding of the protocol’s structure. </p>
-<h4 id="a0000000095">Round-Specific Statements.</h4>
+<h4 id="a0000000120">Round-Specific Statements.</h4>
 <p> For the \(i\)-th round, where \(i \in \{ 0, 1, \ldots , n\} \), the statement contains: </p>
 <ul class="itemize">
   <li><p>\(\text{target} \in R\): the target value for sum-check at this round </p>
@@ -352,17 +1219,17 @@
 </li>
 </ul>
 <p>The oracle statement remains the same polynomial \(P \in R[X_0, X_1, \ldots , X_{n-1}]_{\leq d}\). </p>
-<h4 id="a0000000096">Round-Specific Relations.</h4>
+<h4 id="a0000000121">Round-Specific Relations.</h4>
 <p> The sum-check relation for the \(i\)-th round checks that: </p>
-<div class="displaymath" id="a0000000097">
+<div class="displaymath" id="a0000000122">
   \[  \sum _{x \in (\text{Image}(\mathcal{D}))^{n-i}} P(\text{challenges}, x) = \text{target}  \]
 </div>
 <p>Note that when \(i = n\), this becomes the output statement of the sum-check protocol, checking that \(P(\text{challenges}) = \text{target}\). </p>
-<h3 id="a0000000098">Individual Round Protocol</h3>
+<h3 id="a0000000123">Individual Round Protocol</h3>
 <p>For \(i = 0, 1, \ldots , n-1\), the \(i\)-th round of the sum-check protocol consists of the following: </p>
-<h4 id="a0000000099">Step 1: Prover’s Message.</h4>
+<h4 id="a0000000124">Step 1: Prover’s Message.</h4>
 <p> The prover sends a univariate polynomial \(p_i \in R[X]_{\leq d}\) of degree at most \(d\). If the prover is honest, then: </p>
-<div class="displaymath" id="a0000000100">
+<div class="displaymath" id="a0000000125">
   \[  p_i(X) = \sum _{x \in (\text{Image}(\mathcal{D}))^{n-i}} P(\text{challenges}_0, \ldots , \text{challenges}_{i-1}, X, x)  \]
 </div>
 <p>Here, \(P(\text{challenges}_0, \ldots , \text{challenges}_{i-1}, X, x)\) is the polynomial \(P\) evaluated at the concatenation of: </p>
@@ -375,11 +1242,11 @@
 </li>
 </ul>
 <p>In the oracle protocol, this polynomial \(p_i\) is turned into an oracle for which the verifier can query evaluations at arbitrary points. </p>
-<h4 id="a0000000101">Step 2: Verifier’s Challenge.</h4>
+<h4 id="a0000000126">Step 2: Verifier’s Challenge.</h4>
 <p> The verifier sends the \(i\)-th challenge \(r_i\) sampled uniformly at random from \(R\). </p>
-<h4 id="a0000000102">Step 3: Verifier’s Check.</h4>
+<h4 id="a0000000127">Step 3: Verifier’s Check.</h4>
 <p> The (oracle) verifier performs queries for the evaluations of \(p_i\) at all points in \(\text{Image}(\mathcal{D})\), and checks that: </p>
-<div class="displaymath" id="a0000000103">
+<div class="displaymath" id="a0000000128">
   \[  \sum _{x \in \text{Image}(\mathcal{D})} p_i(x) = \text{target}  \]
 </div>
 <p>If the check fails, the verifier outputs \(\texttt{failure}\). Otherwise, it outputs a statement for the next round as follows: </p>
@@ -389,13 +1256,13 @@
   <li><p>\(\text{challenges}\) is updated to the concatenation of the previous challenges and \(r_i\) </p>
 </li>
 </ul>
-<h3 id="a0000000104">Single Round Security Analysis</h3>
+<h3 id="a0000000129">Single Round Security Analysis</h3>
 <div class="definition_thmwrapper theorem-style-definition" id="def:sumcheck_single_round">
   <div class="definition_thmheading">
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">68</span>
+    <span class="definition_thmlabel">109</span>
     <span class="definition_thmtitle">Single Round Protocol</span>
     <div class="thm_header_extras">
 
@@ -428,7 +1295,7 @@
     <span class="theorem_thmcaption">
     Theorem
     </span>
-    <span class="theorem_thmlabel">69</span>
+    <span class="theorem_thmlabel">110</span>
     <span class="theorem_thmtitle">Single Round Completeness</span>
     <div class="thm_header_extras">
 
@@ -451,7 +1318,7 @@
     <span class="theorem_thmcaption">
     Theorem
     </span>
-    <span class="theorem_thmlabel">70</span>
+    <span class="theorem_thmlabel">111</span>
     <span class="theorem_thmtitle">Single Round Soundness</span>
     <div class="thm_header_extras">
 
@@ -474,7 +1341,7 @@
     <span class="theorem_thmcaption">
     Theorem
     </span>
-    <span class="theorem_thmlabel">71</span>
+    <span class="theorem_thmlabel">112</span>
     <span class="theorem_thmtitle">Round-by-Round Knowledge Soundness</span>
     <div class="thm_header_extras">
 
@@ -492,7 +1359,7 @@
 
   </div>
 </div>
-<h3 id="a0000000105">Virtual Protocol Decomposition</h3>
+<h3 id="a0000000130">Virtual Protocol Decomposition</h3>
 <p>We now proceed to break down this protocol into individual messages, and then specify the predicates that should hold before and after each message is exchanged. </p>
 <p>First, it is clear that we can consider each round in isolation. In fact, each round can be seen as an instantiation of the following simpler "virtual" protocol: </p>
 <div class="definition_thmwrapper theorem-style-definition" id="def:virtual_sumcheck_round_protocol">
@@ -500,7 +1367,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">72</span>
+    <span class="definition_thmlabel">113</span>
     <div class="thm_header_extras">
 
         </div>
@@ -540,7 +1407,7 @@
     <span class="theorem_thmcaption">
     Theorem
     </span>
-    <span class="theorem_thmlabel">73</span>
+    <span class="theorem_thmlabel">114</span>
     <div class="thm_header_extras">
 
         </div>
@@ -561,9 +1428,9 @@
         
         <ul class="uses">
           
-          <li><a href="chap-oracle_reductions.html#def:soundness">Definition 22</a></li>
+          <li><a href="chap-oracle_reductions.html#def:soundness">Definition 28</a></li>
           
-          <li><a href="chap-proof_systems.html#def:virtual_sumcheck_round_protocol">Definition 72</a></li>
+          <li><a href="chap-proof_systems.html#def:virtual_sumcheck_round_protocol">Definition 113</a></li>
           
         </ul>
     
@@ -585,7 +1452,7 @@
     <span class="theorem_thmcaption">
     Theorem
     </span>
-    <span class="theorem_thmlabel">74</span>
+    <span class="theorem_thmlabel">115</span>
     <div class="thm_header_extras">
 
         </div>
@@ -606,9 +1473,9 @@
         
         <ul class="uses">
           
-          <li><a href="chap-oracle_reductions.html#def:knowledge_soundness">Definition 23</a></li>
+          <li><a href="chap-oracle_reductions.html#def:knowledge_soundness">Definition 29</a></li>
           
-          <li><a href="chap-proof_systems.html#def:virtual_sumcheck_round_protocol">Definition 72</a></li>
+          <li><a href="chap-proof_systems.html#def:virtual_sumcheck_round_protocol">Definition 113</a></li>
           
         </ul>
     
@@ -630,7 +1497,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">75</span>
+    <span class="definition_thmlabel">116</span>
     <span class="definition_thmtitle">State Function</span>
     <div class="thm_header_extras">
 
@@ -652,9 +1519,9 @@
         
         <ul class="uses">
           
-          <li><a href="chap-oracle_reductions.html#def:state_function">Definition 24</a></li>
+          <li><a href="chap-oracle_reductions.html#def:state_function">Definition 30</a></li>
           
-          <li><a href="chap-proof_systems.html#def:virtual_sumcheck_round_protocol">Definition 72</a></li>
+          <li><a href="chap-proof_systems.html#def:virtual_sumcheck_round_protocol">Definition 113</a></li>
           
         </ul>
     
@@ -685,7 +1552,7 @@
     <span class="theorem_thmcaption">
     Theorem
     </span>
-    <span class="theorem_thmlabel">76</span>
+    <span class="theorem_thmlabel">117</span>
     <div class="thm_header_extras">
 
         </div>
@@ -706,11 +1573,11 @@
         
         <ul class="uses">
           
-          <li><a href="chap-oracle_reductions.html#def:round_by_round_soundness">Definition 25</a></li>
+          <li><a href="chap-oracle_reductions.html#def:round_by_round_soundness">Definition 32</a></li>
           
-          <li><a href="chap-proof_systems.html#def:virtual_sumcheck_round_protocol">Definition 72</a></li>
+          <li><a href="chap-proof_systems.html#def:virtual_sumcheck_round_protocol">Definition 113</a></li>
           
-          <li><a href="chap-proof_systems.html#def:virtual_sumcheck_round_protocol_state_function">Definition 75</a></li>
+          <li><a href="chap-proof_systems.html#def:virtual_sumcheck_round_protocol_state_function">Definition 116</a></li>
           
         </ul>
     
@@ -727,8 +1594,8 @@
   </div>
 </div>
 <p>In fact, we can break down this simpler protocol even more: consider the two sub-protocols that each consists of a single message. Then the intermediate state function is the same as the predicate on the intermediate context, and is given in a "strongest post-condition" style where it incorporates the verifier’s check along with the initial predicate. We can also view the final state function as a form of "canonical" post-condition, that is implied by the previous predicate except with small probability.  </p>
-<h1 id="a0000000007">3.3 The Spartan Protocol</h1>
-<h1 id="a0000000008">3.4 The Ligero Polynomial Commitment Scheme</h1>
+<h1 id="a0000000010">3.3 The Spartan Protocol</h1>
+<h1 id="a0000000011">3.4 The Ligero Polynomial Commitment Scheme</h1>
 
 </div> <!--main-text -->
 </div> <!-- content-wrapper -->

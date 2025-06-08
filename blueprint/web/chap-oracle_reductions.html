@@ -81,10 +81,19 @@
   <span class="expand-toc">▶</span>
   <ul class="sub-toc-2">
      <li class="">
-  <a href="chap-proof_systems.html#a0000000005"><span class="toc_ref">3.1.1</span> <span class="toc_entry">Polynomial Equality Testing</span></a>
+  <a href="chap-proof_systems.html#a0000000005"><span class="toc_ref">3.1.1</span> <span class="toc_entry">The Trivial Reduction: DoNothing</span></a>
  </li>
 <li class="">
-  <a href="chap-proof_systems.html#a0000000006"><span class="toc_ref">3.1.2</span> <span class="toc_entry">Batching Polynomial Evaluation Claims</span></a>
+  <a href="chap-proof_systems.html#a0000000006"><span class="toc_ref">3.1.2</span> <span class="toc_entry">Witness Transmission: SendWitness</span></a>
+ </li>
+<li class="">
+  <a href="chap-proof_systems.html#a0000000007"><span class="toc_ref">3.1.3</span> <span class="toc_entry">Oracle Equality Testing: RandomQuery</span></a>
+ </li>
+<li class="">
+  <a href="chap-proof_systems.html#a0000000008"><span class="toc_ref">3.1.4</span> <span class="toc_entry">Polynomial Equality Testing</span></a>
+ </li>
+<li class="">
+  <a href="chap-proof_systems.html#a0000000009"><span class="toc_ref">3.1.5</span> <span class="toc_entry">Batching Polynomial Evaluation Claims</span></a>
  </li>
 
   </ul>
@@ -103,10 +112,10 @@
   </ul>
  </li>
 <li class="">
-  <a href="chap-proof_systems.html#a0000000007"><span class="toc_ref">3.3</span> <span class="toc_entry">The Spartan Protocol</span></a>
+  <a href="chap-proof_systems.html#a0000000010"><span class="toc_ref">3.3</span> <span class="toc_entry">The Spartan Protocol</span></a>
  </li>
 <li class="">
-  <a href="chap-proof_systems.html#a0000000008"><span class="toc_ref">3.4</span> <span class="toc_entry">The Ligero Polynomial Commitment Scheme</span></a>
+  <a href="chap-proof_systems.html#a0000000011"><span class="toc_ref">3.4</span> <span class="toc_entry">The Ligero Polynomial Commitment Scheme</span></a>
  </li>
 
   </ul>
@@ -116,7 +125,7 @@
   <span class="expand-toc">▶</span>
   <ul class="sub-toc-1">
      <li class="">
-  <a href="chap-commitment_schemes.html#a0000000009"><span class="toc_ref">4.1</span> <span class="toc_entry">Definitions</span></a>
+  <a href="chap-commitment_schemes.html#a0000000012"><span class="toc_ref">4.1</span> <span class="toc_entry">Definitions</span></a>
  </li>
 <li class="">
   <a href="chap-commitment_schemes.html#sec:merkle_trees"><span class="toc_ref">4.2</span> <span class="toc_entry">Merkle Trees</span></a>
@@ -195,7 +204,7 @@
 </ul>
 </li>
 </ol>
-<div class="remark_thmwrapper theorem-style-definition" id="a0000000010">
+<div class="remark_thmwrapper theorem-style-definition" id="a0000000013">
   <div class="remark_thmheading">
     <span class="remark_thmcaption">
     Remark
@@ -207,7 +216,7 @@
         </div>
     <div class="thm_header_hidden_extras">
 
-    <a class="icon proof" href="chap-oracle_reductions.html#a0000000010">#</a>
+    <a class="icon proof" href="chap-oracle_reductions.html#a0000000013">#</a>
     
     
     
@@ -344,9 +353,9 @@
         </div>
   </div>
   <div class="definition_thmcontent">
-  <p>  A protocol specification for an \(n\)-message (oracle) reduction, is an element of the following type: <div class="displaymath" id="a0000000011">
+  <p>  A protocol specification for an \(n\)-message (oracle) reduction, is an element of the following type: <div class="displaymath" id="a0000000014">
   
-</div> ProtocolSpec n := Fin n Direction×Type. <div class="displaymath" id="a0000000012">
+</div> ProtocolSpec n := Fin n Direction×Type. <div class="displaymath" id="a0000000015">
   
 </div> In the above, \(\mathsf{Direction}:= \{  \mathsf{P \! \! \rightarrow \! \!  V}, \mathsf{V \! \! \rightarrow \! \!  P}\} \) is the type of possible directions of messages, and \(\mathsf{Fin}\  n := \{  i : \mathbb {N}\mathbin {/\! /}i {\lt} n \} \) is the type of all natural numbers less than \(n\). </p>
 <p>In other words, for each step \(i\) of interaction, the protocol specification describes the <em>direction</em> of the message sent in that step, i.e., whether it is from the prover or from the verifier. It also describes the <em>type</em> of that message. </p>
@@ -509,7 +518,7 @@
   <p>  Given protocol specification \(\mathsf{pSpec}: \mathsf{ProtocolSpec}\  n\), we define: </p>
 <ul class="itemize">
   <li><p>A <em>transcript</em> up to round \(k : \mathsf{Fin}\  (n + 1)\) is an element of type </p>
-<div class="displaymath" id="a0000000013">
+<div class="displaymath" id="a0000000016">
   \[  \mathsf{Transcript}\  k\  \mathsf{pSpec}:= (i : \mathsf{Fin}\  k) \to \mathsf{pSpec}.\mathsf{Type}\  (\uparrow i : \mathsf{Fin}\  n)  \]
 </div>
 <p> where \(\uparrow i : \mathsf{Fin}\  n\) denotes casting \(i : \mathsf{Fin}\  k\) to \(\mathsf{Fin}\  n\) (valid since \(k \leq n + 1\)). </p>
@@ -517,12 +526,12 @@
   <li><p>A <em>full transcript</em> is \(\mathsf{FullTranscript}\  \mathsf{pSpec}:= (i : \mathsf{Fin}\  n) \to \mathsf{pSpec}.\mathsf{Type}\  i\). </p>
 </li>
   <li><p>The type of all <em>messages</em> from prover to verifier is </p>
-<div class="displaymath" id="a0000000014">
+<div class="displaymath" id="a0000000017">
   \[  \mathsf{pSpec}.\mathsf{Messages}:= \prod _{i : \mathsf{pSpec}.\mathsf{MessageIdx}} \mathsf{pSpec}.\mathsf{Message}\  i  \]
 </div>
 </li>
   <li><p>The type of all <em>challenges</em> from verifier to prover is </p>
-<div class="displaymath" id="a0000000015">
+<div class="displaymath" id="a0000000018">
   \[  \mathsf{pSpec}.\mathsf{Challenges}:= \prod _{i : \mathsf{pSpec}.\mathsf{ChallengeIdx}} \mathsf{pSpec}.\mathsf{Challenge}\  i  \]
 </div>
 </li>
@@ -531,7 +540,7 @@
 
   </div>
 </div>
-<div class="remark_thmwrapper theorem-style-definition" id="a0000000016">
+<div class="remark_thmwrapper theorem-style-definition" id="a0000000019">
   <div class="remark_thmheading">
     <span class="remark_thmcaption">
     Remark
@@ -543,7 +552,7 @@
         </div>
     <div class="thm_header_hidden_extras">
 
-    <a class="icon proof" href="chap-oracle_reductions.html#a0000000016">#</a>
+    <a class="icon proof" href="chap-oracle_reductions.html#a0000000019">#</a>
     
     
     
@@ -605,25 +614,25 @@
   <li><p><b class="bfseries">Prover State</b>: A family of types \(\mathsf{PrvState} : \mathsf{Fin}(n+1) \to \mathsf{Type}\) representing the prover’s internal state at each round of the protocol. </p>
 </li>
   <li><p><b class="bfseries">Input Processing</b>: A function </p>
-<div class="displaymath" id="a0000000017">
+<div class="displaymath" id="a0000000020">
   \[  \mathsf{input} : \mathsf{StmtIn}\to \mathsf{WitIn}\to \mathsf{PrvState}(0)  \]
 </div>
 <p> that initializes the prover’s state from the input statement and witness. </p>
 </li>
   <li><p><b class="bfseries">Message Sending</b>: For each message index \(i : \mathsf{pSpec}.\mathsf{MessageIdx}\), a function </p>
-<div class="displaymath" id="a0000000018">
+<div class="displaymath" id="a0000000021">
   \[  \mathsf{sendMessage}_i : \mathsf{PrvState}(i.\mathsf{val}.\mathsf{castSucc}) \to \mathsf{OracleComp}(\mathsf{oSpec}, \mathsf{pSpec}.\mathsf{Message}(i) \times \mathsf{PrvState}(i.\mathsf{val}.\mathsf{succ}))  \]
 </div>
 <p> that generates the message and updates the prover’s state. </p>
 </li>
   <li><p><b class="bfseries">Challenge Processing</b>: For each challenge index \(i : \mathsf{pSpec}.\mathsf{ChallengeIdx}\), a function </p>
-<div class="displaymath" id="a0000000019">
+<div class="displaymath" id="a0000000022">
   \[  \mathsf{receiveChallenge}_i : \mathsf{PrvState}(i.\mathsf{val}.\mathsf{castSucc}) \to \mathsf{pSpec}.\mathsf{Challenge}(i) \to \mathsf{PrvState}(i.\mathsf{val}.\mathsf{succ})  \]
 </div>
 <p> that updates the prover’s state upon receiving a challenge. </p>
 </li>
   <li><p><b class="bfseries">Output Generation</b>: A function </p>
-<div class="displaymath" id="a0000000020">
+<div class="displaymath" id="a0000000023">
   \[  \mathsf{output} : \mathsf{PrvState}(\mathsf{Fin}.\mathsf{last}(n)) \to \mathsf{StmtOut}\times \mathsf{WitOut} \]
 </div>
 <p> that produces the final output statement and witness from the prover’s final state. </p>
@@ -722,7 +731,7 @@
   </div>
   <div class="definition_thmcontent">
   <p>  A verifier \(\mathcal{V}\) in a reduction is specified by a single function: </p>
-<div class="displaymath" id="a0000000021">
+<div class="displaymath" id="a0000000024">
   \[  \mathsf{verify} : \mathsf{StmtIn}\to \mathsf{FullTranscript}(\mathsf{pSpec}) \to \mathsf{OracleComp}(\mathsf{oSpec}, \mathsf{StmtOut})  \]
 </div>
 <p>This function takes the input statement and the complete transcript of the protocol interaction, and performs an oracle computation (potentially querying the shared oracle \(\mathsf{oSpec}\)) to produce an output statement. </p>
@@ -771,19 +780,19 @@
   <p>  An oracle verifier \(\mathcal{V}\) consists of the following components: </p>
 <ul class="itemize">
   <li><p><b class="bfseries">Verification Logic</b>: A function </p>
-<div class="displaymath" id="a0000000022">
+<div class="displaymath" id="a0000000025">
   \[  \mathsf{verify} : \mathsf{StmtIn}\to \mathsf{pSpec}.\mathsf{Challenges}\to \mathsf{OracleComp}(\mathsf{oSpec}\mathrel {++_\mathsf {o}} ([\mathsf{OStmtIn}]_\mathsf {o} \mathrel {++_\mathsf {o}} [\mathsf{pSpec}.\mathsf{Message}]_\mathsf {o}), \mathsf{StmtOut})  \]
 </div>
 <p> that takes the input statement and verifier challenges, and performs oracle queries to the shared oracle, input oracle statements, and prover messages to produce an output statement. </p>
 </li>
   <li><p><b class="bfseries">Output Oracle Embedding</b>: An injective function </p>
-<div class="displaymath" id="a0000000023">
+<div class="displaymath" id="a0000000026">
   \[  \mathsf{embed} : \iota _{\mathsf{so}} \hookrightarrow \iota _{\mathsf{si}} \oplus \mathsf{pSpec}.\mathsf{MessageIdx} \]
 </div>
 <p> that specifies how each output oracle statement is derived from either an input oracle statement or a prover message. </p>
 </li>
   <li><p><b class="bfseries">Type Compatibility</b>: A proof term </p>
-<div class="displaymath" id="a0000000024">
+<div class="displaymath" id="a0000000027">
   \[  \mathsf{hEq} : \forall i : \iota _{\mathsf{so}}, \mathsf{OStmtOut}(i) = \begin{cases} \end{cases} \mathsf{OStmtIn}(j) &  \text{if } \mathsf{embed}(i) = \mathsf{inl}(j) \\ \mathsf{pSpec}.\mathsf{Message}(k) &  \text{if } \mathsf{embed}(i) = \mathsf{inr}(k) \end{cases}  \]
 </div>
 <p> ensuring that output oracle statement types match their sources. </p>
@@ -1060,22 +1069,22 @@
   </div>
   <div class="definition_thmcontent">
   <p>  The execution of a prover up to round \(i : \mathsf{Fin}(n+1)\) is defined inductively: </p>
-<div class="displaymath" id="a0000000025">
+<div class="displaymath" id="a0000000028">
   \[  \mathsf{Prover}.\mathsf{runToRound}(i, \mathsf{stmt}, \mathsf{wit}) :=  \]
 </div>
-<div class="displaymath" id="a0000000026">
+<div class="displaymath" id="a0000000029">
   \[  \mathsf{Fin}.\mathsf{induction}(  \]
 </div>
-<div class="displaymath" id="a0000000027">
+<div class="displaymath" id="a0000000030">
   \[  \quad \mathsf{pure}(\langle \mathsf{default}, \mathsf{prover}.\mathsf{input}(\mathsf{stmt}, \mathsf{wit}) \rangle ),  \]
 </div>
-<div class="displaymath" id="a0000000028">
+<div class="displaymath" id="a0000000031">
   \[  \quad \mathsf{prover}.\mathsf{processRound},  \]
 </div>
-<div class="displaymath" id="a0000000029">
+<div class="displaymath" id="a0000000032">
   \[  \quad i  \]
 </div>
-<div class="displaymath" id="a0000000030">
+<div class="displaymath" id="a0000000033">
   \[  )  \]
 </div>
 <p>where \(\mathsf{processRound}\) handles individual rounds by either: </p>
@@ -1148,19 +1157,19 @@
   </div>
   <div class="definition_thmcontent">
   <p>  The complete execution of a prover is defined as: </p>
-<div class="displaymath" id="a0000000031">
+<div class="displaymath" id="a0000000034">
   \[  \mathsf{Prover}.\mathsf{run}(\mathsf{stmt}, \mathsf{wit}) := \mathsf{do} \;  \{   \]
 </div>
-<div class="displaymath" id="a0000000032">
+<div class="displaymath" id="a0000000035">
   \[  \quad \langle \mathsf{transcript}, \mathsf{state} \rangle \leftarrow \mathsf{prover}.\mathsf{runToRound}(\mathsf{Fin}.\mathsf{last}(n), \mathsf{stmt}, \mathsf{wit})  \]
 </div>
-<div class="displaymath" id="a0000000033">
+<div class="displaymath" id="a0000000036">
   \[  \quad \langle \mathsf{stmtOut}, \mathsf{witOut} \rangle := \mathsf{prover}.\mathsf{output}(\mathsf{state})  \]
 </div>
-<div class="displaymath" id="a0000000034">
+<div class="displaymath" id="a0000000037">
   \[  \quad \mathsf{return} \;  \langle \mathsf{stmtOut}, \mathsf{witOut}, \mathsf{transcript} \rangle  \]
 </div>
-<div class="displaymath" id="a0000000035">
+<div class="displaymath" id="a0000000038">
   \[  \}   \]
 </div>
 <p>Returns the output statement, output witness, and complete transcript.   </p>
@@ -1206,7 +1215,7 @@
   </div>
   <div class="definition_thmcontent">
   <p>  The execution of a verifier is simply the application of its verification function: </p>
-<div class="displaymath" id="a0000000036">
+<div class="displaymath" id="a0000000039">
   \[  \mathsf{Verifier}.\mathsf{run}(\mathsf{stmt}, \mathsf{transcript}) := \mathsf{verifier}.\mathsf{verify}(\mathsf{stmt}, \mathsf{transcript})  \]
 </div>
 <p>This takes the input statement and full transcript, and returns the output statement via an oracle computation.  </p>
@@ -1252,19 +1261,19 @@
   </div>
   <div class="definition_thmcontent">
   <p>  The execution of an oracle verifier is defined as: </p>
-<div class="displaymath" id="a0000000037">
+<div class="displaymath" id="a0000000040">
   \[  \mathsf{OracleVerifier}.\mathsf{run}(\mathsf{stmt}, \mathsf{oStmtIn}, \mathsf{transcript}) := \mathsf{do} \;  \{   \]
 </div>
-<div class="displaymath" id="a0000000038">
+<div class="displaymath" id="a0000000041">
   \[  \quad \mathsf{f} := \mathsf{simOracle2}(\mathsf{oSpec}, \mathsf{oStmtIn}, \mathsf{transcript}.\mathsf{messages})  \]
 </div>
-<div class="displaymath" id="a0000000039">
+<div class="displaymath" id="a0000000042">
   \[  \quad \mathsf{stmtOut} \leftarrow \mathsf{simulateQ}(\mathsf{f}, \mathsf{verifier}.\mathsf{verify}(\mathsf{stmt}, \mathsf{transcript}.\mathsf{challenges}))  \]
 </div>
-<div class="displaymath" id="a0000000040">
+<div class="displaymath" id="a0000000043">
   \[  \quad \mathsf{return} \;  \mathsf{stmtOut}  \]
 </div>
-<div class="displaymath" id="a0000000041">
+<div class="displaymath" id="a0000000044">
   \[  \}   \]
 </div>
 <p>This simulates the oracle access to input oracle statements and prover messages, then executes the verification logic.  </p>
@@ -1332,19 +1341,19 @@
   </div>
   <div class="definition_thmcontent">
   <p>  The execution of an interactive reduction consists of running the prover followed by the verifier: </p>
-<div class="displaymath" id="a0000000042">
+<div class="displaymath" id="a0000000045">
   \[  \mathsf{Reduction}.\mathsf{run}(\mathsf{stmt}, \mathsf{wit}) := \mathsf{do} \;  \{   \]
 </div>
-<div class="displaymath" id="a0000000043">
+<div class="displaymath" id="a0000000046">
   \[  \quad \langle \mathsf{prvStmtOut}, \mathsf{witOut}, \mathsf{transcript} \rangle \leftarrow \mathsf{reduction}.\mathsf{prover}.\mathsf{run}(\mathsf{stmt}, \mathsf{wit})  \]
 </div>
-<div class="displaymath" id="a0000000044">
+<div class="displaymath" id="a0000000047">
   \[  \quad \mathsf{stmtOut} \leftarrow \mathsf{reduction}.\mathsf{verifier}.\mathsf{run}(\mathsf{stmt}, \mathsf{transcript})  \]
 </div>
-<div class="displaymath" id="a0000000045">
+<div class="displaymath" id="a0000000048">
   \[  \quad \mathsf{return} \;  ((\mathsf{prvStmtOut}, \mathsf{witOut}), \mathsf{stmtOut}, \mathsf{transcript})  \]
 </div>
-<div class="displaymath" id="a0000000046">
+<div class="displaymath" id="a0000000049">
   \[  \}   \]
 </div>
 <p>Returns both the prover’s output (statement and witness) and the verifier’s output statement, along with the complete transcript.   </p>
@@ -1410,25 +1419,25 @@
   </div>
   <div class="definition_thmcontent">
   <p>  The execution of an interactive oracle reduction is similar to a standard reduction but includes logging of oracle queries: </p>
-<div class="displaymath" id="a0000000047">
+<div class="displaymath" id="a0000000050">
   \[  \mathsf{OracleReduction}.\mathsf{run}(\mathsf{stmt}, \mathsf{wit}, \mathsf{oStmt}) := \mathsf{do} \;  \{   \]
 </div>
-<div class="displaymath" id="a0000000048">
+<div class="displaymath" id="a0000000051">
   \[  \quad \langle \langle \mathsf{prvStmtOut}, \mathsf{witOut}, \mathsf{transcript} \rangle , \mathsf{proveQueryLog} \rangle \leftarrow  \]
 </div>
-<div class="displaymath" id="a0000000049">
+<div class="displaymath" id="a0000000052">
   \[  \qquad (\mathsf{simulateQ}(\mathsf{loggingOracle}, \mathsf{reduction}.\mathsf{prover}.\mathsf{run}(\langle \mathsf{stmt}, \mathsf{oStmt} \rangle , \mathsf{wit}))).\mathsf{run}  \]
 </div>
-<div class="displaymath" id="a0000000050">
+<div class="displaymath" id="a0000000053">
   \[  \quad \langle \mathsf{stmtOut}, \mathsf{verifyQueryLog} \rangle \leftarrow  \]
 </div>
-<div class="displaymath" id="a0000000051">
+<div class="displaymath" id="a0000000054">
   \[  \qquad (\mathsf{simulateQ}(\mathsf{loggingOracle}, \mathsf{reduction}.\mathsf{verifier}.\mathsf{run}(\mathsf{stmt}, \mathsf{oStmt}, \mathsf{transcript}))).\mathsf{run}  \]
 </div>
-<div class="displaymath" id="a0000000052">
+<div class="displaymath" id="a0000000055">
   \[  \quad \mathsf{return} \;  ((\mathsf{prvStmtOut}, \mathsf{witOut}), \mathsf{stmtOut}, \mathsf{transcript}, \mathsf{proveQueryLog}, \mathsf{verifyQueryLog})  \]
 </div>
-<div class="displaymath" id="a0000000053">
+<div class="displaymath" id="a0000000056">
   \[  \}   \]
 </div>
 <p>Returns the same outputs as a standard reduction, plus logs of all oracle queries made by both the prover and verifier.   </p>
@@ -1497,11 +1506,328 @@
         </div>
   </div>
   <div class="definition_thmcontent">
-  
+  <p>  A reduction satisfies <b class="bfseries">completeness</b> with error \(\epsilon \geq 0\) and with respect to input relation \(R_{\text{in}}\) and output relation \(R_{\text{out}}\), if for all valid statement-witness pair \((x_{\text{in}}, w_{\text{in}})\) for \(R_{\text{in}}\), the execution between the honest prover and the honest verifier will result in a tuple \(((x_{\text{out}}^P, w_{\text{out}}), x_{\text{out}}^V)\) such that: </p>
+<ul class="itemize">
+  <li><p>\(R_{\text{out}}(x_{\text{out}}^V, w_{\text{out}}) = \text{True}\) (the output statement-witness pair is valid), and </p>
+</li>
+  <li><p>\(x_{\text{out}}^P = x_{\text{out}}^V\) (the output statements are the same from both prover and verifier) </p>
+</li>
+</ul>
+<p> except with probability \(\epsilon \).   </p>
+
+  </div>
+</div>
+<div class="definition_thmwrapper theorem-style-definition" id="def:perfect_completeness">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">22</span>
+    <span class="definition_thmtitle">Perfect Completeness</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:perfect_completeness">#</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-oracle_reductions.html#def:completeness">Definition 21</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Reduction.perfectCompleteness" class="lean_decl">Reduction.perfectCompleteness</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  A reduction satisfies <b class="bfseries">perfect completeness</b> if it satisfies completeness with error \(0\). This means that the probability of the reduction outputting a valid statement-witness pair is <em>exactly</em> 1 (instead of at least \(1 - 0\)).   </p>
 
   </div>
 </div>
 <p>Almost all oracle reductions we consider actually satisfy <em>perfect completeness</em>, which simplifies the proof obligation. In particular, this means we only need to show that no matter what challenges are chosen, the verifier will always accept given messages from the honest prover. </p>
+<h3 id="a0000000057">Extractors</h3>
+<p>For knowledge soundness, we need to consider different types of extractors that can recover witnesses from malicious provers. </p>
+<div class="definition_thmwrapper theorem-style-definition" id="def:straightline_extractor">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">23</span>
+    <span class="definition_thmtitle">Straightline Extractor</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:straightline_extractor">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/StraightlineExtractor" class="lean_decl">StraightlineExtractor</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  A <b class="bfseries">straightline, deterministic, non-oracle-querying extractor</b> takes in: </p>
+<ul class="itemize">
+  <li><p>the output witness \(w_{\text{out}}\), </p>
+</li>
+  <li><p>the initial statement \(x_{\text{in}}\), </p>
+</li>
+  <li><p>the IOR transcript \(\tau \), </p>
+</li>
+  <li><p>the query logs from the prover and verifier </p>
+</li>
+</ul>
+<p> and returns a corresponding initial witness \(w_{\text{in}}\). </p>
+<p>Note that the extractor does not need to take in the output statement, since it can be derived via re-running the verifier on the initial statement, the transcript, and the verifier’s query log. </p>
+<p>This form of extractor suffices for proving knowledge soundness of most hash-based IOPs.  </p>
+
+  </div>
+</div>
+<div class="definition_thmwrapper theorem-style-definition" id="def:rbr_extractor">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">24</span>
+    <span class="definition_thmtitle">Round-by-Round Extractor</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:rbr_extractor">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/RBRExtractor" class="lean_decl">RBRExtractor</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  A <b class="bfseries">round-by-round extractor</b> with index \(m\) is given: </p>
+<ul class="itemize">
+  <li><p>the input statement \(x_{\text{in}}\), </p>
+</li>
+  <li><p>a partial transcript of length \(m\), </p>
+</li>
+  <li><p>the prover’s query log </p>
+</li>
+</ul>
+<p> and returns a witness to the statement. </p>
+<p>Note that the RBR extractor does not need to take in the output statement or witness.  </p>
+
+  </div>
+</div>
+<div class="definition_thmwrapper theorem-style-definition" id="def:rewinding_extractor">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">25</span>
+    <span class="definition_thmtitle">Rewinding Extractor</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:rewinding_extractor">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/RewindingExtractor" class="lean_decl">RewindingExtractor</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  A <b class="bfseries">rewinding extractor</b> consists of: </p>
+<ul class="itemize">
+  <li><p>An extractor state type </p>
+</li>
+  <li><p>Simulation oracles for challenges and oracle queries for the prover </p>
+</li>
+  <li><p>A function that runs the extractor with the prover’s oracle interface, allowing for calling the prover multiple times </p>
+</li>
+</ul>
+<p> This allows the extractor to rewind the prover to earlier states and try different challenges.  </p>
+
+  </div>
+</div>
+<h3 id="a0000000058">Adversarial Provers</h3>
+<div class="definition_thmwrapper theorem-style-definition" id="def:adaptive_prover">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">26</span>
+    <span class="definition_thmtitle">Adaptive Prover</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:adaptive_prover">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/AdaptiveProver" class="lean_decl">AdaptiveProver</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  An <b class="bfseries">adaptive prover</b> extends the basic prover type with the ability to choose the input statement adaptively based on oracle access. This models stronger adversaries that can choose their statements after seeing some oracle responses.  </p>
+
+  </div>
+</div>
+<div class="definition_thmwrapper theorem-style-definition" id="def:sr_prover">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">27</span>
+    <span class="definition_thmtitle">State-Restoration Prover</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:sr_prover">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/SRProver" class="lean_decl">SRProver</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  A <b class="bfseries">state-restoration prover</b> is a modified prover that has query access to challenge oracles that can return the \(i\)-th challenge, for all \(i\), given the input statement and the transcript up to that point. </p>
+<p>It takes in the input statement and witness, and outputs a full transcript of interaction, along with the output statement and witness. </p>
+<p>This models adversaries in the state-restoration setting where challenges can be queried programmably.  </p>
+
+  </div>
+</div>
+<h3 id="a0000000059">Soundness Definitions</h3>
 <p>For soundness, we need to consider different notions. These notions differ in two main aspects: </p>
 <ul class="itemize">
   <li><p>Whether we consider the plain soundness, or knowledge soundness. The latter relies on the notion of an <em>extractor</em>. </p>
@@ -1515,7 +1841,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">22</span>
+    <span class="definition_thmlabel">28</span>
     <span class="definition_thmtitle">Soundness</span>
     <div class="thm_header_extras">
 
@@ -1568,18 +1894,25 @@
         </div>
   </div>
   <div class="definition_thmcontent">
-  
+  <p>  A reduction satisfies <b class="bfseries">soundness</b> with error \(\epsilon \geq 0\) and with respect to input language \(L_{\text{in}} \subseteq \text{Statement}_{\text{in}}\) and output language \(L_{\text{out}} \subseteq \text{Statement}_{\text{out}}\) if: </p>
+<ul class="itemize">
+  <li><p>for all (malicious) provers with arbitrary types for witness types, </p>
+</li>
+  <li><p>for all arbitrary input witness, </p>
+</li>
+  <li><p>for all input statement \(x_{\text{in}} \notin L_{\text{in}}\), </p>
+</li>
+</ul>
+<p> the execution between the prover and the honest verifier will result in an output statement \(x_{\text{out}} \in L_{\text{out}}\) with probability at most \(\epsilon \).   </p>
 
   </div>
 </div>
-<p>A (straightline) extractor for knowledge soundness is a deterministic algorithm that takes in the output public context after executing the oracle reduction, the side information (i.e. log of oracle queries from the malicious prover) observed during execution, and outputs the witness for the input context. </p>
-<p>Note that since we assume the context is append-only, and we append only the public (or oracle) messages obtained during protocol execution, it follows that the witness stays the same throughout the execution. </p>
 <div class="definition_thmwrapper theorem-style-definition" id="def:knowledge_soundness">
   <div class="definition_thmheading">
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">23</span>
+    <span class="definition_thmlabel">29</span>
     <span class="definition_thmtitle">Knowledge Soundness</span>
     <div class="thm_header_extras">
 
@@ -1602,6 +1935,8 @@
         <ul class="uses">
           
           <li><a href="chap-oracle_reductions.html#def:interactive_oracle_reduction">Definition 14</a></li>
+          
+          <li><a href="chap-oracle_reductions.html#def:straightline_extractor">Definition 23</a></li>
           
         </ul>
     
@@ -1632,17 +1967,31 @@
         </div>
   </div>
   <div class="definition_thmcontent">
-  
+  <p>  A reduction satisfies <b class="bfseries">(straightline) knowledge soundness</b> with error \(\epsilon \geq 0\) and with respect to input relation \(R_{\text{in}}\) and output relation \(R_{\text{out}}\) if: </p>
+<ul class="itemize">
+  <li><p>there exists a straightline extractor \(E\), such that </p>
+</li>
+  <li><p>for all input statement \(x_{\text{in}}\), witness \(w_{\text{in}}\), and (malicious) prover, </p>
+</li>
+  <li><p>if the execution with the honest verifier results in a pair \((x_{\text{out}}, w_{\text{out}})\), </p>
+</li>
+  <li><p>and the extractor produces some \(w'_{\text{in}}\), </p>
+</li>
+</ul>
+<p> then the probability that \((x_{\text{in}}, w'_{\text{in}})\) is not valid for \(R_{\text{in}}\) and yet \((x_{\text{out}}, w_{\text{out}})\) is valid for \(R_{\text{out}}\) is at most \(\epsilon \). </p>
+<p>A (straightline) extractor for knowledge soundness is a deterministic algorithm that takes in the output public context after executing the oracle reduction, the side information (i.e. log of oracle queries from the malicious prover) observed during execution, and outputs the witness for the input context. </p>
+<p>Note that since we assume the context is append-only, and we append only the public (or oracle) messages obtained during protocol execution, it follows that the witness stays the same throughout the execution.   </p>
 
   </div>
 </div>
+<h3 id="a0000000060">Round-by-Round Security</h3>
 <p>To define round-by-round (knowledge) soundness, we need to define the notion of a <em>state function</em>. This is a (possibly inefficient) function \(\mathsf{StateF}\) that, for every challenge sent by the verifier, takes in the transcript of the protocol so far and outputs whether the state is doomed or not. Roughly speaking, the requirement of round-by-round soundness is that, for any (possibly malicious) prover \(P\), if the state function outputs that the state is doomed on some partial transcript of the protocol, then the verifier will reject with high probability. </p>
 <div class="definition_thmwrapper theorem-style-definition" id="def:state_function">
   <div class="definition_thmheading">
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">24</span>
+    <span class="definition_thmlabel">30</span>
     <span class="definition_thmtitle">State Function</span>
     <div class="thm_header_extras">
 
@@ -1675,7 +2024,58 @@
         </div>
   </div>
   <div class="definition_thmcontent">
-  
+  <p>  A <b class="bfseries">(deterministic) state function</b> for a verifier, with respect to input language \(L_{\text{in}}\) and output language \(L_{\text{out}}\), consists of a function that maps partial transcripts to boolean values, satisfying: </p>
+<ul class="itemize">
+  <li><p>For all input statements not in the language, the state function is false for the empty transcript </p>
+</li>
+  <li><p>If the state function is false for a partial transcript, and the next message is from the prover to the verifier, then the state function is also false for the new partial transcript regardless of the message </p>
+</li>
+  <li><p>If the state function is false for a full transcript, the verifier will not output a statement in the output language </p>
+</li>
+</ul>
+
+
+  </div>
+</div>
+<div class="definition_thmwrapper theorem-style-definition" id="def:knowledge_state_function">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">31</span>
+    <span class="definition_thmtitle">Knowledge State Function</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:knowledge_state_function">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Verifier.KnowledgeStateFunction" class="lean_decl">Verifier.KnowledgeStateFunction</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  A <b class="bfseries">knowledge state function</b> for a verifier, with respect to input relation \(R_{\text{in}}\), output relation \(R_{\text{out}}\), and intermediate witness types, extends the basic state function to track witness validity throughout the protocol execution. This is used to define round-by-round knowledge soundness.  </p>
 
   </div>
 </div>
@@ -1684,7 +2084,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">25</span>
+    <span class="definition_thmlabel">32</span>
     <span class="definition_thmtitle">Round-by-Round Soundness</span>
     <div class="thm_header_extras">
 
@@ -1707,6 +2107,8 @@
         <ul class="uses">
           
           <li><a href="chap-oracle_reductions.html#def:interactive_oracle_reduction">Definition 14</a></li>
+          
+          <li><a href="chap-oracle_reductions.html#def:state_function">Definition 30</a></li>
           
         </ul>
     
@@ -1737,7 +2139,27 @@
         </div>
   </div>
   <div class="definition_thmcontent">
-  
+  <p>  A protocol with verifier \(\mathcal{V}\) satisfies <b class="bfseries">round-by-round soundness</b> with respect to input language \(L_{\text{in}}\), output language \(L_{\text{out}}\), and error function \(\epsilon : \text{ChallengeIdx} \to \mathbb {R}_{\geq 0}\) if: </p>
+<ul class="itemize">
+  <li><p>there exists a state function for the verifier and the input/output languages, such that </p>
+</li>
+  <li><p>for all initial statements \(x_{\text{in}} \notin L_{\text{in}}\), </p>
+</li>
+  <li><p>for all initial witnesses, </p>
+</li>
+  <li><p>for all provers, </p>
+</li>
+  <li><p>for all challenge rounds \(i\), </p>
+</li>
+</ul>
+<p> the probability that: </p>
+<ul class="itemize">
+  <li><p>the state function is false for the partial transcript output by the prover </p>
+</li>
+  <li><p>the state function is true for the partial transcript appended by next challenge (chosen randomly) </p>
+</li>
+</ul>
+<p> is at most \(\epsilon (i)\).   </p>
 
   </div>
 </div>
@@ -1746,7 +2168,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">26</span>
+    <span class="definition_thmlabel">33</span>
     <span class="definition_thmtitle">Round-by-Round Knowledge Soundness</span>
     <div class="thm_header_extras">
 
@@ -1769,6 +2191,10 @@
         <ul class="uses">
           
           <li><a href="chap-oracle_reductions.html#def:interactive_oracle_reduction">Definition 14</a></li>
+          
+          <li><a href="chap-oracle_reductions.html#def:state_function">Definition 30</a></li>
+          
+          <li><a href="chap-oracle_reductions.html#def:rbr_extractor">Definition 24</a></li>
           
         </ul>
     
@@ -1799,24 +2225,932 @@
         </div>
   </div>
   <div class="definition_thmcontent">
-  
+  <p>  A protocol with verifier \(\mathcal{V}\) satisfies <b class="bfseries">round-by-round knowledge soundness</b> with respect to input relation \(R_{\text{in}}\), output relation \(R_{\text{out}}\), and error function \(\epsilon : \text{ChallengeIdx} \to \mathbb {R}_{\geq 0}\) if: </p>
+<ul class="itemize">
+  <li><p>there exists a state function for the verifier and the languages of the input/output relations, </p>
+</li>
+  <li><p>there exists a round-by-round extractor, </p>
+</li>
+  <li><p>for all initial statements, </p>
+</li>
+  <li><p>for all initial witnesses, </p>
+</li>
+  <li><p>for all provers, </p>
+</li>
+  <li><p>for all challenge rounds \(i\), </p>
+</li>
+</ul>
+<p> the probability that: </p>
+<ul class="itemize">
+  <li><p>the extracted witness does not satisfy the input relation </p>
+</li>
+  <li><p>the state function is false for the partial transcript output by the prover </p>
+</li>
+  <li><p>the state function is true for the partial transcript appended by next challenge (chosen randomly) </p>
+</li>
+</ul>
+<p> is at most \(\epsilon (i)\).   </p>
 
   </div>
 </div>
+<div class="remark_thmwrapper theorem-style-definition" id="a0000000061">
+  <div class="remark_thmheading">
+    <span class="remark_thmcaption">
+    Remark
+    </span>
+    <span class="remark_thmlabel">34</span>
+    <span class="remark_thmtitle">Alternative Formulations of RBR Knowledge Soundness</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#a0000000061">#</a>
+    
+    
+    
+        </div>
+  </div>
+  <div class="remark_thmcontent">
+  <p> There are different ways to formulate round-by-round knowledge soundness, differing in whether the extractor’s failure to produce a valid witness is included as part of the security condition. Some formulations condition on the extractor producing an invalid witness while the state function transitions from false to true, while others may condition on the state function transition regardless of extractor success. The current formalization includes the extractor failure as part of the security condition. </p>
+
+  </div>
+</div>
+<h3 id="a0000000062">Extractor Properties</h3>
+<div class="definition_thmwrapper theorem-style-definition" id="def:monotone_straightline_extractor">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">35</span>
+    <span class="definition_thmtitle">Monotone Straightline Extractor</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:monotone_straightline_extractor">#</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-oracle_reductions.html#def:straightline_extractor">Definition 23</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Verifier.StraightlineExtractor.IsMonotone" class="lean_decl">Verifier.StraightlineExtractor.IsMonotone</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  An extractor is <b class="bfseries">monotone</b> if its success probability on a given query log is the same as the success probability on any extension of that query log. This property ensures that the extractor’s performance does not degrade when given more information.   </p>
+
+  </div>
+</div>
+<div class="definition_thmwrapper theorem-style-definition" id="def:monotone_rbr_extractor">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">36</span>
+    <span class="definition_thmtitle">Monotone RBR Extractor</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:monotone_rbr_extractor">#</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-oracle_reductions.html#def:rbr_extractor">Definition 24</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Verifier.RBRExtractor.IsMonotone" class="lean_decl">Verifier.RBRExtractor.IsMonotone</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  A round-by-round extractor is <b class="bfseries">monotone</b> if its success probability on a given query log is the same as the success probability on any extension of that query log.   </p>
+
+  </div>
+</div>
+<h3 id="a0000000063">Implications Between Security Notions</h3>
+<p>We have a lattice of security notions, with knowledge and round-by-round being two strengthenings of soundness. </p>
+<div class="theorem_thmwrapper theorem-style-plain" id="thm:knowledge_soundness_implies_soundness">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">37</span>
+    <span class="theorem_thmtitle">Knowledge Soundness Implies Soundness</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#thm:knowledge_soundness_implies_soundness">#</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-oracle_reductions.html#def:knowledge_soundness">Definition 29</a></li>
+          
+          <li><a href="chap-oracle_reductions.html#def:soundness">Definition 28</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Verifier.knowledgeSoundness_implies_soundness" class="lean_decl">Verifier.knowledgeSoundness_implies_soundness</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  <p>  Knowledge soundness with knowledge error \(\epsilon {\lt} 1\) implies soundness with the same soundness error \(\epsilon \), and for the corresponding input and output languages.   </p>
+
+  </div>
+</div>
+<div class="theorem_thmwrapper theorem-style-plain" id="thm:rbr_soundness_implies_soundness">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">38</span>
+    <span class="theorem_thmtitle">RBR Soundness Implies Soundness</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#thm:rbr_soundness_implies_soundness">#</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-oracle_reductions.html#def:round_by_round_soundness">Definition 32</a></li>
+          
+          <li><a href="chap-oracle_reductions.html#def:soundness">Definition 28</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Verifier.rbrSoundness_implies_soundness" class="lean_decl">Verifier.rbrSoundness_implies_soundness</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  <p>  Round-by-round soundness with error function \(\epsilon \) implies soundness with error \(\sum _i \epsilon (i)\), where the sum is over all challenge rounds \(i\).   </p>
+
+  </div>
+</div>
+<div class="theorem_thmwrapper theorem-style-plain" id="thm:rbr_knowledge_soundness_implies_rbr_soundness">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">39</span>
+    <span class="theorem_thmtitle">RBR Knowledge Soundness Implies RBR Soundness</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#thm:rbr_knowledge_soundness_implies_rbr_soundness">#</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-oracle_reductions.html#def:round_by_round_knowledge_soundness">Definition 33</a></li>
+          
+          <li><a href="chap-oracle_reductions.html#def:round_by_round_soundness">Definition 32</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Verifier.rbrKnowledgeSoundness_implies_rbrSoundness" class="lean_decl">Verifier.rbrKnowledgeSoundness_implies_rbrSoundness</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  <p>  Round-by-round knowledge soundness with error function \(\epsilon \) implies round-by-round soundness with the same error function \(\epsilon \).   </p>
+
+  </div>
+</div>
+<div class="theorem_thmwrapper theorem-style-plain" id="thm:rbr_knowledge_soundness_implies_knowledge_soundness">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">40</span>
+    <span class="theorem_thmtitle">RBR Knowledge Soundness Implies Knowledge Soundness</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#thm:rbr_knowledge_soundness_implies_knowledge_soundness">#</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-oracle_reductions.html#def:round_by_round_knowledge_soundness">Definition 33</a></li>
+          
+          <li><a href="chap-oracle_reductions.html#def:knowledge_soundness">Definition 29</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Verifier.rbrKnowledgeSoundness_implies_knowledgeSoundness" class="lean_decl">Verifier.rbrKnowledgeSoundness_implies_knowledgeSoundness</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  <p>  Round-by-round knowledge soundness with error function \(\epsilon \) implies knowledge soundness with error \(\sum _i \epsilon (i)\), where the sum is over all challenge rounds \(i\).   </p>
+
+  </div>
+</div>
+<h3 id="a0000000064">Zero-Knowledge</h3>
+<div class="definition_thmwrapper theorem-style-definition" id="def:simulator">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">41</span>
+    <span class="definition_thmtitle">Simulator</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:simulator">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Reduction.Simulator" class="lean_decl">Reduction.Simulator</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  A <b class="bfseries">simulator</b> consists of: </p>
+<ul class="itemize">
+  <li><p>Oracle simulation capabilities for the shared oracles </p>
+</li>
+  <li><p>A prover simulation function that takes an input statement and produces a transcript </p>
+</li>
+</ul>
+<p> The simulator should have programming access to the shared oracles and be able to generate transcripts that are indistinguishable from real protocol executions.  </p>
+
+  </div>
+</div>
+<div class="remark_thmwrapper theorem-style-definition" id="a0000000065">
+  <div class="remark_thmheading">
+    <span class="remark_thmcaption">
+    Remark
+    </span>
+    <span class="remark_thmlabel">42</span>
+    <span class="remark_thmtitle">Zero-Knowledge Definition</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#a0000000065">#</a>
+    
+    
+    
+        </div>
+  </div>
+  <div class="remark_thmcontent">
+  <p> We define honest-verifier zero-knowledge as follows: There exists a simulator such that for all (malicious) verifiers, the distributions of transcripts generated by the simulator and the interaction between the verifier and the prover are (statistically) indistinguishable. A full definition will be provided in future versions. </p>
+
+  </div>
+</div>
+<h3 id="a0000000066">Oracle-Specific Security</h3>
+<p>For oracle reductions, the security definitions are analogous to those for standard reductions, but adapted to work with oracle interfaces: </p>
+<div class="definition_thmwrapper theorem-style-definition" id="def:oracle_reduction_completeness">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">43</span>
+    <span class="definition_thmtitle">Oracle Reduction Completeness</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:oracle_reduction_completeness">#</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-oracle_reductions.html#def:completeness">Definition 21</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/OracleReduction.completeness" class="lean_decl">OracleReduction.completeness</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  Completeness of an oracle reduction is the same as for non-oracle reductions, but applied to the converted reduction where oracle statements are handled through their interfaces.   </p>
+
+  </div>
+</div>
+<div class="definition_thmwrapper theorem-style-definition" id="def:oracle_verifier_soundness">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">44</span>
+    <span class="definition_thmtitle">Oracle Verifier Soundness</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:oracle_verifier_soundness">#</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-oracle_reductions.html#def:soundness">Definition 28</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/OracleVerifier.soundness" class="lean_decl">OracleVerifier.soundness</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  Soundness of an oracle verifier is defined by converting it to a standard verifier and applying the standard soundness definition.   </p>
+
+  </div>
+</div>
+<div class="definition_thmwrapper theorem-style-definition" id="def:oracle_verifier_knowledge_soundness">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">45</span>
+    <span class="definition_thmtitle">Oracle Verifier Knowledge Soundness</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:oracle_verifier_knowledge_soundness">#</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-oracle_reductions.html#def:knowledge_soundness">Definition 29</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/OracleVerifier.knowledgeSoundness" class="lean_decl">OracleVerifier.knowledgeSoundness</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  Knowledge soundness of an oracle verifier is defined by converting it to a standard verifier and applying the standard knowledge soundness definition.   </p>
+
+  </div>
+</div>
+<div class="definition_thmwrapper theorem-style-definition" id="def:oracle_verifier_rbr_soundness">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">46</span>
+    <span class="definition_thmtitle">Oracle Verifier RBR Soundness</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:oracle_verifier_rbr_soundness">#</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-oracle_reductions.html#def:round_by_round_soundness">Definition 32</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/OracleVerifier.rbrSoundness" class="lean_decl">OracleVerifier.rbrSoundness</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  Round-by-round soundness of an oracle verifier is defined by converting it to a standard verifier and applying the standard round-by-round soundness definition.   </p>
+
+  </div>
+</div>
+<div class="definition_thmwrapper theorem-style-definition" id="def:oracle_verifier_rbr_knowledge_soundness">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">47</span>
+    <span class="definition_thmtitle">Oracle Verifier RBR Knowledge Soundness</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:oracle_verifier_rbr_knowledge_soundness">#</a>
+    
+    
+    <button class="modal"><svg  class="icon icon-mindmap "><use xlink:href="symbol-defs.svg#icon-mindmap"></use></svg>
+</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Uses</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="chap-oracle_reductions.html#def:round_by_round_knowledge_soundness">Definition 33</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/OracleVerifier.rbrKnowledgeSoundness" class="lean_decl">OracleVerifier.rbrKnowledgeSoundness</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  Round-by-round knowledge soundness of an oracle verifier is defined by converting it to a standard verifier and applying the standard round-by-round knowledge soundness definition.   </p>
+
+  </div>
+</div>
+<p>By default, the properties we consider are perfect completeness and (straightline) round-by-round knowledge soundness. We can encapsulate these properties into the following typing judgement: </p>
+<div class="displaymath" id="a0000000067">
+  \[  \Gamma := (\Psi ; \Theta ; \varSigma ; \rho ; \mathcal{O}) \vdash \{ \mathcal{R}_1\}  \quad \langle \mathcal{P}, \mathcal{V}, \mathcal{E}\rangle \quad \{ \! \! \{ \mathcal{R}_2; \mathsf{St}; \epsilon \} \! \! \}   \]
+</div>
+<h3 id="a0000000068">State-Restoration Security</h3>
+<div class="definition_thmwrapper theorem-style-definition" id="def:sr_soundness">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">48</span>
+    <span class="definition_thmtitle">State-Restoration Soundness</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:sr_soundness">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Verifier.srSoundness" class="lean_decl">Verifier.srSoundness</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  <b class="bfseries">State-restoration soundness</b> is a security notion where the adversarial prover has access to challenge oracles that can return the \(i\)-th challenge for any round \(i\), given the input statement and the transcript up to that point. This models stronger adversaries in the programmable random oracle model or when challenges can be computed deterministically. </p>
+<p>A verifier satisfies state-restoration soundness if for all input statements not in the language, for all witnesses, and for all state-restoration provers, the probability that the verifier outputs a statement in the output language is bounded by the soundness error. </p>
+<p><em>Note: This definition is currently under development in the Lean formalization.</em>  </p>
+
+  </div>
+</div>
+<div class="definition_thmwrapper theorem-style-definition" id="def:sr_knowledge_soundness">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">49</span>
+    <span class="definition_thmtitle">State-Restoration Knowledge Soundness</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="chap-oracle_reductions.html#def:sr_knowledge_soundness">#</a>
+    
+    
+    
+    <button class="modal lean">L∃∀N</button>
+        <div class="modal-container">
+      <div class="modal-content">
+        <header>
+          <h1>Lean declarations</h1>
+          <button class="closebtn"><svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        </header>
+        
+        <ul class="uses">
+          
+          <li><a href="https://verified-zkevm.github.io/ArkLib/docs/find/#doc/Verifier.srKnowledgeSoundness" class="lean_decl">Verifier.srKnowledgeSoundness</a></li>
+          
+        </ul>
+    
+      </div>
+    </div>
+
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>  <b class="bfseries">State-restoration knowledge soundness</b> extends state-restoration soundness with the requirement that there exists a straightline extractor that can recover valid witnesses from any state-restoration prover that convinces the verifier. </p>
+<p><em>Note: This definition is currently under development in the Lean formalization.</em>  </p>
+
+  </div>
+</div>
+<h3 id="a0000000069">Round-by-Round Security</h3>
 <h1 id="sec:composition_oracle_reductions">2.2 Composition of Oracle Reductions</h1>
 
 <p>In this section, we describe a suite of composition operators for building secure oracle reductions from simpler secure components. In other words, we define a number of definitions that govern how oracle reductions can be composed to form larger reductions, and how the resulting reduction inherits the security properties of the components. </p>
 <h2 id="sec:sequential_composition">2.2.1 Sequential Composition</h2>
 
 <p>Sequential composition allows us to chain together oracle reductions where the output context of one reduction becomes the input context of the next reduction. This is fundamental for building complex protocols from simpler components. </p>
-<h3 id="a0000000054">Composition of Protocol Specifications</h3>
+<h3 id="a0000000070">Composition of Protocol Specifications</h3>
 <p>We begin by defining how to compose protocol specifications and their associated structures. </p>
 <div class="definition_thmwrapper theorem-style-definition" id="def:protocol_spec_append">
   <div class="definition_thmheading">
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">27</span>
+    <span class="definition_thmlabel">50</span>
     <span class="definition_thmtitle">Protocol Specification Append</span>
     <div class="thm_header_extras">
 
@@ -1850,7 +3184,7 @@
   </div>
   <div class="definition_thmcontent">
   <p>  Given two protocol specifications \(\mathsf{pSpec}_1 : \mathsf{ProtocolSpec}\  m\) and \(\mathsf{pSpec}_2 : \mathsf{ProtocolSpec}\  n\), their sequential composition is: </p>
-<div class="displaymath" id="a0000000055">
+<div class="displaymath" id="a0000000071">
   \[  \mathsf{pSpec}_1 \mathrel {++_\mathsf {p}} \mathsf{pSpec}_2 : \mathsf{ProtocolSpec}\  (m + n)  \]
 </div>
 
@@ -1862,7 +3196,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">28</span>
+    <span class="definition_thmlabel">51</span>
     <span class="definition_thmtitle">Full Transcript Append</span>
     <div class="thm_header_extras">
 
@@ -1896,20 +3230,20 @@
   </div>
   <div class="definition_thmcontent">
   <p>  Given full transcripts \(T_1 : \mathsf{FullTranscript}\  \mathsf{pSpec}_1\) and \(T_2 : \mathsf{FullTranscript}\  \mathsf{pSpec}_2\), their sequential composition is: </p>
-<div class="displaymath" id="a0000000056">
+<div class="displaymath" id="a0000000072">
   \[  T_1 \mathrel {++_\mathsf {t}} T_2 : \mathsf{FullTranscript}\  (\mathsf{pSpec}_1 \mathrel {++_\mathsf {p}} \mathsf{pSpec}_2)  \]
 </div>
 
 
   </div>
 </div>
-<h3 id="a0000000057">Composition of Provers and Verifiers</h3>
+<h3 id="a0000000073">Composition of Provers and Verifiers</h3>
 <div class="definition_thmwrapper theorem-style-definition" id="def:prover_append">
   <div class="definition_thmheading">
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">29</span>
+    <span class="definition_thmlabel">52</span>
     <span class="definition_thmtitle">Prover Append</span>
     <div class="thm_header_extras">
 
@@ -1943,7 +3277,7 @@
   </div>
   <div class="definition_thmcontent">
   <p>  Given provers \(P_1 : \mathsf{Prover}\  \mathsf{pSpec}_1\  \mathsf{oSpec}\  \mathsf{StmtIn}_1\  \mathsf{WitIn}_1\  \mathsf{StmtOut}_1\  \mathsf{WitOut}_1\) and \(P_2 : \mathsf{Prover}\  \mathsf{pSpec}_2\  \mathsf{oSpec}\  \mathsf{StmtOut}_1\  \mathsf{WitOut}_1\  \mathsf{StmtOut}_2\  \mathsf{WitOut}_2\), their sequential composition is: </p>
-<div class="displaymath" id="a0000000058">
+<div class="displaymath" id="a0000000074">
   \[  P_1.\mathsf{append}\  P_2 : \mathsf{Prover}\  (\mathsf{pSpec}_1 \mathrel {++_\mathsf {p}} \mathsf{pSpec}_2)\  \mathsf{oSpec}\  \mathsf{StmtIn}_1\  \mathsf{WitIn}_1\  \mathsf{StmtOut}_2\  \mathsf{WitOut}_2  \]
 </div>
 <p>The composed prover works by: </p>
@@ -1964,7 +3298,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">30</span>
+    <span class="definition_thmlabel">53</span>
     <span class="definition_thmtitle">Verifier Append</span>
     <div class="thm_header_extras">
 
@@ -1998,7 +3332,7 @@
   </div>
   <div class="definition_thmcontent">
   <p>  Given verifiers \(V_1 : \mathsf{Verifier}\  \mathsf{pSpec}_1\  \mathsf{oSpec}\  \mathsf{StmtIn}_1\  \mathsf{StmtOut}_1\) and \(V_2 : \mathsf{Verifier}\  \mathsf{pSpec}_2\  \mathsf{oSpec}\  \mathsf{StmtOut}_1\  \mathsf{StmtOut}_2\), their sequential composition is: </p>
-<div class="displaymath" id="a0000000059">
+<div class="displaymath" id="a0000000075">
   \[  V_1.\mathsf{append}\  V_2 : \mathsf{Verifier}\  (\mathsf{pSpec}_1 \mathrel {++_\mathsf {p}} \mathsf{pSpec}_2)\  \mathsf{oSpec}\  \mathsf{StmtIn}_1\  \mathsf{StmtOut}_2  \]
 </div>
 <p>The composed verifier first runs \(V_1\) on the first part of the transcript, then runs \(V_2\) on the second part using the intermediate statement from \(V_1\).  </p>
@@ -2010,7 +3344,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">31</span>
+    <span class="definition_thmlabel">54</span>
     <span class="definition_thmtitle">Reduction Append</span>
     <div class="thm_header_extras">
 
@@ -2032,9 +3366,9 @@
         
         <ul class="uses">
           
-          <li><a href="chap-oracle_reductions.html#def:prover_append">Definition 29</a></li>
+          <li><a href="chap-oracle_reductions.html#def:prover_append">Definition 52</a></li>
           
-          <li><a href="chap-oracle_reductions.html#def:verifier_append">Definition 30</a></li>
+          <li><a href="chap-oracle_reductions.html#def:verifier_append">Definition 53</a></li>
           
         </ul>
     
@@ -2066,7 +3400,7 @@
   </div>
   <div class="definition_thmcontent">
   <p>  Sequential composition of reductions combines the corresponding provers and verifiers: </p>
-<div class="displaymath" id="a0000000060">
+<div class="displaymath" id="a0000000076">
   \[  R_1.\mathsf{append}\  R_2 : \mathsf{Reduction}\  (\mathsf{pSpec}_1 \mathrel {++_\mathsf {p}} \mathsf{pSpec}_2)\  \mathsf{oSpec}\  \mathsf{StmtIn}_1\  \mathsf{WitIn}_1\  \mathsf{StmtOut}_2\  \mathsf{WitOut}_2  \]
 </div>
 
@@ -2078,7 +3412,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">32</span>
+    <span class="definition_thmlabel">55</span>
     <span class="definition_thmtitle">Oracle Reduction Append</span>
     <div class="thm_header_extras">
 
@@ -2115,14 +3449,14 @@
 
   </div>
 </div>
-<h3 id="a0000000061">General Sequential Composition</h3>
+<h3 id="a0000000077">General Sequential Composition</h3>
 <p>For composing an arbitrary number of reductions, we provide a general composition operation. </p>
 <div class="definition_thmwrapper theorem-style-definition" id="def:protocol_spec_compose">
   <div class="definition_thmheading">
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">33</span>
+    <span class="definition_thmlabel">56</span>
     <span class="definition_thmtitle">General Protocol Specification Composition</span>
     <div class="thm_header_extras">
 
@@ -2156,7 +3490,7 @@
   </div>
   <div class="definition_thmcontent">
   <p>  Given a family of protocol specifications \(\mathsf{pSpec}: \forall i : \mathsf{Fin}(m+1), \mathsf{ProtocolSpec}\  (n\  i)\), their composition is: </p>
-<div class="displaymath" id="a0000000062">
+<div class="displaymath" id="a0000000078">
   \[  \mathsf{compose}\  m\  n\  \mathsf{pSpec}: \mathsf{ProtocolSpec}\  (\sum _{i} n\  i)  \]
 </div>
 
@@ -2168,7 +3502,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">34</span>
+    <span class="definition_thmlabel">57</span>
     <span class="definition_thmtitle">General Prover Composition</span>
     <div class="thm_header_extras">
 
@@ -2190,7 +3524,7 @@
         
         <ul class="uses">
           
-          <li><a href="chap-oracle_reductions.html#def:protocol_spec_compose">Definition 33</a></li>
+          <li><a href="chap-oracle_reductions.html#def:protocol_spec_compose">Definition 56</a></li>
           
         </ul>
     
@@ -2230,7 +3564,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">35</span>
+    <span class="definition_thmlabel">58</span>
     <span class="definition_thmtitle">General Verifier Composition</span>
     <div class="thm_header_extras">
 
@@ -2252,7 +3586,7 @@
         
         <ul class="uses">
           
-          <li><a href="chap-oracle_reductions.html#def:protocol_spec_compose">Definition 33</a></li>
+          <li><a href="chap-oracle_reductions.html#def:protocol_spec_compose">Definition 56</a></li>
           
         </ul>
     
@@ -2292,7 +3626,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">36</span>
+    <span class="definition_thmlabel">59</span>
     <span class="definition_thmtitle">General Reduction Composition</span>
     <div class="thm_header_extras">
 
@@ -2314,9 +3648,9 @@
         
         <ul class="uses">
           
-          <li><a href="chap-oracle_reductions.html#def:prover_compose">Definition 34</a></li>
+          <li><a href="chap-oracle_reductions.html#def:prover_compose">Definition 57</a></li>
           
-          <li><a href="chap-oracle_reductions.html#def:verifier_compose">Definition 35</a></li>
+          <li><a href="chap-oracle_reductions.html#def:verifier_compose">Definition 58</a></li>
           
         </ul>
     
@@ -2351,14 +3685,14 @@
 
   </div>
 </div>
-<h3 id="a0000000063">Security Properties of Sequential Composition</h3>
+<h3 id="a0000000079">Security Properties of Sequential Composition</h3>
 <p>The key insight is that security properties are preserved under sequential composition. </p>
 <div class="theorem_thmwrapper theorem-style-plain" id="thm:completeness_append">
   <div class="theorem_thmheading">
     <span class="theorem_thmcaption">
     Theorem
     </span>
-    <span class="theorem_thmlabel">37</span>
+    <span class="theorem_thmlabel">60</span>
     <span class="theorem_thmtitle">Completeness Preservation under Append</span>
     <div class="thm_header_extras">
 
@@ -2400,7 +3734,7 @@
     <span class="theorem_thmcaption">
     Theorem
     </span>
-    <span class="theorem_thmlabel">38</span>
+    <span class="theorem_thmlabel">61</span>
     <span class="theorem_thmtitle">Perfect Completeness Preservation under Append</span>
     <div class="thm_header_extras">
 
@@ -2442,7 +3776,7 @@
     <span class="theorem_thmcaption">
     Theorem
     </span>
-    <span class="theorem_thmlabel">39</span>
+    <span class="theorem_thmlabel">62</span>
     <span class="theorem_thmtitle">Soundness Preservation under Append</span>
     <div class="thm_header_extras">
 
@@ -2484,7 +3818,7 @@
     <span class="theorem_thmcaption">
     Theorem
     </span>
-    <span class="theorem_thmlabel">40</span>
+    <span class="theorem_thmlabel">63</span>
     <span class="theorem_thmtitle">Knowledge Soundness Preservation under Append</span>
     <div class="thm_header_extras">
 
@@ -2526,7 +3860,7 @@
     <span class="theorem_thmcaption">
     Theorem
     </span>
-    <span class="theorem_thmlabel">41</span>
+    <span class="theorem_thmlabel">64</span>
     <span class="theorem_thmtitle">Round-by-Round Soundness Preservation under Append</span>
     <div class="thm_header_extras">
 
@@ -2568,7 +3902,7 @@
     <span class="theorem_thmcaption">
     Theorem
     </span>
-    <span class="theorem_thmlabel">42</span>
+    <span class="theorem_thmlabel">65</span>
     <span class="theorem_thmtitle">Round-by-Round Knowledge Soundness Preservation under Append</span>
     <div class="thm_header_extras">
 
@@ -2611,7 +3945,7 @@
     <span class="theorem_thmcaption">
     Theorem
     </span>
-    <span class="theorem_thmlabel">43</span>
+    <span class="theorem_thmlabel">66</span>
     <span class="theorem_thmtitle">General Completeness Preservation</span>
     <div class="thm_header_extras">
 
@@ -2653,7 +3987,7 @@
     <span class="theorem_thmcaption">
     Theorem
     </span>
-    <span class="theorem_thmlabel">44</span>
+    <span class="theorem_thmlabel">67</span>
     <span class="theorem_thmtitle">General Soundness Preservation</span>
     <div class="thm_header_extras">
 
@@ -2695,7 +4029,7 @@
     <span class="theorem_thmcaption">
     Theorem
     </span>
-    <span class="theorem_thmlabel">45</span>
+    <span class="theorem_thmlabel">68</span>
     <span class="theorem_thmtitle">General Knowledge Soundness Preservation</span>
     <div class="thm_header_extras">
 
@@ -2735,14 +4069,14 @@
 <h2 id="sec:lifting_contexts">2.2.2 Lifting Contexts</h2>
 
 <p>Another essential tool for modular oracle reductions is the ability to adapt reductions from one context to another. This allows us to apply reductions designed for simple contexts to more complex scenarios. </p>
-<h3 id="a0000000064">Context Lenses</h3>
+<h3 id="a0000000080">Context Lenses</h3>
 <p>The fundamental abstraction for context adaptation is a <em>context lens</em>, which provides bidirectional mappings between outer and inner contexts. </p>
 <div class="definition_thmwrapper theorem-style-definition" id="def:statement_lens">
   <div class="definition_thmheading">
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">46</span>
+    <span class="definition_thmlabel">69</span>
     <span class="definition_thmtitle">Statement Lens</span>
     <div class="thm_header_extras">
 
@@ -2791,7 +4125,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">47</span>
+    <span class="definition_thmlabel">70</span>
     <span class="definition_thmtitle">Witness Lens</span>
     <div class="thm_header_extras">
 
@@ -2840,7 +4174,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">48</span>
+    <span class="definition_thmlabel">71</span>
     <span class="definition_thmtitle">Context Lens</span>
     <div class="thm_header_extras">
 
@@ -2862,9 +4196,9 @@
         
         <ul class="uses">
           
-          <li><a href="chap-oracle_reductions.html#def:statement_lens">Definition 46</a></li>
+          <li><a href="chap-oracle_reductions.html#def:statement_lens">Definition 69</a></li>
           
-          <li><a href="chap-oracle_reductions.html#def:witness_lens">Definition 47</a></li>
+          <li><a href="chap-oracle_reductions.html#def:witness_lens">Definition 70</a></li>
           
         </ul>
     
@@ -2904,7 +4238,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">49</span>
+    <span class="definition_thmlabel">72</span>
     <span class="definition_thmtitle">Oracle Context Lens</span>
     <div class="thm_header_extras">
 
@@ -2926,7 +4260,7 @@
         
         <ul class="uses">
           
-          <li><a href="chap-oracle_reductions.html#def:context_lens">Definition 48</a></li>
+          <li><a href="chap-oracle_reductions.html#def:context_lens">Definition 71</a></li>
           
         </ul>
     
@@ -2961,14 +4295,14 @@
 
   </div>
 </div>
-<h3 id="a0000000065">Lifting Reductions</h3>
+<h3 id="a0000000081">Lifting Reductions</h3>
 <p>Given a context lens, we can lift reductions from inner contexts to outer contexts. </p>
 <div class="definition_thmwrapper theorem-style-definition" id="def:prover_lift_context">
   <div class="definition_thmheading">
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">50</span>
+    <span class="definition_thmlabel">73</span>
     <span class="definition_thmtitle">Prover Context Lifting</span>
     <div class="thm_header_extras">
 
@@ -3019,7 +4353,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">51</span>
+    <span class="definition_thmlabel">74</span>
     <span class="definition_thmtitle">Verifier Context Lifting</span>
     <div class="thm_header_extras">
 
@@ -3061,7 +4395,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">52</span>
+    <span class="definition_thmlabel">75</span>
     <span class="definition_thmtitle">Reduction Context Lifting</span>
     <div class="thm_header_extras">
 
@@ -3083,9 +4417,9 @@
         
         <ul class="uses">
           
-          <li><a href="chap-oracle_reductions.html#def:prover_lift_context">Definition 50</a></li>
+          <li><a href="chap-oracle_reductions.html#def:prover_lift_context">Definition 73</a></li>
           
-          <li><a href="chap-oracle_reductions.html#def:verifier_lift_context">Definition 51</a></li>
+          <li><a href="chap-oracle_reductions.html#def:verifier_lift_context">Definition 74</a></li>
           
         </ul>
     
@@ -3120,14 +4454,14 @@
 
   </div>
 </div>
-<h3 id="a0000000066">Conditions for Security Preservation</h3>
+<h3 id="a0000000082">Conditions for Security Preservation</h3>
 <p>For lifting to preserve security properties, the context lens must satisfy certain conditions. </p>
 <div class="definition_thmwrapper theorem-style-definition" id="def:context_lens_is_complete">
   <div class="definition_thmheading">
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">53</span>
+    <span class="definition_thmlabel">76</span>
     <span class="definition_thmtitle">Completeness-Preserving Context Lens</span>
     <div class="thm_header_extras">
 
@@ -3169,7 +4503,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">54</span>
+    <span class="definition_thmlabel">77</span>
     <span class="definition_thmtitle">Soundness-Preserving Statement Lens</span>
     <div class="thm_header_extras">
 
@@ -3211,7 +4545,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">55</span>
+    <span class="definition_thmlabel">78</span>
     <span class="definition_thmtitle">RBR Soundness-Preserving Statement Lens</span>
     <div class="thm_header_extras">
 
@@ -3253,7 +4587,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">56</span>
+    <span class="definition_thmlabel">79</span>
     <span class="definition_thmtitle">Knowledge Soundness-Preserving Context Lens</span>
     <div class="thm_header_extras">
 
@@ -3290,13 +4624,13 @@
 
   </div>
 </div>
-<h3 id="a0000000067">Security Preservation Theorems for Context Lifting</h3>
+<h3 id="a0000000083">Security Preservation Theorems for Context Lifting</h3>
 <div class="theorem_thmwrapper theorem-style-plain" id="thm:lift_context_completeness">
   <div class="theorem_thmheading">
     <span class="theorem_thmcaption">
     Theorem
     </span>
-    <span class="theorem_thmlabel">57</span>
+    <span class="theorem_thmlabel">80</span>
     <span class="theorem_thmtitle">Completeness Preservation under Context Lifting</span>
     <div class="thm_header_extras">
 
@@ -3338,7 +4672,7 @@
     <span class="theorem_thmcaption">
     Theorem
     </span>
-    <span class="theorem_thmlabel">58</span>
+    <span class="theorem_thmlabel">81</span>
     <span class="theorem_thmtitle">Soundness Preservation under Context Lifting</span>
     <div class="thm_header_extras">
 
@@ -3380,7 +4714,7 @@
     <span class="theorem_thmcaption">
     Theorem
     </span>
-    <span class="theorem_thmlabel">59</span>
+    <span class="theorem_thmlabel">82</span>
     <span class="theorem_thmtitle">Knowledge Soundness Preservation under Context Lifting</span>
     <div class="thm_header_extras">
 
@@ -3422,7 +4756,7 @@
     <span class="theorem_thmcaption">
     Theorem
     </span>
-    <span class="theorem_thmlabel">60</span>
+    <span class="theorem_thmlabel">83</span>
     <span class="theorem_thmtitle">RBR Soundness Preservation under Context Lifting</span>
     <div class="thm_header_extras">
 
@@ -3464,7 +4798,7 @@
     <span class="theorem_thmcaption">
     Theorem
     </span>
-    <span class="theorem_thmlabel">61</span>
+    <span class="theorem_thmlabel">84</span>
     <span class="theorem_thmtitle">RBR Knowledge Soundness Preservation under Context Lifting</span>
     <div class="thm_header_extras">
 
@@ -3501,14 +4835,14 @@
 
   </div>
 </div>
-<h3 id="a0000000068">Extractors and State Functions</h3>
+<h3 id="a0000000084">Extractors and State Functions</h3>
 <p>Context lifting also applies to extractors and state functions used in knowledge soundness and round-by-round soundness. </p>
 <div class="definition_thmwrapper theorem-style-definition" id="def:straightline_extractor_lift_context">
   <div class="definition_thmheading">
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">62</span>
+    <span class="definition_thmlabel">85</span>
     <span class="definition_thmtitle">Straightline Extractor Lifting</span>
     <div class="thm_header_extras">
 
@@ -3550,7 +4884,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">63</span>
+    <span class="definition_thmlabel">86</span>
     <span class="definition_thmtitle">Round-by-Round Extractor Lifting</span>
     <div class="thm_header_extras">
 
@@ -3592,7 +4926,7 @@
     <span class="definition_thmcaption">
     Definition
     </span>
-    <span class="definition_thmlabel">64</span>
+    <span class="definition_thmlabel">87</span>
     <span class="definition_thmtitle">State Function Lifting</span>
     <div class="thm_header_extras">
 
