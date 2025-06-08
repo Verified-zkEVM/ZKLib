@@ -17,3 +17,6 @@
 # LaTeX PDF files for blueprint
 # *print.pdf
 /blueprint/src/web.pdf
+
+# Web files for local viewing
+/blueprint/web/
