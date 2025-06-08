@@ -42,7 +42,7 @@ A fundamental building block in many proof systems is the ability for the prover
         \item \textbf{Output relation}: $R_{\mathsf{out}} : (\StmtIn \times \WitIn) \to \Unit \to \Prop$ defined by $((\mathsf{stmt}, \mathsf{wit}), ()) \mapsto R_{\mathsf{in}}(\mathsf{stmt}, \mathsf{wit})$
     \end{itemize}
     \lean{SendWitness.reduction}
-    \uses{def:interactive_reduction}
+    \uses{def:reduction}
 \end{definition}
 
 \begin{theorem}[SendWitness Perfect Completeness]
@@ -62,7 +62,7 @@ In the oracle setting, we consider two variants:
         \item \textbf{Output oracle statements}: Combination of input oracle statements and the transmitted witness
     \end{itemize}
     % \lean{SendWitness.oracleReduction}
-    \uses{def:interactive_oracle_reduction}
+    \uses{def:oracle_reduction}
 \end{definition}
 
 \begin{definition}[SendSingleWitness Oracle Reduction]
@@ -98,7 +98,7 @@ One of the most fundamental oracle reductions is testing whether two oracles of 
         \item \textbf{Output relation}: $R_{\mathsf{out}}((q, (\mathsf{a}, \mathsf{b})), ()) := (\mathsf{oracle}(\mathsf{a}, q) = \mathsf{oracle}(\mathsf{b}, q))$
     \end{itemize}
     \lean{RandomQuery.oracleReduction}
-    \uses{def:interactive_oracle_reduction}
+    \uses{def:oracle_reduction}
 \end{definition}
 
 \begin{theorem}[RandomQuery Perfect Completeness]
@@ -189,4 +189,126 @@ variables are the random linear combination coefficients.
 
 \begin{remark}[Batching Security]
     The security of this reduction depends on the degree and non-degeneracy properties of the polynomial map $E$. The specific error bounds depend on the structure of $E$ and require careful analysis of the polynomial's properties.
+\end{remark}
+
+\subsection{Claim Reduction: ReduceClaim}
+
+A fundamental building block for constructing complex proof systems is the ability to locally reduce one type of claim to another. The ReduceClaim reduction provides this functionality through mappings between statement and witness types.
+
+\begin{definition}[ReduceClaim Reduction]
+    \label{def:reduceclaim_reduction}
+    The ReduceClaim reduction is a zero-round protocol that transforms claims via explicit mappings:
+    \begin{itemize}
+        \item \textbf{Protocol specification}: $\pSpec := []$ (no messages exchanged)
+        \item \textbf{Statement mapping}: $\mathsf{mapStmt} : \StmtIn \to \StmtOut$
+        \item \textbf{Witness mapping}: $\mathsf{mapWit} : \WitIn \to \WitOut$
+        \item \textbf{Prover}: Applies both mappings to input statement and witness
+        \item \textbf{Verifier}: Applies statement mapping to input statement
+        \item \textbf{Input relation}: $R_{\mathsf{in}} : \StmtIn \to \WitIn \to \Prop$
+        \item \textbf{Output relation}: $R_{\mathsf{out}} : \StmtOut \to \WitOut \to \Prop$
+        \item \textbf{Relation condition}: $R_{\mathsf{in}}(\mathsf{stmt}, \mathsf{wit}) \iff R_{\mathsf{out}}(\mathsf{mapStmt}(\mathsf{stmt}), \mathsf{mapWit}(\mathsf{wit}))$
+    \end{itemize}
+    \lean{ReduceClaim.reduction}
+    \uses{def:reduction}
+\end{definition}
+
+\begin{theorem}[ReduceClaim Perfect Completeness]
+    The ReduceClaim reduction satisfies perfect completeness when the relation condition holds.
+    \lean{ReduceClaim.reduction_completeness}
+    \uses{def:reduceclaim_reduction}
+\end{theorem}
+
+\begin{definition}[ReduceClaim Oracle Reduction]
+    \label{def:reduceclaim_oracle_reduction}
+    The oracle version additionally handles oracle statements through an embedding:
+    \begin{itemize}
+        \item \textbf{Oracle statement mapping}: Embedding $\mathsf{embedIdx} : \iota_{\mathsf{out}} \hookrightarrow \iota_{\mathsf{in}}$
+        \item \textbf{Type compatibility}: $\OStmtIn(\mathsf{embedIdx}(i)) = \OStmtOut(i)$ for all $i$
+        \item \textbf{Oracle embedding}: Maps output oracle indices to corresponding input oracle indices
+    \end{itemize}
+    \lean{ReduceClaim.oracleReduction}
+    \uses{def:oracle_reduction, def:reduceclaim_reduction}
+\end{definition}
+
+\begin{remark}[ReduceClaim Oracle Completeness]
+    The oracle version's completeness proof is currently under development in the Lean formalization.
+    % TODO: Complete when oracleReduction_completeness is implemented
+\end{remark}
+
+\subsection{Claim Verification: CheckClaim}
+
+Another essential building block is the ability to verify that a given predicate holds for a statement without requiring additional witness information.
+
+\begin{definition}[CheckClaim Reduction]
+    \label{def:checkclaim_reduction}
+    The CheckClaim reduction is a zero-round protocol that verifies predicates:
+    \begin{itemize}
+        \item \textbf{Protocol specification}: $\pSpec := []$ (no messages exchanged)
+        \item \textbf{Predicate}: $\mathsf{pred} : \StmtIn \to \Prop$ (decidable)
+        \item \textbf{Prover}: Simply stores and outputs the input statement with unit witness
+        \item \textbf{Verifier}: Checks $\mathsf{pred}(\mathsf{stmt})$ and outputs statement if successful
+        \item \textbf{Input relation}: $R_{\mathsf{in}}(\mathsf{stmt}, ()) := \mathsf{pred}(\mathsf{stmt})$
+        \item \textbf{Output relation}: $R_{\mathsf{out}}(\mathsf{stmt}, ()) := \mathsf{True}$ (trivial after verification)
+    \end{itemize}
+    \lean{CheckClaim.reduction}
+    \uses{def:reduction}
+\end{definition}
+
+\begin{theorem}[CheckClaim Perfect Completeness]
+    The CheckClaim reduction satisfies perfect completeness.
+    \lean{CheckClaim.reduction_completeness}
+    \uses{def:checkclaim_reduction}
+\end{theorem}
+
+\begin{definition}[CheckClaim Oracle Reduction]
+    \label{def:checkclaim_oracle_reduction}
+    The oracle version handles predicates that require oracle access:
+    \begin{itemize}
+        \item \textbf{Oracle predicate}: $\mathsf{pred} : \StmtIn \to \OracleComp[\OStmtIn]_{\mathcal{O}} \Prop$
+        \item \textbf{Never-fails condition}: $\mathsf{pred}(\mathsf{stmt})$ never fails for any statement
+        \item \textbf{Oracle computation}: Verifier executes oracle computation to check predicate
+        \item \textbf{Input relation}: Defined via oracle simulation of the predicate
+    \end{itemize}
+    \lean{CheckClaim.oracleReduction}
+    \uses{def:oracle_reduction, def:checkclaim_reduction}
+\end{definition}
+
+\begin{theorem}[CheckClaim Oracle Perfect Completeness]
+    The CheckClaim oracle reduction satisfies perfect completeness.
+    \lean{CheckClaim.oracleReduction_completeness}
+    \uses{def:checkclaim_oracle_reduction}
+\end{theorem}
+
+\begin{remark}[CheckClaim Security Analysis]
+    The round-by-round knowledge soundness proofs for both reduction and oracle versions are currently under development in the Lean formalization.
+\end{remark}
+
+\subsection{Claim Transmission: SendClaim}
+
+The SendClaim reduction enables a prover to transmit a claim (oracle statement) to the verifier, who then verifies a relationship between the original and transmitted claims.
+
+\begin{definition}[SendClaim Oracle Reduction]
+    \label{def:sendclaim_oracle_reduction}
+    The SendClaim reduction is a one-round protocol for claim transmission:
+    \begin{itemize}
+        \item \textbf{Protocol specification}: $\pSpec := [(\PtoVdir, \OStmtIn)]$ (single oracle message)
+        \item \textbf{Input}: Statement and single oracle statement (via $\mathsf{Unique}$ index type)
+        \item \textbf{Prover}: Sends the input oracle statement as protocol message
+        \item \textbf{Verifier}: Executes oracle computation $\mathsf{relComp} : \StmtIn \to \OracleComp[\OStmtIn]_{\mathcal{O}} \Unit$
+        \item \textbf{Output oracle statements}: Sum type $\OStmtIn \oplus \OStmtIn$ containing both original and transmitted claims
+        \item \textbf{Output relation}: $R_{\mathsf{out}}((), \mathsf{oracles}) := \mathsf{oracles}(\mathsf{inl}) = \mathsf{oracles}(\mathsf{inr})$
+    \end{itemize}
+    \lean{SendClaim.oracleReduction}
+    \uses{def:oracle_reduction}
+\end{definition}
+
+\begin{theorem}[SendClaim Perfect Completeness]
+    The SendClaim oracle reduction satisfies perfect completeness when the input relation matches the oracle computation requirement.
+    \lean{SendClaim.completeness}
+    \uses{def:sendclaim_oracle_reduction}
+\end{theorem}
+
+\begin{remark}[SendClaim Development Status]
+    The SendClaim reduction is currently under active development in the Lean formalization. Several components including the verifier embedding and completeness proof require further implementation. The current version represents a specialized case that may be generalized in future iterations.
+    % TODO: Complete implementation as noted in the Lean code
 \end{remark}

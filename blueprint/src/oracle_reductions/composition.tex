@@ -107,13 +107,15 @@ We begin by defining how to compose protocol specifications and their associated
     Given two protocol specifications $\pSpec_1 : \ProtocolSpec\ m$ and $\pSpec_2 : \ProtocolSpec\ n$, their sequential composition is:
     \[ \pSpec_1 \mathrel{++_\mathsf{p}} \pSpec_2 : \ProtocolSpec\ (m + n) \]
     \lean{ProtocolSpec.append}
+    \uses{def:protocol_spec}
 \end{definition}
 
 \begin{definition}[Full Transcript Append]
-    \label{def:full_transcript_append}
+    \label{def:transcript_append}
     Given full transcripts $T_1 : \FullTranscript\ \pSpec_1$ and $T_2 : \FullTranscript\ \pSpec_2$, their sequential composition is:
     \[ T_1 \mathrel{++_\mathsf{t}} T_2 : \FullTranscript\ (\pSpec_1 \mathrel{++_\mathsf{p}} \pSpec_2) \]
     \lean{ProtocolSpec.FullTranscript.append}
+    \uses{def:transcript}
 \end{definition}
 
 \subsubsection{Composition of Provers and Verifiers}
@@ -130,6 +132,7 @@ We begin by defining how to compose protocol specifications and their associated
         \item Outputting the final context from $P_2$
     \end{itemize}
     \lean{Prover.append}
+    \uses{def:prover}
 \end{definition}
 
 \begin{definition}[Verifier Append]
@@ -139,6 +142,7 @@ We begin by defining how to compose protocol specifications and their associated
 
     The composed verifier first runs $V_1$ on the first part of the transcript, then runs $V_2$ on the second part using the intermediate statement from $V_1$.
     \lean{Verifier.append}
+    \uses{def:verifier}
 \end{definition}
 
 \begin{definition}[Reduction Append]
@@ -146,13 +150,14 @@ We begin by defining how to compose protocol specifications and their associated
     Sequential composition of reductions combines the corresponding provers and verifiers:
     \[ R_1.\append\ R_2 : \Reduction\ (\pSpec_1 \mathrel{++_\mathsf{p}} \pSpec_2)\ \oSpec\ \StmtIn_1\ \WitIn_1\ \StmtOut_2\ \WitOut_2 \]
     \lean{Reduction.append}
-    \uses{def:prover_append, def:verifier_append}
+    \uses{def:reduction, def:prover_append, def:verifier_append}
 \end{definition}
 
 \begin{definition}[Oracle Reduction Append]
     \label{def:oracle_reduction_append}
     Sequential composition extends naturally to oracle reductions by composing the oracle provers and oracle verifiers.
     \lean{OracleReduction.append}
+    \uses{def:oracle_reduction}
 \end{definition}
 
 \subsubsection{General Sequential Composition}
@@ -164,12 +169,13 @@ For composing an arbitrary number of reductions, we provide a general compositio
     Given a family of protocol specifications $\pSpec : \forall i : \Fin(m+1), \ProtocolSpec\ (n\ i)$, their composition is:
     \[ \compose\ m\ n\ \pSpec : \ProtocolSpec\ (\sum_{i} n\ i) \]
     \lean{ProtocolSpec.compose}
+    \uses{def:protocol_spec}
 \end{definition}
 
 \begin{definition}[General Prover Composition]
     \label{def:prover_compose}
     \lean{Prover.compose}
-    \uses{def:protocol_spec_compose}
+    \uses{def:prover, def:protocol_spec_compose}
 \end{definition}
 
 \begin{definition}[General Verifier Composition]

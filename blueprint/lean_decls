@@ -52,8 +52,6 @@ OracleVerifier.soundness
 OracleVerifier.knowledgeSoundness
 OracleVerifier.rbrSoundness
 OracleVerifier.rbrKnowledgeSoundness
-Verifier.srSoundness
-Verifier.srKnowledgeSoundness
 ProtocolSpec.append
 ProtocolSpec.FullTranscript.append
 Prover.append
@@ -103,6 +101,15 @@ SendSingleWitness.oracleReduction_completeness
 RandomQuery.oracleReduction
 RandomQuery.oracleReduction_completeness
 RandomQuery.rbr_knowledge_soundness
+ReduceClaim.reduction
+ReduceClaim.reduction_completeness
+ReduceClaim.oracleReduction
+CheckClaim.reduction
+CheckClaim.reduction_completeness
+CheckClaim.oracleReduction
+CheckClaim.oracleReduction_completeness
+SendClaim.oracleReduction
+SendClaim.completeness
 MvPolynomial.MLE
 MvPolynomial.schwartz_zippel_sum_degreeOf
 UniPoly

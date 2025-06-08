@@ -257,7 +257,7 @@ An oracle reduction then consists of a type signature for the interaction, and a
 verifier for that type signature.
 
 \begin{definition}[Interactive Reduction]
-    \label{def:interactive_reduction}
+    \label{def:reduction}
     An interactive reduction for protocol specification $\pSpec : \ProtocolSpec(n)$ and oracle specification $\oSpec$ consists of:
     \begin{itemize}
         \item A \textbf{prover} $\mathcal{P} : \Prover(\pSpec, \oSpec, \StmtIn, \WitIn, \StmtOut, \WitOut)$
@@ -270,7 +270,7 @@ verifier for that type signature.
 \end{definition}
 
 \begin{definition}[Interactive Oracle Reduction]
-    \label{def:interactive_oracle_reduction}
+    \label{def:oracle_reduction}
     An interactive oracle reduction for protocol specification $\pSpec : \ProtocolSpec(n)$ with oracle interfaces for all prover messages, and oracle specification $\oSpec$, consists of:
     \begin{itemize}
         \item An \textbf{oracle prover} $\mathcal{P} : \OracleProver(\pSpec, \oSpec, \StmtIn, \WitIn, \StmtOut, \WitOut, \OStmtIn, \OStmtOut)$
@@ -414,7 +414,7 @@ error).
     \end{itemize}
     except with probability $\epsilon$.
     \lean{Reduction.completeness}
-    \uses{def:interactive_oracle_reduction}
+    \uses{def:oracle_reduction}
 \end{definition}
 
 \begin{definition}[Perfect Completeness]
@@ -524,7 +524,7 @@ special soundness (via rewinding). At the moment, we only care about non-rewindi
     the execution between the prover and the honest verifier will result in an output statement
     $x_{\text{out}} \in L_{\text{out}}$ with probability at most $\epsilon$.
     \lean{Verifier.soundness}
-    \uses{def:interactive_oracle_reduction}
+    \uses{def:oracle_reduction}
 \end{definition}
 
 \begin{definition}[Knowledge Soundness]
@@ -545,7 +545,7 @@ special soundness (via rewinding). At the moment, we only care about non-rewindi
     messages obtained during protocol execution, it follows that the witness stays the same throughout
     the execution.
     \lean{Verifier.knowledgeSoundness}
-    \uses{def:interactive_oracle_reduction, def:straightline_extractor}
+    \uses{def:oracle_reduction, def:straightline_extractor}
 \end{definition}
 
 \subsubsection{Round-by-Round Security}
@@ -593,7 +593,7 @@ To define round-by-round (knowledge) soundness, we need to define the notion of 
     \end{itemize}
     is at most $\epsilon(i)$.
     \lean{Verifier.rbrSoundness}
-    \uses{def:interactive_oracle_reduction, def:state_function}
+    \uses{def:oracle_reduction, def:state_function}
 \end{definition}
 
 \begin{definition}[Round-by-Round Knowledge Soundness]
@@ -616,7 +616,7 @@ To define round-by-round (knowledge) soundness, we need to define the notion of 
     \end{itemize}
     is at most $\epsilon(i)$.
     \lean{Verifier.rbrKnowledgeSoundness}
-    \uses{def:interactive_oracle_reduction, def:state_function, def:rbr_extractor}
+    \uses{def:oracle_reduction, def:state_function, def:rbr_extractor}
 \end{definition}
 
 \begin{remark}[Alternative Formulations of RBR Knowledge Soundness]
@@ -768,7 +768,7 @@ By default, the properties we consider are perfect completeness and (straightlin
     outputs a statement in the output language is bounded by the soundness error.
 
     \emph{Note: This definition is currently under development in the Lean formalization.}
-    \lean{Verifier.srSoundness}
+    % \lean{Verifier.srSoundness}
 \end{definition}
 
 \begin{definition}[State-Restoration Knowledge Soundness]
@@ -778,7 +778,7 @@ By default, the properties we consider are perfect completeness and (straightlin
     any state-restoration prover that convinces the verifier.
 
     \emph{Note: This definition is currently under development in the Lean formalization.}
-    \lean{Verifier.srKnowledgeSoundness}
+    % \lean{Verifier.srKnowledgeSoundness}
 \end{definition}
 
 \subsubsection{Round-by-Round Security}
@@ -796,7 +796,7 @@ By default, the properties we consider are perfect completeness and (straightlin
 % \begin{definition}[Completeness]
 %     \label{def:completeness}
 %     \lean{Reduction.completeness}
-%     \uses{def:interactive_oracle_reduction}
+%     \uses{def:oracle_reduction}
 % \end{definition}
 
 % Almost all oracle reductions we consider actually satisfy \emph{perfect completeness}, which
@@ -818,7 +818,7 @@ By default, the properties we consider are perfect completeness and (straightlin
 % \begin{definition}[Soundness]
 %     \label{def:soundness}
 %     \lean{Verifier.soundness}
-%     \uses{def:interactive_oracle_reduction}
+%     \uses{def:oracle_reduction}
 % \end{definition}
 
 % A (straightline) extractor for knowledge soundness is a deterministic algorithm that takes in the output public context after executing the oracle reduction, the side information (i.e. log of oracle queries from the malicious prover) observed during execution, and outputs the witness for the input context.
@@ -830,7 +830,7 @@ By default, the properties we consider are perfect completeness and (straightlin
 % \begin{definition}[Knowledge Soundness]
 %     \label{def:knowledge_soundness}
 %     \lean{Verifier.knowledgeSoundness}
-%     \uses{def:interactive_oracle_reduction}
+%     \uses{def:oracle_reduction}
 % \end{definition}
 
 % To define round-by-round (knowledge) soundness, we need to define the notion of a \emph{state function}. This is a (possibly inefficient) function $\mathsf{StateF}$ that, for every challenge sent by the verifier, takes in the transcript of the protocol so far and outputs whether the state is doomed or not. Roughly speaking, the requirement of round-by-round soundness is that, for any (possibly malicious) prover $P$, if the state function outputs that the state is doomed on some partial transcript of the protocol, then the verifier will reject with high probability.
@@ -843,13 +843,13 @@ By default, the properties we consider are perfect completeness and (straightlin
 % \begin{definition}[Round-by-Round Soundness]
 %     \label{def:round_by_round_soundness}
 %     \lean{Verifier.rbrSoundness}
-%     \uses{def:interactive_oracle_reduction}
+%     \uses{def:oracle_reduction}
 % \end{definition}
 
 % \begin{definition}[Round-by-Round Knowledge Soundness]
 %     \label{def:round_by_round_knowledge_soundness}
 %     \lean{Verifier.rbrKnowledgeSoundness}
-%     \uses{def:interactive_oracle_reduction}
+%     \uses{def:oracle_reduction}
 % \end{definition}
 
 % \textbf{PL Formalization.} We write our definitions in PL notation in~\Cref{fig:type-defs}. The set of types $\Type$ is the same as Lean's dependent type theory (omitting universe levels); in particular, we care about basic dependent types (Pi and Sigma), finite natural numbers, finite fields, lists, vectors, and polynomials.
