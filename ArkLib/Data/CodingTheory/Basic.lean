@@ -86,7 +86,7 @@ theorem codeDist_subsingleton {C : Set (n → R)} [Subsingleton C] : ‖C‖₀ 
     have hEq : a = b := h a ha b hb
     simp_all
   have : {d | ∃ u ∈ C, ∃ v ∈ C, u ≠ v ∧ hammingDist u v ≤ d} = (∅ : Set ℕ) := by
-    apply Set.eq_empty_iff_forall_not_mem.mpr
+    apply Set.eq_empty_iff_forall_notMem.mpr
     simp [this]
   simp [this]
 
@@ -122,7 +122,7 @@ theorem distFromCode_eq_top_iff_empty (u : n → R) (C : Set (n → R)) : Δ₀(
   apply Iff.intro
   · simp only [distFromCode]
     intro h
-    apply Set.eq_empty_iff_forall_not_mem.mpr
+    apply Set.eq_empty_iff_forall_notMem.mpr
     intro v hv
     apply sInf_eq_top.mp at h
     revert h
@@ -724,7 +724,7 @@ open Finset in
 lemma minDist_UB [CommRing F] {LC : LinearCode ι F} : minDist LC ≤ length LC := by
   rw [minDist_eq_minWtCodewords, minWtCodewords]
   exact sInf.sInf_UB_of_le_UB fun s ⟨_, _, _, s_def⟩ ↦
-          s_def ▸ le_trans (card_le_card (subset_univ _)) (le_refl _)  
+          s_def ▸ le_trans (card_le_card (subset_univ _)) (le_refl _)
 
 theorem singletonBound [Semiring F] (LC : LinearCode ι F) :
   dim LC ≤ length LC - minDist LC + 1 := by sorry
@@ -739,26 +739,26 @@ lemma poly_eq_zero_of_dist_lt {n k : ℕ} {F : Type*} [DecidableEq F] [CommRing 
   {p : Polynomial F} {ωs : Fin n → F}
   (h_deg : p.natDegree < k)
   (hn : k ≤ n)
-  (h_inj: Function.Injective ωs) 
+  (h_inj: Function.Injective ωs)
   (h_dist : Δ₀(p.eval ∘ ωs, 0) < n - k + 1)
   : p = 0 := by
   by_cases hk : k = 0
   · simp [hk] at h_deg
   · have h_n_k_1 : n - k + 1 = n - (k - 1) := by omega
-    rw [h_n_k_1] at h_dist 
+    rw [h_n_k_1] at h_dist
     simp [hammingDist] at *
     rw [←Finset.compl_filter, Finset.card_compl] at h_dist
-    simp at h_dist 
+    simp at h_dist
     have hk : 1 ≤ k := by omega
-    rw [←Finset.card_image_of_injective _ h_inj 
+    rw [←Finset.card_image_of_injective _ h_inj
     ] at h_dist
-    have h_dist_p : k  ≤ 
-      (@Finset.image (Fin n) F _ ωs {i | Polynomial.eval (ωs i) p = 0} : Finset F).card 
+    have h_dist_p : k  ≤
+      (@Finset.image (Fin n) F _ ωs {i | Polynomial.eval (ωs i) p = 0} : Finset F).card
         := by omega
     by_cases heq_0 : p = 0 <;> try simp [heq_0]
     have h_dist := Nat.le_trans h_dist_p (by {
       apply Polynomial.card_le_degree_of_subset_roots (p := p)
-      intro x hx 
+      intro x hx
       aesop
     })
     omega

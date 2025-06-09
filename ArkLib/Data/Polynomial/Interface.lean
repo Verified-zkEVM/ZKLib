@@ -9,7 +9,7 @@ variable {F : Type*} [Semiring F] {deg : ℕ} {coeffs : Fin deg → F}
 
 lemma natDegree_lt_of_lbounded_zero_coeff {p : F[X]} [NeZero deg]
   (h : ∀ i, deg ≤ i → p.coeff i = 0) : p.natDegree < deg := by
-  aesop (add unsafe [(by by_contra), (by specialize h p.natDegree)])  
+  aesop (add unsafe [(by by_contra), (by specialize h p.natDegree)])
 
 def coeffsOfPolynomial (p : F[X]) : Fin deg → F :=
   fun ⟨x, _⟩ ↦ p.coeff x
