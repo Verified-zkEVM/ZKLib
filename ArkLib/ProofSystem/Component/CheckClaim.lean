@@ -104,7 +104,7 @@ variable {Statement} {OStatement}
 
 def toRelInput : Statement × (∀ i, OStatement i) → Unit → Prop :=
   fun ⟨stmt, oStmt⟩ _ =>
-    simulateQNeverFails (toOracleImpl OStatement oStmt) (pred stmt) (hPred stmt)
+    simulateQ' (toOracleImpl OStatement oStmt) (pred stmt) (hPred stmt)
 
 -- theorem oracleProver_run
 

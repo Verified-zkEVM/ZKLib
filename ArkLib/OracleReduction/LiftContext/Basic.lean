@@ -204,7 +204,8 @@ variable
 
 def OracleVerifier.liftContext
     (V : OracleVerifier pSpec oSpec InnerStmtIn InnerStmtOut InnerOStmtIn InnerOStmtOut)
-    (lens : OStatementLens OuterStmtIn InnerStmtOut OuterOStmtIn OuterOStmtOut InnerOStmtIn InnerOStmtOut) :
+    (lens : OStatementLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
+                          OuterOStmtIn OuterOStmtOut InnerOStmtIn InnerOStmtOut) :
     OracleVerifier pSpec oSpec OuterStmtIn OuterStmtOut OuterOStmtIn OuterOStmtOut where
   verify := fun outerStmtIn transcript => sorry
   embed := by
