@@ -1,5 +1,5 @@
-import Mathlib
 import ArkLib.Data.Fin.Basic
+import Mathlib.RingTheory.Polynomial.Basic
 
 section PolynomialInterface
 
