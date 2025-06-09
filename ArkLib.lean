@@ -46,6 +46,7 @@ import ArkLib.OracleReduction.Composition.Sequential.ProtocolSpec
 import ArkLib.OracleReduction.Equiv
 import ArkLib.OracleReduction.Execution
 import ArkLib.OracleReduction.LiftContext.Basic
+import ArkLib.OracleReduction.LiftContext.Lens
 import ArkLib.OracleReduction.OracleInterface
 import ArkLib.OracleReduction.Prelude
 import ArkLib.OracleReduction.Security.Basic
@@ -73,4 +74,6 @@ import ArkLib.ToMathlib.Finsupp.Fin
 import ArkLib.ToMathlib.MvPolynomial.Equiv
 import ArkLib.ToMathlib.NumberTheory.PrattCertificate
 import ArkLib.ToMathlib.UInt.Equiv
+import ArkLib.ToVCVio.DistEq
 import ArkLib.ToVCVio.Oracle
+import ArkLib.ToVCVio.SimOracle
