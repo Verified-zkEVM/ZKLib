@@ -18,5 +18,6 @@
 # *print.pdf
 /blueprint/src/web.pdf
 
+.nvim.lua
 # Web files for local viewing
 /blueprint/web/
