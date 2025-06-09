@@ -275,30 +275,50 @@ section SpecialCases
 -- 2.2. Over the output witness only
 -- 2.2.1. When the map is an equivalence
 
+-- When does this lead to secure protocols? Since one of input / output is trivial, this essentially
+-- reduces to the security of the zero-round reduction (that is either the on the input or the
+-- output context)
+
+@[inline, reducible, simp]
+def StatementLens.trivial (StmtIn StmtOut : Type) :
+    StatementLens StmtIn StmtOut StmtIn StmtOut where
+  projStmt := id
+  liftStmt := Prod.snd
+
+@[inline, reducible, simp]
+def WitnessLens.trivial (WitIn WitOut : Type) : WitnessLens WitIn WitOut WitIn WitOut where
+  projWit := id
+  liftWit := Prod.snd
+
+@[inline]
 def StatementLens.ofInputOnly (OuterStmtIn InnerStmtIn StmtOut : Type)
     (projStmt : OuterStmtIn → InnerStmtIn) :
     StatementLens OuterStmtIn StmtOut InnerStmtIn StmtOut where
   projStmt := projStmt
   liftStmt := Prod.snd
 
+@[inline]
 def StatementLens.ofOutputOnly (StmtIn OuterStmtOut InnerStmtOut : Type)
     (liftStmt : InnerStmtOut → OuterStmtOut) :
     StatementLens StmtIn OuterStmtOut StmtIn InnerStmtOut where
   projStmt := id
-  liftStmt := fun x => liftStmt x.2
+  liftStmt := liftStmt ∘ Prod.snd
 
+@[inline]
 def WitnessLens.ofInputOnly (OuterWitIn InnerWitIn WitOut : Type)
     (projWit : OuterWitIn → InnerWitIn) :
     WitnessLens OuterWitIn WitOut InnerWitIn WitOut where
   projWit := projWit
   liftWit := Prod.snd
 
+@[inline]
 def WitnessLens.ofOutputOnly (WitIn OuterWitOut InnerWitOut : Type)
     (liftWit : InnerWitOut → OuterWitOut) :
     WitnessLens WitIn OuterWitOut WitIn InnerWitOut where
   projWit := id
-  liftWit := fun x => liftWit x.2
+  liftWit := liftWit ∘ Prod.snd
 
+@[inline]
 def ContextLens.ofInputOnly (OuterStmtIn InnerStmtIn StmtOut : Type)
     (OuterWitIn InnerWitIn WitOut : Type)
     (projStmt : OuterStmtIn → InnerStmtIn)
@@ -308,6 +328,7 @@ def ContextLens.ofInputOnly (OuterStmtIn InnerStmtIn StmtOut : Type)
   toStatementLens := StatementLens.ofInputOnly OuterStmtIn InnerStmtIn StmtOut projStmt
   toWitnessLens := WitnessLens.ofInputOnly OuterWitIn InnerWitIn WitOut projWit
 
+@[inline]
 def ContextLens.ofOutputOnly (StmtIn OuterStmtOut InnerStmtOut WitIn OuterWitOut InnerWitOut : Type)
     (liftStmt : InnerStmtOut → OuterStmtOut)
     (liftWit : InnerWitOut → OuterWitOut) :
@@ -315,5 +336,39 @@ def ContextLens.ofOutputOnly (StmtIn OuterStmtOut InnerStmtOut WitIn OuterWitOut
                 WitIn OuterWitOut WitIn InnerWitOut where
   toStatementLens := StatementLens.ofOutputOnly StmtIn OuterStmtOut InnerStmtOut liftStmt
   toWitnessLens := WitnessLens.ofOutputOnly WitIn OuterWitOut InnerWitOut liftWit
+
+@[inline]
+def ContextLens.ofInputStmtOnly (OuterStmtIn InnerStmtIn StmtOut WitIn WitOut : Type)
+    (projStmt : OuterStmtIn → InnerStmtIn) :
+    ContextLens OuterStmtIn StmtOut InnerStmtIn StmtOut
+                WitIn WitOut WitIn WitOut where
+  toStatementLens := StatementLens.ofInputOnly OuterStmtIn InnerStmtIn StmtOut projStmt
+  toWitnessLens := WitnessLens.trivial WitIn WitOut
+
+@[inline]
+def ContextLens.ofOutputStmtOnly (StmtIn OuterStmtOut InnerStmtOut WitIn WitOut : Type)
+    (liftStmt : InnerStmtOut → OuterStmtOut) :
+    ContextLens StmtIn OuterStmtOut StmtIn InnerStmtOut
+                WitIn WitOut WitIn WitOut where
+  toStatementLens := StatementLens.ofOutputOnly StmtIn OuterStmtOut InnerStmtOut liftStmt
+  toWitnessLens := WitnessLens.trivial WitIn WitOut
+
+@[inline]
+def ContextLens.ofInputWitOnly (StmtIn StmtOut OuterWitIn InnerWitIn WitOut : Type)
+    (projWit : OuterWitIn → InnerWitIn) :
+    ContextLens StmtIn StmtOut StmtIn StmtOut
+                OuterWitIn WitOut InnerWitIn WitOut where
+  toStatementLens := StatementLens.trivial StmtIn StmtOut
+  toWitnessLens := WitnessLens.ofInputOnly OuterWitIn InnerWitIn WitOut projWit
+
+@[inline]
+def ContextLens.ofOutputWitOnly (StmtIn StmtOut WitIn OuterWitOut InnerWitOut : Type)
+    (liftWit : InnerWitOut → OuterWitOut) :
+    ContextLens StmtIn StmtOut StmtIn StmtOut
+                WitIn OuterWitOut WitIn InnerWitOut where
+  toStatementLens := StatementLens.trivial StmtIn StmtOut
+  toWitnessLens := WitnessLens.ofOutputOnly WitIn OuterWitOut InnerWitOut liftWit
+
+
 
 end SpecialCases
