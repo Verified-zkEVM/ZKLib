@@ -4,8 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
 
-import ArkLib.OracleReduction.Security.Basic
-import ToMathlib.PFunctor.Basic
+import ArkLib.OracleReduction.LiftContext.Lens
 
 /-!
   ## Lifting (Oracle) Reductions to Larger Contexts
@@ -44,273 +43,13 @@ import ToMathlib.PFunctor.Basic
   More precisely, the `proj/lift` operations correspond to a Lens between two monomial polyonmial
   functors: `OuterCtxIn y^ OuterCtxOut ⇆ InnerCtxIn y^ InnerCtxOut`.
 
-  What are some expected properties of the liftContext (via the connection to lenses)?
-
-  First, we recall the expected properties of lenses:
-
-  1. `get(lens, set(lens, value, store)) = value`
-  2. `set(lens, new, set(lens, old, store)) = set(lens, new, store)`
-  3. `set(lens, get(lens, store), store) = store`
-  4. and more
-
-  What should this mean here?
-  - one property not mentioned above, is that the pre-image of `projInput` should be invariant
-    for `liftOutput`.
-
-  That is, if `projInput(inp1) = projInput(inp2) = inp*`, then `liftOutput(inp1, out)
-  = liftOutput(inp2, out)` for all `out` which is a possible result of running the oracle
-  reduction on `inp*`. This basically implies a decomposition of sorts between the input to be
-  transported.
+  All the lens definitions are in `Lens.lean`. Here we define how the (oracle) reduction is actually
+  lifted, and how the lift preserves the security properties.
 -/
 
 open OracleSpec OracleComp ProtocolSpec
 
-section Transport
-
 open scoped NNReal
-
-/-- A lens for transporting (non-oracle) statements between outer and inner contexts -/
-class StatementLens (OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut : Type) where
-  projStmt : OuterStmtIn → InnerStmtIn
-  liftStmt : OuterStmtIn × InnerStmtOut → OuterStmtOut
-
-#check ReaderT.run
-
-/-- A lens for transporting oracle statements between outer and inner contexts
-
-We require knowledge of the (non-oracle) input statement in the outer context, along with the
-(non-oracle) output statement in the inner context. -/
-class OStatementLens (OuterStmtIn InnerStmtOut : Type)
-    {Outer_ιₛᵢ : Type} (OuterOStmtIn : Outer_ιₛᵢ → Type) [∀ i, OracleInterface (OuterOStmtIn i)]
-    {Outer_ιₛₒ : Type} (OuterOStmtOut : Outer_ιₛₒ → Type) [∀ i, OracleInterface (OuterOStmtOut i)]
-    {Inner_ιₛᵢ : Type} (InnerOStmtIn : Inner_ιₛᵢ → Type) [∀ i, OracleInterface (InnerOStmtIn i)]
-    {Inner_ιₛₒ : Type} (InnerOStmtOut : Inner_ιₛₒ → Type) [∀ i, OracleInterface (InnerOStmtOut i)]
-  where
-  -- To access an input oracle statement in the inner context, we may simulate it using the input
-  -- (non-oracle) statement of the outer context, along with oracle access to the outer input oracle
-  -- statements
-  projOStmt : ∀ i, OuterOStmtIn i → ∀ i, InnerOStmtIn i
-
-  simOStmt : QueryImpl [InnerOStmtIn]ₒ
-    (ReaderT OuterStmtIn (OracleComp [OuterOStmtIn]ₒ))
-
-  -- simOStmt_eq_projOStmt :
-
-  -- projOStmt_neverFails : ∀ i, ∀ t, ∀ outerStmtIn,
-  --   ((projOStmt.impl (query i t)).run outerStmtIn).neverFails
-  -- To get back an output oracle statement in the outer context, we may simulate it using the input
-  -- (non-oracle) statement of the outer context, the output (non-oracle) statement of the inner
-  -- context, along with oracle access to the inner output oracle statements
-  liftOStmt : QueryImpl [OuterOStmtOut]ₒ
-    (ReaderT (OuterStmtIn × InnerStmtOut) (OracleComp ([OuterOStmtIn]ₒ ++ₒ [InnerOStmtOut]ₒ)))
-  liftOStmt_neverFails : ∀ i, ∀ t, ∀ outerStmtIn, ∀ innerStmtOut,
-    ((liftOStmt.impl (query i t)).run (outerStmtIn, innerStmtOut)).neverFails
-
-/-- A lens for transporting witnesses between outer and inner contexts -/
-class WitnessLens (OuterWitIn OuterWitOut InnerWitIn InnerWitOut : Type) where
-  projWit : OuterWitIn → InnerWitIn
-  liftWit : OuterWitIn × InnerWitOut → OuterWitOut
-
-/-- A lens for transporting between outer and inner contexts of a (non-oracle) reduction -/
-class ContextLens (OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut : Type)
-    (OuterWitIn OuterWitOut InnerWitIn InnerWitOut : Type)
-    extends StatementLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut,
-      WitnessLens OuterWitIn OuterWitOut InnerWitIn InnerWitOut
-
-/-- A lens for transporting between outer and inner contexts of an oracle reduction -/
-class OracleContextLens (OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut : Type)
-    {Outer_ιₛᵢ : Type} (OuterOStmtIn : Outer_ιₛᵢ → Type) [∀ i, OracleInterface (OuterOStmtIn i)]
-    {Outer_ιₛₒ : Type} (OuterOStmtOut : Outer_ιₛₒ → Type) [∀ i, OracleInterface (OuterOStmtOut i)]
-    {Inner_ιₛᵢ : Type} (InnerOStmtIn : Inner_ιₛᵢ → Type) [∀ i, OracleInterface (InnerOStmtIn i)]
-    {Inner_ιₛₒ : Type} (InnerOStmtOut : Inner_ιₛₒ → Type) [∀ i, OracleInterface (InnerOStmtOut i)]
-    (OuterWitIn OuterWitOut InnerWitIn InnerWitOut : Type) extends
-
-      StatementLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut,
-
-      OStatementLens OuterStmtIn InnerStmtOut
-        OuterOStmtIn OuterOStmtOut InnerOStmtIn InnerOStmtOut,
-
-      WitnessLens OuterWitIn OuterWitOut InnerWitIn InnerWitOut
-
-namespace OracleContextLens
-
-#check OracleComp.simulateQ
-
-variable {OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut : Type}
-  {Outer_ιₛᵢ : Type} (OuterOStmtIn : Outer_ιₛᵢ → Type) [∀ i, OracleInterface (OuterOStmtIn i)]
-  {Outer_ιₛₒ : Type} (OuterOStmtOut : Outer_ιₛₒ → Type) [∀ i, OracleInterface (OuterOStmtOut i)]
-  {Inner_ιₛᵢ : Type} (InnerOStmtIn : Inner_ιₛᵢ → Type) [∀ i, OracleInterface (InnerOStmtIn i)]
-  {Inner_ιₛₒ : Type} (InnerOStmtOut : Inner_ιₛₒ → Type) [∀ i, OracleInterface (InnerOStmtOut i)]
-  {OuterWitIn OuterWitOut InnerWitIn InnerWitOut : Type}
-  {oLens : OracleContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
-                            OuterOStmtIn OuterOStmtOut InnerOStmtIn InnerOStmtOut
-                            OuterWitIn OuterWitOut InnerWitIn InnerWitOut}
-
-/-- Converting an oracle context lens to a non-oracle context lens, via moving oracle statements
-into non-oracle statements -/
-instance instContextLens : ContextLens
-    (OuterStmtIn × ∀ i, OuterOStmtIn i) (OuterStmtOut × ∀ i, OuterOStmtOut i)
-    (InnerStmtIn × ∀ i, InnerOStmtIn i) (InnerStmtOut × ∀ i, InnerOStmtOut i)
-    OuterWitIn OuterWitOut InnerWitIn InnerWitOut where
-  projStmt := fun ⟨outerStmtIn, outerOStmtIn⟩ =>
-    ⟨oLens.projStmt outerStmtIn, sorry⟩
-  liftStmt := fun ⟨outerStmtIn, innerStmtOut⟩ => sorry
-  projWit := fun outerWitIn => sorry
-  liftWit := fun ⟨outerWitIn, innerWitOut⟩ => sorry
-
-end OracleContextLens
-
-
-/-
-  Recall the interface of an extractor:
-  - Takes in `WitOut`, `StmtIn`, `Transcript`, `QueryLog`
-  (note: no need for `StmtOut` as it can be derived from `StmtIn`, `Transcript`, and `QueryLog`)
-  - Returns `WitIn`
-
-  We need a lens for the extractor as well.
-
-  Assume we have an inner extractor
-    `E : InnerWitOut → InnerStmtIn → Transcript → QueryLog → InnerWitIn`
-
-  We need to derive an outer extractor
-    `E' : OuterWitOut → OuterStmtIn → Transcript → QueryLog → OuterWitIn`
-
-  Note that `Transcript` and `QueryLog` are the same due to the lens only changing the
-  input-output interface, and not the inside (oracle) reduction.
-
-  So, `E' outerWitOut outerStmtIn transcript queryLog` needs to call
-    `E (map to innerWitOut) (projStmt outerStmtIn) transcript queryLog`
-  and then post-process the result, which is some `innerWitIn`, to get some `outerWitIn`.
-
-  This processing is exactly the same as a lens in the opposite direction between the outer and
-  inner witness types.
--/
-
-/-- Inverse lens between outer and inner witnesses (going the other direction with respect to
-  input-output), for extractors / knowledge soundness.
--/
-@[reducible]
-def WitnessLensInv (OuterWitIn OuterWitOut InnerWitIn InnerWitOut : Type) :=
-  WitnessLens OuterWitOut OuterWitIn InnerWitOut InnerWitIn
--- structure ContextLensInv (OuterStmtOut InnerStmtOut : Type)
---     (OuterWitIn OuterWitOut InnerWitIn InnerWitOut : Type) extends
---       WitnessLens OuterWitOut OuterWitIn InnerWitOut InnerWitIn where
---   projStmt : OuterStmtOut → InnerStmtOut
-  -- projWitInv : InnerWitOut → OuterWitOut
-  -- liftWitInv : InnerWitIn × OuterWitOut → OuterWitIn
-
-/-- For round-by-round knowledge soundness, we require an _equivalence_ on the input witness
-  (inner <=> outer). Otherwise, we cannot extract.
-
-  (imagine a reduction from R1 x R2 => R3 x R4, that is the sequential composition of R1 => R3 and
-  then R2 => R4. This reduction is not round-by-round knowledge sound, since if we are in the
-  R1 => R3 rounds, we have no way of invoking the second extractor for recovering the witness for
-  R2.)-/
-class RBRWitnessLensInv (OuterWitIn InnerWitIn : Type) where
-  liftWit : InnerWitIn → OuterWitIn
-
-/-- Conditions for the lens / transformation to preserve completeness
-
-For `lift`, we require compatibility relations between the outer input statement/witness and
-the inner output statement/witness -/
-class ContextLens.IsComplete {OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut : Type}
-    {OuterWitIn OuterWitOut InnerWitIn InnerWitOut : Type}
-    (outerRelIn : OuterStmtIn → OuterWitIn → Prop)
-    (innerRelIn : InnerStmtIn → InnerWitIn → Prop)
-    (outerRelOut : OuterStmtOut → OuterWitOut → Prop)
-    (innerRelOut : InnerStmtOut → InnerWitOut → Prop)
-    (compat : OuterStmtIn × OuterWitIn → InnerStmtOut × InnerWitOut → Prop)
-    (lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
-                        OuterWitIn OuterWitOut InnerWitIn InnerWitOut) where
-
-  proj_complete : ∀ stmtIn witIn,
-    outerRelIn stmtIn witIn →
-    innerRelIn (lens.projStmt stmtIn) (lens.projWit witIn)
-
-  lift_complete : ∀ outerStmtIn outerWitIn innerStmtOut innerWitOut,
-    outerRelIn outerStmtIn outerWitIn →
-    innerRelOut innerStmtOut innerWitOut →
-    compat (outerStmtIn, outerWitIn) (innerStmtOut, innerWitOut) →
-    outerRelOut (lens.liftStmt (outerStmtIn, innerStmtOut))
-                (lens.liftWit (outerWitIn, innerWitOut))
-
-/-- Conditions for the lens / transformation to preserve soundness -/
-class StatementLens.IsSound {OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut : Type}
-    (outerLangIn : Set OuterStmtIn) (outerLangOut : Set OuterStmtOut)
-    (innerLangIn : Set InnerStmtIn) (innerLangOut : Set InnerStmtOut)
-    (compat : OuterStmtIn → InnerStmtOut → Prop)
-    (stmtLens : StatementLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut) where
-
-  proj_sound : ∀ outerStmtIn,
-    outerStmtIn ∉ outerLangIn → stmtLens.projStmt outerStmtIn ∉ innerLangIn
-
-  lift_sound : ∀ outerStmtIn innerStmtOut,
-    outerStmtIn ∉ outerLangIn →
-    innerStmtOut ∉ innerLangOut →
-    compat outerStmtIn innerStmtOut →
-      stmtLens.liftStmt (outerStmtIn, innerStmtOut) ∉ outerLangOut
-
-/-- Conditions for the lens / transformation to preserve round-by-round soundness
-
-This is nearly identical to the `IsSound` condition, _except_ that we do not require
-`outerStmtIn ∉ outerLangIn` in the `lift_sound` condition.
-
-(we need to relax that condition to prove `toFun_full` of the lifted state function) -/
-class StatementLens.IsRBRSound {OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut : Type}
-    (outerLangIn : Set OuterStmtIn) (outerLangOut : Set OuterStmtOut)
-    (innerLangIn : Set InnerStmtIn) (innerLangOut : Set InnerStmtOut)
-    (compat : OuterStmtIn → InnerStmtOut → Prop)
-    (stmtLens : StatementLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut) where
-
-  proj_sound : ∀ outerStmtIn,
-    outerStmtIn ∉ outerLangIn → stmtLens.projStmt outerStmtIn ∉ innerLangIn
-
-  lift_sound : ∀ outerStmtIn innerStmtOut,
-    innerStmtOut ∉ innerLangOut →
-    compat outerStmtIn innerStmtOut →
-      stmtLens.liftStmt (outerStmtIn, innerStmtOut) ∉ outerLangOut
-
-/-- Conditions for the lens / transformation to preserve knowledge soundness
-
-(TODO: double-check) -/
-class ContextLens.IsKnowledgeSound
-    {OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut : Type}
-    {OuterWitIn OuterWitOut InnerWitIn InnerWitOut : Type}
-    (outerRelIn : OuterStmtIn → OuterWitIn → Prop)
-    (innerRelIn : InnerStmtIn → InnerWitIn → Prop)
-    (outerRelOut : OuterStmtOut → OuterWitOut → Prop)
-    (innerRelOut : InnerStmtOut → InnerWitOut → Prop)
-    (compat : OuterStmtIn × OuterWitIn → InnerStmtOut × InnerWitOut → Prop)
-    (lensInv : WitnessLensInv OuterWitIn OuterWitOut InnerWitIn InnerWitOut)
-    (lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
-                        OuterWitIn OuterWitOut InnerWitIn InnerWitOut) where
-
-  /-- Projecting using the inverse lens from outer to inner context preserves satisfaction of
-    relations -/
-  proj_knowledge_sound : ∀ outerStmtIn outerWitIn,
-    outerRelIn outerStmtIn outerWitIn →
-    innerRelIn (lens.projStmt outerStmtIn) (lens.projWit outerWitIn)
-
-  lift_knowledge_sound : ∀ outerStmtIn outerWitIn innerStmtOut innerWitOut,
-    outerRelIn outerStmtIn outerWitIn →
-    innerRelOut innerStmtOut innerWitOut →
-    compat (outerStmtIn, outerWitIn) (innerStmtOut, innerWitOut) →
-    outerRelOut (lens.liftStmt (outerStmtIn, innerStmtOut))
-                (lens.liftWit (outerWitIn, innerWitOut))
-
-namespace ContextLens.IsKnowledgeSound
-
--- Convert knowledge soundness into soundness
-
-end ContextLens.IsKnowledgeSound
-
-class ContextLens.IsRBRKnowledgeSound
-    {OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut : Type}
-    {OuterWitIn OuterWitOut InnerWitIn InnerWitOut : Type}
-    (outerRelIn : OuterStmtIn → OuterWitIn → Prop)
-    (innerRelIn : InnerStmtIn → InnerWitIn → Prop)
-    (outerRelOut : OuterStmtOut → OuterWitOut → Prop)
-    (innerRelOut : InnerStmtOut → InnerWitOut → Prop)
 
 variable {n : ℕ} {pSpec : ProtocolSpec n} {ι : Type} {oSpec : OracleSpec ι}
   {OuterStmtIn OuterWitIn OuterStmtOut OuterWitOut : Type}
@@ -361,8 +100,7 @@ open Verifier in
 /-- The outer extractor after lifting invokes the inner extractor on the projected input, and
   lifts the output -/
 def StraightlineExtractor.liftContext
-    [lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
-      OuterWitIn OuterWitOut InnerWitIn InnerWitOut]
+    [lens : StatementLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut]
     [lensInv : WitnessLensInv OuterWitIn OuterWitOut InnerWitIn InnerWitOut]
     (E : StraightlineExtractor pSpec oSpec InnerStmtIn InnerWitIn InnerWitOut) :
       StraightlineExtractor pSpec oSpec OuterStmtIn OuterWitIn OuterWitOut :=
@@ -436,8 +174,8 @@ where
     simp [Verifier.run, Verifier.liftContext] at h ⊢
     intro innerStmtOut hSupport
     apply lensRBRSound.lift_sound
-    · exact h innerStmtOut hSupport
     · simp [compatStatement]; exact ⟨transcript, hSupport⟩
+    · exact h innerStmtOut hSupport
 
 -- def OracleProver.liftContext
 
@@ -612,7 +350,7 @@ theorem Reduction.liftContext_completeness
     simp
     exact ⟨a, b, hSupport⟩
   simp_all
-  refine lensComplete.lift_complete _ _ _ _ hRelIn hRelOut ?_
+  refine lensComplete.lift_complete _ _ _ _ ?_ hRelIn hRelOut
   rw [← hRelOut']
   simp [compatContext]; exact this
 
@@ -669,16 +407,15 @@ theorem Verifier.liftContext_soundness [Inhabited InnerStmtOut]
   Lifting the reduction preserves knowledge soundness, assuming the lens satisfies its
   knowledge soundness conditions
 -/
-theorem Verifier.liftContext_knowledgeSoundness [Inhabited InnerStmtOut]
+theorem Verifier.liftContext_knowledgeSoundness [Inhabited InnerStmtOut] [Inhabited InnerWitIn]
     {outerRelIn : OuterStmtIn → OuterWitIn → Prop} {outerRelOut : OuterStmtOut → OuterWitOut → Prop}
     {innerRelIn : InnerStmtIn → InnerWitIn → Prop} {innerRelOut : InnerStmtOut → InnerWitOut → Prop}
     {knowledgeError : ℝ≥0}
-    [lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
-                        OuterWitIn OuterWitOut InnerWitIn InnerWitOut]
+    [lens : StatementLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut]
     (lensInv : WitnessLensInv OuterWitIn OuterWitOut InnerWitIn InnerWitOut)
-    [lensKnowledgeSound : lens.IsKnowledgeSound outerRelIn innerRelIn outerRelOut innerRelOut
-      (fun _ _ => True) lensInv]
     (V : Verifier pSpec oSpec InnerStmtIn InnerStmtOut)
+    [lensKnowledgeSound : lens.IsKnowledgeSound outerRelIn innerRelIn outerRelOut innerRelOut
+      (V.compatStatement lens) (fun _ _ => True) lensInv]
     (h : V.knowledgeSoundness innerRelIn innerRelOut knowledgeError) :
       V.liftContext.knowledgeSoundness outerRelIn outerRelOut
         knowledgeError := by
@@ -699,7 +436,8 @@ theorem Verifier.liftContext_knowledgeSoundness [Inhabited InnerStmtOut]
     }
   have h_innerP_input {innerStmtIn} {innerWitIn} :
       innerP.input innerStmtIn innerWitIn = outerP.input outerStmtIn outerWitIn := rfl
-  have hR := h' (lens.projStmt outerStmtIn) (lens.projWit outerWitIn) innerP
+  simp at h'
+  have hR := h' (lens.projStmt outerStmtIn) default innerP
   simp at hR
   simp [Reduction.runWithLog, Verifier.liftContext, Verifier.run] at hR ⊢
   have h_innerP_runWithLog {innerStmtIn} {innerWitIn} :
@@ -756,12 +494,11 @@ theorem Verifier.liftContext_rbr_knowledgeSoundness
     {outerRelIn : OuterStmtIn → OuterWitIn → Prop} {outerRelOut : OuterStmtOut → OuterWitOut → Prop}
     {innerRelIn : InnerStmtIn → InnerWitIn → Prop} {innerRelOut : InnerStmtOut → InnerWitOut → Prop}
     {rbrKnowledgeError : pSpec.ChallengeIdx → ℝ≥0}
-    [lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
-                        OuterWitIn OuterWitOut InnerWitIn InnerWitOut]
+    [lens : StatementLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut]
     (lensInv : WitnessLensInv OuterWitIn OuterWitOut InnerWitIn InnerWitOut)
-    [lensKnowledgeSound : lens.IsKnowledgeSound outerRelIn innerRelIn outerRelOut innerRelOut
-      (fun _ _ => True) lensInv]
     (V : Verifier pSpec oSpec InnerStmtIn InnerStmtOut)
+    [lensKnowledgeSound : lens.IsKnowledgeSound outerRelIn innerRelIn outerRelOut innerRelOut
+      (V.compatStatement lens) (fun _ _ => True) lensInv]
     (h : V.rbrKnowledgeSoundness innerRelIn innerRelOut rbrKnowledgeError) :
       V.liftContext.rbrKnowledgeSoundness outerRelIn outerRelOut
         rbrKnowledgeError := by
@@ -789,8 +526,6 @@ theorem Verifier.liftContext_rbr_knowledgeSoundness
 -- def OracleVerifier.liftContext_rbr_knowledgeSoundness
 
 end Theorems
-
-end Transport
 
 section Test
 
@@ -834,21 +569,22 @@ def testLensComplete : testLens.IsComplete
   proj_complete := fun ⟨p, q, t⟩ () hRelIn => by
     simp [outerRelIn_Test] at hRelIn
     simp [innerRelIn_Test, testLens, hRelIn]
-  lift_complete := fun ⟨p, q, t⟩ _ ⟨f, t', r⟩ _ hRelIn hRelOut' hCompat => by
+  lift_complete := fun ⟨p, q, t⟩ _ ⟨f, t', r⟩ _ hCompat hRelIn hRelOut' => by
     simp [outerRelIn_Test] at hRelIn
     simp [innerRelOut_Test] at hRelOut'
     simp at hCompat
     simp [outerRelOut_Test, testLens, hRelIn, ← hRelOut', hCompat]
 
-def testLensKnowledgeSound : testLens.IsKnowledgeSound
-      outerRelIn_Test innerRelIn_Test outerRelOut_Test innerRelOut_Test
-      (fun ⟨⟨p, q, _⟩, ()⟩ ⟨⟨f, _⟩, ()⟩ => p * q = f) testLensInv where
-  proj_knowledge_sound := fun ⟨p, q, t⟩ () hRelIn => by
-    simp [outerRelIn_Test] at hRelIn
-    simp [innerRelIn_Test, testLens, hRelIn]
-  lift_knowledge_sound := fun ⟨p, q, t⟩ _ ⟨f, t', r⟩ _ hRelIn hRelOut' hCompat => by
-    simp [outerRelIn_Test] at hRelIn
-    sorry
+-- def testLensKnowledgeSound : testLens.IsKnowledgeSound
+--       outerRelIn_Test innerRelIn_Test outerRelOut_Test innerRelOut_Test
+--       (fun ⟨⟨p, q, _⟩, ()⟩ ⟨⟨f, _⟩, ()⟩ => p * q = f) testLensInv where
+--   proj_knowledge_sound := fun ⟨p, q, t⟩ () hRelIn => by
+--     simp [outerRelIn_Test] at hRelIn
+--     simp [innerRelIn_Test, testLens, hRelIn]
+--   lift_knowledge_sound := fun ⟨p, q, t⟩ _ ⟨f, t', r⟩ _ hRelIn hRelOut' hCompat => by
+--     simp [outerRelIn_Test] at hRelIn
+--     sorry
+
 end
 
 end Test
