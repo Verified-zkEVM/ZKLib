@@ -134,7 +134,7 @@ def Verifier.compatStatement {OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut 
     (V : Verifier pSpec oSpec InnerStmtIn InnerStmtOut) :
       OuterStmtIn → InnerStmtOut → Prop :=
   fun outerStmtIn innerStmtOut =>
-    innerStmtOut ∈ ⋃ transcript, (V.run (lens.projStmt outerStmtIn) transcript).support
+    ∃ transcript, innerStmtOut ∈ (V.run (lens.projStmt outerStmtIn) transcript).support
 
 /-- Compatibility relation between the outer input context and the inner output context, relative
 to a reduction.
@@ -150,6 +150,19 @@ def Reduction.compatContext {OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut :
   fun ⟨outerStmtIn, outerWitIn⟩ innerContextOut =>
     innerContextOut ∈
       Prod.fst <$> (R.run (lens.projStmt outerStmtIn) (lens.projWit outerWitIn)).support
+
+/-- Compatibility relation between the outer input witness and the inner output witness, relative to
+  a straightline extractor.
+
+We require that the inner output witness is a possible output of the straightline extractor on the
+outer input witness, for a given input statement, transcript, and prover and verifier's query logs.
+-/
+def Verifier.StraightlineExtractor.compatWit [oSpec.FiniteRange]
+    (lensInv : WitnessLensInv OuterWitIn OuterWitOut InnerWitIn InnerWitOut)
+    (E : StraightlineExtractor pSpec oSpec InnerStmtIn InnerWitIn InnerWitOut) :
+      OuterWitOut → InnerWitIn → Prop :=
+  fun outerWitOut innerWitIn =>
+    ∃ stmt tr logP logV, innerWitIn ∈ (E (lensInv.projWit outerWitOut) stmt tr logP logV).support
 
 /-- The outer state function after lifting invokes the inner state function on the projected
   input, and lifts the output -/
@@ -177,11 +190,32 @@ where
     · simp [compatStatement]; exact ⟨transcript, hSupport⟩
     · exact h innerStmtOut hSupport
 
+section OracleReduction
+
+variable
+    [∀ i, OracleInterface (pSpec.Message i)]
+    {Outer_ιₛᵢ : Type} (OuterOStmtIn : Outer_ιₛᵢ → Type) [∀ i, OracleInterface (OuterOStmtIn i)]
+    {Outer_ιₛₒ : Type} (OuterOStmtOut : Outer_ιₛₒ → Type) [∀ i, OracleInterface (OuterOStmtOut i)]
+    {Inner_ιₛᵢ : Type} (InnerOStmtIn : Inner_ιₛᵢ → Type) [∀ i, OracleInterface (InnerOStmtIn i)]
+    {Inner_ιₛₒ : Type} (InnerOStmtOut : Inner_ιₛₒ → Type) [∀ i, OracleInterface (InnerOStmtOut i)]
+    (OuterWitIn OuterWitOut InnerWitIn InnerWitOut : Type)
+
 -- def OracleProver.liftContext
 
--- def OracleVerifier.liftContext
+def OracleVerifier.liftContext
+    (V : OracleVerifier pSpec oSpec InnerStmtIn InnerStmtOut InnerOStmtIn InnerOStmtOut)
+    (lens : OStatementLens OuterStmtIn InnerStmtOut OuterOStmtIn OuterOStmtOut InnerOStmtIn InnerOStmtOut) :
+    OracleVerifier pSpec oSpec OuterStmtIn OuterStmtOut OuterOStmtIn OuterOStmtOut where
+  verify := fun outerStmtIn transcript => sorry
+  embed := by
+    have := V.embed
+
+    sorry
+  hEq := sorry
 
 -- def OracleReduction.liftContext
+
+end OracleReduction
 
 section Theorems
 

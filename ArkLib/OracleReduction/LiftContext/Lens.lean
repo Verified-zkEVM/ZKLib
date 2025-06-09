@@ -26,20 +26,19 @@ class StatementLens (OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut : Type) w
   projStmt : OuterStmtIn → InnerStmtIn
   liftStmt : OuterStmtIn × InnerStmtOut → OuterStmtOut
 
-/-- A lens for transporting oracle statements between outer and inner contexts
+/-- A lens for transporting both oracle and non-oracle statements between outer and inner contexts
 
-We require knowledge of the (non-oracle) input statement in the outer context, along with the
-(non-oracle) output statement in the inner context. -/
-class OStatementLens (OuterStmtIn InnerStmtOut : Type)
+We require both a lens of the underlying (combined) statements (via the conversion from oracle
+reduction => reduction), but also simulation of oracle statements in terms of other values. -/
+class OStatementLens (OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut : Type)
     {Outer_ιₛᵢ : Type} (OuterOStmtIn : Outer_ιₛᵢ → Type) [∀ i, OracleInterface (OuterOStmtIn i)]
     {Outer_ιₛₒ : Type} (OuterOStmtOut : Outer_ιₛₒ → Type) [∀ i, OracleInterface (OuterOStmtOut i)]
     {Inner_ιₛᵢ : Type} (InnerOStmtIn : Inner_ιₛᵢ → Type) [∀ i, OracleInterface (InnerOStmtIn i)]
     {Inner_ιₛₒ : Type} (InnerOStmtOut : Inner_ιₛₒ → Type) [∀ i, OracleInterface (InnerOStmtOut i)]
+  extends
+    StatementLens (OuterStmtIn × ∀ i, OuterOStmtIn i) (OuterStmtOut × ∀ i, OuterOStmtOut i)
+                  (InnerStmtIn × ∀ i, InnerOStmtIn i) (InnerStmtOut × ∀ i, InnerOStmtOut i)
   where
-  -- To access an input oracle statement in the inner context, we may simulate it using the input
-  -- (non-oracle) statement of the outer context, along with oracle access to the outer input oracle
-  -- statements
-  projOStmt : ∀ i, OuterOStmtIn i → ∀ i, InnerOStmtIn i
 
   simOStmt : QueryImpl [InnerOStmtIn]ₒ
     (ReaderT OuterStmtIn (OracleComp [OuterOStmtIn]ₒ))
@@ -74,12 +73,8 @@ class OracleContextLens (OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut : Typ
     {Inner_ιₛᵢ : Type} (InnerOStmtIn : Inner_ιₛᵢ → Type) [∀ i, OracleInterface (InnerOStmtIn i)]
     {Inner_ιₛₒ : Type} (InnerOStmtOut : Inner_ιₛₒ → Type) [∀ i, OracleInterface (InnerOStmtOut i)]
     (OuterWitIn OuterWitOut InnerWitIn InnerWitOut : Type) extends
-
-      StatementLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut,
-
-      OStatementLens OuterStmtIn InnerStmtOut
-        OuterOStmtIn OuterOStmtOut InnerOStmtIn InnerOStmtOut,
-
+      OStatementLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
+                    OuterOStmtIn OuterOStmtOut InnerOStmtIn InnerOStmtOut,
       WitnessLens OuterWitIn OuterWitOut InnerWitIn InnerWitOut
 
 namespace OracleContextLens
@@ -102,11 +97,10 @@ instance instContextLens : ContextLens
     (OuterStmtIn × ∀ i, OuterOStmtIn i) (OuterStmtOut × ∀ i, OuterOStmtOut i)
     (InnerStmtIn × ∀ i, InnerOStmtIn i) (InnerStmtOut × ∀ i, InnerOStmtOut i)
     OuterWitIn OuterWitOut InnerWitIn InnerWitOut where
-  projStmt := fun ⟨outerStmtIn, outerOStmtIn⟩ =>
-    ⟨oLens.projStmt outerStmtIn, sorry⟩
-  liftStmt := fun ⟨outerStmtIn, innerStmtOut⟩ => sorry
-  projWit := fun outerWitIn => sorry
-  liftWit := fun ⟨outerWitIn, innerWitOut⟩ => sorry
+  projStmt := oLens.projStmt
+  liftStmt := oLens.liftStmt
+  projWit := oLens.projWit
+  liftWit := oLens.liftWit
 
 end OracleContextLens
 
