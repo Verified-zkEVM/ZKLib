@@ -81,7 +81,7 @@ Reduction.liftContext
 ContextLens.IsComplete
 StatementLens.IsSound
 StatementLens.IsRBRSound
-ContextLens.IsKnowledgeSound
+StatementLens.IsKnowledgeSound
 Reduction.liftContext_completeness
 Verifier.liftContext_soundness
 Verifier.liftContext_knowledgeSoundness
