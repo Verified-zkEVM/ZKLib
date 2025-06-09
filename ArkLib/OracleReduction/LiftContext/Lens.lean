@@ -79,8 +79,6 @@ class OracleContextLens (OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut : Typ
 
 namespace OracleContextLens
 
-#check OracleComp.simulateQ
-
 variable {OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut : Type}
   {Outer_ιₛᵢ : Type} (OuterOStmtIn : Outer_ιₛᵢ → Type) [∀ i, OracleInterface (OuterOStmtIn i)]
   {Outer_ιₛₒ : Type} (OuterOStmtOut : Outer_ιₛₒ → Type) [∀ i, OracleInterface (OuterOStmtOut i)]
@@ -257,3 +255,65 @@ class ContextLens.IsRBRKnowledgeSound
     (innerRelIn : InnerStmtIn → InnerWitIn → Prop)
     (outerRelOut : OuterStmtOut → OuterWitOut → Prop)
     (innerRelOut : InnerStmtOut → InnerWitOut → Prop)
+
+
+section SpecialCases
+
+-- Plan (do not delete)
+
+-- 1. When the lens is over the input context only (keeping the output the same)
+-- 1.1. Over the input statement only
+-- 1.1.1. When the map is an equivalence
+-- 1.2. Over the input witness only
+-- 1.2.1. When the map is an equivalence
+
+-- TODO for oracle statements as we haven't figured it out
+
+-- 2. When the lens is over the output context only (keeping the input the same)
+-- 2.1. Over the output statement only
+-- 2.1.1. When the map is an equivalence
+-- 2.2. Over the output witness only
+-- 2.2.1. When the map is an equivalence
+
+def StatementLens.ofInputOnly (OuterStmtIn InnerStmtIn StmtOut : Type)
+    (projStmt : OuterStmtIn → InnerStmtIn) :
+    StatementLens OuterStmtIn StmtOut InnerStmtIn StmtOut where
+  projStmt := projStmt
+  liftStmt := Prod.snd
+
+def StatementLens.ofOutputOnly (StmtIn OuterStmtOut InnerStmtOut : Type)
+    (liftStmt : InnerStmtOut → OuterStmtOut) :
+    StatementLens StmtIn OuterStmtOut StmtIn InnerStmtOut where
+  projStmt := id
+  liftStmt := fun x => liftStmt x.2
+
+def WitnessLens.ofInputOnly (OuterWitIn InnerWitIn WitOut : Type)
+    (projWit : OuterWitIn → InnerWitIn) :
+    WitnessLens OuterWitIn WitOut InnerWitIn WitOut where
+  projWit := projWit
+  liftWit := Prod.snd
+
+def WitnessLens.ofOutputOnly (WitIn OuterWitOut InnerWitOut : Type)
+    (liftWit : InnerWitOut → OuterWitOut) :
+    WitnessLens WitIn OuterWitOut WitIn InnerWitOut where
+  projWit := id
+  liftWit := fun x => liftWit x.2
+
+def ContextLens.ofInputOnly (OuterStmtIn InnerStmtIn StmtOut : Type)
+    (OuterWitIn InnerWitIn WitOut : Type)
+    (projStmt : OuterStmtIn → InnerStmtIn)
+    (projWit : OuterWitIn → InnerWitIn) :
+    ContextLens OuterStmtIn StmtOut InnerStmtIn StmtOut
+                OuterWitIn WitOut InnerWitIn WitOut where
+  toStatementLens := StatementLens.ofInputOnly OuterStmtIn InnerStmtIn StmtOut projStmt
+  toWitnessLens := WitnessLens.ofInputOnly OuterWitIn InnerWitIn WitOut projWit
+
+def ContextLens.ofOutputOnly (StmtIn OuterStmtOut InnerStmtOut WitIn OuterWitOut InnerWitOut : Type)
+    (liftStmt : InnerStmtOut → OuterStmtOut)
+    (liftWit : InnerWitOut → OuterWitOut) :
+    ContextLens StmtIn OuterStmtOut StmtIn InnerStmtOut
+                WitIn OuterWitOut WitIn InnerWitOut where
+  toStatementLens := StatementLens.ofOutputOnly StmtIn OuterStmtOut InnerStmtOut liftStmt
+  toWitnessLens := WitnessLens.ofOutputOnly WitIn OuterWitOut InnerWitOut liftWit
+
+end SpecialCases
