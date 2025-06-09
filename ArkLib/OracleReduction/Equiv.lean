@@ -1,3 +1,5 @@
+
+
 import ArkLib.OracleReduction.Security.Basic
 import ArkLib.OracleReduction.LiftContext.Basic
 
@@ -44,70 +46,6 @@ import ArkLib.OracleReduction.LiftContext.Basic
 
 -/
 
--- First, what does it mean for two oracle computations to be equivalent?
-
-namespace OracleComp
-
-open OracleSpec
-
-variable {ι ιₜ : Type} {spec : OracleSpec ι} {specₜ : OracleSpec ιₜ} {α σ : Type} [spec.FiniteRange]
-
-#check OracleComp.PolyQueries
-
-def oa1 : ProbComp (ℕ × ℕ) := do
-  let x ← query (spec := unifSpec) 0 ()
-  let y ← query (spec := unifSpec) 1 ()
-  return (x, y)
-
-def oa2 : ProbComp (ℕ × ℕ) := do
-  let y ← query (spec := unifSpec) 1 ()
-  let x ← query (spec := unifSpec) 0 ()
-  return (x, y)
-
-theorem oa1_eq_oa2 : oa1 = oa2 := by
-  simp [oa1, oa2]
-  sorry
-
-@[simp]
-theorem unifSpec_range (n : ℕ) : unifSpec.range n = Fin (n + 1) := rfl
-
-def distEquiv (oa ob : OracleComp spec α) : Prop :=
-  evalDist oa = evalDist ob
-
-theorem oa1_distEquiv_oa2 : distEquiv oa1 oa2 := by
-  simp [oa1, oa2, distEquiv, OptionT.lift, OptionT.mk, evalDist, liftM, monadLift, simulateQ,
-    Option.getM, Option.elimM, OptionT.run, MonadLift.monadLift, lift]
-  ext ⟨i, j⟩
-  sorry
-  -- rcases i with none | ⟨x, y⟩
-  -- · simp [tsum_eq_sum (s := Finset.univ) (by simp)]
-  --   simp [OptionT.run, OptionT.lift, OptionT.mk, Functor.map, Option.elimM]
-  --   sorry
-  -- · simp [tsum_eq_sum (s := Finset.univ) (by simp)]
-  --   simp [OptionT.run, OptionT.lift, OptionT.mk, Functor.map]
-  --   -- simp [tsum_eq_sum (s := Finset.univ) (by simp)]
-  --   -- cases on x and y
-  --   sorry
-
-open SimOracle in
-def obsEquiv (oa ob : OracleComp spec α) : Prop :=
-  ∀ f : (i : ι) → spec.domain i → spec.range i,
-    simulateQ (fnOracle spec f) oa = simulateQ (fnOracle spec f) ob
-
--- Note: observational equivalence does not imply distributional equivalence, since the distribution
--- of each new query is independently random
-
-theorem oa1_obsEquiv_oa2 : obsEquiv oa1 oa2 := by
-  simp only [obsEquiv, unifSpec_range, oa1, Nat.reduceAdd, Fin.val_eq_zero, bind_pure_comp,
-    simulateQ_bind, simulateQ_query, simulateQ_map, oa2]
-  intro f
-  simp only [SimOracle.fnOracle, unifSpec_range, SimOracle.statelessOracle, liftM, monadLift,
-    MonadLift.monadLift, StateT.lift, Nat.reduceAdd, bind_pure_comp, map_pure, Prod.map_apply,
-    id_eq]
-  sorry
-
-end OracleComp
-
 section Relation
 
 variable {Stmt Wit Stmt' Wit' : Type}
@@ -129,6 +67,26 @@ theorem Relation.equiv_symm (f : Stmt ≃ Stmt') (g : Wit ≃ Wit') (R : Stmt �
 -- TODO: define quotienting (i.e. statement is a product type and relation only depends on one component)
 
 end Relation
+
+variable {n : ℕ} {pSpec pSpec' : ProtocolSpec n}
+
+-- More targeted / limited version of equivalence only for the context, i.e.
+-- `ctxEquiv`, `stmtEquiv`, `oStmtEquiv`, `witEquiv`
+
+-- Also, equality and not just equivalence. many times we want observational **equality**. have to specify fewer things
+
+-- Finally, could we go for a general _simulation_ relation?
+
+structure Prover.ObsEquiv (P : Prover pSpec oSpec StmtIn WitIn StmtOut WitOut)
+    (P' : Prover pSpec' oSpec' StmtIn' WitIn' StmtOut' WitOut') where
+  pSpecDirEq : ∀ i, (pSpec i).1 = (pSpec' i).1
+  pSpecEquiv : ∀ i, (pSpec i).2 ≃ (pSpec' i).2
+  stmtInEquiv : StmtIn ≃ StmtIn'
+  witInEquiv : WitIn ≃ WitIn'
+  stmtOutEquiv : StmtOut ≃ StmtOut'
+  witOutEquiv : WitOut ≃ WitOut'
+  -- All prover functions give the same output
+  -- proverEquiv : ∀ stmtIn witIn, ...
 
 namespace Reduction
 
