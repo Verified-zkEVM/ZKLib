@@ -95,7 +95,7 @@ class GenMutualCorrParams (P: Params ι F) (S: ∀ i : Fin M, Finset (ι i)) whe
   hδLe : ∀ i : Fin M, (δ i) ≤ 1 - Finset.univ.sup (fun j => BStar i j (C i j) 2)
 
   hlistDecode : ∀ i : Fin M, ∀ j : Fin (P.foldingParam i),
-    listDecodable (C i j) (dist i j) (δ i)
+    listDecodable (C i j) (δ i) (dist i j)
 
 section RBR
 open OracleComp OracleSpec ProtocolSpec NNRat
