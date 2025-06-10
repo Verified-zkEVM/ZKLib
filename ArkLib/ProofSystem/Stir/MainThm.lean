@@ -4,58 +4,73 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Least Authority
 -/
 
-
 import ArkLib.Data.CodingTheory.FieldReedSolomon
 import ArkLib.Data.CodingTheory.ListDecodeability
 import ArkLib.Data.CodingTheory.RelativeHammingDistance
-import ArkLib.Data.CodingTheory.SmoothDomain
+import ArkLib.Data.CodingTheory.SmoothReedSolomon
 import ArkLib.OracleReduction.VectorIOR
 import ArkLib.ProofSystem.Stir.ProximityBound
 
-open Finset ReedSolomon VectorIOP ListDecodable SmoothDomain
-open scoped BigOperators NNReal
-
-
+/-!Section 5 STIR[ACFY24], Theorem 5.1 and Lemma 5.4 -/
 namespace StirIOP
 
-variable {F : Type*} [Field F] [Fintype F] [DecidableEq F]
-         {ι : Finset F} {domain : ι ↪ F} {f : ι → F}
+open BigOperators Finset ListDecodable NNReal ReedSolomon SmoothDomain VectorIOP
 
-def toCode (LC : LinearCode ι F) : Code ι F := LC
-/-- **Per‑round protocol parameters.**
-For a fixed depth `M`, the reduction runs `M + 1` rounds.  In round
-`i ∈ {0,…,M}` we fold by a factor `kᵢ`, evaluate on the point set
-`Lᵢ ⊆ F`, and repeat certain proximity checks `tᵢ` times. -/
-structure Params (F : Type*) (M : ℕ) where
-  k : Fin (M + 1) → ℕ
-  ι : Fin (M + 1) → Finset F
-  t : Fin (M + 1) → ℕ
+variable {F : Type} [Field F] [Fintype F] [DecidableEq F]
+         {M : ℕ} (ι : Fin (M+1) → Type) [∀ i : Fin (M+1), Fintype (ι i)]
+         [∀ i : Fin (M+1), DecidableEq (ι i)]
 
-/-- **Degree after `i` folds.**
-The starting degree is `d`; every fold divides it by `kⱼ (j<i)` to obtain `dᵢ`.
-We assume divisibility so the integer division is exact. -/
-def degreeᵢ {M : ℕ} (degree : ℕ) (P : Params F M) (i : Fin (M + 1)) : ℕ :=
-  degree / ∏ j < i, (P.k j)
+-- def toCode (LC : LinearCode ι F) : Code ι F := LC
+/-- Per‑round protocol parameters:
+  For a fixed depth `M`, the reduction runs `M + 1` rounds.
+  In round `i ∈ {0,…,M}` we fold by a factor `foldingParamᵢ`,
+  evaluate on the point set `ιᵢ` through the embedding `φᵢ : ιᵢ ↪ F`,
+  and repeat certain proximity checks `repeatParamᵢ` times. -/
+structure Params (F : Type*) where
+  foldingParam : Fin (M+1) → ℕ
+  φ : (i : Fin (M+1)) → (ι i) ↪ F
+  repeatParam : Fin (M+1) → ℕ
 
-/-- **`Rateᵢ= degreeᵢ/|Lᵢ|`** of the Reed–Solomon code used in round `i`.
+/-- Degree after `i` folds:
+  The starting degree is `deg`;
+  every fold divides it by `foldingParamⱼ (j<i)` to obtain `degreeᵢ`.
+  We assume divisibility so that the result is an integar. -/
+def degree (deg : ℕ) (P : Params ι F) : Fin (M + 1) → ℕ :=
+  fun i => deg / ∏ j < i, (P.foldingParam j)
+
+/-- ** Conditions that protocol parameters must satisfy. **
+  h_deg : initial degree `deg` is a power of 2
+  h_foldingParams : ∑ i : Fin (M+1), foldingParamᵢ is a power of 2
+  h_deg_ge : deg ≥ ∏ i foldingParamᵢ
+  h_smooth : each φᵢ must embed a smooth evaluation domain
+  h_smooth_le : |ιᵢ| ≤ degreeᵢ
+  h_repeatP_le : ∀ i : Fin (M+1), repeatParamᵢ + 1 ≤ degreeᵢ -/
+structure ParamConditions (P : Params ι F) where
+  deg : ℕ -- initial degree
+  h_deg : ∃ k : ℕ, deg = 2^k
+  h_foldingParams : ∀ i : Fin (M+1), ∃ k : ℕ, (P.foldingParam i) = 2^k
+  h_deg_ge : deg ≥ ∏ i < (M+1), (P.foldingParam i)
+  h_smooth : ∀ i : Fin (M+1), Smooth (P.φ i)
+  h_smooth_le : ∀ i : Fin (M+1), Fintype.card (ι i) ≤ (degree ι deg P i)
+  h_repeatP_le : ∀ i : Fin (M+1), P.repeatParam i + 1 ≤ (degree ι deg P i)
+
+/--`Rateᵢ= degreeᵢ/|ιᵢ|` of the Reed–Solomon code used in round `i`.
 A real number because most analytic bounds live in `ℝ`. -/
-noncomputable def rateᵢ {M : ℕ} (degree : ℕ) (P : Params F M)
-    (i : Fin (M + 1)) : ℝ :=
-  (degreeᵢ degree P i : ℝ) / ((P.ι i).card : ℝ)
+noncomputable def rate (deg : ℕ) (P : Params ι F) : Fin (M + 1) → ℝ :=
+  fun i => (degree ι deg P i : ℝ) / (Fintype.card (ι i) : ℝ)
 
 /-- Distance and list‑size targets per round. -/
 structure Distances (M : ℕ) where
-  δ : Fin (M + 1) → ℚ
-  l : Fin (M + 1) → ℚ
+  δ : Fin (M + 1) → ℝ≥0
+  l : Fin (M + 1) → ℝ≥0
 
-/-- **Family of Reed–Solomon codes** actually expected by the verifier.
-The index `i` says *which* round we refer to; all codes are computed from
-the same source polynomial `f`. -/
-structure Code
-    {F : Type*} [Field F] [Fintype F] [DecidableEq F]
-    (d : ℕ) {M : ℕ} (P : Params F M) (i : Fin (M + 1)) where
-  domainᵢ : (i: Fin (M+1)) → (P.ι i ↪ F)
-  codeᵢ : (i : Fin (M + 1)) → code F (P.ι i) (domainᵢ i) (degreeᵢ d P i)
+/-- Family of Reed–Solomon codes expected by the verifier, we have
+  `codeᵢ = RS[F, ιᵢ, degreeᵢ]` and
+  `hlistDecode: codeᵢ` is `(δᵢ,lᵢ)`-list decodable-/
+structure CodeParams (d : ℕ) (P : Params ι F) (Dist : Distances M) where
+  C : ∀ i : Fin (M+1), Set ((ι i) → F)
+  h_code : ∀ i : Fin (M+1), C i = code F (ι i) (P.φ i) (degree ι d P i)
+  hlistDecode : ∀ i : Fin (M+1), listDecodable (C i) (Dist.δ i) (Dist.l i)
 
 /-- Predecessor inside `Fin (n+1)` (requires `i ≠ 0`). -/
 def predFin {n : ℕ} (i : Fin (n + 1)) (h : i.val ≠ 0) : Fin (n + 1) :=
@@ -63,113 +78,137 @@ def predFin {n : ℕ} (i : Fin (n + 1)) (h : i.val ≠ 0) : Fin (n + 1) :=
     have hpred : Nat.pred i.val < i.val := Nat.pred_lt h
     exact Nat.lt_trans hpred i.isLt⟩
 
-open OracleComp OracleSpec ProtocolSpec
+section MainTheorem
 
-section STIR
+open OracleComp OracleSpec ProtocolSpec
 variable {n : ℕ}
 
+/--Statement for the STIR Vector IOPP consisting of a field `F`, evaluation domain `ι` and
+  degree parameter `degree` -/
 structure Statement
   (F : Type)[Field F][Fintype F][DecidableEq F]
-  (ι : Finset F)(d : ℕ) where
-  eval : ι -> F
+  (ι : Type) [Fintype ι]
+  (degree : ℕ)
+  where
+    eval : ι → F
 
-
+/--`OStmtOut` defines the oracle message type for a multi-indexed setting:
+  given index type `ιₛ`, base input type `ι`, and field `F`, the output type at each index `i : ιₛ`
+  is a function `ι → F` representing an evaluation over `ι`.-/
 @[reducible]
-def OStmtOut (F : Type) (ι : Finset F) (ιₛ : Type) : ιₛ → Type :=
-  fun _ => ι → F
+def OStmtOut (ιₛ ι F : Type) : ιₛ → Type :=
+    fun _ => ι → F
 
-instance instStirOraclePerIndex
-  {F : Type} [Field F] [Fintype F] [DecidableEq F]
-  {ι : Finset F} {ιₛ : Type} :
-  ∀ _ : ιₛ, OracleInterface (ι → F) :=
-  fun _ => {
-    Query := {x // x ∈ ι}
-    Response := F
-    oracle := fun f q => f q
-  }
-
+/--Given a statement `stmt` and a collection of oracles, this relation
+returns `true` if the distance between the statement's evaluation function `stmt.eval`
+and the Reed–Solomon code `code F ι φ degree` is at least `δ`.-/
 def stirRelation
   {F : Type} [Field F] [Fintype F] [DecidableEq F]
-  {ι : Finset F} [Nonempty ι] {degree : ℕ} {ιₛ : Type} (domain : ι ↪ F) (δ : ℝ)
-  : (Statement F ι degree × ∀ _ : ιₛ, ι → F) → Unit → Prop :=
-  let C := code F ι domain degree
+  {ι : Type} [Fintype ι] [Nonempty ι]
+  {degree : ℕ} {ιₛ: Type} (φ : ι ↪ F) (δ : ℝ)
+  : (Statement F ι degree × ∀ i, (OStmtOut ιₛ ι F i)) → Unit → Prop :=
+  let C := code F ι φ degree
   fun ⟨stmt, _oracles⟩ _ =>
-    δᵣ(stmt.eval, ↑C) ≥ δ
+    δᵣ(stmt.eval, C) ≥ δ
 
-
-
-/-- **STIR main theorem** -/
-theorem STIR
-  {F : Type} [Field F] [Fintype F] [DecidableEq F] [VCVCompatible F]
-  {ι : Finset F} [Nonempty ι]
-  {domain : ι ↪ F} {degree : ℕ} (hd : ∃ m, degree = 2 ^ m) (secpar : ℕ)
-  (δ : ℝ) (hδ0 : 0 < δ) (hδub : δ < 1 - 1.05 * Real.sqrt (degree / ι.card))
+/--Theorem 5.1 : STIR main theorem
+  Consider the following ingrediants,
+  a security parameter `secpar`
+  a ReedSolomon code `RS[F, ι, degree]` with rate `ρ = degree/ |ι|`, where ι is a smooth domain
+  a proximity parameter `δ ∈ (0, 1 - 1.05 * √ρ)`
+  a folding parameter `k ≥ 4`, being a power of 2
+  if `|F| ≤ secpar • 2^{secpar • degree² • |ι|^3.5 / log(1/ρ)}`, then
+  there exists a `vector IOPP π` for `RS` with
+  with `round by round soundness error ≤ 2 ^ (- secpar)`.
+  -/
+theorem stir_main
+  (secpar : ℕ) [VCVCompatible F]
+  {ι : Type} [Fintype ι] [Nonempty ι] [DecidableEq ι]
+  {φ : ι ↪ F} {degree : ℕ} [hsmooth : Smooth φ]
+  (δ : ℝ) (hδ0 : 0 < δ) (hδub : δ < 1 - 1.05 * Real.sqrt (degree / Fintype.card ι))
   (k : ℕ) (hk : ∃ m, k = 2 ^ m) (hk4 : 4 ≤ k)
-  [hsmooth : Smooth domain k]-- ι is a smooth domain
-  (hF : Fintype.card F ≥
-        secpar * 2 ^ secpar * degree^2 * ι.card^(7/2) /
-        Real.log (1 / rate degree ι))
+  (hF : Fintype.card F ≤
+        secpar • 2 ^ secpar • degree^2 • (Fintype.card ι)^(7/2) /
+        Real.log (1 / ReedSolomon.rate degree ι))
   (vPSpec : ProtocolSpec.VectorSpec n)
   (oSpec : OracleSpec ι) [oSpec.FiniteRange]
   {ιₛ : Type}
-  [OracleInterface (ι → F)]
-  (ε_rbr : vPSpec.ChallengeIdx → ℝ≥0) :
-  ∃ π : VectorIOP vPSpec F oSpec (Statement F ι degree) Unit (OStmtOut F ι ιₛ),
-    IsSecureWithGap (stirRelation domain 0)
-                    (stirRelation domain δ)
-                    ε_rbr π :=
-by
-  sorry
+  [∀ i, OracleInterface (OStmtOut ιₛ ι F i)]
+  (ε_rbr : vPSpec.ChallengeIdx → ℝ≥0) (h_ε_rbr: ε_rbr ≤ 1/ 2 ^ secpar):
+  ∃ π : VectorIOP vPSpec F oSpec (Statement F ι degree) Unit (OStmtOut ιₛ ι F),
+    IsSecureWithGap (stirRelation φ 0)
+                    (stirRelation φ δ)
+                    ε_rbr π := by sorry
 
-end STIR
+end MainTheorem
 
-
-section RBR
-open Finset BigOperators
+section RBRSoundness
 variable {n : ℕ}
 
-
-/-- **Round-by-round soundness of the STIR IOPP**-/
+/--Lemma 5.4: Round-by-round soundness of the STIR IOPP
+  Consider parameters:
+  `ι = {ιᵢ}_{i ∈ [M]}` be smooth evaluation domains
+  `P : Params ι F` containing required protocol parameters
+    folding parameters `foldingParamᵢ`, embedding `φᵢ`, repetition parameters `repeatParamᵢ`
+  `hParams : ParamConditions ι P`, stating conditions that parameters of P must satisfy
+  `degreeᵢ = deg / ∏ j<i foldingParamⱼ`, where `deg = degree₀`
+  `rateᵢ = degreeᵢ / |ιᵢ|`
+  `Codes : CodeParams ι degree P Dist`, containing smooth ReedSolomon codes `RS[F, ιᵢ, degreeᵢ]`
+    where `RS[F, ιᵢ, degreeᵢ]` is `(δᵢ,lᵢ)`-list decodable
+  then for every `f₀ ∉ RS[F, ι₀, degree₀]`
+  `δ₀ ∈ (0, δᵣ(f, RS[F, ι₀, degree₀]) ∩ (1 - BStar(ρ₀)))`
+  `∀ i ∈ [M], δᵢ ∈ (0, min{ 1 - ρᵢ - 1/|ιᵢ|, 1 - BStar(ρᵢ)})`
+  then there exists a `vector IOPP π` with parameters as above such that
+  `ε_fold ≤ errStar(degree₀/foldingParam₀, ρ₀, δ₀, repeatParam₀)`
+  `ε_outᵢ ≤ lᵢ²/2 • (degreeᵢ/ |F| - |ιᵢ|)^s`
+  `ε_shiftᵢ ≤ (1 - δ_{i-1})^repeatParam_{i-1} + errStar(degreeᵢ, ρᵢ, δᵢ, t_{i-1} + s)`
+    `+ errStar(degreeᵢ/foldingParamᵢ, ρᵢ, δᵢ, repeatParamᵢ)`
+  `ε_fin ≤ (1 - δ_M)^repeatParam_M`
+  -/
 theorem stir_rbr_soundness
-    {F : Type} [Field F] [Fintype F] [DecidableEq F] [VCVCompatible F]
-    {d k : ℕ} {ι : Finset F} [hsmooth : Smooth domain k] -- ι is a smooth domain
-    {M : ℕ} (P : Params F M) {f₀ : (P.ι 0) → F}
-    {h_nonempty: ∀ i : Fin (M + 1), Nonempty (P.ι i)}
-    {i : Fin (M + 1)} (C : Code d P i) (s : ℕ)
-    (dist : Distances M)
-    (h_not_code : f₀ ∉ toCode (toLinearCode ↑(C.codeᵢ 0)))
-    (hδ₀Pos : 0 < dist.δ 0)
-    (hδ₀Lt : dist.δ 0 ≤ δᵣ((f₀), toCode (toLinearCode ↑(C.codeᵢ 0))) ∧
-      dist.δ 0 < (1 - Bstar (rateᵢ d P 0)))
-    (hδᵢ : ∀ {j : Fin (M + 1)}, j ≠ 0 → 0 < dist.δ j ∧
-        dist.δ j < (1 - rateᵢ d P j - 1 / (P.ι j).card) ∧
-        dist.δ j < (1 - Bstar (rateᵢ d P j)))
-    (h_list :
-      ∀ {j : Fin (M + 1)}, j ≠ 0 →
-        listDecodable (toCode (toLinearCode ↑(C.codeᵢ j))) (dist.δ j) (dist.l j))
+    [VCVCompatible F] {ιₒ ιₛ : Type} {s : ℕ}
+    {P : Params ι F} {φ : (i : Fin (M+1)) → (ι i ↪ F)}
+    {h_nonempty : ∀ i : Fin (M + 1), Nonempty (ι i)}
+    {hParams : ParamConditions ι P} {Dist : Distances M}
+    {Codes : CodeParams ι hParams.deg P Dist}
+    (h_not_code : ∀ f₀ : (ι 0) → F, f₀ ∉ (Codes.C 0))
+    (hδ₀Le : ∀ f₀ : (ι 0) → F, Dist.δ 0 ≤ (δᵣ(f₀, Codes.C 0) : ℝ) ∧
+      Dist.δ 0 < (1 - Bstar (rate ι hParams.deg P 0)))
+    (hδᵢ : ∀ {j : Fin (M + 1)}, j ≠ 0 →
+        Dist.δ j < (1 - rate ι hParams.deg P j - 1 / Fintype.card (ι j)) ∧
+        Dist.δ j < (1 - Bstar (rate ι hParams.deg P j)))
     (vPSpec : ProtocolSpec.VectorSpec n)
-    (oSpec : OracleSpec ι) [oSpec.FiniteRange]
-    {ιₛ : Type} [OracleInterface (ι → F)]
+    [∀ i, OracleInterface (OStmtOut ιₛ (ι 0) F i)]
+    (oSpec : OracleSpec ιₒ) [oSpec.FiniteRange]
     (ε_fold : ℝ≥0) (ε_out : Fin (M + 1) → ℝ≥0)
     (ε_shift : Fin (M + 1) → ℝ≥0) (ε_fin : ℝ≥0)
     (ε_sound : ℝ≥0) (ε_rbr : vPSpec.ChallengeIdx → ℝ≥0) :
-    ∃ π : VectorIOP vPSpec F oSpec (Statement F ι d) Unit (OStmtOut F ι ιₛ),
-      ε_fold ≤ (err' F ((degreeᵢ d P 0) / P.k 0) (rateᵢ d P 0)
-                 (dist.δ 0) (P.k 0)).toReal ∧
+    -- ∃ vector IOPP π with Statement(F, ι₀, deg), Witness = Unit, OStmtOut(ιₛ, ι₀, F) such that
+    ∃ π : VectorIOP vPSpec F oSpec (Statement F (ι 0) (hParams.deg)) Unit (OStmtOut ιₛ (ι 0) F),
+    -- ε_fold ≤ errStar(degree₀/foldingParam₀, ρ₀, δ₀, repeatParam₀)
+      ε_fold ≤ (err' F (hParams.deg / P.foldingParam 0) (rate ι hParams.deg P 0)
+                 (Dist.δ 0) (P.foldingParam 0)).toReal
+      ∧
+      -- ε_outⱼ ≤ lᵢ²/2 • (degreeⱼ/ |F| - |ιⱼ|)^s
       (∀ {j : Fin (M + 1)} (hⱼ : j.val ≠ 0),
         ε_out j ≤
-          ((dist.l j : ℝ) ^ 2 / 2) *
-            ((degreeᵢ d P j : ℝ) /
-              (Fintype.card F - (P.ι j).card)) ^ s ∧
+          ((Dist.l j : ℝ) ^ 2 / 2) *
+            ((degree ι hParams.deg P j : ℝ) / (Fintype.card F - Fintype.card (ι j))) ^ s
+        ∧
+        -- ε_shiftⱼ ≤ (1 - δ_{j-1})^repeatParam_{j-1} + errStar(degreeⱼ, ρⱼ, δⱼ, t_{j-1} + s)
+        --  + errStar(degreeⱼ/foldingParamⱼ, ρⱼ, δⱼ, repeatParamⱼ)`
         let jPred := predFin j hⱼ;
         ε_shift j ≤
-          ((1 - dist.δ jPred) ^ (P.t jPred) : ℝ) +
-          (err' F (degreeᵢ d P j) (rateᵢ d P j) (dist.δ j) (P.t jPred) + s).toReal +
-          (err' F ((degreeᵢ d P j) / P.k j) (rateᵢ d P j) (dist.δ j) (P.k j)).toReal) ∧
-        ε_fin ≤ ((1 - dist.δ M) ^ (P.t M) : ℝ) :=
+          ((1 - Dist.δ jPred) ^ (P.repeatParam jPred) : ℝ) +
+          (err' F (degree ι hParams.deg P j) (rate ι hParams.deg P j)
+            (Dist.δ j) (P.repeatParam jPred) + s).toReal +
+          (err' F ((degree ι hParams.deg P j) / P.foldingParam j) (rate ι hParams.deg P j)
+            (Dist.δ j) (P.repeatParam j)).toReal)
+        ∧
+        -- ε_fin ≤ (1 - δ_M)^repeatParam_M
+        ε_fin ≤ ((1 - Dist.δ M) ^ (P.repeatParam M) : ℝ) :=
 by
   sorry
 
-end RBR
-
+end RBRSoundness
 end StirIOP

@@ -51,9 +51,6 @@ disagreementSet := { x ∈ L | x ∈ S ∧ AnsPoly x ≠ f x }. -/
 noncomputable def disagreementSet (f : ι → F) (S : Finset F) (Ans : S → F) : Finset F :=
   (ι.attach.filter (λ x ↦ (ansPoly F S Ans).eval x.val ≠ f x)).image Subtype.val
 
-
-
-
 /- Quotienting Lemma-/
 lemma quotienting [DecidableEq F] {degree : ℕ} {domain : ι ↪ F} [Nonempty ι]
   (S : Finset F) (hS_lt : S.card < degree) (r : F)

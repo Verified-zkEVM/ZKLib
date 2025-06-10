@@ -7,54 +7,59 @@ Authors: Least Authority
 import ArkLib.Data.CodingTheory.FieldReedSolomon
 import ArkLib.Data.CodingTheory.ListDecodeability
 import ArkLib.Data.CodingTheory.RelativeHammingDistance
-
+import ArkLib.Data.Probability.NotationSingleSampl
 import Mathlib.Probability.ProbabilityMassFunction.Basic
 import Mathlib.Probability.Distributions.Uniform
 import Mathlib.Data.Fintype.Basic
 
-
-open ReedSolomon ListDecodable Finset
+open Finset ListDecodable NNReal ProbabilityTheory ReedSolomon
 namespace OutOfDomSmpl
 variable {F : Type*} [Field F] [Fintype F] [DecidableEq F]
-         {ι : Finset F}
+         {ι : Type*} [Fintype ι] [DecidableEq ι]
 
-/-! Section 4.3 in https://eprint.iacr.org/2024/390.pdf -/
+/-! Section 4.3 [ACFY24] -/
 
-def domainComplement (ι : Finset F) : Finset F :=
-  Finset.univ \ ι
+/--returns the domain complement `F \ φ(ι)`-/
+def domainComplement (φ : ι ↪ F) : Finset F :=
+  Finset.univ \ Finset.image φ.toFun Finset.univ
 
-/-- Pr_{r₀, …, rₛ₋ ₁  ← 𝔽\L} [∃ distinct u, u′ ∈ List(f, d, δ) :
-∀ i ∈ [0...s-1], u(r_i) = u′(r_i)] -/
+/-- Pr_{r₀, …, r_{s-1} ← (𝔽 \ φ(ι)) }
+      [ ∃ distinct u, u′ ∈ List(C, f, δ) :
+        ∀ i < s, u(r_i) = u′(r_i) ]
+    here, List (C, f, δ) denotes the Ball of radius δ centered at codeword f,
+    wrt the Relative Hamming distance. -/
 noncomputable def listDecodingCollisionProbability
-  (f : ι → F) (δ : ℝ) (s : ℕ) (degree : ℕ) (domain : ι ↪ F)
-  (h_nonempty : Nonempty (domainComplement ι)) : ENNReal :=
-  (PMF.uniformOfFintype (Fin s → domainComplement ι)).toOuterMeasure { r |
-    ∃ (u u' : code F ι domain degree),
-    -- ∃ (u u' : (relHammingBall (toLinearCode C) f δ)),
-      u.val ≠ u'.val ∧ -- both u and u' lie within δ of some target f
-      u.val ∈ relHammingBall ↑(code F ι domain degree) f δ ∧
-      u'.val ∈ relHammingBall ↑(code F ι domain degree) f δ ∧
-    -- their interpolating polynomials agree on each sampled r_i
+  (φ : ι ↪ F) (f : ι → F) (δ : ℝ) (s degree: ℕ) (Genfun : F → Fin s → F)
+  (h_nonempty : Nonempty (domainComplement φ))  : ENNReal :=
+  Pr_{r ← (domainComplement φ)}
+    [ ∃ (u u' : code F ι φ degree),
+      u.val ≠ u'.val ∧
+      u.val ∈ relHammingBall ↑(code F ι φ degree) f δ ∧
+      u'.val ∈ relHammingBall ↑(code F ι φ degree) f δ ∧
       ∀ i : Fin s,
-        (decode u).eval (r i).val = (decode u').eval (r i).val
-  }
+        (decode u).eval (Genfun r i) = (decode u').eval (Genfun r i)
+    ]
 
+/--Lemma 4.5.1-/
 lemma out_of_dom_smpl_1
-  {δ l : ℝ} {s : ℕ} {f : ι → F} {degree : ℕ} {domain : ι ↪ F}
-  (C : Set (ι → F)) (hC : C = code F ι domain degree)
-  (h_decodable : listDecodable ↑C δ l)
-  (h_nonempty : Nonempty (domainComplement ι))  :
-  listDecodingCollisionProbability f δ s degree domain h_nonempty ≤
-    (ENNReal.ofReal (l * (l-1) / 2)) * ((degree - 1) / (Fintype.card F - ι.card))^s
+  {δ l : ℝ≥0} {s : ℕ} {f : ι → F} {degree : ℕ} {φ : ι ↪ F}
+  (C : Set (ι → F)) (hC : C = code F ι φ degree)
+  (h_decodable : listDecodable C δ l)
+  (h_nonempty : Nonempty (domainComplement φ))
+  (Genfun : F → Fin s → F) :
+  listDecodingCollisionProbability φ f δ s degree Genfun h_nonempty ≤
+    ((l * (l-1) / 2)) * ((degree - 1) / (Fintype.card F - Fintype.card ι))^s
   := by sorry
 
+/--Lemma 4.5.2-/
 lemma out_of_dom_smpl_2
-  {δ l : ℝ} {s : ℕ} {f : ι → F} {degree : ℕ} {domain : ι ↪ F}
-  (C : Set (ι → F)) (hC : C = code F ι domain degree)
-  (h_decodable : listDecodable ↑C δ l)
-  (h_nonempty : Nonempty (domainComplement ι)) :
-  listDecodingCollisionProbability f δ s degree domain h_nonempty ≤
-    (ENNReal.ofReal (l^2 / 2)) * (degree / (Fintype.card F - ι.card))^s
+  {δ l : ℝ≥0} {s : ℕ} {f : ι → F} {degree : ℕ} {φ : ι ↪ F}
+  (C : Set (ι → F)) (hC : C = code F ι φ degree)
+  (h_decodable : listDecodable C δ l)
+  (h_nonempty : Nonempty (domainComplement φ))
+  (Genfun : F → Fin s → F) :
+  listDecodingCollisionProbability φ f δ s degree Genfun h_nonempty ≤
+    ((l^2 / 2)) * (degree / (Fintype.card F - Fintype.card ι))^s
   := by sorry
 
 end OutOfDomSmpl

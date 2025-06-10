@@ -8,12 +8,12 @@ import Mathlib.Data.Finset.Basic
 import Mathlib.Data.Real.Basic
 import Mathlib.Data.Real.Sqrt
 
-/-- Proximity bound function -/
-noncomputable def Bstar (x: ℝ) : ℝ := x.sqrt
+open NNReal
 
-/-- Proximity error function
- -- coerced to ENNReal, because it is exclusively used in probability inequalities and
-  we agreed to coerce ℝ → ENNReal not vice versa -/
+/-- Proximity bound function -/
+noncomputable def Bstar (x : ℝ) : ℝ := x.sqrt
+
+/-- Proximity error function-/
 noncomputable def err' (F : Type*) [Fintype F] (d : ℕ) (ρ : ℝ) (δ : ℝ) (m: ℕ) : ENNReal :=
   ENNReal.ofReal (
   if δ ≤ (1 - ρ) / 2 then

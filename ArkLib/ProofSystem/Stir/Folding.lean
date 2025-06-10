@@ -7,7 +7,7 @@ Authors: Least Authority
 import ArkLib.Data.CodingTheory.FieldReedSolomon
 import ArkLib.Data.CodingTheory.ListDecodeability
 import ArkLib.Data.CodingTheory.RelativeHammingDistance
-import ArkLib.Data.CodingTheory.SmoothDomain
+import ArkLib.Data.Probability.NotationSingleSampl
 import ArkLib.ProofSystem.Stir.ProximityBound
 
 import Mathlib.Algebra.MvPolynomial.Basic
@@ -16,17 +16,15 @@ import Mathlib.Probability.ProbabilityMassFunction.Basic
 import Mathlib.Probability.Distributions.Uniform
 import Mathlib.RingTheory.MvPolynomial.Groebner
 
-open SmoothDomain Polynomial ReedSolomon LinearMap Finset ListDecodable
+/-! Section 4.4, [ACFY24] -/
+
+open Polynomial ReedSolomon LinearMap Finset ListDecodable
 
 namespace Folding
-variable {n : ℕ}
-         {F : Type } [Field F] [Fintype F]
-         {ι : Finset F} {domain : ι → F}
-
-/-! Section 4.4 in https://eprint.iacr.org/2024/390.pdf -/
+variable {F : Type* } [Field F] [Fintype F]
 
 /- 𝔽[X,Y] is not an Euclidean Domain, but fixing an order on monomials still allows
-   to show existance of bivariate polynomials Q', Q ∈ 𝔽[X;Y] such that
+   to show existance of bivariate polynomials Q', Q ∈ 𝔽[X,Y] such that
    P = Q' * P' + Q for all P,P' ∈ 𝔽[X,Y] with P' having an invertible leading coefficient
    (which on a field is equivalent to P' not being the zero polynomial).
 
@@ -38,13 +36,12 @@ variable {n : ℕ}
    Q ∈ 𝔽[Z,Y] with P(z,y) = Q'(z,y) * R(z,y) + Q(z,y)
 -/
 
-
 /-- Given `P, P' ∈ 𝔽[Z,Y]`, `P' ≠ 0`, computes `Q ∈ 𝔽[Z,Y]`,
 with `P(z,y) = Q'(z,y) * P'(z,y) + Q(z,y)` for some `Q' ∈ 𝔽[Z,Y]` -/
 noncomputable def modBivar (P P' : MvPolynomial (Fin 2) F)
     (hlg : IsUnit ((MonomialOrder.lex).leadingCoeff P')) : MvPolynomial (Fin 2) F :=
       -- Lexicographic order on `Fin 2`.
-      let ord : MonomialOrder (Fin 2) := MonomialOrder.lex -- TODO: check if lex really is x₀ > x₁
+      let ord : MonomialOrder (Fin 2) := MonomialOrder.lex
       -- Wrap the single divisor into a family indexed by `Unit`.
       let b : Unit → MvPolynomial (Fin 2) F := fun _ => P'
       -- Unit leading-coeff proof for every index (there is only one).
@@ -55,8 +52,6 @@ noncomputable def modBivar (P P' : MvPolynomial (Fin 2) F)
       have hdiv := ord.div (b := b) hb P
       -- Peel off the two nested existentials and return the chosen remainder `r`.
       Classical.choose (Classical.choose_spec hdiv)
-
-
 
 /-- maps the univariate polynomial P∈𝔽[Z] to the bivariate polynomial P'∈ 𝔽[Z,Y] with
     P'(z,y) = P(z) -/
@@ -77,8 +72,6 @@ noncomputable def polyQ (P q : Polynomial F) : MvPolynomial (Fin 2) F :=
 /-- Helper For Readability: Evaluate a bivariate polynomial Q at (a, b) ∈ F×F -/
 def evalBivar
   (Q : MvPolynomial (Fin 2) F) (a b : F) : F := MvPolynomial.eval (Fin.cases a (fun _ ↦ b)) Q
-
-
 
 /-- The STIR paper assumes that the polynomials fPoly(.) and Q(qPoly(.),.) are
     fully determined by their evaluations on F. This is not necessarily true
@@ -118,7 +111,9 @@ lemma degree_bound_bivariate
       (fun i : Fin 2 => if i = 0 then qPoly else Polynomial.X) Q).natDegree < t * qPoly.natDegree :=
     by sorry
 
-/-- `polyFold(f, k r)` “folds” the polynomial `f` producing a new polynomial of deree  `< ‖f‖/k`.-/
+/--Definition 4.7
+  `polyFold(f, k, r)` “folds” the polynomial `f`
+  producing a new polynomial of deree  `< degree(f)/k`.-/
 noncomputable def polyFold
   [DecidableEq F] (fPoly : Polynomial F)
   (k : ℕ) (hk0 : 0 < k) (hkfin : k < Fintype.card F)
@@ -132,41 +127,67 @@ noncomputable def polyFold
       (Polynomial.C : F →+* Polynomial F)
       (fun i : Fin 2 => if i = 0 then Polynomial.X else Polynomial.C r) Q
 
-/-- For x ∈ L^k, p_x ∈ 𝔽[X] is the degree < k polynomial
-where p_x(y) = f(y) for every y ∈ L such that y^k = x.-/
+namespace Domain
+variable {ι F : Type*} [Field F] [Fintype F] [DecidableEq ι] [DecidableEq F]
+
+/-- The image of a finite set `S` under the map `x ↦ (φ x)^(2ᵏ)` -/
+def indexPow (S : Finset ι) (φ : ι ↪ F) (k : ℕ) : Finset F :=
+  S.image (λ x => (φ x) ^ (2^k))
+
+/-- The k-th power domain `ιᵏ ↪ F` for a given domain `ι ↪ F`. -/
+def pow (S : Finset ι) (φ : ι ↪ F) (k : ℕ) : indexPow S φ k ↪ F :=
+    Function.Embedding.subtype fun y => y ∈ indexPow S φ k
+
+/-- The fiber over a point `y` under the map `x ↦ (φ x)^(2ᵏ)` -/
+def powFiber (S : Finset ι) (φ : ι ↪ F) (k : ℕ) (y : F) : Finset ι :=
+  S.filter (λ x => (φ x) ^ (2^k) = y)
+
+/-- The fiber domain `f⁻¹(y) ↪ F` for the surjection `f : ι → ιᵏ, x → xᵏ` and `y ∈ ιᵏ`. -/
+def fiber (S : Finset ι) (φ : ι ↪ F) (k : ℕ)
+  (y : indexPow S φ k) : powFiber S φ k y ↪ F :=
+      Function.Embedding.mk (fun z => φ z) (φ.injective.comp Subtype.val_injective)
+
+end Domain
+
+open Domain
+variable {ι F : Type*} [Field F] [Fintype F] [DecidableEq F] [DecidableEq ι]
+
+/--Definition 4.8
+  For x ∈ ιᵏ, p_x ∈ 𝔽[X] is the degree < k polynomial
+  where p_x(y) = f(y) for every y ∈ L such that yᵏ = x.-/
 noncomputable def xPoly
-  [DecidableEq F] (f : ι → F) (domain : ι ↪ F) (k : ℕ) (x : indexPow ι k) : Polynomial F :=
-    let powFiber := powFiber ι k x -- f⁻¹(x) for the surjection x ∈ ιᵏ
-    let fiberDomain := fiber (pow domain k) x -- The fiber domain `f⁻¹(x) ↪ F`
-    let g : {y // y ∈ powFiber} → F :=
-    fun y => f ⟨y.val, (Finset.mem_filter.mp y.prop).left⟩
-    (Lagrange.interpolate univ fiberDomain) g
+  {S : Finset ι} (f : ι → F) (φ : ι ↪ F) (k : ℕ) (x : indexPow S φ k) : Polynomial F :=
+  let dom := powFiber S φ k x
+  let emb : { y // y ∈ dom } ↪ F := fiber S φ k x
+  let g : { y // y ∈ dom } → F := fun y => f y.val
+  Lagrange.interpolate univ emb g
 
-
-/-- Fold(f,k,α) : L^K → 𝔽;  Fold(f, k, α)(x) := p_x(α) -/
+/--Definition 4.8
+  Fold(f,k,α) : ιᵏ → 𝔽 such that  Fold(f, k, α)(x) := p_x(α) -/
 noncomputable def fold
-  [DecidableEq F] (domain : ι ↪ F) (f : ι → F) (k : ℕ) (α : F) : indexPow ι k → F :=
-    fun x => (xPoly f domain k x).eval α
+  {S : Finset ι} (φ : ι ↪ F) (f : ι → F) (k : ℕ) (α : F) : indexPow S φ k → F :=
+    fun x => (xPoly f φ k x).eval α
 
-/-- min{∆(f, RSC[F, L, d]), 1 − B^⋆(ρ)} -/
-noncomputable def foldingRange
-   (degree : ℕ) [Nonempty ι] (domain : ι ↪ F) (f : ι → F)  : ℝ :=
-    let C : Set (ι → F) := code F ι domain degree
+/-- min{δᵣ(f, RSC[F, ι, degree]), 1 − B^⋆(ρ)} -/
+noncomputable def foldingDistRange
+   (degree : ℕ) [Fintype ι] [Nonempty ι] (φ : ι ↪ F) (f : ι → F)  : ℝ :=
+    let C : Set (ι → F) := code F ι φ degree
     min δᵣ(f, C) (1 - Bstar (rate degree ι))
 
+/--Lemma 4.9
+  For every function `f : ι → F`, `degree`, folding parameter `k`, and
+  `δ ∈ (0, foldingDistRange)`
+  `Pr_{r ← F} [ δᵣ(fold(f, k, α), RS[F, ιᵏ, degree/k)] < δ] ≤ err'(degree/k, ρ, δ, k)`
+  -/
 lemma folding
-  [DecidableEq F] [Nonempty ι]
-  (domain : ι ↪ F) (f : ι → F) (k : ℕ) (x : indexPow ι k)
-  [Nonempty {x : F // x ∈ indexPow ι k}]
+  [Nonempty ι]  {S : Finset ι} [Fintype ι]
+  (φ : ι ↪ F) (f : ι → F) (k : ℕ) (x : indexPow S φ k)
+  [Nonempty (indexPow S φ k)]
   {degree : ℕ} (δ : ℚ) (hδPos : δ > 0)
-  (hδLt : δ < foldingRange degree domain f) :
-  (PMF.uniformOfFintype F).toOuterMeasure { r : F |
-    δᵣ((fold domain f k r), ↑(code F (indexPow ι k) (pow domain k) (degree / k))) ≤ δ
-  } > err' F (degree / k) (rate degree ι) δ k :=
+  (hδLt : δ < foldingDistRange degree φ f) :
+  let C : Set ((indexPow S φ k) → F) := code F (indexPow S φ k) (pow S φ k) (degree / k)
+  Pr_{r ← F} [ δᵣ((fold φ f k r), C) ≤ δ]
+    > err' F (degree / k) (rate degree ι) δ k :=
 by sorry
-
-
-
-
 
 end Folding

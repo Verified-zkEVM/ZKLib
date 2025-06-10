@@ -7,6 +7,7 @@ Authors: Katerina Hristova, František Silváši, Julian Sutherland
 import Mathlib.InformationTheory.Hamming
 import Mathlib.Analysis.Normed.Field.Lemmas
 
+
 /-!
 Proved definitions of relative Hamming distance and related notions for a linear code `LC`,
 including corner cases.
