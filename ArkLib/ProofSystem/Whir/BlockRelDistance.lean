@@ -7,8 +7,6 @@ Authors: Least Authority
 import ArkLib.Data.CodingTheory.SmoothReedSolomon
 import ArkLib.Data.CodingTheory.ListDecodeability
 import ArkLib.Data.CodingTheory.RelativeHammingDistance
-import ArkLib.Data.CodingTheory.SmoothDomainGeneric
-
 
 namespace BlockRelDistance
 
