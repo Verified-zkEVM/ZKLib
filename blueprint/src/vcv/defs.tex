@@ -19,6 +19,7 @@ The main ingredients of the library are as follows:
     The indexing allows for potentially infinite collections of oracles, and the specification itself 
     is agnostic to how the oracles actually behave - it just describes their interfaces.
     \lean{OracleSpec}
+    \leanok
 \end{definition}
 
 Some examples of oracle specifications (and their intended behavior) are as follows:
@@ -43,6 +44,7 @@ or finiteness properties \lean{OracleSpec.FiniteRange}.
     \end{itemize}
     The formal implementation uses a free monad on the inductive type of oracle queries \lean{OracleSpec.OracleQuery} wrapped in an option monad transformer (i.e. \verb|OptionT(FreeMonad(OracleQuery spec))|).
     \lean{OracleComp}
+    \uses{def:oracle_spec}
 \end{definition}
 
 \begin{definition}[Handling Oracle Queries]
@@ -50,6 +52,7 @@ or finiteness properties \lean{OracleSpec.FiniteRange}.
     To actually run oracle computations, we need a way to handle (or implement) the oracle queries.
     An oracle implementation consists a mapping from oracle queries to values in another monad. Depending on the monad, this may allow for various interpretations of the oracle queries.
     \lean{QueryImpl}
+    \uses{def:oracle_spec}
 \end{definition}
 
 \begin{definition}[Probabilistic Semantics of Oracle Computations]
@@ -59,6 +62,7 @@ or finiteness properties \lean{OracleSpec.FiniteRange}.
     outputs (including the possibility of failure). The semantics maps each oracle query to a 
     uniform distribution over its possible responses.
     \lean{OracleComp.evalDist}
+    \uses{def:oracle_computation}
 \end{definition}
 
 Once we have mapped an oracle computation to a probability distribution, we can define various associated probabilities, such as the probability of failure, or the probability of the output satisfying a given predicate (assuming it does not fail).
@@ -80,6 +84,7 @@ Once we have mapped an oracle computation to a probability distribution, we can 
     \end{itemize}
     These are implemented as special cases of simulation oracles.
     \lean{loggingOracle, cachingOracle}
+    \uses{def:oracle_computation, def:handling_oracle_queries}
 \end{definition}
 
 \begin{definition}[Random Oracle]
@@ -90,6 +95,7 @@ Once we have mapped an oracle computation to a probability distribution, we can 
         \item On repeated queries: returns the cached response
     \end{itemize}
     \lean{randomOracle}
+    \uses{def:oracle_computation, def:handling_oracle_queries}
 \end{definition}
 
 % In summary, the VCVio library consists of:

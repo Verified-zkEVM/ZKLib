@@ -134,7 +134,7 @@ class IsSecure
   /-- The reduction is round-by-round knowledge sound with respect to `relIn`, `relOut`,
     `ε_rbr`, and the state function. -/
   is_rbr_knowledge_sound :
-    OracleReduction.rbrKnowledgeSoundness relIn relOut vectorIOR.verifier ε_rbr
+    vectorIOR.verifier.rbrKnowledgeSoundness relIn relOut ε_rbr
 
 -- TODO: define V-IOR of proximity
 

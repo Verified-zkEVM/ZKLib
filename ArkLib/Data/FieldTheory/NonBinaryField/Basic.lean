@@ -52,16 +52,15 @@ private lemma comp_x_square_coeff_pos_deg {f : Polynomial F} {n : ℕ} (h : 0 < 
   (f.comp (X * X)).coeff n = if Even n then f.coeff (n / 2) else 0 := by
   revert n
   apply degree_pos_induction_on (h0 := h) (P := fun f => _)
-  · rintro _ _ (_ | _ | _ | n) <;> try simp [coeff_X]
-    split_ifs with h₁ h₂ <;> [symm at h₂; rfl; rfl]
-    aesop (add simp [Nat.div_eq_iff_eq_mul_left, even_iff_two_dvd])
+  · rintro _ _ (_ | n) <;> 
+    aesop (add simp [coeff_X, Even]) (add safe [(by existsi 1), (by omega)])
   · rintro _ _ _ (_ | _ | n) <;> try simp [←mul_assoc]
     have : (n + 1 + 1) / 2 = n / 2 + 1 := by omega
-    aesop (add simp [Nat.even_iff, Nat.odd_iff], safe (by omega))
+    split <;> aesop (add safe (by omega)) (add simp [Nat.even_iff])
   · rintro _ _ _ _ (_ | _ | n) <;> try simp_all
     have : (n + 1 + 1) / 2 = n / 2 + 1 := by omega
-    aesop (add safe (by omega))
-
+    simp_all only [coeff_C_succ, add_zero]
+    
 theorem comp_x_square_coeff {f : Polynomial F} {n : ℕ} :
   (f.comp (X * X)).coeff n = if Even n then f.coeff (n / 2) else 0 := by
   by_cases hpos : 0 < f.degree

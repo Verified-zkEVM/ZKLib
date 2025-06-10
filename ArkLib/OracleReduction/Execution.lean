@@ -1,5 +1,5 @@
 import ArkLib.OracleReduction.Basic
-import ArkLib.Data.Math.Fin
+import ArkLib.Data.Fin.Basic
 
 /-!
   # Execution Semantics of Interactive Oracle Reductions
@@ -41,14 +41,35 @@ end loggingOracle
 
 section Execution
 
-variable {n : ℕ} {ι : Type} {pSpec : ProtocolSpec n} {oSpec : OracleSpec ι}
+variable {n : ℕ} {pSpec : ProtocolSpec n} {ι : Type} {oSpec : OracleSpec ι}
   {StmtIn WitIn StmtOut WitOut : Type}
   {ιₛᵢ : Type} {OStmtIn : ιₛᵢ → Type} [Oₛᵢ : ∀ i, OracleInterface (OStmtIn i)]
   {ιₛₒ : Type} {OStmtOut : ιₛₒ → Type}
 
 /--
-  Run the prover in an interactive reduction up to round index `i`. Returns the transcript up to
-  that round, and the prover's state after that round.
+  Prover's function for processing the next round, given the current result of the previous round.
+-/
+@[inline, specialize]
+def Prover.processRound [∀ i, VCVCompatible (pSpec.Challenge i)] (j : Fin n)
+    (prover : Prover pSpec oSpec StmtIn WitIn StmtOut WitOut)
+    (currentResult : OracleComp (oSpec ++ₒ [pSpec.Challenge]ₒ)
+      (pSpec.Transcript j.castSucc × prover.PrvState j.castSucc)) :
+      OracleComp (oSpec ++ₒ [pSpec.Challenge]ₒ)
+        (pSpec.Transcript j.succ × prover.PrvState j.succ) := do
+  let ⟨transcript, state⟩ ← currentResult
+  match hDir : pSpec.getDir j with
+  | .V_to_P => do
+    let challenge ← pSpec.getChallenge ⟨j, hDir⟩
+    letI newState := prover.receiveChallenge ⟨j, hDir⟩ state challenge
+    return ⟨transcript.snoc challenge, newState⟩
+  | .P_to_V => do
+    let ⟨msg, newState⟩ ← prover.sendMessage ⟨j, hDir⟩ state
+    return ⟨transcript.snoc msg, newState⟩
+
+/--
+  Run the prover in an interactive reduction up to round index `i`, via first inputting the
+  statement and witness, and then processing each round up to round `i`. Returns the transcript up
+  to round `i`, and the prover's state after round `i`.
 -/
 @[inline, specialize]
 def Prover.runToRound [∀ i, VCVCompatible (pSpec.Challenge i)] (i : Fin (n + 1))
@@ -56,16 +77,7 @@ def Prover.runToRound [∀ i, VCVCompatible (pSpec.Challenge i)] (i : Fin (n + 1
       OracleComp (oSpec ++ₒ [pSpec.Challenge]ₒ) (pSpec.Transcript i × prover.PrvState i) :=
   Fin.induction
     (pure ⟨default, prover.input stmt wit⟩)
-    (fun j ih => do
-      let ⟨transcript, state⟩ ← ih
-      match hDir : pSpec.getDir j with
-      | .V_to_P => do
-        let challenge ← pSpec.getChallenge ⟨j, hDir⟩
-        letI newState := prover.receiveChallenge ⟨j, hDir⟩ state challenge
-        return ⟨transcript.snoc challenge, newState⟩
-      | .P_to_V => do
-        let ⟨msg, newState⟩ ← prover.sendMessage ⟨j, hDir⟩ state
-        return ⟨transcript.snoc msg, newState⟩)
+    prover.processRound
     i
 
 /--
@@ -235,7 +247,7 @@ theorem Prover.runToRound_one_of_prover_first [ProverOnly pSpec] (stmt : StmtIn)
         let state := prover.input stmt wit
         let ⟨msg, state⟩ ← liftComp (prover.sendMessage ⟨0, by simp⟩ state) _
         return (fun i => match i with | ⟨0, _⟩ => msg, state)) := by
-  simp [Prover.runToRound]
+  simp [Prover.runToRound, Prover.processRound]
   have : (pSpec 0).1 = .P_to_V := by simp
   split <;> rename_i hDir
   · have : Direction.P_to_V = .V_to_P := by rw [← this, hDir]
