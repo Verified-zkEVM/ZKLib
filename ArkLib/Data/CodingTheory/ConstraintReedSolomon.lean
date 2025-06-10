@@ -26,8 +26,9 @@ def weightConstraint
   (w : MvPolynomial (Fin (m+1)) F) (σ : F): Prop :=
     ∑ b : Fin m → Fin 2 , w.eval (toWeightAssignment f b) = σ
 
-/-- Constraint Reed Solomon codes are smooth codes who's decoded m-variate
-    polynomial satisfies the weight constraint for given `w` and `σ`.-/
+/--Definition 4.5
+  Constraint Reed Solomon codes are smooth codes who's decoded m-variate
+  polynomial satisfies the weight constraint for given `w` and `σ`.-/
 def constraintCode
   (F : Type*) [Field F] [DecidableEq F]
   (ι : Type*) [Fintype ι] [DecidableEq ι]
@@ -36,8 +37,9 @@ def constraintCode
     { f | ∃ (h : f ∈ smoothCode F ι domain m),
       weightConstraint (mVdecode (⟨f, h⟩ : smoothCode F ι domain m)) w σ }
 
-/-- Multi-constraint Reed Solomon codes are smooth codes who's decoded m-variate
-    polynomial satisfies the `t` weight constraints for given `w₀,...,wₜ₋₁` and
+/--Definition 4.6
+  Multi-constraint Reed Solomon codes are smooth codes who's decoded m-variate
+  polynomial satisfies the `t` weight constraints for given `w₀,...,wₜ₋₁` and
     `σ₀,...,σₜ₋₁`.-/
 def multiConstraintCode
   (F : Type*) [Field F] [DecidableEq F]

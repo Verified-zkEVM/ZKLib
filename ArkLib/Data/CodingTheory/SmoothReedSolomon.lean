@@ -32,8 +32,9 @@ variable  {F : Type*} [Field F] [DecidableEq F]
           {domain : ι ↪ F} [Smooth domain]
           {m : ℕ}
 
-/-- Smooth Reed Solomon Codes are Reed Solomon Codes defined over Smooth Domains, such that
-    their decoded univariate polynomials are of degree < 2ᵐ for some m ∈ ℕ. -/
+/--Definition 4.2
+  Smooth Reed Solomon Codes are Reed Solomon Codes defined over Smooth Domains, such that
+  their decoded univariate polynomials are of degree < 2ᵐ for some m ∈ ℕ. -/
 def smoothCode
   (F : Type*) [Field F] [DecidableEq F]
   (ι : Type*) [Fintype ι] [DecidableEq ι]
