@@ -101,16 +101,16 @@ section RBR
 open OracleComp OracleSpec ProtocolSpec NNRat
 variable {n : ℕ}
 
-/--Statement for the whir Vector IOPP consisting of a field `F`, M evaluation domains `ιᵢ` and
-  M degree parameters `varCountᵢ` -/
+/--Statement for the WHIR Vector IOPP consisting of a field `F`, evaluation domain `ι` and
+  degree parameter `varCount` -/
 structure Statement
   (F : Type)[Field F][Fintype F][DecidableEq F]
   (ι : Type) [Fintype ι]
   (varCount : ℕ)
 
 /--`OStmtOut` defines the oracle message type for a multi-indexed setting:
-  given index type `ιₛ`, base input type `ι₀`, and field `F`, the output type at each index `i : ιₛ`
-  is a function `ι₀ → F` representing an evaluation over `ι₀`.-/
+  given index type `ιₛ`, base input type `ι`, and field `F`, the output type at each index `i : ιₛ`
+  is a function `ι → F` representing an evaluation over `ι`.-/
 @[reducible]
 def OStmtOut (ιₛ ι F : Type) : ιₛ → Type :=
     fun _ => ι → F
@@ -141,7 +141,7 @@ theorem whir_rbr_soundness
     [oSpec.FiniteRange] [O : ∀ i, OracleInterface (OStmtOut ιₛ (ι ⟨0, Fact.out⟩) F i) ]
     (ε_fold : (i : Fin M) → Fin (P.foldingParam i) → ℝ≥0) (ε_out : Fin M → ℝ≥0)
     (ε_shift : Fin M → ℝ≥0) (ε_fin : ℝ≥0) :
-    -- ∃ a Vector IOPP π with Statement = (F ι varCount), Witness = Unit, OStmtOut = (ιₛ ι₀ F)
+    -- ∃ a Vector IOPP π with Statement = (F ι₀ varCount), Witness = Unit, OStmtOut = (ιₛ ι₀ F)
       ∃ π :
         VectorIOP vPSpec F oSpec (Statement F (ι ⟨0, Fact.out⟩) (P.varCount ⟨0, Fact.out⟩))
           Unit (OStmtOut ιₛ (ι ⟨0, Fact.out⟩) F),
