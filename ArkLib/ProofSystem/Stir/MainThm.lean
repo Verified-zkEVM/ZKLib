@@ -11,10 +11,12 @@ import ArkLib.Data.CodingTheory.SmoothReedSolomon
 import ArkLib.OracleReduction.VectorIOR
 import ArkLib.ProofSystem.Stir.ProximityBound
 
+
 /-!Section 5 STIR[ACFY24], Theorem 5.1 and Lemma 5.4 -/
-namespace StirIOP
 
 open BigOperators Finset ListDecodable NNReal ReedSolomon SmoothDomain VectorIOP
+
+namespace StirIOP
 
 variable {F : Type} [Field F] [Fintype F] [DecidableEq F]
          {M : ℕ} (ι : Fin (M+1) → Type) [∀ i : Fin (M+1), Fintype (ι i)]
@@ -143,6 +145,7 @@ theorem stir_main
 end MainTheorem
 
 section RBRSoundness
+
 variable {n : ℕ}
 
 /--Lemma 5.4: Round-by-round soundness of the STIR IOPP
@@ -211,4 +214,5 @@ by
   sorry
 
 end RBRSoundness
+
 end StirIOP

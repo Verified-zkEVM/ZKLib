@@ -8,6 +8,7 @@ import ArkLib.Data.CodingTheory.FieldReedSolomon
 import ArkLib.Data.MvPolynomial.LinearMvExtension
 
 namespace SmoothDomain
+
 variable {F: Type*} [Semiring F] [DecidableEq F]
          {ι : Type*} [Fintype ι]
 
@@ -24,9 +25,11 @@ class Smooth
     h_card_pow2 : ∃ k : ℕ, Fintype.card ι = 2 ^ k
 
 end SmoothDomain
+
 namespace ReedSolomon
 
 open LinearMvExtension ReedSolomon SmoothDomain
+
 variable  {F : Type*} [Field F] [DecidableEq F]
           {ι : Type*} [Fintype ι] [DecidableEq ι]
           {domain : ι ↪ F} [Smooth domain]

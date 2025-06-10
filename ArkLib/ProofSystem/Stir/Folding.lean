@@ -20,7 +20,31 @@ import Mathlib.RingTheory.MvPolynomial.Groebner
 
 open Polynomial ReedSolomon LinearMap Finset ListDecodable
 
+namespace Domain
+
+variable {ι F : Type*} [Field F] [Fintype F] [DecidableEq ι] [DecidableEq F]
+
+/-- The image of a finite set `S` under the map `x ↦ (φ x)^(2ᵏ)` -/
+def indexPow (S : Finset ι) (φ : ι ↪ F) (k : ℕ) : Finset F :=
+  S.image (λ x => (φ x) ^ (2^k))
+
+/-- The k-th power domain `ιᵏ ↪ F` for a given domain `ι ↪ F`. -/
+def pow (S : Finset ι) (φ : ι ↪ F) (k : ℕ) : indexPow S φ k ↪ F :=
+    Function.Embedding.subtype fun y => y ∈ indexPow S φ k
+
+/-- The fiber over a point `y` under the map `x ↦ (φ x)^(2ᵏ)` -/
+def powFiber (S : Finset ι) (φ : ι ↪ F) (k : ℕ) (y : F) : Finset ι :=
+  S.filter (λ x => (φ x) ^ (2^k) = y)
+
+/-- The fiber domain `f⁻¹(y) ↪ F` for the surjection `f : ι → ιᵏ, x → xᵏ` and `y ∈ ιᵏ`. -/
+def fiber (S : Finset ι) (φ : ι ↪ F) (k : ℕ)
+  (y : indexPow S φ k) : powFiber S φ k y ↪ F :=
+      Function.Embedding.mk (fun z => φ z) (φ.injective.comp Subtype.val_injective)
+
+end Domain
+
 namespace Folding
+
 variable {F : Type* } [Field F] [Fintype F]
 
 /- 𝔽[X,Y] is not an Euclidean Domain, but fixing an order on monomials still allows
@@ -127,29 +151,8 @@ noncomputable def polyFold
       (Polynomial.C : F →+* Polynomial F)
       (fun i : Fin 2 => if i = 0 then Polynomial.X else Polynomial.C r) Q
 
-namespace Domain
-variable {ι F : Type*} [Field F] [Fintype F] [DecidableEq ι] [DecidableEq F]
-
-/-- The image of a finite set `S` under the map `x ↦ (φ x)^(2ᵏ)` -/
-def indexPow (S : Finset ι) (φ : ι ↪ F) (k : ℕ) : Finset F :=
-  S.image (λ x => (φ x) ^ (2^k))
-
-/-- The k-th power domain `ιᵏ ↪ F` for a given domain `ι ↪ F`. -/
-def pow (S : Finset ι) (φ : ι ↪ F) (k : ℕ) : indexPow S φ k ↪ F :=
-    Function.Embedding.subtype fun y => y ∈ indexPow S φ k
-
-/-- The fiber over a point `y` under the map `x ↦ (φ x)^(2ᵏ)` -/
-def powFiber (S : Finset ι) (φ : ι ↪ F) (k : ℕ) (y : F) : Finset ι :=
-  S.filter (λ x => (φ x) ^ (2^k) = y)
-
-/-- The fiber domain `f⁻¹(y) ↪ F` for the surjection `f : ι → ιᵏ, x → xᵏ` and `y ∈ ιᵏ`. -/
-def fiber (S : Finset ι) (φ : ι ↪ F) (k : ℕ)
-  (y : indexPow S φ k) : powFiber S φ k y ↪ F :=
-      Function.Embedding.mk (fun z => φ z) (φ.injective.comp Subtype.val_injective)
-
-end Domain
-
 open Domain
+
 variable {ι F : Type*} [Field F] [Fintype F] [DecidableEq F] [DecidableEq ι]
 
 /--Definition 4.8

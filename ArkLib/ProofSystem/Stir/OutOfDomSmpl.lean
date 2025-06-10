@@ -14,6 +14,7 @@ import Mathlib.Data.Fintype.Basic
 
 open Finset ListDecodable NNReal ProbabilityTheory ReedSolomon
 namespace OutOfDomSmpl
+
 variable {F : Type*} [Field F] [Fintype F] [DecidableEq F]
          {ι : Type*} [Fintype ι] [DecidableEq ι]
 
@@ -34,8 +35,8 @@ noncomputable def listDecodingCollisionProbability
   Pr_{r ← (domainComplement φ)}
     [ ∃ (u u' : code F ι φ degree),
       u.val ≠ u'.val ∧
-      u.val ∈ relHammingBall ↑(code F ι φ degree) f δ ∧
-      u'.val ∈ relHammingBall ↑(code F ι φ degree) f δ ∧
+      u.val ∈ relHammingBall (code F ι φ degree) f δ ∧
+      u'.val ∈ relHammingBall (code F ι φ degree) f δ ∧
       ∀ i : Fin s,
         (decode u).eval (Genfun r i) = (decode u').eval (Genfun r i)
     ]
