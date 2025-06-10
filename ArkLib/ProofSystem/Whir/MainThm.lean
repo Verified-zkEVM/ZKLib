@@ -36,7 +36,7 @@ structure Params (F : Type) where
   h_m : m = varCount₀
   h_sumkLt : ∑ i : Fin M, varCountᵢ ≤ m
   h_varCount_i : ∀ i : Fin M, i ≠ 0, varCountᵢ = m - ∑ j < i foldingParamⱼ
-  h_smooth : each φᵢ must be a smooth evaluation domain
+  h_smooth : each φᵢ must embed a smooth evaluation domain
   h_repeatPLt : ∀ i : Fin M, repeatParamᵢ ≤ |ιᵢ| -/
 structure ParamConditions (P : Params ι F) where
   m : ℕ -- m = P.varCount 0
