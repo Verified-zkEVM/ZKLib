@@ -6,7 +6,6 @@ Authors: Least Authority
 
 import ArkLib.Data.CodingTheory.ReedSolomon
 import ArkLib.Data.CodingTheory.RelativeHammingDistance
-
 namespace ReedSolomon
 
 noncomputable def rate (deg : ℕ) (ι : Type*)  [Fintype ι]: ℝ := deg / (Fintype.card ι)

@@ -7,7 +7,7 @@ Authors: Least Authority
 import ArkLib.Data.CodingTheory.RelativeHammingDistance
 import ArkLib.Data.CodingTheory.SmoothReedSolomon
 import ArkLib.Data.MvPolynomial.LinearMvExtension
-import ArkLib.ProofSystem.Whir.BlockRelDistanceGeneric
+import ArkLib.ProofSystem.Whir.BlockRelDistance
 import ArkLib.ProofSystem.Whir.GenMutualCorrAgreement
 
 namespace Fold

@@ -8,7 +8,7 @@ import ArkLib.Data.CodingTheory.ConstraintReedSolomon
 import ArkLib.Data.CodingTheory.ListDecodeability
 import ArkLib.Data.CodingTheory.RelativeHammingDistance
 import ArkLib.OracleReduction.VectorIOR
-import ArkLib.ProofSystem.Whir.BlockRelDistanceGeneric
+import ArkLib.ProofSystem.Whir.BlockRelDistance
 import ArkLib.ProofSystem.Whir.GenMutualCorrAgreement
 import ArkLib.ProofSystem.Whir.ProximityGen
 
@@ -98,7 +98,9 @@ class GenMutualCorrParams (P: Params ι F) (S: ∀ i : Fin M, Finset (ι i)) whe
     listDecodable (C i j) (δ i) (dist i j)
 
 section RBR
+
 open OracleComp OracleSpec ProtocolSpec NNRat
+
 variable {n : ℕ}
 
 /--Statement for the WHIR Vector IOPP consisting of a field `F`, evaluation domain `ι` and
@@ -182,4 +184,5 @@ theorem whir_rbr_soundness
     := by sorry
 
 end RBR
+
 end WhirIOP
