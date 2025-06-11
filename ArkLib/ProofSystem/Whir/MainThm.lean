@@ -80,7 +80,7 @@ class GenMutualCorrParams (P: Params ι F) (S: ∀ i : Fin M, Finset (ι i)) whe
   exp : ∀ i : Fin M, ∀ j : Fin (P.foldingParam i), (Gen i j).parℓ → ℕ
 
 -- this ensures that Gen_α_ij is a proxmity generator for C_ij = RS[F, ιᵢ^(2^j), (varCountᵢ - j)]
--- wrt proximity generator Gen_α (α,l) = {1,α²,...,α^{l-1}}
+-- wrt proximity generator Gen_α (α,l) = {1,α²,...,α^{parℓ-1}}
   hgen : ∀ i : Fin M, ∀ j : Fin (P.foldingParam i), ∀ α : F, Gen_α i j =
     proximityGenerator_α (Gen i j) α (φ i j) (P.varCount i - j) (exp i j)
 
@@ -161,7 +161,7 @@ theorem whir_rbr_soundness
         --necessary typeclasses for Gen_0j stating finiteness and non-emptiness of underlying ι₀^2ʲ
         let _ : ∀ j : Fin (P.foldingParam ⟨0, Fact.out⟩),
           Fintype (indexPowT (S ⟨0, Fact.out⟩) (P.φ ⟨0, Fact.out⟩) j) := h.inst1 ⟨0, Fact.out⟩
-                let _ : ∀ j : Fin (P.foldingParam ⟨0, Fact.out⟩),
+        let _ : ∀ j : Fin (P.foldingParam ⟨0, Fact.out⟩),
           Nonempty (indexPowT (S ⟨0, Fact.out⟩) (P.φ ⟨0, Fact.out⟩) j) := h.inst2 ⟨0, Fact.out⟩
 
         -- ε_fold(0,j) ≤ dstar • dist(0,j-1) / |F| + errStar(C_0j, 2, δ₀)
@@ -196,7 +196,7 @@ theorem whir_rbr_soundness
         -- ε_fold(i,j) ≤ d • dist(i,j-1) / |F| + errStar(C_ij,2,δᵢ)
         ∀ i : Fin M, ∀ j : Fin (P.foldingParam i),
           let errStar i j := h.errStar i j (h.C i j) (h.Gen i j).parℓ (h.δ i)
-          let j_pred : Fin (P.foldingParam i) := ⟨j.val -1, sorry⟩
+          let j_pred : Fin (P.foldingParam i) := ⟨j.val - 1, sorry⟩
           ε_fold i j ≤ d • (h.dist i j_pred) / Fintype.card F + errStar i j
         ∧
         -- ε_fin ≤ (1 - δ_{M-1})^(repeatParam_{M-1})

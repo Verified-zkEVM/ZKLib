@@ -54,7 +54,7 @@ noncomputable def fold_k_core {S : Finset ι} {φ : ι ↪ F} (f : (indexPowT S 
     foldf S φ y fk α
 
 /--Definition 4.14, part 1
-  fold_k takes a function `f : ι → F and a vector `αs` of size k
+  fold_k takes a function `f : ι → F` and a vector `αs` of size k
   and returns a function `Fold : (ι^2ᵏ) → F` -/
 noncomputable def fold_k
   {S : Finset ι} {φ : ι ↪ F} {k : ℕ}
@@ -63,7 +63,7 @@ noncomputable def fold_k
   fold_k_core f k αs
 
 /--Definition 4.14, part 2
-  fold_k takes a set of functions `set : Set (ι → F) and a vector `αs` of size k
+  fold_k takes a set of functions `set : Set (ι → F)` and a vector `αs` of size k
   and returns a set of functions `Foldset : Set ((ι^2ᵏ) → F)` -/
 noncomputable def fold_k_set
   {S : Finset ι} {φ : ι ↪ F} {k : ℕ}

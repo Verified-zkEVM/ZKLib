@@ -15,10 +15,11 @@ namespace BlockRelDistance
   from Section  4.3.2. The definitions from Section 4.3.1 correspond to i = 0. -/
 
 open ListDecodable NNReal ReedSolomon SmoothDomain
+
 variable {F : Type*} [Field F]
          {ι : Type*} [Fintype ι] [Pow ι ℕ]
 
-/--The `2^k`-th power images over a set of points specified by `φ : ι ↪ F` and a finite set
+/--The `2^k`-th power images over an embedding `φ : ι ↪ F` and a finite set
   of elements `S : Finset ι`.
 
   In particular, it returns the set of field elements `y ∈ F` for which there exists `x ∈ S`

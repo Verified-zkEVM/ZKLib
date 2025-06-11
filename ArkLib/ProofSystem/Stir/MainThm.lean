@@ -194,13 +194,16 @@ theorem stir_rbr_soundness
           ((Dist.l j : ℝ) ^ 2 / 2) *
             ((degree ι hParams.deg P j : ℝ) / (Fintype.card F - Fintype.card (ι j))) ^ s
         ∧
-        -- ε_shiftⱼ ≤ (1 - δ_{j-1})^repeatParam_{j-1} + errStar(degreeⱼ, ρⱼ, δⱼ, t_{j-1} + s)
-        --  + errStar(degreeⱼ/foldingParamⱼ, ρⱼ, δⱼ, repeatParamⱼ)`
+        -- ε_shiftⱼ ≤ (1 - δ_{j-1})^repeatParam_{j-1}
+        -- + errStar(degreeⱼ, ρⱼ, δⱼ, repeatParam_{j-1} + s)
+        -- + errStar(degreeⱼ/foldingParamⱼ, ρⱼ, δⱼ, repeatParamⱼ)
         let jPred := predFin j hⱼ;
         ε_shift j ≤
           ((1 - Dist.δ jPred) ^ (P.repeatParam jPred) : ℝ) +
+          -- err'(degreeⱼ, ρ(codeⱼ), δⱼ, repeatParam_{j-1} + s), where codeⱼ = code φⱼ degreeⱼ
           (err' F (degree ι hParams.deg P j) (rate (code (P.φ j) (degree ι hParams.deg P j)))
             (Dist.δ j) (P.repeatParam jPred) + s).toReal +
+          -- err'(degreeⱼ / foldingParamⱼ, ρ(codeⱼ), δⱼ, repeatParamⱼ)
           (err' F ((degree ι hParams.deg P j) / P.foldingParam j)
             (rate (code (P.φ j) (degree ι hParams.deg P j)))
             (Dist.δ j) (P.repeatParam j)).toReal)
