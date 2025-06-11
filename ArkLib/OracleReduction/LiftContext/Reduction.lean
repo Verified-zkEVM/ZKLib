@@ -7,11 +7,11 @@ Authors: Quang Dao
 import ArkLib.OracleReduction.LiftContext.Lens
 
 /-!
-  ## Lifting (Oracle) Reductions to Larger Contexts
+  ## Lifting Reductions to Larger Contexts
 
   Sequential composition is usually not enough to represent oracle reductions in a modular way. We
-  also need to formalize **virtual** oracle reductions, which lift reductions from one
-  (virtual / inner) context into the another (real / outer) context.
+  also need to formalize **virtual** oracle reductions, which lift reductions from one (virtual /
+  inner) context into the another (real / outer) context.
 
   This is what is meant when we informally say "apply so-and-so protocol to this quantity (derived
   from the input statement & witness)".
@@ -36,15 +36,15 @@ import ArkLib.OracleReduction.LiftContext.Lens
   properties after converting to (non-oracle) reductions, we only need to focus our efforts on the
   non-oracle case.
 
-  Note that this _exactly_ corresponds to lenses in programming languages / category theory.
-  Namely, liftContext on the inputs correspond to a `view`/`get` operation (our "proj"), while
-  liftContext on the output corresponds to a `modify`/`set` operation (our "lift").
+  Note that this _exactly_ corresponds to lenses in programming languages / category theory. Namely,
+  liftContext on the inputs correspond to a `view`/`get` operation (our "proj"), while liftContext
+  on the output corresponds to a `modify`/`set` operation (our "lift").
 
   More precisely, the `proj/lift` operations correspond to a Lens between two monomial polyonmial
   functors: `OuterCtxIn y^ OuterCtxOut ⇆ InnerCtxIn y^ InnerCtxOut`.
 
-  All the lens definitions are in `Lens.lean`. Here we define how the (oracle) reduction is actually
-  lifted, and how the lift preserves the security properties.
+  All the lens definitions are in `Lens.lean`. This file deals with the lens applied to reductions.
+  See `OracleReduction.lean` for the application to oracle reduction.
 -/
 
 open OracleSpec OracleComp ProtocolSpec
@@ -190,44 +190,16 @@ where
     · simp [compatStatement]; exact ⟨transcript, hSupport⟩
     · exact h innerStmtOut hSupport
 
-section OracleReduction
-
-variable
-    [∀ i, OracleInterface (pSpec.Message i)]
-    {Outer_ιₛᵢ : Type} (OuterOStmtIn : Outer_ιₛᵢ → Type) [∀ i, OracleInterface (OuterOStmtIn i)]
-    {Outer_ιₛₒ : Type} (OuterOStmtOut : Outer_ιₛₒ → Type) [∀ i, OracleInterface (OuterOStmtOut i)]
-    {Inner_ιₛᵢ : Type} (InnerOStmtIn : Inner_ιₛᵢ → Type) [∀ i, OracleInterface (InnerOStmtIn i)]
-    {Inner_ιₛₒ : Type} (InnerOStmtOut : Inner_ιₛₒ → Type) [∀ i, OracleInterface (InnerOStmtOut i)]
-    (OuterWitIn OuterWitOut InnerWitIn InnerWitOut : Type)
-
--- def OracleProver.liftContext
-
-def OracleVerifier.liftContext
-    (V : OracleVerifier pSpec oSpec InnerStmtIn InnerStmtOut InnerOStmtIn InnerOStmtOut)
-    (lens : OStatementLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
-                          OuterOStmtIn OuterOStmtOut InnerOStmtIn InnerOStmtOut) :
-    OracleVerifier pSpec oSpec OuterStmtIn OuterStmtOut OuterOStmtIn OuterOStmtOut where
-  verify := fun outerStmtIn transcript => sorry
-  embed := by
-    have := V.embed
-
-    sorry
-  hEq := sorry
-
--- def OracleReduction.liftContext
-
-end OracleReduction
-
 section Theorems
 
 /- Theorems about liftContext interacting with reduction execution and security properties -/
 
-section Prover
+namespace Prover
 
 /- Breaking down the intertwining of liftContext and prover execution -/
 
 /-- Lifting the prover intertwines with the process round function -/
-theorem Prover.liftContext_processRound
+theorem liftContext_processRound
     [lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
                         OuterWitIn OuterWitOut InnerWitIn InnerWitOut]
     {i : Fin n}
@@ -244,8 +216,8 @@ theorem Prover.liftContext_processRound
   congr 1; funext
   split <;> simp
 
-/-- Lemma needed for the proof of `Prover.liftContext_runToRound` -/
-private lemma Prover.bind_map_processRound_pure {i : Fin n}
+/-- Lemma needed for the proof of `liftContext_runToRound` -/
+private lemma bind_map_processRound_pure {i : Fin n}
     (P : Prover pSpec oSpec InnerStmtIn InnerWitIn InnerStmtOut InnerWitOut)
     (comp : OracleComp (oSpec ++ₒ [pSpec.Challenge]ₒ)
         (pSpec.Transcript i.castSucc × P.PrvState i.castSucc))
@@ -254,7 +226,7 @@ private lemma Prover.bind_map_processRound_pure {i : Fin n}
       = f <$> P.processRound i comp := by
   simp [processRound]
 
-theorem Prover.liftContext_runToRound
+theorem liftContext_runToRound
     [lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
                         OuterWitIn OuterWitOut InnerWitIn InnerWitOut]
     {outerStmtIn : OuterStmtIn} {outerWitIn : OuterWitIn} {i : Fin (n + 1)}
@@ -270,7 +242,7 @@ theorem Prover.liftContext_runToRound
   | succ i ih => simp [liftContext_processRound, ih, bind_map_processRound_pure]
 
 -- Requires more lemmas about `simulateQ` for logging oracles
-theorem Prover.liftContext_runWithLogToRound
+theorem liftContext_runWithLogToRound
     [lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
                         OuterWitIn OuterWitOut InnerWitIn InnerWitOut]
     {outerStmtIn : OuterStmtIn} {outerWitIn : OuterWitIn} {i : Fin (n + 1)}
@@ -287,7 +259,7 @@ theorem Prover.liftContext_runWithLogToRound
 
 /-- Running the lifted outer prover is equivalent to running the inner prover on the projected
   input, and then integrating the output -/
-theorem Prover.liftContext_run
+theorem liftContext_run
     [lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
                         OuterWitIn OuterWitOut InnerWitIn InnerWitOut]
     {outerStmtIn : OuterStmtIn} {outerWitIn : OuterWitIn}
@@ -299,11 +271,11 @@ theorem Prover.liftContext_run
         return ⟨lens.liftStmt (outerStmtIn, innerStmtOut),
                 lens.liftWit (outerWitIn, innerWitOut),
                 fullTranscript⟩ := by
-  simp only [Prover.run, liftContext_runToRound]
+  simp only [run, liftContext_runToRound]
   simp [liftContext]
 
 /- Lifting the prover intertwines with the runWithLog function -/
-theorem Prover.liftContext_runWithLog
+theorem liftContext_runWithLog
     [lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
                         OuterWitIn OuterWitOut InnerWitIn InnerWitOut]
     {outerStmtIn : OuterStmtIn} {outerWitIn : OuterWitIn}
@@ -321,7 +293,9 @@ theorem Prover.liftContext_runWithLog
 
 end Prover
 
-theorem Reduction.liftContext_run
+namespace Reduction
+
+theorem liftContext_run
     [lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
                         OuterWitIn OuterWitOut InnerWitIn InnerWitOut]
     {outerStmtIn : OuterStmtIn} {outerWitIn : OuterWitIn}
@@ -333,10 +307,10 @@ theorem Reduction.liftContext_run
                 lens.liftWit (outerWitIn, innerWitOut)⟩,
                 lens.liftStmt (outerStmtIn, verInnerStmtOut),
                 fullTranscript⟩ := by
-  unfold Reduction.run
-  simp [Reduction.liftContext, Prover.liftContext_run, Verifier.liftContext, Verifier.run]
+  unfold run
+  simp [liftContext, Prover.liftContext_run, Verifier.liftContext, Verifier.run]
 
-theorem Reduction.liftContext_runWithLog
+theorem liftContext_runWithLog
     [lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
                         OuterWitIn OuterWitOut InnerWitIn InnerWitOut]
     {outerStmtIn : OuterStmtIn} {outerWitIn : OuterWitIn}
@@ -347,16 +321,18 @@ theorem Reduction.liftContext_runWithLog
         return ⟨⟨lens.liftStmt (outerStmtIn, prvInnerStmtOut),
           lens.liftWit (outerWitIn, innerWitOut)⟩,
           lens.liftStmt (outerStmtIn, verInnerStmtOut), fullTranscript, queryLog⟩ := by
-  unfold Reduction.runWithLog
-  simp [Reduction.liftContext, Prover.liftContext_runWithLog, Verifier.liftContext, Verifier.run]
+  unfold runWithLog
+  simp [liftContext, Prover.liftContext_runWithLog, Verifier.liftContext, Verifier.run]
+
+end Reduction
 
 variable [oSpec.FiniteRange]
+  {outerRelIn : OuterStmtIn → OuterWitIn → Prop} {outerRelOut : OuterStmtOut → OuterWitOut → Prop}
+  {innerRelIn : InnerStmtIn → InnerWitIn → Prop} {innerRelOut : InnerStmtOut → InnerWitOut → Prop}
 
-section Completeness
+namespace Reduction
 
 variable
-    {outerRelIn : OuterStmtIn → OuterWitIn → Prop} {outerRelOut : OuterStmtOut → OuterWitOut → Prop}
-    {innerRelIn : InnerStmtIn → InnerWitIn → Prop} {innerRelOut : InnerStmtOut → InnerWitOut → Prop}
     {R : Reduction pSpec oSpec InnerStmtIn InnerWitIn InnerStmtOut InnerWitOut}
     {completenessError : ℝ≥0}
     [lens : ContextLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
@@ -368,7 +344,7 @@ variable
   Lifting the reduction preserves completeness, assuming the lens satisfies its completeness
   conditions
 -/
-theorem Reduction.liftContext_completeness
+theorem liftContext_completeness
     (h : R.completeness innerRelIn innerRelOut completenessError) :
       R.liftContext.completeness outerRelIn outerRelOut completenessError := by
   unfold completeness at h ⊢
@@ -389,6 +365,11 @@ theorem Reduction.liftContext_completeness
   rw [← hRelOut']
   simp [compatContext]; exact this
 
+theorem liftContext_perfectCompleteness
+    (h : R.perfectCompleteness innerRelIn innerRelOut) :
+      R.liftContext.perfectCompleteness outerRelIn outerRelOut := by
+  exact liftContext_completeness h
+
 -- Can't turn the above into an instance because Lean needs to synthesize `innerRelIn` and
 -- `innerRelOut` out of thin air.
 
@@ -400,11 +381,13 @@ theorem Reduction.liftContext_completeness
 --     R.liftContext.IsPerfectComplete relIn relOut :=
 --   ⟨fun _ => R.liftContext.perfectCompleteness _ _ _⟩
 
-end Completeness
+end Reduction
+
+namespace Verifier
 
 /-- Lifting the reduction preserves soundness, assuming the lens satisfies its soundness
   conditions -/
-theorem Verifier.liftContext_soundness [Inhabited InnerStmtOut]
+theorem liftContext_soundness [Inhabited InnerStmtOut]
     {outerLangIn : Set OuterStmtIn} {outerLangOut : Set OuterStmtOut}
     {innerLangIn : Set InnerStmtIn} {innerLangOut : Set InnerStmtOut}
     {soundnessError : ℝ≥0}
@@ -442,7 +425,7 @@ theorem Verifier.liftContext_soundness [Inhabited InnerStmtOut]
   Lifting the reduction preserves knowledge soundness, assuming the lens satisfies its
   knowledge soundness conditions
 -/
-theorem Verifier.liftContext_knowledgeSoundness [Inhabited InnerStmtOut] [Inhabited InnerWitIn]
+theorem liftContext_knowledgeSoundness [Inhabited InnerStmtOut] [Inhabited InnerWitIn]
     {outerRelIn : OuterStmtIn → OuterWitIn → Prop} {outerRelOut : OuterStmtOut → OuterWitOut → Prop}
     {innerRelIn : InnerStmtIn → InnerWitIn → Prop} {innerRelOut : InnerStmtOut → InnerWitOut → Prop}
     {knowledgeError : ℝ≥0}
@@ -491,7 +474,7 @@ theorem Verifier.liftContext_knowledgeSoundness [Inhabited InnerStmtOut] [Inhabi
   Lifting the reduction preserves round-by-round soundness, assuming the lens satisfies its
   soundness conditions
 -/
-theorem Verifier.liftContext_rbr_soundness [Inhabited InnerStmtOut]
+theorem liftContext_rbr_soundness [Inhabited InnerStmtOut]
     {outerLangIn : Set OuterStmtIn} {outerLangOut : Set OuterStmtOut}
     {innerLangIn : Set InnerStmtIn} {innerLangOut : Set InnerStmtOut}
     {rbrSoundnessError : pSpec.ChallengeIdx → ℝ≥0}
@@ -525,7 +508,7 @@ theorem Verifier.liftContext_rbr_soundness [Inhabited InnerStmtOut]
   Lifting the reduction preserves round-by-round knowledge soundness, assuming the lens
   satisfies its knowledge soundness conditions
 -/
-theorem Verifier.liftContext_rbr_knowledgeSoundness
+theorem liftContext_rbr_knowledgeSoundness [Inhabited InnerStmtOut] [Inhabited InnerWitIn]
     {outerRelIn : OuterStmtIn → OuterWitIn → Prop} {outerRelOut : OuterStmtOut → OuterWitOut → Prop}
     {innerRelIn : InnerStmtIn → InnerWitIn → Prop} {innerRelOut : InnerStmtOut → InnerWitOut → Prop}
     {rbrKnowledgeError : pSpec.ChallengeIdx → ℝ≥0}
@@ -545,20 +528,7 @@ theorem Verifier.liftContext_rbr_knowledgeSoundness
   --         ?_, ?_⟩
   sorry
 
-
--- TODO: state definitions & theorems about oracle reduction as well
-
--- def OracleReduction.liftContext_eq_reduction_liftContext
-
--- def OracleReduction.liftContext_completeness
-
--- def OracleVerifier.liftContext_soundness
-
--- def OracleVerifier.liftContext_knowledgeSoundness
-
--- def OracleVerifier.liftContext_rbr_soundness
-
--- def OracleVerifier.liftContext_rbr_knowledgeSoundness
+end Verifier
 
 end Theorems
 

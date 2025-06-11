@@ -1,7 +1,7 @@
 
 
 import ArkLib.OracleReduction.Security.Basic
-import ArkLib.OracleReduction.LiftContext.Basic
+import ArkLib.OracleReduction.LiftContext.OracleReduction
 
 /-!
   # Equivalence / Isomorphism of Oracle Reductions

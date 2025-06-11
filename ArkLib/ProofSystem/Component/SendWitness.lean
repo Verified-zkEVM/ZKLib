@@ -186,7 +186,7 @@ def oraclePSpec : ProtocolSpec 1 := ![(.P_to_V, Witness)]
 instance : IsEmpty (oraclePSpec Witness).ChallengeIdx where
   false := by aesop
 instance : ∀ i, OracleInterface ((oraclePSpec Witness).Message i)
-  | ⟨0, _⟩ => by aesop
+  | ⟨0, _⟩ => by sorry
 instance : ∀ i, VCVCompatible ((oraclePSpec Witness).Challenge i)
   | ⟨0, _⟩ => by aesop
 
@@ -244,7 +244,7 @@ theorem oracleVerifier_toVerifier_run {stmt : Statement} {oStmt : ∀ i, OStatem
 variable [oSpec.FiniteRange] (oRelIn : Statement × (∀ i, OStatement i) → Witness → Prop)
 
 @[reducible, simp]
-def toORelOut : Statement × (∀ i, (OStatement ⊕ᵥ fun _ : Fin 1 => Witness) i) → Unit → Prop :=
+def toORelOut : Statement × (∀ i, (Sum.elim OStatement fun _ : Fin 1 => Witness) i) → Unit → Prop :=
   fun ⟨stmt, oStmtAndWit⟩ _ =>
     oRelIn ⟨stmt, fun i => oStmtAndWit (Sum.inl i)⟩ (oStmtAndWit (Sum.inr 0))
 

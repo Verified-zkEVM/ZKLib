@@ -7,7 +7,7 @@ Authors: Quang Dao
 import ArkLib.OracleReduction.Security.Basic
 import ArkLib.ProofSystem.ConstraintSystem.R1CS
 import ArkLib.Data.MvPolynomial.Multilinear
-import ArkLib.ProofSystem.Sumcheck.Basic
+import ArkLib.ProofSystem.Sumcheck.Spec.General
 -- import ArkLib.ProofSystem.Components
 
 /-!

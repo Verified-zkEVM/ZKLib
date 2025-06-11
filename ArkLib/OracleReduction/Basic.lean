@@ -104,13 +104,23 @@ def Message (pSpec : ProtocolSpec n) (i : MessageIdx pSpec) := (pSpec i.val).2
 @[reducible, inline, specialize, simp]
 def Challenge (pSpec : ProtocolSpec n) (i : ChallengeIdx pSpec) := (pSpec i.val).2
 
-/-- The type of all messages in a protocol specification -/
+/-- The type of all messages in a protocol specification. Uncurried version of `Message`. -/
 @[reducible, inline, specialize]
 def Messages (pSpec : ProtocolSpec n) : Type := ∀ i, pSpec.Message i
 
 /-- The type of all challenges in a protocol specification -/
 @[reducible, inline, specialize]
 def Challenges (pSpec : ProtocolSpec n) : Type := ∀ i, pSpec.Challenge i
+
+/-- The indexed family of messages from the prover up to round `k` -/
+@[reducible, inline, specialize]
+def MessagesUpTo (k : Fin (n + 1)) (pSpec : ProtocolSpec n) :=
+  (i : pSpec.MessageIdx) → i.1 < k → pSpec.Message i
+
+/-- The indexed family of challenges from the verifier up to round `k` -/
+@[reducible, inline, specialize]
+def ChallengesUpTo (k : Fin (n + 1)) (pSpec : ProtocolSpec n) :=
+  (i : pSpec.ChallengeIdx) → i.1 < k → pSpec.Challenge i
 
 /-- The specification of whether each message in a protocol specification is available in full
     (`None`) or received as an oracle (`Some (instOracleInterface (pSpec.Message i))`).
@@ -745,141 +755,3 @@ class Reduction.IsPure (R : Reduction pSpec oSpec StmtIn WitIn StmtOut WitOut) w
 end IsPure
 
 end Classes
-
--- The below is not needed for now
-
--- section Stateless
-
--- open ProtocolSpec
-
--- -- Here we define the stateless form of an (oracle) reduction, where both the prover and the
--- -- verifier does not maintain any state. This is useful for specification purposes, as it reduces
--- -- the protocol to a more pure form. In this stateless form, the context (witness + statement +
--- -- oracle statement) is append-only
-
--- variable {n : ℕ} {ι : Type}
-
--- -- TODO: figure out if we should go with a `Context` struct like this
-
--- structure ContextType (ιS : Type) (ιO : Type) (ιW : Type) where
---   Statement : ιS → Type
---   OracleStatement : ιO → Type
---   Witness : ιW → Type
-
--- def ContextType.toType {ιS ιO ιW : Type} (CtxType : ContextType ιS ιO ιW) : Type :=
---   (∀ i, CtxType.Statement i) × (∀ i, CtxType.OracleStatement i) × (∀ i, CtxType.Witness i)
-
--- structure Context {ιS ιO ιW : Type} (CtxType : ContextType ιS ιO ιW) where
---   statement : ∀ i, CtxType.Statement i
---   oracleStatement : ∀ i, CtxType.OracleStatement i
---   witness : ∀ i, CtxType.Witness i
---   [OracleInterface : ∀ i, OracleInterface (CtxType.OracleStatement i)]
-
--- structure Prover.Stateless (pSpec : ProtocolSpec n) (oSpec : OracleSpec ι)
---     (Statement Witness : Type) where
---   prove (i : pSpec.MessageIdx) : Statement → Witness →
---     Transcript i.1.castSucc pSpec → OracleComp oSpec (pSpec.Message i)
-
--- -- #print Prover.Stateless
-
--- /-- In a stateless form prover, the output statement is simply the input statement concatenated
--- with the transcript, the output witness stays the same, and the prover's state is the partial
--- transcript. -/
--- def Prover.ofStateless {pSpec : ProtocolSpec n} {oSpec : OracleSpec ι}
---     {Statement Witness : Type}
---     (P : Prover.Stateless pSpec oSpec Statement Witness) :
---       Prover pSpec oSpec Statement Witness (Statement × FullTranscript pSpec) Witness where
---   PrvState := fun i => Statement × Transcript i pSpec × Witness
---   input := fun stmt wit => ⟨stmt, default, wit⟩
---   sendMessage := fun i ⟨stmt, transcript, wit⟩ => do
---     let msg ← P.prove i stmt wit transcript
---     return (msg, ⟨stmt, transcript.snoc msg, wit⟩)
---   receiveChallenge := fun _ ⟨stmt, transcript, wit⟩ chal => ⟨stmt, transcript.snoc chal, wit⟩
---   output := fun ⟨stmt, transcript, wit⟩ => ⟨⟨stmt, transcript⟩, wit⟩
-
--- @[reducible]
--- def OracleProver.Stateless (pSpec : ProtocolSpec n) (oSpec : OracleSpec ι)
---     (Statement : Type) {ιₛᵢ : Type} (OStatement : ιₛᵢ → Type) (Witness : Type) :=
---   Prover.Stateless pSpec oSpec (Statement × (∀ i, OStatement i)) Witness
-
--- def OracleProver.ofStateless {pSpec : ProtocolSpec n} {oSpec : OracleSpec ι}
---     {Statement : Type} {ιₛᵢ : Type} {OStatement : ιₛᵢ → Type} {Witness : Type}
---     (P : OracleProver.Stateless pSpec oSpec Statement OStatement Witness) :
---       OracleProver pSpec oSpec Statement Witness (Statement × (∀ i, pSpec.Challenge i)) Witness
---         OStatement (Sum.elim OStatement pSpec.Message) :=
---   -- by simpa [OracleProver] using Prover.ofStateless P
---   sorry
-
--- /-- A verifier in a stateless form only performs checks (i.e. `guard`s) on the input statement
--- and transcript -/
--- structure Verifier.Stateless (pSpec : ProtocolSpec n) (oSpec : OracleSpec ι) (Statement : Type)
---     where
---   verify : Statement → FullTranscript pSpec → OracleComp oSpec Unit
-
--- def Verifier.ofStateless {pSpec : ProtocolSpec n} {oSpec : OracleSpec ι}
---     {Statement : Type} (V : Verifier.Stateless pSpec oSpec Statement) :
---       Verifier pSpec oSpec Statement (Statement × FullTranscript pSpec) where
---   verify := fun stmt transcript => do
---     -- First perform the guard check, then return the statement and transcript
---     let _ ← V.verify stmt transcript
---     return (stmt, transcript)
-
--- /-- An oracle verifier in a stateless form only performs checks (i.e. `guard`s) on the input
---     statement and transcript -/
--- structure OracleVerifier.Stateless (pSpec : ProtocolSpec n) (oSpec : OracleSpec ι)
---     (Statement : Type) {ιₛᵢ : Type} (OStatement : ιₛᵢ → Type)
---     [Oₛᵢ : ∀ i, OracleInterface (OStatement i)] [Oₘ : ∀ i, OracleInterface (pSpec.Message i)]
---     where
---   verify : Statement → (∀ i, pSpec.Challenge i) →
---     OracleComp (oSpec ++ₒ ([OStatement]ₒ ++ₒ [pSpec.Message]ₒ)) Unit
-
--- def OracleVerifier.ofStateless {pSpec : ProtocolSpec n} {oSpec : OracleSpec ι}
---     {Statement : Type} {ιₛᵢ : Type} {OStatement : ιₛᵢ → Type}
---     [Oₛᵢ : ∀ i, OracleInterface (OStatement i)] [Oₘ : ∀ i, OracleInterface (pSpec.Message i)]
---     (V : OracleVerifier.Stateless pSpec oSpec Statement OStatement) :
---       OracleVerifier pSpec oSpec Statement (Statement × ∀ i, pSpec.Challenge i) OStatement
---         (ιₛₒ := ιₛᵢ ⊕ pSpec.MessageIdx) (Sum.elim OStatement pSpec.Message) where
---   verify := fun stmt challenges => do
---     -- First perform the guard check, then return the statement and transcript
---     let _ ← V.verify stmt challenges
---     return (stmt, challenges)
-
---   embed := Function.Embedding.refl _
-
---   hEq := fun i => by aesop
-
--- structure Reduction.Stateless (pSpec : ProtocolSpec n) (oSpec : OracleSpec ι)
---     (Statement Witness : Type) where
---   prover : Prover.Stateless pSpec oSpec Statement Witness
---   verifier : Verifier.Stateless pSpec oSpec Statement
-
--- def Reduction.ofStateless {pSpec : ProtocolSpec n} {oSpec : OracleSpec ι}
---     {Statement Witness : Type} (R : Reduction.Stateless pSpec oSpec Statement Witness) :
---       Reduction pSpec oSpec Statement Witness (Statement × FullTranscript pSpec) Witness where
---   prover := Prover.ofStateless R.prover
---   verifier := Verifier.ofStateless R.verifier
-
--- structure OracleReduction.Stateless (pSpec : ProtocolSpec n) (oSpec : OracleSpec ι)
---     (Statement : Type) {ιₛᵢ : Type} (OStatement : ιₛᵢ → Type) (Witness : Type)
---     [Oₛᵢ : ∀ i, OracleInterface (OStatement i)] [Oₘ : ∀ i, OracleInterface (pSpec.Message i)]
---     where
---   prover : OracleProver.Stateless pSpec oSpec Statement OStatement Witness
---   verifier : OracleVerifier.Stateless pSpec oSpec Statement OStatement
-
--- def Prover.Stateless.runToRound {pSpec : ProtocolSpec n} {oSpec : OracleSpec ι}
---     -- {CtxType : ReductionContextType} {Ctx : ReductionContext CtxType}
---     {Statement Witness : Type}
---     (stmt : Statement) (wit : Witness) (i : Fin (n + 1))
---     (P : Prover.Stateless pSpec oSpec Statement Witness) :
---       OracleComp (oSpec ++ₒ [pSpec.Challenge]ₒ) (pSpec.Transcript i) :=
---   Fin.inductionOn i (pure default)
---     (fun j ih => match hDir : (pSpec j).1 with
---     | .P_to_V => do
---       let transcript ← ih
---       let msg ← P.prove ⟨j, hDir⟩ stmt wit transcript
---       return (← ih).snoc msg
---     | .V_to_P => do
---       let chal ← query (spec := [pSpec.Challenge]ₒ) ⟨j, hDir⟩ ()
---       return (← ih).snoc chal)
-
--- end Stateless
