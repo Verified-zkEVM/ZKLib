@@ -39,21 +39,45 @@ class OStatementLens (OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut : Type)
     StatementLens (OuterStmtIn × ∀ i, OuterOStmtIn i) (OuterStmtOut × ∀ i, OuterOStmtOut i)
                   (InnerStmtIn × ∀ i, InnerOStmtIn i) (InnerStmtOut × ∀ i, InnerOStmtOut i)
   where
+  -- TODO: fill in the extra conditions
+  /- Basically, as we model the output oracle statement as a subset of the input oracle statement +
+  the prover's messages, we need to make sure that this subset relation is satisfied in the
+  statement lens mapping.
 
-  simOStmt : QueryImpl [InnerOStmtIn]ₒ
-    (ReaderT OuterStmtIn (OracleComp [OuterOStmtIn]ₒ))
+  We also need to provide a `QueryImpl` instance for simulating the outer oracle verifier using
+  the inner oracle verifier.
+  -/
 
-  -- simOStmt_eq_projOStmt :
+  -- simOStmt : QueryImpl [InnerOStmtIn]ₒ
+  --   (ReaderT OuterStmtIn (OracleComp [OuterOStmtIn]ₒ))
 
-  -- projOStmt_neverFails : ∀ i, ∀ t, ∀ outerStmtIn,
-  --   ((projOStmt.impl (query i t)).run outerStmtIn).neverFails
+  -- simOStmt_neverFails : ∀ i, ∀ t, ∀ outerStmtIn,
+  --   ((simOStmt.impl (query i t)).run outerStmtIn).neverFails
   -- To get back an output oracle statement in the outer context, we may simulate it using the input
   -- (non-oracle) statement of the outer context, the output (non-oracle) statement of the inner
   -- context, along with oracle access to the inner output oracle statements
-  liftOStmt : QueryImpl [OuterOStmtOut]ₒ
-    (ReaderT (OuterStmtIn × InnerStmtOut) (OracleComp ([OuterOStmtIn]ₒ ++ₒ [InnerOStmtOut]ₒ)))
-  liftOStmt_neverFails : ∀ i, ∀ t, ∀ outerStmtIn, ∀ innerStmtOut,
-    ((liftOStmt.impl (query i t)).run (outerStmtIn, innerStmtOut)).neverFails
+
+  -- liftOStmt : QueryImpl [OuterOStmtOut]ₒ
+  --   (ReaderT (OuterStmtIn × InnerStmtOut) (OracleComp ([OuterOStmtIn]ₒ ++ₒ [InnerOStmtOut]ₒ)))
+  -- liftOStmt_neverFails : ∀ i, ∀ t, ∀ outerStmtIn, ∀ innerStmtOut,
+  --   ((liftOStmt.impl (query i t)).run (outerStmtIn, innerStmtOut)).neverFails
+
+namespace OStatementLens
+
+variable {OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut : Type}
+    {Outer_ιₛᵢ : Type} {OuterOStmtIn : Outer_ιₛᵢ → Type} [∀ i, OracleInterface (OuterOStmtIn i)]
+    {Outer_ιₛₒ : Type} {OuterOStmtOut : Outer_ιₛₒ → Type} [∀ i, OracleInterface (OuterOStmtOut i)]
+    {Inner_ιₛᵢ : Type} {InnerOStmtIn : Inner_ιₛᵢ → Type} [∀ i, OracleInterface (InnerOStmtIn i)]
+    {Inner_ιₛₒ : Type} {InnerOStmtOut : Inner_ιₛₒ → Type} [∀ i, OracleInterface (InnerOStmtOut i)]
+    (oStmtLens : OStatementLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut
+      OuterOStmtIn OuterOStmtOut InnerOStmtIn InnerOStmtOut)
+
+instance instStatementLens : StatementLens
+    (OuterStmtIn × ∀ i, OuterOStmtIn i) (OuterStmtOut × ∀ i, OuterOStmtOut i)
+    (InnerStmtIn × ∀ i, InnerOStmtIn i) (InnerStmtOut × ∀ i, InnerOStmtOut i)
+  := inferInstance
+
+end OStatementLens
 
 /-- A lens for transporting witnesses between outer and inner contexts -/
 class WitnessLens (OuterWitIn OuterWitOut InnerWitIn InnerWitOut : Type) where
@@ -95,10 +119,10 @@ instance instContextLens : ContextLens
     (OuterStmtIn × ∀ i, OuterOStmtIn i) (OuterStmtOut × ∀ i, OuterOStmtOut i)
     (InnerStmtIn × ∀ i, InnerOStmtIn i) (InnerStmtOut × ∀ i, InnerOStmtOut i)
     OuterWitIn OuterWitOut InnerWitIn InnerWitOut where
-  projStmt := oLens.projStmt
-  liftStmt := oLens.liftStmt
-  projWit := oLens.projWit
-  liftWit := oLens.liftWit
+  -- projStmt := oLens.projStmt
+  -- liftStmt := oLens.liftStmt
+  -- projWit := oLens.projWit
+  -- liftWit := oLens.liftWit
 
 end OracleContextLens
 
