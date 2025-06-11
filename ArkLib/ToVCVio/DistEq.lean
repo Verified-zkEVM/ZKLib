@@ -57,11 +57,12 @@ theorem distEq_trans (mx my mz : OracleComp spec α)
   simp [distEq]
   rw [hxy, hyz]
 
-/-- Functional equality of oracle computations. This is *different* from distributional equality,
-since the distribution of each new query when applying `evalDist` is independently random, unlike
-a function which always returns the same value. -/
-def fnEquiv (oa ob : OracleComp spec α) : Prop :=
-  ∀ f : (i : ι) → spec.domain i → spec.range i,
-    simulateQ (fnOracle spec f) oa = simulateQ (fnOracle spec f) ob
+-- universe level issue
+-- /-- Functional equality of oracle computations. This is *different* from distributional equality,
+-- since the distribution of each new query when applying `evalDist` is independently random, unlike
+-- a function which always returns the same value. -/
+-- def fnEquiv (oa ob : OracleComp spec α) : Prop :=
+--   ∀ f : (i : ι) → spec.domain i → spec.range i,
+--     simulateQ (fnOracle spec f) oa = simulateQ (fnOracle spec f) ob
 
 end OracleComp
