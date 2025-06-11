@@ -8,9 +8,9 @@ import ArkLib.Data.FieldTheory.BinaryTowerField.Basic
 import ArkLib.Data.Math.DepCast
 
 /-!
-# Computable concrete binary tower fields
+# Computable Binary Tower Fields
 
-This file implements the concrete binary tower fields
+This file provides executable implementations for binary tower fields
 
 ## Main Definitions
 
@@ -18,10 +18,10 @@ This file implements the concrete binary tower fields
   reprensented via bit vectors of size 2^k
 
 ## TODOs
--- Proof of mul_inv_cancel
--- Optimization of multiplication via lookup
--- Proof of isomorphism with the abstract binary tower fields and derive
---   theorems about multilinear basis
+- Proof of mul_inv_cancel
+- Optimization of multiplication via lookup
+- Proof of isomorphism with the abstract binary tower fields and derive theorems about multilinear
+  basis
 
 ## References
 
