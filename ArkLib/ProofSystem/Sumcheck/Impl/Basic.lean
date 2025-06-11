@@ -16,6 +16,11 @@ algorithms (linear time & streaming) for the setting of:
 - A number of computable multilinear polynomials `p : ι → MlPoly R`
 - A combination function `f` that is itself a (very simple) computable multivariate polynomial
   `f : CMvPoly ι R`. (pending merge from Plonky3's development by Nethermind)
+
+Future extensions will include optimized variants for various protocols (well, to the extent that
+they change the verifier, since we don't care too much about prover's efficiency):
+- Not sending evaluation at 0/1
+- Sending evaluation at infinity instead
 -/
 
 namespace Sumcheck

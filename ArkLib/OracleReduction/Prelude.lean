@@ -15,9 +15,9 @@ import Batteries.Data.Vector.Lemmas
 
 open OracleComp
 
--- Notation for sums
-@[inherit_doc] postfix:max "↪ₗ" => Sum.inl
-@[inherit_doc] postfix:max "↪ᵣ" => Sum.inr
+-- -- Notation for sums (maybe not needed?)
+-- @[inherit_doc] postfix:max "↪ₗ" => Sum.inl
+-- @[inherit_doc] postfix:max "↪ᵣ" => Sum.inr
 
 /-- `⊕ᵥ` is notation for `Sum.rec`, the dependent elimination of `Sum.
 

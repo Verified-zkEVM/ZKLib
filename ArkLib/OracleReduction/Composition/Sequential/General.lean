@@ -18,6 +18,8 @@ import ArkLib.OracleReduction.Composition.Sequential.Append
 
 open ProtocolSpec
 
+universe u v
+
 variable {ι : Type} [DecidableEq ι] {oSpec : OracleSpec ι}
 
 section Instances
@@ -63,8 +65,8 @@ instance [inst : ∀ i, ∀ j, Sampleable ((pSpec i).Challenge j)] :
 
 /-- If all protocols' messages have oracle interfaces, then the messages of their sequential
   composition also have oracle interfaces. -/
-instance [O : ∀ i, ∀ j, OracleInterface ((pSpec i).Message j)] :
-    ∀ i, OracleInterface ((compose m n pSpec).Message i) := fun combinedIdx => by
+instance [O : ∀ i, ∀ j, OracleInterface.{0, u, v} ((pSpec i).Message j)] :
+    ∀ i, OracleInterface.{0, u, v} ((compose m n pSpec).Message i) := fun combinedIdx => by
   let combinedIdx' := composeMessageEquiv.symm combinedIdx
   let this := O combinedIdx'.1 combinedIdx'.2
   convert this using 1; sorry

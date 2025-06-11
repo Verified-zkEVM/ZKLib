@@ -58,8 +58,9 @@ import ArkLib.OracleReduction.Composition.Sequential.General
 import ArkLib.OracleReduction.Composition.Sequential.ProtocolSpec
 import ArkLib.OracleReduction.Equiv
 import ArkLib.OracleReduction.Execution
-import ArkLib.OracleReduction.LiftContext.Basic
 import ArkLib.OracleReduction.LiftContext.Lens
+import ArkLib.OracleReduction.LiftContext.OracleReduction
+import ArkLib.OracleReduction.LiftContext.Reduction
 import ArkLib.OracleReduction.OracleInterface
 import ArkLib.OracleReduction.Prelude
 import ArkLib.OracleReduction.Security.Basic
@@ -79,8 +80,9 @@ import ArkLib.ProofSystem.DSL
 import ArkLib.ProofSystem.Fri.RoundConsistency
 import ArkLib.ProofSystem.Plonk.Basic
 import ArkLib.ProofSystem.Spartan.Basic
-import ArkLib.ProofSystem.Sumcheck.Basic
-import ArkLib.ProofSystem.Sumcheck.SingleRound
+import ArkLib.ProofSystem.Sumcheck.Impl.Basic
+import ArkLib.ProofSystem.Sumcheck.Spec.General
+import ArkLib.ProofSystem.Sumcheck.Spec.SingleRound
 import ArkLib.ToMathlib.BigOperators.Fin
 import ArkLib.ToMathlib.Finset.Basic
 import ArkLib.ToMathlib.Finsupp.Fin
@@ -88,5 +90,6 @@ import ArkLib.ToMathlib.MvPolynomial.Equiv
 import ArkLib.ToMathlib.NumberTheory.PrattCertificate
 import ArkLib.ToMathlib.UInt.Equiv
 import ArkLib.ToVCVio.DistEq
+import ArkLib.ToVCVio.Lemmas
 import ArkLib.ToVCVio.Oracle
 import ArkLib.ToVCVio.SimOracle
