@@ -5,6 +5,7 @@ Authors: Quang Dao
 -/
 
 import VCVio
+import Batteries.Data.Vector.Lemmas
 
 /-!
   # Prelude for Interactive (Oracle) Reductions
@@ -13,6 +14,15 @@ import VCVio
 -/
 
 open OracleComp
+
+-- Notation for sums
+@[inherit_doc] postfix:max "↪ₗ" => Sum.inl
+@[inherit_doc] postfix:max "↪ᵣ" => Sum.inr
+
+/-- `⊕ᵥ` is notation for `Sum.rec`, the dependent elimination of `Sum.
+
+This sends `(a : α) → γ (.inl a)` and `(b : β) → γ (.inr b)` to `(a : α ⊕ β) → γ a`. -/
+infixr:35 " ⊕ᵥ " => Sum.rec
 
 -- Figure out where to put this instance
 instance instDecidableEqOption {α : Type*} [DecidableEq α] :
@@ -25,9 +35,22 @@ class VCVCompatible (α : Type*) extends Fintype α, Inhabited α where
 
 instance {α : Type*} [VCVCompatible α] : DecidableEq α := VCVCompatible.type_decidableEq'
 
+-- TODO: port first to batteries, second to mathlib
+
+@[simp]
+theorem Vector.ofFn_get {α : Type*} {n : ℕ} (v : Vector α n) : Vector.ofFn (Vector.get v) = v := by
+  ext
+  simp [getElem]
+
+def Equiv.rootVectorEquivFin {α : Type*} {n : ℕ} : Vector α n ≃ (Fin n → α) :=
+  ⟨Vector.get, Vector.ofFn, Vector.ofFn_get, fun f => funext <| Vector.get_ofFn f⟩
+
+instance Vector.instFintype {α : Type*} {n : ℕ} [VCVCompatible α] : Fintype (Vector α n) :=
+  Fintype.ofEquiv _ (Equiv.rootVectorEquivFin).symm
+
 instance {α : Type*} {n : ℕ} [VCVCompatible α] : VCVCompatible (Fin n → α) where
 
-instance {α : Type*} {n : ℕ} [VCVCompatible α] : VCVCompatible (Vector α n) := sorry
+instance {α : Type*} {n : ℕ} [VCVCompatible α] : VCVCompatible (Vector α n) where
 
 /-- `Sampleable` extends `VCVCompabible` with `SelectableType` -/
 class Sampleable (α : Type) extends VCVCompatible α, SelectableType α

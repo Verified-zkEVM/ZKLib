@@ -30,9 +30,6 @@ import Mathlib.Algebra.Polynomial.Roots
 
 universe u v
 
-/-- `⊕ᵥ` is notation for `Sum.elim`, e.g. sending `α → γ` and `β → γ` to `α ⊕ β → γ`. -/
-infixr:35 " ⊕ᵥ " => Sum.elim
-
 open OracleComp OracleSpec OracleQuery
 
 /-- `OracleInterface` is a type class that provides an oracle interface for a type `Message`. It

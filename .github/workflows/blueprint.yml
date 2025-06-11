@@ -38,7 +38,7 @@ jobs:
 
       - name: check that all files are imported
         run: git diff --exit-code
-  
+
   build_project:
     runs-on: ubuntu-latest
     name: Build project
@@ -56,7 +56,6 @@ jobs:
 
       - name: Build project
         run: ~/.elan/bin/lake build ArkLib
-
 
       - name: Build blueprint and copy to `home_page/blueprint`
         uses: xu-cheng/texlive-action@v2

@@ -149,12 +149,12 @@ structure AdaptiveProver (pSpec : ProtocolSpec n) (oSpec : OracleSpec ι)
     where
   chooseStmtIn : OracleComp oSpec StmtIn
 
--- /-- Version of `challengeOracle` that requires querying with the statement and prior messages.
+/-- Version of `challengeOracle` that requires querying with the statement and prior messages.
 
--- This is a stepping stone toward the Fiat-Shamir transform. -/
+This is a stepping stone toward the Fiat-Shamir transform. -/
 def srChallengeOracle (pSpec : ProtocolSpec n) (Statement : Type) :
     OracleSpec (pSpec.ChallengeIdx) :=
-  fun i => (Statement × pSpec.Transcript i.1, pSpec.Challenge i)
+  fun i => (Statement × pSpec.MessagesUpTo i.1, pSpec.Challenge i)
 
 /-- A **state-restoration** prover in a reduction is a modified prover that has query access to
   challenge oracles that can return the `i`-th challenge, for all `i : pSpec.ChallengeIdx`, given
