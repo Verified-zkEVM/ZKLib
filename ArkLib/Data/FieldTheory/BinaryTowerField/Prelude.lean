@@ -508,6 +508,17 @@ theorem one_le_two_pow_n (n : ℕ) : 1 ≤ 2 ^ n := by
     1 = 2^0               := by rw [Nat.pow_zero]
     _ ≤ 2 ^ n         := Nat.pow_le_pow_right (by decide) (by exact Nat.zero_le n)
 
+theorem zero_lt_pow_n (m: ℕ) (n: ℕ) (h_m: m > 0): 0 < m^n := by
+  exact Nat.pow_pos h_m
+
+-- 1 ≤ 2 ^ k - 2 ^ (k - 1)
+theorem one_le_sub_consecutive_two_pow (n: ℕ): 1 ≤ 2^(n+1) - 2^n := by
+  calc
+    1 ≤ 2^n := Nat.one_le_pow _ _ (by decide)
+    _ = 2^(n+1) - 2^n := by
+      rw [Nat.pow_succ, Nat.mul_two]
+      rw [Nat.add_sub_cancel]
+
 theorem two_pow_ne_zero (n : ℕ) : 2 ^ n ≠ 0 := by
   by_contra hn
   have h_1_le_0: 1 ≤ 0 := by
