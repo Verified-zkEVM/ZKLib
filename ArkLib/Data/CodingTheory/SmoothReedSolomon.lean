@@ -39,15 +39,13 @@ variable  {F : Type*} [Field F] [DecidableEq F]
   Smooth Reed Solomon Codes are Reed Solomon Codes defined over Smooth Domains, such that
   their decoded univariate polynomials are of degree < 2ᵐ for some m ∈ ℕ. -/
 def smoothCode
-  (F : Type*) [Field F] [DecidableEq F]
-  (ι : Type*) [Fintype ι] [DecidableEq ι]
   (domain : ι ↪ F) [Smooth domain]
   (m : ℕ): Submodule F (ι → F) :=
-    code F ι domain (2^m)
+    code domain (2^m)
 
 /-- The linear map that maps Smooth Reed Solomon Code words
     to their decoded degree wise linear `m`-variate polynomial  -/
-noncomputable def mVdecode : (smoothCode F ι domain m) →ₗ[F] MvPolynomial (Fin m) F :=
+noncomputable def mVdecode : (smoothCode domain m) →ₗ[F] MvPolynomial (Fin m) F :=
   linearMvExtension.comp decodeLT
 
 end ReedSolomon

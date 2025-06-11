@@ -5,16 +5,15 @@ Authors: Least Authority
 -/
 
 import ArkLib.Data.CodingTheory.FieldReedSolomon
-import ArkLib.Data.CodingTheory.RelativeHammingDistance
-import ArkLib.Data.Probability.NotationSingleSampl
+import ArkLib.Data.Probability.Notation
 import ArkLib.ProofSystem.Stir.ProximityBound
 
 /-! Section 4.5 from STIR [ACFY24] -/
 
-open BigOperators Finset NNReal ProbabilityTheory ReedSolomon
+open BigOperators Finset NNReal
 
 namespace Combine
-variable {m n : ℕ}
+variable {m : ℕ}
          {F : Type*} [Field F] [Fintype F] [DecidableEq F]
          {ι : Type*} [Fintype ι]
 
@@ -72,6 +71,11 @@ def degreeCorrFinal
   fun x =>
     f x • conditionalExp φ dstar degree r x
 
+variable {F : Type} [Field F] [Fintype F] [DecidableEq F]
+         {ι : Type} [Fintype ι]
+
+open LinearCode ProbabilityTheory ReedSolomon
+
 /--Lemma 4.13
   Let `dstar` be the target degree, `f₁,...,f_{m-1} : ι → F`,
   `0 < degs₁,...,degs_{m-1} < dstar` be degrees and
@@ -82,14 +86,14 @@ def degreeCorrFinal
 lemma combine [Nonempty ι] {φ : ι ↪ F} {dstar m degree : ℕ}
   (fs : Fin m → ι → F) (degs : Fin m → ℕ) (hdegs : ∀ i, degs i ≤ dstar)
   (δ : ℝ) (hδPos : δ > 0)
-  (hδLt : δ < (min (1 - Bstar (rate degree ι)) (1- (rate degree ι) - 1/ Fintype.card ι)))
-  (hProb : Pr_{ r ← F }
-              [ δᵣ((combineFinal φ dstar r fs degs hdegs), (code F ι φ dstar)) ≤ δ ]  >
-                err' F dstar (rate dstar ι) δ (m • (dstar + 1) - ∑ i, degs i)) :
+  (hδLt : δ < (min (1 - Bstar (rate (code φ degree)))
+                   (1- (rate (code φ degree)) - 1/ Fintype.card ι)))
+  (hProb : Pr_{ let r ←$ᵖ F }[ δᵣ((combineFinal φ dstar r fs degs hdegs), (code φ dstar)) ≤ δ ]  >
+                err' F dstar (rate (code φ degree)) δ (m • (dstar + 1) - ∑ i, degs i)) :
     ∃ S : Finset ι,
       S.card ≥ (1 - δ) * Fintype.card ι ∧
       ∀ i : Fin m, ∃ u : (ι → F),
-      u ∈ (code F ι φ (degs i)) ∧
+      u ∈ (code φ (degs i)) ∧
       ∀ x : ι, x ∈ S → fs i x = u x := by sorry
 
 end Combine

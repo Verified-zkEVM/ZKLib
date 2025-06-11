@@ -4,9 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Least Authority
 -/
 
-import ArkLib.Data.CodingTheory.FieldReedSolomon
-import ArkLib.Data.CodingTheory.ListDecodeability
-import ArkLib.Data.CodingTheory.RelativeHammingDistance
+import ArkLib.Data.CodingTheory.ListDecodability
 import ArkLib.Data.CodingTheory.SmoothReedSolomon
 import ArkLib.OracleReduction.VectorIOR
 import ArkLib.ProofSystem.Stir.ProximityBound
@@ -56,11 +54,6 @@ structure ParamConditions (P : Params ι F) where
   h_smooth_le : ∀ i : Fin (M+1), Fintype.card (ι i) ≤ (degree ι deg P i)
   h_repeatP_le : ∀ i : Fin (M+1), P.repeatParam i + 1 ≤ (degree ι deg P i)
 
-/--`Rateᵢ= degreeᵢ/|ιᵢ|` of the Reed–Solomon code used in round `i`.
-A real number because most analytic bounds live in `ℝ`. -/
-noncomputable def rate (deg : ℕ) (P : Params ι F) : Fin (M + 1) → ℝ :=
-  fun i => (degree ι deg P i : ℝ) / (Fintype.card (ι i) : ℝ)
-
 /-- Distance and list‑size targets per round. -/
 structure Distances (M : ℕ) where
   δ : Fin (M + 1) → ℝ≥0
@@ -71,7 +64,7 @@ structure Distances (M : ℕ) where
   `hlistDecode: codeᵢ` is `(δᵢ,lᵢ)`-list decodable-/
 structure CodeParams (d : ℕ) (P : Params ι F) (Dist : Distances M) where
   C : ∀ i : Fin (M+1), Set ((ι i) → F)
-  h_code : ∀ i : Fin (M+1), C i = code F (ι i) (P.φ i) (degree ι d P i)
+  h_code : ∀ i : Fin (M+1), C i = code (P.φ i) (degree ι d P i)
   hlistDecode : ∀ i : Fin (M+1), listDecodable (C i) (Dist.δ i) (Dist.l i)
 
 /-- Predecessor inside `Fin (n+1)` (requires `i ≠ 0`). -/
@@ -82,7 +75,7 @@ def predFin {n : ℕ} (i : Fin (n + 1)) (h : i.val ≠ 0) : Fin (n + 1) :=
 
 section MainTheorem
 
-open OracleComp OracleSpec ProtocolSpec
+open OracleComp OracleSpec ProtocolSpec LinearCode
 variable {n : ℕ}
 
 /--Statement for the STIR Vector IOPP consisting of a field `F`, evaluation domain `ι` and
@@ -109,7 +102,7 @@ def stirRelation
   {ι : Type} [Fintype ι] [Nonempty ι]
   {degree : ℕ} {ιₛ: Type} (φ : ι ↪ F) (δ : ℝ)
   : (Statement F ι degree × ∀ i, (OStmtOut ιₛ ι F i)) → Unit → Prop :=
-  let C := code F ι φ degree
+  let C := code φ degree
   fun ⟨stmt, _oracles⟩ _ =>
     δᵣ(stmt.eval, C) ≥ δ
 
@@ -131,7 +124,7 @@ theorem stir_main
   (k : ℕ) (hk : ∃ m, k = 2 ^ m) (hk4 : 4 ≤ k)
   (hF : Fintype.card F ≤
         secpar • 2 ^ secpar • degree^2 • (Fintype.card ι)^(7/2) /
-        Real.log (1 / ReedSolomon.rate degree ι))
+        Real.log (1 / rate (code φ degree)))
   (vPSpec : ProtocolSpec.VectorSpec n)
   (oSpec : OracleSpec ι) [oSpec.FiniteRange]
   {ιₛ : Type}
@@ -145,6 +138,8 @@ theorem stir_main
 end MainTheorem
 
 section RBRSoundness
+
+open LinearCode
 
 variable {n : ℕ}
 
@@ -175,11 +170,12 @@ theorem stir_rbr_soundness
     {hParams : ParamConditions ι P} {Dist : Distances M}
     {Codes : CodeParams ι hParams.deg P Dist}
     (h_not_code : ∀ f₀ : (ι 0) → F, f₀ ∉ (Codes.C 0))
-    (hδ₀Le : ∀ f₀ : (ι 0) → F, Dist.δ 0 ≤ (δᵣ(f₀, Codes.C 0) : ℝ) ∧
-      Dist.δ 0 < (1 - Bstar (rate ι hParams.deg P 0)))
+    (hδ₀Le : ∀ f₀ : (ι 0) → F, Dist.δ 0 ≤ (δᵣ(f₀, (Codes.C 0)) : ℝ) ∧
+      Dist.δ 0 < (1 - Bstar (rate (code (P.φ 0) hParams.deg))))
     (hδᵢ : ∀ {j : Fin (M + 1)}, j ≠ 0 →
-        Dist.δ j < (1 - rate ι hParams.deg P j - 1 / Fintype.card (ι j)) ∧
-        Dist.δ j < (1 - Bstar (rate ι hParams.deg P j)))
+        Dist.δ j < (1 - rate (code (P.φ j) (degree ι hParams.deg P j))
+          - 1 / Fintype.card (ι j) : ℝ) ∧
+        Dist.δ j < (1 - Bstar (rate (code (P.φ j) (degree ι hParams.deg P j)))))
     (vPSpec : ProtocolSpec.VectorSpec n)
     [∀ i, OracleInterface (OStmtOut ιₛ (ι 0) F i)]
     (oSpec : OracleSpec ιₒ) [oSpec.FiniteRange]
@@ -189,7 +185,7 @@ theorem stir_rbr_soundness
     -- ∃ vector IOPP π with Statement(F, ι₀, deg), Witness = Unit, OStmtOut(ιₛ, ι₀, F) such that
     ∃ π : VectorIOP vPSpec F oSpec (Statement F (ι 0) (hParams.deg)) Unit (OStmtOut ιₛ (ι 0) F),
     -- ε_fold ≤ errStar(degree₀/foldingParam₀, ρ₀, δ₀, repeatParam₀)
-      ε_fold ≤ (err' F (hParams.deg / P.foldingParam 0) (rate ι hParams.deg P 0)
+      ε_fold ≤ (err' F (hParams.deg / P.foldingParam 0) (rate (code (P.φ 0) hParams.deg))
                  (Dist.δ 0) (P.foldingParam 0)).toReal
       ∧
       -- ε_outⱼ ≤ lᵢ²/2 • (degreeⱼ/ |F| - |ιⱼ|)^s
@@ -203,9 +199,10 @@ theorem stir_rbr_soundness
         let jPred := predFin j hⱼ;
         ε_shift j ≤
           ((1 - Dist.δ jPred) ^ (P.repeatParam jPred) : ℝ) +
-          (err' F (degree ι hParams.deg P j) (rate ι hParams.deg P j)
+          (err' F (degree ι hParams.deg P j) (rate (code (P.φ j) (degree ι hParams.deg P j)))
             (Dist.δ j) (P.repeatParam jPred) + s).toReal +
-          (err' F ((degree ι hParams.deg P j) / P.foldingParam j) (rate ι hParams.deg P j)
+          (err' F ((degree ι hParams.deg P j) / P.foldingParam j)
+            (rate (code (P.φ j) (degree ι hParams.deg P j)))
             (Dist.δ j) (P.repeatParam j)).toReal)
         ∧
         -- ε_fin ≤ (1 - δ_M)^repeatParam_M

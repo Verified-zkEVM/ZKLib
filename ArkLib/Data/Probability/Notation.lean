@@ -97,19 +97,3 @@ example :
     return z = (x, y)).val True = ((1 : ℝ≥0∞) / Fintype.card (F × F)) := by rfl
 
 end
-
-/- section
-
-/- Notation for simple, non sequencial, dependent probabilities of the form
-   Pr_{r ← α} [predicate(r)], where `predicate` is of type `α → Prop)` -/
-noncomputable def Pr {α : Type _} (P : α → Prop)
-  [Fintype α] [DecidableEq α] [Nonempty α] : ENNReal :=
-  (PMF.uniformOfFintype α).toOuterMeasure { r | P r }
-
-notation (priority := high) "Pr_{" x " ← " A "}" "[" P "]" => Pr (fun (x : A) => P)
-
-example {α : Type _} [Semiring α] [Fintype α] [DecidableEq α] [Nonempty α]
-    (predicate : α → Prop) (ERR : ENNReal) :
-      Pr_{r ← α}[predicate r] > ERR := by sorry
-
-end -/

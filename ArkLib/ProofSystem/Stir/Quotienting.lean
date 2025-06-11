@@ -4,8 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Least Authority
 -/
 import ArkLib.Data.CodingTheory.FieldReedSolomon
-import ArkLib.Data.CodingTheory.ListDecodeability
-import ArkLib.Data.CodingTheory.RelativeHammingDistance
+import ArkLib.Data.CodingTheory.ListDecodability
 
 open ReedSolomon ListDecodable
 
@@ -55,9 +54,9 @@ noncomputable def disagreementSet (f : ι → F) (S : Finset F) (Ans : S → F) 
 lemma quotienting [DecidableEq F] {degree : ℕ} {domain : ι ↪ F} [Nonempty ι]
   (S : Finset F) (hS_lt : S.card < degree) (r : F)
   (f : ι → F) (Ans Fill : S → F) (δ : ℝ) (hδPos : δ > 0) (hδLt : δ < 1)
-  (h : ∀ u : code F ι domain degree, u.val ∈ (relHammingBall ↑(code F ι domain degree) f δ) →
+  (h : ∀ u : code domain degree, u.val ∈ (relHammingBall ↑(code domain degree) f δ) →
     ∃ (x : ι) (hx : x.val ∈ S), (decode u).eval x.val ≠ Ans ⟨x.val, hx⟩) :
-    δᵣ((funcQuotient F ι f S Ans Fill), ↑(code F ι domain (degree - S.card))) +
+    δᵣ((funcQuotient F ι f S Ans Fill), ↑(code domain (degree - S.card))) +
       ((disagreementSet F ι f S Ans).card : ℝ) / (ι.card : ℝ) > δ := by
   sorry
 

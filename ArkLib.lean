@@ -81,6 +81,7 @@ import ArkLib.ProofSystem.Plonk.Basic
 import ArkLib.ProofSystem.Spartan.Basic
 import ArkLib.ProofSystem.Sumcheck.Basic
 import ArkLib.ProofSystem.Stir
+import ArkLib.ProofSystem.Whir
 import ArkLib.ProofSystem.Sumcheck.SingleRound
 import ArkLib.ToMathlib.BigOperators.Fin
 import ArkLib.ToMathlib.Finset.Basic

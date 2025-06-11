@@ -4,10 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Least Authority
 -/
 
-import ArkLib.Data.CodingTheory.FieldReedSolomon
-import ArkLib.Data.CodingTheory.ListDecodeability
-import ArkLib.Data.CodingTheory.RelativeHammingDistance
-import ArkLib.Data.Probability.NotationSingleSampl
+import ArkLib.Data.CodingTheory.ReedSolomon
+import ArkLib.Data.CodingTheory.ListDecodability
+import ArkLib.Data.Probability.Notation
 import ArkLib.ProofSystem.Stir.ProximityBound
 
 import Mathlib.Algebra.MvPolynomial.Basic
@@ -174,8 +173,12 @@ noncomputable def fold
 /-- min{δᵣ(f, RSC[F, ι, degree]), 1 − B^⋆(ρ)} -/
 noncomputable def foldingDistRange
    (degree : ℕ) [Fintype ι] [Nonempty ι] (φ : ι ↪ F) (f : ι → F)  : ℝ :=
-    let C : Set (ι → F) := code F ι φ degree
-    min δᵣ(f, C) (1 - Bstar (rate degree ι))
+    let C : Set (ι → F) := code φ degree
+    min δᵣ(f, C) (1 - Bstar (LinearCode.rate (code φ degree)))
+
+open ProbabilityTheory
+
+variable {ι F : Type} [Field F] [Fintype F] [DecidableEq F] [DecidableEq ι]
 
 /--Lemma 4.9
   For every function `f : ι → F`, `degree`, folding parameter `k`, and
@@ -188,9 +191,9 @@ lemma folding
   [Nonempty (indexPow S φ k)]
   {degree : ℕ} (δ : ℚ) (hδPos : δ > 0)
   (hδLt : δ < foldingDistRange degree φ f) :
-  let C : Set ((indexPow S φ k) → F) := code F (indexPow S φ k) (pow S φ k) (degree / k)
-  Pr_{r ← F} [ δᵣ((fold φ f k r), C) ≤ δ]
-    > err' F (degree / k) (rate degree ι) δ k :=
+  let C : Set ((indexPow S φ k) → F) := code (pow S φ k) (degree / k)
+  Pr_{ let r ←$ᵖ F }[ δᵣ((fold φ f k r), C) ≤ δ]
+    > err' F (degree / k) (LinearCode.rate (code φ degree)) δ k :=
 by sorry
 
 end Folding

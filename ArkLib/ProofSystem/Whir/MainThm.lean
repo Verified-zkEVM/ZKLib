@@ -5,8 +5,7 @@ Authors: Least Authority
 -/
 
 import ArkLib.Data.CodingTheory.ConstraintReedSolomon
-import ArkLib.Data.CodingTheory.ListDecodeability
-import ArkLib.Data.CodingTheory.RelativeHammingDistance
+import ArkLib.Data.CodingTheory.ListDecodability
 import ArkLib.OracleReduction.VectorIOR
 import ArkLib.ProofSystem.Whir.BlockRelDistance
 import ArkLib.ProofSystem.Whir.GenMutualCorrAgreement
@@ -49,13 +48,13 @@ structure ParamConditions (P : Params ι F) where
 
 /--
   `GenMutualCorrParams` binds together a set of smooth ReedSolomon codes
-  `C_{i < M,j < foldingParamᵢ} = RS[F, ιᵢ^(2ʲ), (varCountᵢ - j)]` with
+  `C_{i : M,j : foldingParamᵢ} = RS[F, ιᵢ^(2ʲ), (varCountᵢ - j)]` with
   `Gen_α_ij` which is a proximity generator with mutual correlated agreement
   for `C_ij` with proximity parameters `BStar_ij` and `errStar_ij`.
 
   Additionally, it includes the condition that
     C_ij is `(dist_ij,δᵢ)`-list decodeable,
-  where `δᵢ = 1 - max_{j < foldingParamᵢ} BStar(C_ij,2)`
+  where `δᵢ = 1 - max_{j : foldingParamᵢ} BStar(C_ij,2)`
 --/
 class GenMutualCorrParams (P: Params ι F) (S: ∀ i : Fin M, Finset (ι i)) where
 
@@ -75,24 +74,31 @@ class GenMutualCorrParams (P: Params ι F) (S: ∀ i : Fin M, Finset (ι i)) whe
   Gen_α : ∀ i : Fin M, ∀ j : Fin (P.foldingParam i),
     ProximityGenerator (indexPowT (S i) (P.φ i) j) F
 
+  inst5 : ∀ i : Fin M, ∀ j : Fin (P.foldingParam i), Fintype (Gen i j).parℓ
+  inst6 : ∀ i : Fin M, ∀ j : Fin (P.foldingParam i), Fintype (Gen_α i j).parℓ
+
+  exp : ∀ i : Fin M, ∀ j : Fin (P.foldingParam i), (Gen i j).parℓ → ℕ
+
 -- this ensures that Gen_α_ij is a proxmity generator for C_ij = RS[F, ιᵢ^(2^j), (varCountᵢ - j)]
 -- wrt proximity generator Gen_α (α,l) = {1,α²,...,α^{l-1}}
   hgen : ∀ i : Fin M, ∀ j : Fin (P.foldingParam i), ∀ α : F, Gen_α i j =
-    proximityGenerator_α (Gen i j) α (φ i j) (P.varCount i - j)
+    proximityGenerator_α (Gen i j) α (φ i j) (P.varCount i - j) (exp i j)
 
   BStar : ∀ i : Fin M, ∀ j : Fin (P.foldingParam i),
-    (Set ((indexPowT (S i) (P.φ i) j) → F)) → ℕ → ℝ≥0
+    (Set ((indexPowT (S i) (P.φ i) j) → F)) → Type → ℝ≥0
   errStar : ∀ i : Fin M, ∀ j : Fin (P.foldingParam i),
-    (Set ((indexPowT (S i) (P.φ i) j) → F)) → ℕ → ℝ≥0 → ℝ≥0
+    (Set ((indexPowT (S i) (P.φ i) j) → F)) → Type → ℝ → ENNReal
 
   C : ∀ i : Fin M, ∀ j : Fin (P.foldingParam i), Set ((indexPowT (S i) (P.φ i) j) → F)
   hcode : ∀ i : Fin M, ∀ j : Fin (P.foldingParam i), (C i j) = (Gen_α i j).C
 
-  h : ∀ i : Fin M, ∀ j : Fin (P.foldingParam i), genMutualCorrAgreement (Gen_α i j)
-        (BStar i j (C i j) (Gen_α i j).l)
-        (errStar i j (C i j) (Gen_α i j).l)
+  h : ∀ i : Fin M, ∀ j : Fin (P.foldingParam i),
+    genMutualCorrAgreement (Gen_α i j)
+                           (BStar i j (C i j) (Gen_α i j).parℓ)
+                           (errStar i j (C i j) (Gen_α i j).parℓ)
 
-  hδLe : ∀ i : Fin M, (δ i) ≤ 1 - Finset.univ.sup (fun j => BStar i j (C i j) 2)
+  hℓ_bound : ∀ i : Fin M, ∀ j : Fin (P.foldingParam i), Fintype.card (Gen i j).parℓ = 2
+  hδLe : ∀ i : Fin M, (δ i) ≤ 1 - Finset.univ.sup (fun j => BStar i j (C i j) (Gen i j).parℓ)
 
   hlistDecode : ∀ i : Fin M, ∀ j : Fin (P.foldingParam i),
     listDecodable (C i j) (δ i) (dist i j)
@@ -132,12 +138,12 @@ theorem whir_rbr_soundness
     [Smooth (P.φ ⟨0, Fact.out⟩)] [Nonempty (ι ⟨0, Fact.out⟩)]
   -- ∀ f₀ : ι₀ → F, f₀ ∉ CRS[F,ι₀,m₀,wPoly₀,σ₀]
     (h_not_code : ∀ f_0 : (ι ⟨0, Fact.out⟩) → F,
-      f_0 ∉ (constraintCode F (ι ⟨0, Fact.out⟩) (P.φ ⟨0, Fact.out⟩) m_0 wPoly₀ σ₀))
+      f_0 ∉ (constraintCode (P.φ ⟨0, Fact.out⟩) m_0 wPoly₀ σ₀))
   -- ∀ f₀ : ι₀ → F, δ₀ < δᵣ(f₀, CRS[F,ι₀,m₀,wPoly₀,σ₀]),
-  -- where δᵣ denotes the relative Hammin distance
+  -- where δᵣ denotes the relative Hamming distance
     (hδ₀Lt : ∀ f_0 : (ι ⟨0, Fact.out⟩) → F,
       (h.δ ⟨0, Fact.out⟩) <
-        (δᵣ(f_0, (constraintCode F (ι ⟨0, Fact.out⟩) (P.φ ⟨0, Fact.out⟩) m_0 wPoly₀ σ₀)) : ℝ))
+        (δᵣ(f_0, (constraintCode (P.φ ⟨0, Fact.out⟩) m_0 wPoly₀ σ₀)) : ℝ))
     (vPSpec : ProtocolSpec.VectorSpec n)
     (oSpec : OracleSpec ιₒ)
     [oSpec.FiniteRange] [O : ∀ i, OracleInterface (OStmtOut ιₛ (ι ⟨0, Fact.out⟩) F i) ]
@@ -151,10 +157,18 @@ theorem whir_rbr_soundness
       -- dstar = (1 + deg_Z(wPoly₀) + max_{i < m_0} deg_X(wPoly₀))
         let dstar := 1 + (wPoly₀.degreeOf 0) + maxDeg
         let d := max dstar 3
+
+        --necessary typeclasses for Gen_0j stating finiteness and non-emptiness of underlying ι₀^2ʲ
+        let _ : ∀ j : Fin (P.foldingParam ⟨0, Fact.out⟩),
+          Fintype (indexPowT (S ⟨0, Fact.out⟩) (P.φ ⟨0, Fact.out⟩) j) := h.inst1 ⟨0, Fact.out⟩
+                let _ : ∀ j : Fin (P.foldingParam ⟨0, Fact.out⟩),
+          Nonempty (indexPowT (S ⟨0, Fact.out⟩) (P.φ ⟨0, Fact.out⟩) j) := h.inst2 ⟨0, Fact.out⟩
+
         -- ε_fold(0,j) ≤ dstar • dist(0,j-1) / |F| + errStar(C_0j, 2, δ₀)
         ∀ j : Fin (P.foldingParam ⟨0, Fact.out⟩),
           let errStar_0 j :=
-            h.errStar ⟨0, Fact.out⟩ j (h.C ⟨0, Fact.out⟩ j)  2 (h.δ ⟨0, Fact.out⟩)
+            h.errStar ⟨0, Fact.out⟩ j
+              (h.C ⟨0, Fact.out⟩ j) (h.Gen ⟨0, Fact.out⟩ j).parℓ (h.δ ⟨0, Fact.out⟩)
           let j_pred : Fin (P.foldingParam ⟨0, Fact.out⟩) := ⟨j.val - 1, sorry⟩
           ε_fold ⟨0, Fact.out⟩ j ≤
             ((dstar • (h.dist ⟨0, Fact.out⟩ j_pred)) / Fintype.card F)
@@ -172,9 +186,16 @@ theorem whir_rbr_soundness
         ε_shift i ≤ (1 - (h.δ i_pred))^(P.repeatParam i_pred) +
             ((h.dist i ⟨0, Fact.out⟩) • (P.repeatParam i_pred) + 1) / Fintype.card F
         ∧
+
+        -- necessary typeclasses for Gen_ij stating finiteness and non-emptiness of underlying ιᵢ^2ʲ
+        let _ : ∀ i : Fin M, ∀ j : Fin (P.foldingParam i),
+          Fintype (indexPowT (S i) (P.φ i) j) := h.inst1
+        let _ : ∀ i : Fin M, ∀ j : Fin (P.foldingParam i),
+          Nonempty (indexPowT (S i) (P.φ i) j) := h.inst2
+
         -- ε_fold(i,j) ≤ d • dist(i,j-1) / |F| + errStar(C_ij,2,δᵢ)
         ∀ i : Fin M, ∀ j : Fin (P.foldingParam i),
-          let errStar i j := h.errStar i j (h.C i j) 2 (h.δ i)
+          let errStar i j := h.errStar i j (h.C i j) (h.Gen i j).parℓ (h.δ i)
           let j_pred : Fin (P.foldingParam i) := ⟨j.val -1, sorry⟩
           ε_fold i j ≤ d • (h.dist i j_pred) / Fintype.card F + errStar i j
         ∧

@@ -5,14 +5,16 @@ Authors: Least Authority
 -/
 
 import ArkLib.Data.CodingTheory.ConstraintReedSolomon
-import ArkLib.Data.CodingTheory.ListDecodeability
+import ArkLib.Data.CodingTheory.ListDecodability
 import ArkLib.Data.MvPolynomial.Multilinear
-import ArkLib.Data.Probability.NotationSingleSampl
+import ArkLib.Data.Probability.Notation
+
 namespace OutOfDomSmpl
 
-open ListDecodable MvPolynomial NNReal ReedSolomon SmoothDomain
-variable {F : Type*} [Field F] [Fintype F] [DecidableEq F]
-         {ι : Type*} [Fintype ι] [DecidableEq ι]
+open ListDecodable MvPolynomial NNReal ProbabilityTheory ReedSolomon SmoothDomain
+
+variable {F : Type} [Field F] [Fintype F] [DecidableEq F]
+         {ι : Type} [Fintype ι] [DecidableEq ι]
 
 /--Lemma 4.24
   Let `f : ι → F`, `m` be the number of variables, `s` be a repetition parameter
@@ -27,16 +29,16 @@ variable {F : Type*} [Field F] [Fintype F] [DecidableEq F]
 lemma crs_equiv_rs_randpompt_agreement
   {f : ι → F} {m s : ℕ} {φ : ι ↪ F} [Smooth φ] :
   ∀ (r : Fin s → Fin m → F) (δ : ℝ≥0) (hδLe : δ ≤ 1),
-    (∃ u u' : smoothCode F ι φ m,
+    (∃ u u' : smoothCode φ m,
       u.val ≠ u'.val ∧
-      u.val ∈ relHammingBall ↑(smoothCode F ι φ m) f δ ∧
-      u'.val ∈ relHammingBall ↑(smoothCode F ι φ m) f δ ∧
+      u.val ∈ relHammingBall ↑(smoothCode φ m) f δ ∧
+      u'.val ∈ relHammingBall ↑(smoothCode φ m) f δ ∧
       ∀ i : Fin s, (mVdecode u).eval (r i) = (mVdecode u').eval (r i))
     ↔
     (∃ σ : Fin s → F,
       let w : Fin s → MvPolynomial (Fin (m + 1)) F :=
         fun i => MvPolynomial.X (Fin.last m) * rename Fin.castSucc (eqPolynomial (r i))
-      let multiCRSCode := multiConstraintCode F ι φ m s w σ
+      let multiCRSCode := multiConstraintCode φ m s w σ
       ∃ g : ι → F, g ∈ relHammingBall ↑multiCRSCode f δ)
   := by sorry
 
@@ -53,45 +55,45 @@ lemma crs_equiv_rs_randpompt_agreement
 lemma out_of_domain_sampling_crs_eq_rs
     {f : ι → F} {m s : ℕ} {φ : ι ↪ F} [Smooth φ]
     {GenFun : F → Fin s → F} (l δ : ℝ≥0) (hδLe : δ ≤ 1)
-    {C : Set (ι → F)} (hcode : C = smoothCode F ι φ m ∧ listDecodable C δ l) :
-    Pr_{ r ← F }
-      [ (∃ σ : Fin s → F,
-        ∀ i : Fin s,
-          let ri := GenFun r i
-          let rVec := fun j : Fin m => ri ^ (2^(j : ℕ))
-        let w : Fin s → MvPolynomial (Fin (m + 1)) F :=
-          fun i => MvPolynomial.X (Fin.last m) * rename Fin.castSucc (eqPolynomial (rVec))
-        let multiCRSCode := multiConstraintCode F ι φ m s w σ
-        ∃ g : ι → F, g ∈ relHammingBall ↑multiCRSCode f δ)]
+    {C : Set (ι → F)} (hcode : C = smoothCode φ m ∧ listDecodable C δ l) :
+    Pr_{ let r ←$ᵖ F }[ (∃ σ : Fin s → F,
+                        ∀ i : Fin s,
+                          let ri := GenFun r i
+                          let rVec := fun j : Fin m => ri ^ (2^(j : ℕ))
+                          let w : Fin s → MvPolynomial (Fin (m + 1)) F :=
+                          fun i =>
+                            MvPolynomial.X (Fin.last m) * rename Fin.castSucc (eqPolynomial (rVec))
+                          let multiCRSCode := multiConstraintCode φ m s w σ
+                          ∃ g : ι → F, g ∈ relHammingBall ↑multiCRSCode f δ)]
     =
-    Pr_{ r ← F }
-      [ (∃ u u' : smoothCode F ι φ m,
-        u.val ≠ u'.val ∧
-        u.val ∈ relHammingBall C f δ ∧
-        u'.val ∈ relHammingBall C f δ ∧
-        ∀ i : Fin s,
-          let ri := GenFun r i
-          let rVec := fun j : Fin m => ri ^ (2^(j : ℕ))
-          (mVdecode u).eval (rVec) = (mVdecode u').eval (rVec))] := by sorry
+    Pr_{ let r ←$ᵖ F }[ (∃ u u' : smoothCode φ m,
+                        u.val ≠ u'.val ∧
+                        u.val ∈ relHammingBall C f δ ∧
+                        u'.val ∈ relHammingBall C f δ ∧
+                        ∀ i : Fin s,
+                          let ri := GenFun r i
+                          let rVec := fun j : Fin m => ri ^ (2^(j : ℕ))
+                        (mVdecode u).eval (rVec) = (mVdecode u').eval (rVec))]
+  := by sorry
 
 /--Lemma 4.25 part 2
   Let `f : ι → F`, `m` be the number of variables, `s` be a repetition parameter
   and `δ ∈ [0,1]` be a distance parameter,
   if `C = RS [F, ι, m]` is `(δ,l)`-list decodable then
-  the above equation ≤ l²/2 • (2ᵐ/|F|)ˢ -/
+  the above equation is bounded as `≤ l²/2 • (2ᵐ/|F|)ˢ` -/
 lemma out_of_domain_sampling_rs_le_bound
     {f : ι → F} {k m s : ℕ} {φ : ι ↪ F} [Smooth φ]
     {GenFun : F → Fin s → F} (δ l : ℝ≥0) (hδLe : δ ≤ 1)
-    (C : Set (ι → F)) (hcode : C = smoothCode F ι φ m ∧ listDecodable C δ l) :
-    Pr_{ r ← F }
-      [ ∃ u u' : smoothCode F ι φ m,
-        u.val ≠ u'.val ∧
-        u.val ∈ relHammingBall C f δ ∧
-        u'.val ∈ relHammingBall C f δ ∧
-        ∀ i : Fin s,
-          let ri := GenFun r i
-          let rVec := fun j : Fin m => ri ^ (2^(j : ℕ))
-          (mVdecode u).eval (rVec) = (mVdecode u').eval (rVec)
-      ] ≤ l^2 / 2 • ((2^m) / Fintype.card F)^s := by sorry
+    (C : Set (ι → F)) (hcode : C = smoothCode φ m ∧ listDecodable C δ l) :
+    Pr_{ let r ←$ᵖ F }[ ∃ u u' : smoothCode φ m,
+                        u.val ≠ u'.val ∧
+                        u.val ∈ relHammingBall C f δ ∧
+                        u'.val ∈ relHammingBall C f δ ∧
+                        ∀ i : Fin s,
+                          let ri := GenFun r i
+                          let rVec := fun j : Fin m => ri ^ (2^(j : ℕ))
+                        (mVdecode u).eval (rVec) = (mVdecode u').eval (rVec)
+                      ] ≤ l^2 / 2 • ((2^m) / Fintype.card F)^s
+:= by sorry
 
 end OutOfDomSmpl

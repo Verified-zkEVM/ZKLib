@@ -98,6 +98,20 @@ def distToCode [DecidableEq F] (U : Matrix κ ι F) (IC : MatrixSubmodule κ ι 
 notation "Δ(" U "," IC ")" => distToCode U IC
 
 /--
+Relative distance between codewords of an interleaved code.
+ -/
+def relDistCodewords [DecidableEq F] (U V : Matrix κ ι F) : ℝ :=
+  (Matrix.neqCols U V).card / Fintype.card ι
+
+/--Ball of radius `r` centered at U, with respect to relative Hamming distance.-/
+def relHammingBallInterleavedCode [DecidableEq F] (U : Matrix κ ι F)
+  (IC : MatrixSubmodule κ ι F) (r : ℝ) :=
+    {V | V ∈ IC ∧ relDistCodewords U V < r}
+
+/--`Λᵢ(U, IC, r)`  denotes the ball of radius `r` at `U` wrt relative Hamming distance -/
+notation "Λᵢ(" U "," IC "," r ")" => relHammingBallInterleavedCode U IC r
+
+/--
   The minimal distance of an interleaved code is the same as
   the minimal distance of its underlying linear code.
 -/

@@ -5,8 +5,7 @@ Authors: Least Authority
 -/
 
 import ArkLib.Data.CodingTheory.SmoothReedSolomon
-import ArkLib.Data.CodingTheory.ListDecodeability
-import ArkLib.Data.CodingTheory.RelativeHammingDistance
+import ArkLib.Data.CodingTheory.ListDecodability
 
 namespace BlockRelDistance
 
@@ -123,10 +122,10 @@ noncomputable def listBlockRelDistance
   (f : (indexPowT S φ i) → F) (S' : Finset (indexPowT S φ i))
   {φ' : (indexPowT S φ i) ↪ F} (C : Set ((indexPowT S φ i) → F))
   [∀ i : ℕ, Fintype (indexPowT S φ i)] [DecidableEq (indexPowT S φ i)] [Smooth φ'] {m : ℕ}
-  (hcode : C = smoothCode F (indexPowT S φ i) φ' m) (δ : ℝ≥0)
+  (hcode : C = smoothCode φ' m) (δ : ℝ≥0)
   [h : DecidableBlockDisagreement i k f S' φ'] : (Set ((indexPowT S φ i) → F)) :=
     let hδLe := δ ≤ 1
-    let C : Set ((indexPowT S φ i) → F) := smoothCode F (indexPowT S φ i) φ' m
+    let C : Set ((indexPowT S φ i) → F) := smoothCode φ' m
     { u ∈ C | Δᵣ(i, k, f, S', φ', u) ≤ δ }
 
  /--`Λᵣ(i, k, f, S', C, hcode, δ)` denotes the ball of radius `δ` centered at word `f`,
@@ -147,7 +146,7 @@ lemma blockRelDistance_le_hammingDistance
   (f g : (indexPowT S φ i) → F) (S' : Finset (indexPowT S φ i))
   {φ' : (indexPowT S φ i) ↪ F} (C : Set ((indexPowT S φ i) → F))
   [∀ i : ℕ, Fintype (indexPowT S φ i)] [DecidableEq (indexPowT S φ i)] [Smooth φ'] {m : ℕ}
-  (hcode : C = smoothCode F (indexPowT S φ i) φ' m) (δ : ℝ≥0)
+  (hcode : C = smoothCode φ' m) (δ : ℝ≥0)
   [h : DecidableBlockDisagreement i k f S' φ']
   (hBound :   Δᵣ(i, k, f, S', φ', g) ≤ (δᵣ(f, g) : ℝ)) :
     ∀ {δ : ℝ≥0} (hδLe : δ ≤ 1),
