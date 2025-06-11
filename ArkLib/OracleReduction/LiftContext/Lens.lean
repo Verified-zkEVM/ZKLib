@@ -272,14 +272,20 @@ namespace ContextLens.IsKnowledgeSound
 
 end ContextLens.IsKnowledgeSound
 
-class ContextLens.IsRBRKnowledgeSound
+class StatementLens.IsRBRKnowledgeSound
     {OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut : Type}
     {OuterWitIn OuterWitOut InnerWitIn InnerWitOut : Type}
     (outerRelIn : OuterStmtIn → OuterWitIn → Prop)
     (innerRelIn : InnerStmtIn → InnerWitIn → Prop)
     (outerRelOut : OuterStmtOut → OuterWitOut → Prop)
     (innerRelOut : InnerStmtOut → InnerWitOut → Prop)
-
+    (compatStmt : OuterStmtIn → InnerStmtOut → Prop)
+    (compatWit : OuterWitOut → InnerWitIn → Prop)
+    (lensInv : WitnessLensInv OuterWitIn OuterWitOut InnerWitIn InnerWitOut)
+    (lens : StatementLens OuterStmtIn OuterStmtOut InnerStmtIn InnerStmtOut)
+  -- TODO: double-check if we need any extra conditions
+  extends StatementLens.IsKnowledgeSound outerRelIn innerRelIn outerRelOut innerRelOut
+        compatStmt compatWit lensInv lens where
 
 section SpecialCases
 

@@ -115,9 +115,10 @@ namespace Spec
 variable (R : Type) [CommSemiring R] (d : ℕ) {m : ℕ} (D : Fin m ↪ R) (n : ℕ)
 
 -- This is the general sum-check protocol
-def pSpec : ProtocolSpec (∑ _ : Fin (n + 1), 2) :=
-  ProtocolSpec.compose n (fun _ => 2) (fun _ => SingleRound.pSpec R d)
-  -- fun i => if i % 2 = 0 then (.P_to_V, R⦃≤ d⦄[X]) else (.V_to_P, R)
+def pSpec : ProtocolSpec ((n + 1) * 2) :=
+  -- (∑ _ : Fin (n + 1), 2)
+  -- ProtocolSpec.compose n (fun _ => 2) (fun _ => SingleRound.pSpec R d)
+  fun i => if i % 2 = 0 then (.P_to_V, R⦃≤ d⦄[X]) else (.V_to_P, R)
 
 instance : ∀ i, OracleInterface ((pSpec R d n).Message i) := fun ⟨i, hDir⟩ => by
   by_cases h : i % 2 = 0

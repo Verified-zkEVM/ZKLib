@@ -162,16 +162,10 @@ def OStmtIn : Unit → Type := fun _ => R⦃≤ deg⦄[X]
 @[reducible, simp]
 def OStmtOut : Unit → Type := fun _ => R⦃≤ deg⦄[X]
 
-@[reducible, simp]
-def WitIn : Type := Unit
-
-@[reducible, simp]
-def WitOut : Type := Unit
-
-def inputRelation : (StmtIn R) × (∀ i, OStmtIn R deg i) → WitIn → Prop :=
+def inputRelation : (StmtIn R) × (∀ i, OStmtIn R deg i) → Unit → Prop :=
   fun ⟨target, oStmt⟩ _ => ∑ x ∈ (univ.map D), (oStmt ()).1.eval x = target
 
-def outputRelation : (StmtOut R) × (∀ i, OStmtOut R deg i) → WitOut → Prop :=
+def outputRelation : (StmtOut R) × (∀ i, OStmtOut R deg i) → Unit → Prop :=
   fun ⟨⟨newTarget, chal⟩, oStmt⟩ _ => (oStmt ()).1.eval chal = newTarget
 
 @[reducible]
@@ -203,7 +197,7 @@ variable {ι : Type} (oSpec : OracleSpec ι)
   - Receive `chal` from the verifier
   - Outputs `(newTarget, chal) : R × R`, where `newTarget := poly.eval chal`
 -/
-def prover : OracleProver (pSpec R deg) oSpec (StmtIn R) WitIn (StmtOut R) WitOut
+def prover : OracleProver (pSpec R deg) oSpec (StmtIn R) Unit (StmtOut R) Unit
     (OStmtIn R deg) (OStmtOut R deg) where
   PrvState
     | 0 => R⦃≤ deg⦄[X]
@@ -234,8 +228,8 @@ def verifier : Verifier (pSpec R deg) oSpec (StmtIn R × (∀ i, OStmtIn R deg i
     pure ⟨⟨(oStmt ()).val.eval chal, chal⟩, fun _ => oStmt ()⟩
 
 /-- The reduction for the simple description of a single round of sum-check -/
-def reduction : Reduction (pSpec R deg) oSpec (StmtIn R × (∀ i, OStmtIn R deg i)) WitIn
-    (StmtOut R × (∀ i, OStmtOut R deg i)) WitOut where
+def reduction : Reduction (pSpec R deg) oSpec (StmtIn R × (∀ i, OStmtIn R deg i)) Unit
+    (StmtOut R × (∀ i, OStmtOut R deg i)) Unit where
   prover := prover R deg oSpec
   verifier := verifier R deg D oSpec
 
@@ -255,7 +249,7 @@ def oracleVerifier : OracleVerifier (pSpec R deg) oSpec (StmtIn R) (StmtOut R)
   embed := .inl
   hEq := fun i => by simp [pSpec, default]
 
-def oracleReduction : OracleReduction (pSpec R deg) oSpec (StmtIn R) WitIn (StmtOut R) WitOut
+def oracleReduction : OracleReduction (pSpec R deg) oSpec (StmtIn R) Unit (StmtOut R) Unit
     (OStmtIn R deg) (OStmtOut R deg) where
   prover := prover R deg oSpec
   verifier := oracleVerifier R deg D oSpec
@@ -417,9 +411,6 @@ instance instOracleContextLens (i : Fin (n + 1)) : OracleContextLens
   toWitnessLens := WitnessLens.trivial Unit Unit
   toStatementLens := OStatementLens.instStatementLens (instOStatementLens R n deg D i)
 
--- The rest of the below are for equivalence checking. We have deduced the construction & security
--- of the single round protocol from its simplified version via context lifting.
-
 variable {ι : Type} (oSpec : OracleSpec ι) [VCVCompatible R]
 
 /-- The sum-check reduction for the `i`-th round, where `i < n` and `n > 0` -/
@@ -434,9 +425,108 @@ def oracleReduction (i : Fin (n + 1)) : OracleReduction (pSpec R deg) oSpec
     (Statement R n i.castSucc) Unit (Statement R n i.succ) Unit
     (OracleStatement R n deg) (OracleStatement R n deg) :=
   (Simple.oracleReduction R deg D oSpec).liftContext
+    (oLens := instOracleContextLens R n deg D i)
+
+section Security
+
+open Reduction
+open scoped NNReal
+
+variable {R : Type} [CommSemiring R] [VCVCompatible R] {n : ℕ} {deg : ℕ} {m : ℕ} {D : Fin m ↪ R}
+  {ι : Type} {oSpec : OracleSpec ι} {i : Fin (n + 1)}
+
+-- Showing that the lenses satisfy the completeness and rbr knowledge soundness conditions
+
+instance instOracleContextLens_complete :
+    (instOracleContextLens R n deg D i).instContextLens.IsComplete
+      (relationRound R n deg D i.castSucc) (Simple.inputRelation R deg D)
+      (relationRound R n deg D i.succ) (Simple.outputRelation R deg)
+      ((Simple.oracleReduction R deg D oSpec).toReduction.compatContext
+        (instOracleContextLens R n deg D i).instContextLens)
+where
+  proj_complete := sorry
+  lift_complete := sorry
+
+instance instOracleContextLens_rbr_knowledge_soundness :
+    (instOracleContextLens R n deg D i).instContextLens.toStatementLens.IsRBRKnowledgeSound
+      (relationRound R n deg D i.castSucc) (Simple.inputRelation R deg D)
+      (relationRound R n deg D i.succ) (Simple.outputRelation R deg)
+      (fun _ _ => True) (fun _ _ => True)
+      (WitnessLens.trivial Unit Unit) := sorry
+
+variable [oSpec.FiniteRange]
+
+-- set_option trace.profiler true
+
+/-- Completeness theorem for single-round of sum-check, obtained by transporting the completeness
+proof for the simplified version -/
+theorem oracleReduction_completeness : (oracleReduction R n deg D oSpec i).perfectCompleteness
+    (relationRound R n deg D i.castSucc) (relationRound R n deg D i.succ) :=
+  OracleReduction.liftContext_perfectCompleteness
     (lens := instOracleContextLens R n deg D i)
+    (lensComplete := instOracleContextLens_complete)
+    (Simple.oracleReduction_completeness R deg D oSpec)
+
+/-- Round-by-round knowledge soundness theorem for single-round of sum-check, obtained by
+  transporting the knowledge soundness proof for the simplified version -/
+theorem oracleVerifier_rbr_knowledge_soundness :
+    (oracleReduction R n deg D oSpec i).verifier.rbrKnowledgeSoundness
+    (relationRound R n deg D i.castSucc) (relationRound R n deg D i.succ)
+    (fun _ => (deg : ℝ≥0) / Fintype.card R) :=
+  OracleVerifier.liftContext_rbr_knowledgeSoundness
+    (lens := (instOracleContextLens R n deg D i).toOStatementLens)
+    (lensInv := WitnessLens.trivial Unit Unit)
+    (lensKnowledgeSound := sorry)
+    (Simple.oracleVerifier R deg D oSpec)
+    (Simple.oracleVerifier_rbr_knowledge_soundness R deg D oSpec)
+
+-- /-- State function for round-by-round soundness. No need for this manual definition -/
+-- def stateFunction (i : Fin (n + 1)) : Verifier.StateFunction pSpec oSpec
+--     (relationRound R n deg D i.castSucc).language (relationRound R n deg D i.succ).language
+--     (reduction R n deg D oSpec i).verifier where
+--   toFun := fun m ⟨stmt, oStmt⟩ partialTranscript => match m with
+--    -- If `m = 0` (e.g. the transcript is empty), returns whether
+--     -- the statement satisfies the relation
+--     | 0 => relationRound R n deg D i.castSucc ⟨stmt, oStmt⟩ ()
+--     -- If `m = 1`, so the transcript contains the new polynomial `p_i`, returns the above check,
+--     -- and also whether `p_i` is as expected
+--     | 1 => relationRound R n deg D i.castSucc ⟨stmt, oStmt⟩ ()
+--       ∧ (by simpa using partialTranscript ⟨0, by simp⟩ : R⦃≤ deg⦄[X]) =
+--         ⟨∑ x ∈ (univ.map D) ^ᶠ (n - i), (oStmt 0).1 ⸨X ⦃i⦄, stmt.challenges, x⸩'(by simp; omega),
+--           sumcheck_roundPoly_degreeLE R n deg D i (oStmt 0).2⟩
+--     -- If `m = 2`, so we get the full transcript, returns the above checks, and also whether the
+--     -- updated statement satisfies the new relation
+--     | 2 => relationRound R n deg D i.succ ⟨⟨stmt.target,
+--       by simpa using
+--          Fin.snoc stmt.challenges (by simpa using partialTranscript ⟨1, by simp⟩ : R)⟩,
+--        oStmt⟩ ()
+--   toFun_empty := fun stmt hStmt => by simp_all [Function.language]
+--   toFun_next := fun m hDir => match m with
+--     | 0 => fun stmt tr hFalse => by simp_all
+--     | 1 => nomatch hDir
+--   toFun_full := fun stmt tr hFalse => by
+--     simp_all [Function.language]
+--     -- intro stmt' oStmt log h ()
+--     -- simp [Verifier.run] at h
+--     -- have h' : ⟨stmt', oStmt⟩ ∈ Prod.fst ''
+--     --   (simulate loggingOracle ∅ ((verifier R n deg D oSpec i).verify stmt tr)).support := by
+--     --   simp [h]; exact ⟨log, h⟩
+--     -- contrapose! h'
+--     -- rw [← OracleComp.support_map]
+--     -- simp [verifier]
+--     -- let x := tr ⟨0, by simp⟩
+--     sorry
+
+-- /-- Trivial extractor since witness is `Unit` -/
+-- def rbrExtractor : RBRExtractor (pSpec R deg) oSpec (Statement R n i.castSucc) Unit :=
+--   fun _ _ _ _ => ()
+
+end Security
 
 namespace Unfolded
+
+-- The rest of the below are for equivalence checking. We have deduced the construction & security
+-- of the single round protocol from its simplified version via context lifting.
 
 @[reducible]
 def proverState (i : Fin (n + 1)) : ProverState 2 where
@@ -525,97 +615,7 @@ def oracleVerifier (i : Fin (n + 1)) : OracleVerifier (pSpec R deg) oSpec
 
   hEq := fun _ => rfl
 
-/-- The sum-check reduction for the `i`-th round, where `i < n` and `n > 0` -/
-def reduction (i : Fin (n + 1)) : Reduction (pSpec R deg) oSpec
-    ((Statement R n i.castSucc) × (∀ i, OracleStatement R n deg i)) Unit
-    ((Statement R n i.succ) × (∀ i, OracleStatement R n deg i)) Unit :=
-  .mk (prover R n deg D oSpec i) (verifier R n deg D oSpec i)
-
-/-- The sum-check oracle reduction for the `i`-th round, where `i < n` and `n > 0` -/
-def oracleReduction (i : Fin (n + 1)) : OracleReduction (pSpec R deg) oSpec
-    (Statement R n i.castSucc) Unit (Statement R n i.succ) Unit
-    (OracleStatement R n deg) (OracleStatement R n deg) where
-  prover := prover R n deg D oSpec i
-  verifier := oracleVerifier R n deg D oSpec i
-
 end Unfolded
-
-section Security
-
-open Reduction
-open scoped NNReal
-
-variable {R : Type} [CommSemiring R] [VCVCompatible R] {n : ℕ} {deg : ℕ} {m : ℕ} {D : Fin m ↪ R}
-  {ι : Type} {oSpec : OracleSpec ι} {i : Fin (n + 1)}
-
-variable [DecidableEq ι] [oSpec.FiniteRange]
-
--- set_option trace.profiler true
-
-/-- Completeness theorem for sumcheck-/
-theorem perfect_completeness : OracleReduction.perfectCompleteness
-    (pSpec := pSpec R deg) (oSpec := oSpec)
-    (relationRound R n deg D i.castSucc) (relationRound R n deg D i.succ)
-    (oracleReduction R n deg D oSpec i) := by
-  simp only [OracleReduction.perfectCompleteness, perfectCompleteness_eq_prob_one,
-    eq_iff_iff, iff_true, probEvent_eq_one_iff, Prod.forall]
-  unfold relationRound oracleReduction
-  -- prover verifier Reduction.run
-  intro ⟨target, challenge⟩ oStmt _ hValid
-  simp at hValid
-  sorry
-
-/-- State function for round-by-round soundness -/
-def stateFunction (i : Fin (n + 1)) : Verifier.StateFunction (pSpec := pSpec R deg) (oSpec := oSpec)
-    (relationRound R n deg D i.castSucc).language (relationRound R n deg D i.succ).language
-    (verifier R n deg D oSpec i) where
-  toFun := fun m ⟨stmt, oStmt⟩ partialTranscript => match m with
-   -- If `m = 0` (e.g. the transcript is empty), returns whether
-    -- the statement satisfies the relation
-    | 0 => relationRound R n deg D i.castSucc ⟨stmt, oStmt⟩ ()
-    -- If `m = 1`, so the transcript contains the new polynomial `p_i`, returns the above check,
-    -- and also whether `p_i` is as expected
-    | 1 => relationRound R n deg D i.castSucc ⟨stmt, oStmt⟩ ()
-      ∧ (by simpa using partialTranscript ⟨0, by simp⟩ : R⦃≤ deg⦄[X]) =
-        ⟨∑ x ∈ (univ.map D) ^ᶠ (n - i), (oStmt 0).1 ⸨X ⦃i⦄, stmt.challenges, x⸩'(by simp; omega),
-          sumcheck_roundPoly_degreeLE R n deg D i (oStmt 0).2⟩
-    -- If `m = 2`, so we get the full transcript, returns the above checks, and also whether the
-    -- updated statement satisfies the new relation
-    | 2 => relationRound R n deg D i.succ ⟨⟨stmt.target,
-      by simpa using Fin.snoc stmt.challenges (by simpa using partialTranscript ⟨1, by simp⟩ : R)⟩,
-       oStmt⟩ ()
-  toFun_empty := fun stmt hStmt => by simp_all [Function.language]
-  toFun_next := fun m hDir => match m with
-    | 0 => fun stmt tr hFalse => by simp_all
-    | 1 => nomatch hDir
-  toFun_full := fun stmt tr hFalse => by
-    simp_all [Function.language]
-    -- intro stmt' oStmt log h ()
-    -- simp [Verifier.run] at h
-    -- have h' : ⟨stmt', oStmt⟩ ∈ Prod.fst ''
-    --   (simulate loggingOracle ∅ ((verifier R n deg D oSpec i).verify stmt tr)).support := by
-    --   simp [h]; exact ⟨log, h⟩
-    -- contrapose! h'
-    -- rw [← OracleComp.support_map]
-    -- simp [verifier]
-    -- let x := tr ⟨0, by simp⟩
-    sorry
-
-/-- Trivial extractor since witness is `Unit` -/
-def rbrExtractor : RBRExtractor (pSpec R deg) oSpec (Statement R n i.castSucc) Unit :=
-  fun _ _ _ _ => ()
-
--- /-- Round-by-round knowledge soundness theorem for sumcheck -/
--- theorem rbr_knowledge_soundness : (oracleVerifier R n deg D oSpec i).rbrKnowledgeSoundness
---     (relation R n deg D i.castSucc) (relation R n deg D i.succ) (stateFunction i)
---     (fun _ => (deg : ℝ≥0) / Fintype.card R) := sorry
-
--- def rbrKnowledgeSoundness (relIn : StmtIn → WitIn → Prop) (relOut : StmtOut → WitOut → Prop)
---     (verifier : Verifier pSpec oSpec StmtIn StmtOut)
---     (stateFunction : StateFunction relOut.language verifier)
---     (rbrKnowledgeError : pSpec.ChallengeIdx → ℝ≥0) : Prop :=
-
-end Security
 
 end SingleRound
 
