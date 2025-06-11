@@ -132,7 +132,7 @@ theorem BitVec.extractLsb_concat_lo {hi_size lo_size : ℕ} (hi : BitVec hi_size
 theorem Nat.shiftRight_eq_sub_mod_then_div_two_pow {n lo_len : ℕ}:
   n >>> lo_len = (n - n % 2^lo_len) / 2^lo_len := by
   rw [Nat.shiftRight_eq_div_pow]
-  rw (config := { occs := .pos [1] }) [Nat.div_eq_sub_mod_div]
+  rw (occs := .pos [1]) [Nat.div_eq_sub_mod_div]
 
 theorem Nat.shiftRight_lo_mod_2_pow_hi_shiftLeft_lo (n hi_len lo_len : ℕ)
   (h_n: n < 2^(hi_len + lo_len)):
@@ -173,7 +173,7 @@ theorem Nat.reconstruct_from_hi_and_lo_parts (n hi_len lo_len : ℕ) (h_n: n < 2
 theorem Nat.reconstruct_from_hi_and_lo_parts_or_ver (n hi_len lo_len : ℕ)
   (h_n: n < 2^(hi_len + lo_len)):
     n = (((n >>> lo_len) % (2^hi_len)) <<< lo_len) ||| (n % (2^lo_len)) := by
-  rw (config := { occs := .pos [1] }) [Nat.reconstruct_from_hi_and_lo_parts (n:=n) (hi_len:=hi_len)
+  rw (occs := .pos [1]) [Nat.reconstruct_from_hi_and_lo_parts (n:=n) (hi_len:=hi_len)
     (lo_len:=lo_len) (h_n:=h_n)]
   -- ⊢ (n >>> lo_len % 2 ^ hi_len) <<< lo_len + n % 2 ^ lo_len
   -- = (n >>> lo_len % 2 ^ hi_len) <<< lo_len ||| n % 2 ^ lo_len
@@ -195,10 +195,10 @@ theorem BitVec.eq_append_iff_extract {lo_size hi_size: ℕ} (lo: BitVec lo_size)
     rw [h_x]
     apply And.intro
     · -- rewrite only the first goal
-      rw (config := { occs := .pos [1] }) [←h_hi]
+      rw (occs := .pos [1]) [←h_hi]
       unfold BitVec.extractLsb BitVec.extractLsb'
       rw [←dcast_bitvec_toNat_eq] -- cancel INNER dcast via BitVec.toNat
-    · rw (config := { occs := .pos [1] }) [←h_lo]
+    · rw (occs := .pos [1]) [←h_lo]
       unfold BitVec.extractLsb BitVec.extractLsb'
       rw [←dcast_bitvec_toNat_eq] -- cancel INNER dcast via BitVec.toNat
   · -- Right to left
@@ -1247,7 +1247,7 @@ end BaseDefinitions
 structure ConcreteBTFStepResult (k : ℕ) where
   mul_eq : ∀ (a b : ConcreteBinaryTower k) (h_k : k > 0)
     {a₁ a₀ b₁ b₀ : ConcreteBinaryTower (k-1)}
-    (h_a : (a₁, a₀) = split h_k a) (h_b : (b₁, b₀) = split h_k b),
+    (_h_a : (a₁, a₀) = split h_k a) (_h_b : (b₁, b₀) = split h_k b),
     concrete_mul a b = join h_k
       (hi:=concrete_mul a₀ b₁ + concrete_mul b₀ a₁ + concrete_mul (concrete_mul a₁ b₁) (Z (k - 1)))
       (lo:=concrete_mul a₀ b₀ + concrete_mul a₁ b₁)
