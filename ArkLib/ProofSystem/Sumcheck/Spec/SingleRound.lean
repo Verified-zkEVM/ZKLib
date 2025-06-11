@@ -8,6 +8,7 @@ import ArkLib.OracleReduction.Security.Basic
 import ArkLib.OracleReduction.Composition.Sequential.General
 import ArkLib.OracleReduction.LiftContext.Basic
 import ArkLib.Data.Fin.Basic
+import ArkLib.ToVCVio.Lemmas
 
 /-!
 # Single round of the Sum-check Protocol
@@ -115,10 +116,13 @@ namespace Simpler
 
 -- We further break it down into each message:
 -- In order of (witness, oracle statement, public statement ; relation):
--- (∅, p : R⦃≤ d⦄[X], t : R ; ∑ x ∈ univ.map D, p.eval x = t) =>[1st message]
--- (∅, (p, q) : R⦃≤ d⦄[X] × R⦃≤ d⦄[X], t : R ; p = q) =>[omit unused public statement]
--- (∅, (p, q) : R⦃≤ d⦄[X] × R⦃≤ d⦄[X], ∅ ; p = q) =>[2nd message]
--- (∅, (p, q) : R⦃≤ d⦄[X] × R⦃≤ d⦄[X], r : R ; p.eval r = q.eval r, t = q.eval r)
+-- (∅, p : R⦃≤ d⦄[X], old_claim : R ; ∑ x ∈ univ.map D, p.eval x = old_claim) =>[Initial Context]
+-- (∅, (p, q) : R⦃≤ d⦄[X] × R⦃≤ d⦄[X], old_claim : R ;
+--   ∑ x ∈ univ.map D, q.eval x = old_claim ; p = q) =>[Send Claim] (note replaced `p` with `q`)
+-- (∅, (p, q) : R⦃≤ d⦄[X] × R⦃≤ d⦄[X], old_claim : R ; p = q) =>[Check Claim]
+-- (∅, (p, q) : R⦃≤ d⦄[X] × R⦃≤ d⦄[X], ∅ ; p = q) =>[Reduce Claim]
+-- (∅, (p, q) : R⦃≤ d⦄[X] × R⦃≤ d⦄[X], r : R ; p.eval r = q.eval r) =>[Random Query]
+-- (∅, p : R⦃≤ d⦄[X], new_claim : R ; ∑ x ∈ univ.map D, p.eval x = new_claim) =>[Reduce Claim]
 
 variable (R : Type) [CommSemiring R] (d : ℕ) {m : ℕ} (D : Fin m ↪ R)
 
@@ -130,7 +134,7 @@ def inputRelation : R × (∀ i, InputOracleStatement R d i) → Unit → Prop :
   fun ⟨target, oStmt⟩ _ => ∑ x ∈ (univ.map D), (oStmt ()).1.eval x = target
 
 def outputRelation : R × (∀ i, OutputOracleStatement R d i) → Unit → Prop :=
-  fun ⟨chal, oStmt⟩ _ => (oStmt (.inl ())).1.eval chal = (oStmt (.inr ())).1.eval chal
+  fun ⟨chal, oStmt⟩ _ => (oStmt (() ↪ₗ)).1.eval chal = (oStmt (() ↪ᵣ)).1.eval chal
 
 @[reducible]
 def pSpec : ProtocolSpec 2 := ![(.P_to_V, R⦃≤ d⦄[X]), (.V_to_P, R)]
@@ -194,55 +198,6 @@ instance : Nonempty ((pSpec R d).FullTranscript) := by
   rcases i with _ | _
   · simp; exact default
   · simp; exact default
-
-section simp_lemmas -- Some extra lemmas that still need to move to vcv
-
-universe u v w
-
-variable {ι : Type u} {spec : OracleSpec ι} {α β γ ω : Type u}
-
-@[simp]
-lemma probFailure_bind_eq_zero_iff [spec.FiniteRange]
-    (oa : OracleComp spec α) (ob : α → OracleComp spec β) :
-    [⊥ | oa >>= ob] = 0 ↔ [⊥ | oa] = 0 ∧ ∀ x ∈ oa.support, [⊥ | ob x] = 0 := by
-  simp [probFailure_bind_eq_tsum, ← imp_iff_not_or]
-
-@[simp] -- TODO: more general version/class for query impls that never have failures
-lemma loggingOracle.probFailure_simulateQ [spec.FiniteRange] (oa : OracleComp spec α) :
-    [⊥ | (simulateQ loggingOracle oa).run] = [⊥ | oa] := by
-  induction oa using OracleComp.induction with
-  | pure a => simp
-  | query_bind i t oa ih => simp [ih, probFailure_bind_eq_tsum]
-  | failure => simp
-
-@[simp]
-lemma WriterT.run_map {m : Type u → Type v} [Monad m] [Monoid ω]
-    (x : WriterT ω m α) (f : α → β) :
-    (f <$> x).run = Prod.map f id <$> x.run := rfl
-
-@[simp]
-lemma probFailure_liftComp {ι' : Type w} {superSpec : OracleSpec ι'}
-    [spec.FiniteRange] [superSpec.FiniteRange]
-    [h : MonadLift (OracleQuery spec) (OracleQuery superSpec)]
-    (oa : OracleComp spec α) : [⊥ | liftComp oa superSpec] = [⊥ | oa] := by
-  simp only [OracleComp.probFailure_def, OracleComp.evalDist_liftComp]
-
-@[simp]
-lemma liftComp_support {ι' : Type w} {superSpec : OracleSpec ι'}
-    [h : MonadLift (OracleQuery spec) (OracleQuery superSpec)]
-    (oa : OracleComp spec α) : (liftComp oa superSpec).support = oa.support := by
-  induction oa using OracleComp.induction with
-  | pure a => simp
-  | query_bind i t oa ih => simp [ih]
-  | failure => simp
-
--- Stub lemma for now, will be available in the next VCVio update
-lemma neverFails_map_iff' (oa : OracleComp spec α) (f : α → β) :
-    neverFails (f <$> oa) ↔ neverFails oa := by
-  rw [map_eq_bind_pure_comp]
-  simp [neverFails, neverFailsWhen, Function.comp_apply, implies_true, and_true]
-
-end simp_lemmas
 
 theorem perfect_completeness : (reduction R d D).perfectCompleteness
     (inputRelation R d D) (outputRelation R d) := by

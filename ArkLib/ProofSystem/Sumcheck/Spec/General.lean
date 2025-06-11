@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Quang Dao
 -/
 
-import ArkLib.ProofSystem.Sumcheck.SingleRound
+import ArkLib.ProofSystem.Sumcheck.Spec.SingleRound
 
 /-!
 # The Sum-check Protocol
