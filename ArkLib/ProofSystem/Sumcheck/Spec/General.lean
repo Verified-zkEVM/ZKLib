@@ -112,59 +112,65 @@ noncomputable section
 
 namespace Spec
 
-variable (R : Type) [CommSemiring R] (d : ℕ) {m : ℕ} (D : Fin m ↪ R) (n : ℕ)
+variable (R : Type) [CommSemiring R] (deg : ℕ) {m : ℕ} (D : Fin m ↪ R) (n : ℕ)
+
+variable {ι : Type} (oSpec : OracleSpec ι)
 
 -- This is the general sum-check protocol
-def pSpec : ProtocolSpec ((n + 1) * 2) :=
+@[reducible]
+def pSpec : ProtocolSpec (∑ _ : Fin (n + 1), 2) :=
   -- (∑ _ : Fin (n + 1), 2)
-  -- ProtocolSpec.compose n (fun _ => 2) (fun _ => SingleRound.pSpec R d)
-  fun i => if i % 2 = 0 then (.P_to_V, R⦃≤ d⦄[X]) else (.V_to_P, R)
+  ProtocolSpec.compose n (fun _ => 2) (fun _ => SingleRound.pSpec R deg)
+  -- (n + 1) * 2
+  -- fun i => if i % 2 = 0 then (.P_to_V, R⦃≤ d⦄[X]) else (.V_to_P, R)
 
-instance : ∀ i, OracleInterface ((pSpec R d n).Message i) := fun ⟨i, hDir⟩ => by
-  by_cases h : i % 2 = 0
-  · simp [pSpec, h]; infer_instance
-  · simp [pSpec, h]; simp [MessageIdx, pSpec, h] at hDir
+-- instance : ∀ i, OracleInterface ((pSpec R d n).Message i) := fun ⟨i, hDir⟩ => by
+--   by_cases h : i % 2 = 0
+--   · simp [pSpec, h]; infer_instance
+--   · simp [pSpec, h]; simp [MessageIdx, pSpec, h] at hDir
 
-instance [VCVCompatible R] : ∀ i, VCVCompatible ((pSpec R d n).Challenge i) := fun ⟨i, hDir⟩ => by
-  by_cases h : i % 2 = 0
-  · simp [pSpec, h]; simp [pSpec, h] at hDir
-  · simp [pSpec, h]; infer_instance
+instance [VCVCompatible R] : ∀ i, VCVCompatible ((pSpec R deg n).Challenge i) := sorry
+-- fun ⟨i, hDir⟩ => by
+--   by_cases h : i % 2 = 0
+--   · simp [pSpec, h]; simp [pSpec, h] at hDir
+--   · simp [pSpec, h]; infer_instance
 
-def StmtIn := R
+-- Recall that the relations for the rounds have been defined in `SingleRound.lean`
 
-@[reducible]
-def OStmtIn : Unit → Type := fun _ => R⦃≤ d⦄[X (Fin (n + 1))]
+-- def relIn : (StmtIn R) × (∀ i, OStmtIn R d n i) → WitIn → Prop :=
+--   fun ⟨target, polyOracle⟩ _ => ∑ x ∈ (univ.map D) ^ᶠ (n + 1), (polyOracle ()).val ⸨x⸩ = target
 
-def WitIn := Unit
+-- def relOut : (StmtOut R n) × (∀ i, OStmtOut R d n i) → WitOut → Prop :=
+--   fun ⟨⟨target, challenges⟩, polyOracle⟩ _ => (polyOracle ()).1 ⸨challenges⸩ = target
 
-def StmtOut := R × (Fin (n + 1) → R)
+-- def prover : OracleProver (pSpec R d n) oSpec
+--     (Statement R n 0) Unit (Statement R n (.last (n + 1))) Unit
+--     (OracleStatement R n d) (OracleStatement R n d) := sorry
 
-@[reducible]
-def OStmtOut : Unit → Type := fun _ => R⦃≤ d⦄[X (Fin (n + 1))]
-
-def WitOut := Unit
-
-def relIn : (StmtIn R) × (∀ i, OStmtIn R d n i) → WitIn → Prop :=
-  fun ⟨target, polyOracle⟩ _ => ∑ x ∈ (univ.map D) ^ᶠ (n + 1), (polyOracle ()).val ⸨x⸩ = target
-
-def relOut : (StmtOut R n) × (∀ i, OStmtOut R d n i) → WitOut → Prop :=
-  fun ⟨⟨target, challenges⟩, polyOracle⟩ _ => (polyOracle ()).1 ⸨challenges⸩ = target
-
-def prover : OracleProver (pSpec R d n) []ₒ (StmtIn R) WitIn (StmtOut R n) WitOut
-    (OStmtIn R n d) (OStmtOut R n d) := sorry
-
-def verifier : OracleVerifier (pSpec R d n) []ₒ (StmtIn R) (StmtOut R n)
-    (OStmtIn R n d) (OStmtOut R n d) := sorry
-
-def reduction : OracleReduction (pSpec R d n) []ₒ (StmtIn R) WitIn (StmtOut R n) WitOut
-    (OStmtIn R n d) (OStmtOut R n d) :=
-  .mk (prover R d n) (verifier R d n)
+-- def verifier : OracleVerifier (pSpec R d n) oSpec
+--     (Statement R n 0) (Statement R n (.last (n + 1)))
+--     (OracleStatement R n d) (OracleStatement R n d) := sorry
 
 variable [VCVCompatible R]
 
+@[reducible]
+def reduction : Reduction (pSpec R deg n) oSpec
+    (Statement R n 0 × ∀ i, OracleStatement R n deg i) Unit
+    (Statement R n (.last (n + 1)) × ∀ i, OracleStatement R n deg i) Unit :=
+  Reduction.compose n (fun _ => 2) (fun _ => SingleRound.pSpec R deg)
+    (fun i => Statement R n i × (∀ j, OracleStatement R n deg j)) (fun _ => Unit)
+    (fun i => SingleRound.reduction R n deg D oSpec i)
+
+-- TODO: define the oracle reduction version once we have defined `OracleReduction.compose`
+
+variable [oSpec.FiniteRange]
+
+-- Time-out for some reasons, will fix soon
 -- /-- Perfect completeness for the (full) sum-check protocol -/
--- theorem reduction_complete : (reduction R d n).perfectCompleteness
---     (relIn R d D n) (relOut R d n) := sorry
+-- theorem reduction_complete : (reduction R deg D n oSpec).perfectCompleteness
+--     (relationRound R n deg D 0) (relationRound R n deg D (.last (n + 1))) :=
+--   Reduction.completeness_compose (R := reduction R deg D n oSpec)
+--     (fun _ => 0) (fun i => sorry)
 
 -- def stateFunction : Reduction.StateFunction (pSpec R deg n) []ₒ
 --   (relIn R n deg D) (relOut R n deg)

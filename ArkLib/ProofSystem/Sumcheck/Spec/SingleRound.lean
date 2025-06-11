@@ -433,7 +433,7 @@ open Reduction
 open scoped NNReal
 
 variable {R : Type} [CommSemiring R] [VCVCompatible R] {n : ℕ} {deg : ℕ} {m : ℕ} {D : Fin m ↪ R}
-  {ι : Type} {oSpec : OracleSpec ι} {i : Fin (n + 1)}
+  {ι : Type} {oSpec : OracleSpec ι} (i : Fin (n + 1))
 
 -- Showing that the lenses satisfy the completeness and rbr knowledge soundness conditions
 
@@ -458,13 +458,21 @@ variable [oSpec.FiniteRange]
 
 -- set_option trace.profiler true
 
+theorem reduction_completeness : (reduction R n deg D oSpec i).perfectCompleteness
+    (relationRound R n deg D i.castSucc) (relationRound R n deg D i.succ) := sorry
+
+theorem verifier_rbr_knowledge_soundness :
+    (reduction R n deg D oSpec i).verifier.rbrKnowledgeSoundness
+    (relationRound R n deg D i.castSucc) (relationRound R n deg D i.succ)
+    (fun _ => (deg : ℝ≥0) / Fintype.card R) := sorry
+
 /-- Completeness theorem for single-round of sum-check, obtained by transporting the completeness
 proof for the simplified version -/
 theorem oracleReduction_completeness : (oracleReduction R n deg D oSpec i).perfectCompleteness
     (relationRound R n deg D i.castSucc) (relationRound R n deg D i.succ) :=
   OracleReduction.liftContext_perfectCompleteness
     (lens := instOracleContextLens R n deg D i)
-    (lensComplete := instOracleContextLens_complete)
+    (lensComplete := instOracleContextLens_complete i)
     (Simple.oracleReduction_completeness R deg D oSpec)
 
 /-- Round-by-round knowledge soundness theorem for single-round of sum-check, obtained by
