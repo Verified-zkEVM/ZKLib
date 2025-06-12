@@ -103,12 +103,13 @@ Relative distance between codewords of an interleaved code.
 def relDistCodewords [DecidableEq F] (U V : Matrix κ ι F) : ℝ :=
   (Matrix.neqCols U V).card / Fintype.card ι
 
-/--Ball of radius `r` centered at U, with respect to relative Hamming distance.-/
+/--list of codewords of IC r-close to U,
+  with respect to relative distance of interleaved codes.-/
 def relHammingBallInterleavedCode [DecidableEq F] (U : Matrix κ ι F)
   (IC : MatrixSubmodule κ ι F) (r : ℝ) :=
     {V | V ∈ IC ∧ relDistCodewords U V < r}
 
-/--`Λᵢ(U, IC, r)`  denotes the ball of radius `r` at `U` wrt relative Hamming distance -/
+/--`Λᵢ(U, IC, r)` denotes the list of codewords of IC r-close to U-/
 notation "Λᵢ(" U "," IC "," r ")" => relHammingBallInterleavedCode U IC r
 
 /--

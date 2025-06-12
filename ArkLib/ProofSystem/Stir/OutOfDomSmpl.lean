@@ -24,7 +24,7 @@ def domainComplement (φ : ι ↪ F) : Finset F :=
 /-- Pr_{r₀, …, r_{s-1} ← (𝔽 \ φ(ι)) }
       [ ∃ distinct u, u′ ∈ List(C, f, δ) :
         ∀ i < s, u(r_i) = u′(r_i) ]
-    here, List (C, f, δ) denotes the Ball of radius δ centered at codeword f,
+    here, List (C, f, δ) denotes the list of codewords of C δ-close to f,
     wrt the Relative Hamming distance. -/
 noncomputable def listDecodingCollisionProbability
   (φ : ι ↪ F) (f : ι → F) (δ : ℝ) (s degree: ℕ) (Genfun : F → Fin s → F)

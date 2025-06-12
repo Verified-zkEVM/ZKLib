@@ -159,9 +159,9 @@ class GenMutualCorrParams (S : Finset ι) (φ : ι ↪ F) (k : ℕ) where
       `< ∑ i : k errStar(Cⁱ,2,δ)`,
   where fold_k_set and fold_k are as defined above,
   vecα is generated from α as `{1,α,α²,..}`
-  `Λᵣ(0,k,f,S',C,hcode,δ)` corresponds to the Ball of radius δ centered at f,
+  `Λᵣ(0,k,f,S',C,hcode,δ)` corresponds to the list of codewords of C δ-close to f,
   wrt (0,k)-wise block relative distance.
-  `Λ(Cᵏ,fold(f,vecα),δ)` is the Ball of radius δ at foldf(f, vecα),
+  `Λ(Cᵏ,fold(f,vecα),δ)` is the list of codewords of Cᵏ δ-close to foldf(f, vecα),
   wrt the relative Hamming distance
   Below, we use an instance of the class `GenMutualCorrParams` to capture the
   conditions of proxmity generator with mutual correlated agreement for codes
@@ -205,7 +205,7 @@ theorem folding_listdecoding_if_genMutualCorrAgreement
       `< errStar(C',2,δ)`
     where `foldf(f,α)` returns a function `ι^2 → F`,
     `S_0` and `S_1` denote finite sets of elements of type ι and ι², and
-    `Λᵣ` denotes the Ball of radius δ wrt block relative distance.
+    `Λᵣ` denotes the list of δ-close codewords wrt block relative distance.
     `Λᵣ(0,k,f,S_0,C)` denotes Λᵣ at f : ι → F for code C and
     `Λᵣ(1,k,foldf(f,α),S_1,C')` denotes Λᵣ at foldf : ι^2 → F for code C'.-/
 lemma folding_preserves_listdecoding_base

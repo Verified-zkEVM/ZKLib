@@ -115,8 +115,8 @@ scoped notation "Δₛ( "i", "k", "f", "S'", "φ'", "Set" )"  => minBlockRelDist
 
 /--Definition 4.18
   For a smooth ReedSolomon code C = RS[F, ι^(2ⁱ), φ', m], proximity parameter δ ∈ [0,1]
-  function f : ι^(2ⁱ) → F, we define the following as the ball of radius `δ` centered at
-  word `f`, i.e., u ∈ C such that Δᵣ(i, k, f, S', φ', u) ≤ δ.-/
+  function f : ι^(2ⁱ) → F, we define the following as the list of codewords of C δ-close to f,
+  i.e., u ∈ C such that Δᵣ(i, k, f, S', φ', u) ≤ δ.-/
 noncomputable def listBlockRelDistance
   (i k : ℕ) {S : Finset ι} {φ : ι ↪ F} {φ' : (indexPowT S φ i) ↪ F}
   {m : ℕ} [DecidableEq F] [DecidableEq ι] [Smooth φ]
@@ -127,7 +127,7 @@ noncomputable def listBlockRelDistance
     let hδLe := δ ≤ 1
     { u ∈ C | Δᵣ(i, k, f, S', φ', u) ≤ δ }
 
- /--`Λᵣ(i, k, f, S', C, hcode, δ)` denotes the ball of radius `δ` centered at word `f`,
+ /--`Λᵣ(i, k, f, S', C, hcode, δ)` denotes the list of codewords of C δ-close to f,
   wrt to the block relative distance.-/
 scoped notation "Λᵣ( "i", "k", "f", "S'", "C", "hcode", "δ")" =>
   listBlockRelDistance i k f S' C hcode δ
@@ -137,7 +137,7 @@ scoped notation "Λᵣ( "i", "k", "f", "S'", "C", "hcode", "δ")" =>
   we have that the block relative distance `Δᵣ(i, k, f, S', φ', g)` is bounded by the
   relative Hamming distance `δᵣ(f,g)`. As a result, we have
     `Λᵣ(i, k, f, S', C, hcode, δ)` is bounded by
-    `Λ(f, C, δ)` (Ball of radius δ centered at f, wrt relative Hamming distance)
+    `Λ(f, C, δ)` (list of codewords of C δ-close to f, wrt relative Hamming distance)
 -/
 lemma blockRelDistance_le_hammingDistance
   (i k : ℕ) {S : Finset ι} {φ : ι ↪ F} {φ' : (indexPowT S φ i) ↪ F}

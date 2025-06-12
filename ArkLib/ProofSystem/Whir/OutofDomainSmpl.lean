@@ -21,7 +21,7 @@ variable {F : Type} [Field F] [Fintype F] [DecidableEq F]
   and `δ ∈ [0,1]` be a distance parameter, then for every `r₁,...,rₛ ∈ Fᵐ`
   the following statements are equivalent:
     - ∃ distinct u, u' ∈ Λ(C,f,δ) such that ∀ i < s, uPoly(rᵢ) = uPoly'(rᵢ)
-      where, Λ(C,f,δ) denotes the ball of radius δ centered at word f
+      where, Λ(C,f,δ) denotes the list of codewords of C δ-close to f
              uPoly, uPoly' denotes the decoded multivariate polynomials of u and u'
     - ∃ σ₁,..,σₛ : F, such that |Λ(C',f,δ)| > 1
       where, C' is a multiconstrained RS = MCRS[F, ι, φ, m, s, w, σ]
