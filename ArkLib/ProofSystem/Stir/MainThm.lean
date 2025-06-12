@@ -20,7 +20,6 @@ variable {F : Type} [Field F] [Fintype F] [DecidableEq F]
          {M : ℕ} (ι : Fin (M+1) → Type) [∀ i : Fin (M+1), Fintype (ι i)]
          [∀ i : Fin (M+1), DecidableEq (ι i)]
 
--- def toCode (LC : LinearCode ι F) : Code ι F := LC
 /-- Per‑round protocol parameters:
   For a fixed depth `M`, the reduction runs `M + 1` rounds.
   In round `i ∈ {0,…,M}` we fold by a factor `foldingParamᵢ`,
@@ -74,6 +73,7 @@ def predFin {n : ℕ} (i : Fin n) (h : i.val ≠ 0) : Fin n :=
 section MainTheorem
 
 open OracleComp OracleSpec ProtocolSpec LinearCode
+
 variable {n : ℕ}
 
 /--Statement for the STIR Vector IOPP consisting of a field `F`, evaluation domain `ι` and
@@ -98,11 +98,11 @@ and the Reed–Solomon code `code F ι φ degree` is at least `δ`.-/
 def stirRelation
   {F : Type} [Field F] [Fintype F] [DecidableEq F]
   {ι : Type} [Fintype ι] [Nonempty ι]
-  {degree : ℕ} {ιₛ: Type} (φ : ι ↪ F) (δ : ℝ)
+  {degree : ℕ} {ιₛ: Type} (φ : ι ↪ F) (err : ℝ)
   : (Statement F ι degree × ∀ i, (OStmtOut ιₛ ι F i)) → Unit → Prop :=
   let C := code φ degree
   fun ⟨stmt, _oracles⟩ _ =>
-    δᵣ(stmt.eval, C) ≥ δ
+    δᵣ(stmt.eval, C) ≤ err
 
 /--Theorem 5.1 : STIR main theorem
   Consider the following ingrediants,
@@ -127,10 +127,10 @@ theorem stir_main
   (oSpec : OracleSpec ι) [oSpec.FiniteRange]
   {ιₛ : Type}
   [∀ i, OracleInterface (OStmtOut ιₛ ι F i)]
-  (ε_rbr : vPSpec.ChallengeIdx → ℝ≥0) (h_ε_rbr: ε_rbr ≤ 1/ 2 ^ secpar):
+  (ε_rbr : vPSpec.ChallengeIdx → ℝ≥0) :
   ∃ π : VectorIOP vPSpec F oSpec (Statement F ι degree) Unit (OStmtOut ιₛ ι F),
     IsSecureWithGap (stirRelation φ 0)
-                    (stirRelation φ δ)
+                    (stirRelation φ (1 / 2^secpar))
                     ε_rbr π := by sorry
 
 end MainTheorem
@@ -144,14 +144,14 @@ variable {n : ℕ}
 /--Lemma 5.4: Round-by-round soundness of the STIR IOPP
   Consider parameters:
   `ι = {ιᵢ}_{i ∈ [M]}` be smooth evaluation domains
-  `P : Params ι F` containing required protocol parameters
+  `P : Params ι F` containing required protocol parameters -
     folding parameters `foldingParamᵢ`, embedding `φᵢ`, repetition parameters `repeatParamᵢ`
   `hParams : ParamConditions ι P`, stating conditions that parameters of P must satisfy
   `degreeᵢ = deg / ∏ j<i foldingParamⱼ`, where `deg = degree₀`
   `rateᵢ = degreeᵢ / |ιᵢ|`
   `Codes : CodeParams ι degree P Dist`, containing smooth ReedSolomon codes `RS[F, ιᵢ, degreeᵢ]`
     where `RS[F, ιᵢ, degreeᵢ]` is `(δᵢ,lᵢ)`-list decodable
-  then for every `f₀ ∉ RS[F, ι₀, degree₀]`
+  for every `f₀ ∉ RS[F, ι₀, degree₀]`,
   `δ₀ ∈ (0, δᵣ(f, RS[F, ι₀, degree₀]) ∩ (1 - BStar(ρ₀)))`
   `∀ i ∈ [M], δᵢ ∈ (0, min{ 1 - ρᵢ - 1/|ιᵢ|, 1 - BStar(ρᵢ)})`
   then there exists a `vector IOPP π` with parameters as above such that
@@ -183,31 +183,30 @@ theorem stir_rbr_soundness
     -- ∃ vector IOPP π with Statement(F, ι₀, deg), Witness = Unit, OStmtOut(ιₛ, ι₀, F) such that
     ∃ π : VectorIOP vPSpec F oSpec (Statement F (ι 0) (hParams.deg)) Unit (OStmtOut ιₛ (ι 0) F),
     -- ε_fold ≤ errStar(degree₀/foldingParam₀, ρ₀, δ₀, repeatParam₀)
-      ε_fold ≤ (err' F (hParams.deg / P.foldingParam 0) (rate (code (P.φ 0) hParams.deg))
-                 (Dist.δ 0) (P.foldingParam 0)).toReal
+      ε_fold ≤ err' F (hParams.deg / P.foldingParam 0) (rate (code (P.φ 0) hParams.deg))
+                 (Dist.δ 0) (P.repeatParam 0)
       ∧
       -- ε_outⱼ ≤ lᵢ²/2 • (degreeⱼ/ |F| - |ιⱼ|)^s
-      (∀ {j : Fin (M + 1)} (hⱼ : j.val ≠ 0),
-        ε_out j ≤
-          ((Dist.l j : ℝ) ^ 2 / 2) *
-            ((degree ι hParams.deg P j : ℝ) / (Fintype.card F - Fintype.card (ι j))) ^ s
+      ∀ {j : Fin (M + 1)} (hⱼ : j.val ≠ 0),
+        ε_out j ≤ ((Dist.l j : ℝ) ^ 2 / 2) *
+          ((degree ι hParams.deg P j : ℝ) / (Fintype.card F - Fintype.card (ι j))) ^ s
         ∧
         -- ε_shiftⱼ ≤ (1 - δ_{j-1})^repeatParam_{j-1}
         -- + errStar(degreeⱼ, ρⱼ, δⱼ, repeatParam_{j-1} + s)
         -- + errStar(degreeⱼ/foldingParamⱼ, ρⱼ, δⱼ, repeatParamⱼ)
-        let jPred := predFin j hⱼ;
+        let jPred := predFin j hⱼ
         ε_shift j ≤
-          ((1 - Dist.δ jPred) ^ (P.repeatParam jPred) : ℝ) +
+          (1 - Dist.δ jPred) ^ (P.repeatParam jPred)  +
           -- err'(degreeⱼ, ρ(codeⱼ), δⱼ, repeatParam_{j-1} + s), where codeⱼ = code φⱼ degreeⱼ
-          (err' F (degree ι hParams.deg P j) (rate (code (P.φ j) (degree ι hParams.deg P j)))
-            (Dist.δ j) (P.repeatParam jPred) + s).toReal +
+           err' F (degree ι hParams.deg P j) (rate (code (P.φ j) (degree ι hParams.deg P j)))
+            (Dist.δ j) (P.repeatParam jPred) + s +
           -- err'(degreeⱼ / foldingParamⱼ, ρ(codeⱼ), δⱼ, repeatParamⱼ)
-          (err' F ((degree ι hParams.deg P j) / P.foldingParam j)
+           err' F ((degree ι hParams.deg P j) / P.foldingParam j)
             (rate (code (P.φ j) (degree ι hParams.deg P j)))
-            (Dist.δ j) (P.repeatParam j)).toReal)
+            (Dist.δ j) (P.repeatParam j)
         ∧
         -- ε_fin ≤ (1 - δ_M)^repeatParam_M
-        ε_fin ≤ ((1 - Dist.δ M) ^ (P.repeatParam M) : ℝ) :=
+        ε_fin ≤ (1 - Dist.δ M) ^ (P.repeatParam M)  :=
 by
   sorry
 

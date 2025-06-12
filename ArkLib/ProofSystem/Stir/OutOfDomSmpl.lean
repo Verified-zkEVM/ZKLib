@@ -35,7 +35,7 @@ noncomputable def listDecodingCollisionProbability
                                     u'.val ∈ relHammingBall (code φ degree) f δ ∧
                                     ∀ i : Fin s,
                                     (decode u).eval (Genfun r i) = (decode u').eval (Genfun r i)
-                              ]
+                                    ]
 
 /--Lemma 4.5.1-/
 lemma out_of_dom_smpl_1

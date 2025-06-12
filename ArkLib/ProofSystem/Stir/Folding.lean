@@ -21,19 +21,19 @@ open Polynomial ReedSolomon LinearMap Finset ListDecodable
 
 namespace Domain
 
-variable {ι F : Type*} [Field F] [Fintype F] [DecidableEq ι] [DecidableEq F]
+variable {ι F : Type*} [Field F] [Fintype F] [DecidableEq F] [DecidableEq ι]
 
 /-- The image of a finite set `S` under the map `x ↦ (φ x)^(2ᵏ)` -/
 def indexPow (S : Finset ι) (φ : ι ↪ F) (k : ℕ) : Finset F :=
-  S.image (λ x => (φ x) ^ (2^k))
+  S.image (fun x => (φ x) ^ k)
 
 /-- The k-th power domain `ιᵏ ↪ F` for a given domain `ι ↪ F`. -/
 def pow (S : Finset ι) (φ : ι ↪ F) (k : ℕ) : indexPow S φ k ↪ F :=
     Function.Embedding.subtype fun y => y ∈ indexPow S φ k
 
 /-- The fiber over a point `y` under the map `x ↦ (φ x)^(2ᵏ)` -/
-def powFiber (S : Finset ι) (φ : ι ↪ F) (k : ℕ) (y : F) : Finset ι :=
-  S.filter (λ x => (φ x) ^ (2^k) = y)
+def powFiber (S : Finset ι) (φ : ι ↪ F) (k : ℕ) (y : indexPow S φ k) : Finset ι :=
+  S.filter (fun x => (φ x) ^ k = y)
 
 /-- The fiber domain `f⁻¹(y) ↪ F` for the surjection `f : ι → ιᵏ, x → xᵏ` and `y ∈ ιᵏ`. -/
 def fiber (S : Finset ι) (φ : ι ↪ F) (k : ℕ)
@@ -156,7 +156,7 @@ variable {ι F : Type*} [Field F] [Fintype F] [DecidableEq F] [DecidableEq ι]
 
 /--Definition 4.8
   For x ∈ ιᵏ, p_x ∈ 𝔽[X] is the degree < k polynomial
-  where p_x(y) = f(y) for every y ∈ L such that yᵏ = x.-/
+  where p_x(y) = f(y) for every y ∈ ι such that yᵏ = x.-/
 noncomputable def xPoly
   {S : Finset ι} (f : ι → F) (φ : ι ↪ F) (k : ℕ) (x : indexPow S φ k) : Polynomial F :=
   let dom := powFiber S φ k x
@@ -193,7 +193,7 @@ lemma folding
   (hδLt : δ < foldingDistRange degree φ f) :
   let C : Set ((indexPow S φ k) → F) := code (pow S φ k) (degree / k)
   Pr_{ let r ←$ᵖ F }[ δᵣ((fold φ f k r), C) ≤ δ]
-    > err' F (degree / k) (LinearCode.rate (code φ degree)) δ k :=
+    ≤ ENNReal.ofReal (err' F (degree / k) (LinearCode.rate (code φ degree)) δ k) :=
 by sorry
 
 end Folding
