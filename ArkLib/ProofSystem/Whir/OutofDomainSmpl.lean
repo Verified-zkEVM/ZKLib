@@ -4,14 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Least Authority
 -/
 
-import ArkLib.Data.CodingTheory.ConstraintReedSolomon
+import ArkLib.Data.CodingTheory.ReedSolomon
 import ArkLib.Data.CodingTheory.ListDecodability
 import ArkLib.Data.MvPolynomial.Multilinear
 import ArkLib.Data.Probability.Notation
 
 namespace OutOfDomSmpl
 
-open ListDecodable MvPolynomial NNReal ProbabilityTheory ReedSolomon SmoothDomain
+open ListDecodable MvPolynomial NNReal ProbabilityTheory ReedSolomon
 
 variable {F : Type} [Field F] [Fintype F] [DecidableEq F]
          {ι : Type} [Fintype ι] [DecidableEq ι]

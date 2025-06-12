@@ -5,14 +5,14 @@ Authors: Least Authority
 -/
 
 import ArkLib.Data.CodingTheory.ListDecodability
-import ArkLib.Data.CodingTheory.SmoothReedSolomon
+import ArkLib.Data.CodingTheory.ReedSolomon
 import ArkLib.OracleReduction.VectorIOR
 import ArkLib.ProofSystem.Stir.ProximityBound
 
 
 /-!Section 5 STIR[ACFY24], Theorem 5.1 and Lemma 5.4 -/
 
-open BigOperators Finset ListDecodable NNReal ReedSolomon SmoothDomain VectorIOP
+open BigOperators Finset ListDecodable NNReal ReedSolomon VectorIOP
 
 namespace StirIOP
 

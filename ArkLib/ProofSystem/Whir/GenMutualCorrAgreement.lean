@@ -6,13 +6,13 @@ Authors: Least Authority
 
 import ArkLib.Data.CodingTheory.ListDecodability
 import ArkLib.Data.CodingTheory.InterleavedCode
-import ArkLib.Data.CodingTheory.SmoothReedSolomon
+import ArkLib.Data.CodingTheory.ReedSolomon
 import ArkLib.Data.Probability.Notation
 import ArkLib.ProofSystem.Whir.ProximityGen
 
 namespace CorrelatedAgreement
 
-open NNReal Generator ProbabilityTheory ReedSolomon SmoothDomain
+open NNReal Generator ProbabilityTheory ReedSolomon
 
 variable  {F : Type} [Field F] [Fintype F] [DecidableEq F]
           {ι parℓ : Type} [Fintype ι] [Nonempty ι] [Fintype parℓ]

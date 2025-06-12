@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Least Authority
 -/
 
-import ArkLib.Data.CodingTheory.ConstraintReedSolomon
+import ArkLib.Data.CodingTheory.ReedSolomon
 import ArkLib.Data.CodingTheory.ListDecodability
 import ArkLib.OracleReduction.VectorIOR
 import ArkLib.ProofSystem.Whir.BlockRelDistance
@@ -14,7 +14,7 @@ import ArkLib.ProofSystem.Whir.ProximityGen
 namespace WhirIOP
 
 open BigOperators BlockRelDistance CorrelatedAgreement Generator Finset
-     ListDecodable NNReal ReedSolomon SmoothDomain
+     ListDecodable NNReal ReedSolomon
 
 variable {F : Type} [Field F] [Fintype F] [DecidableEq F]
          {M : ℕ} [Fact (0 < M)] (ι : Fin M → Type) [∀ i : Fin M, Fintype (ι i)]

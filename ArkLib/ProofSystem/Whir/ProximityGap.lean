@@ -5,11 +5,11 @@ Authors: Least Authority
 -/
 
 import ArkLib.ProofSystem.Whir.ProximityGen
-import ArkLib.Data.CodingTheory.SmoothReedSolomon
+import ArkLib.Data.CodingTheory.ReedSolomon
 
 namespace RSGenerator
 
-open ReedSolomon Generator SmoothDomain NNReal
+open Generator NNReal ReedSolomon
 
 variable   {F : Type} [Field F] [Fintype F] [DecidableEq F]
            {ι : Type} [Fintype ι] [DecidableEq ι] [Nonempty ι]

@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Least Authority
 -/
 
-import ArkLib.Data.CodingTheory.SmoothReedSolomon
+import ArkLib.Data.CodingTheory.ReedSolomon
 import ArkLib.Data.MvPolynomial.LinearMvExtension
 import ArkLib.ProofSystem.Whir.BlockRelDistance
 import ArkLib.ProofSystem.Whir.GenMutualCorrAgreement
@@ -74,7 +74,7 @@ noncomputable def fold_k_set
 section FoldingLemmas
 
 open CorrelatedAgreement Generator LinearMvExtension ListDecodable
-     NNReal ReedSolomon SmoothDomain ProbabilityTheory
+     NNReal ReedSolomon ProbabilityTheory
 
 variable {F : Type} [Field F] [Fintype F] [DecidableEq F]
          {ι : Type} [Fintype ι] [Pow ι ℕ] [DecidableEq ι]

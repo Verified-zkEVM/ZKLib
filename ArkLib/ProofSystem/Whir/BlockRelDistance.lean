@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Least Authority
 -/
 
-import ArkLib.Data.CodingTheory.SmoothReedSolomon
+import ArkLib.Data.CodingTheory.ReedSolomon
 import ArkLib.Data.CodingTheory.ListDecodability
 
 namespace BlockRelDistance
@@ -14,7 +14,7 @@ namespace BlockRelDistance
   (i,k)-wise distance measures. This modification is necessary to support following lemmas
   from Section  4.3.2. The definitions from Section 4.3.1 correspond to i = 0. -/
 
-open ListDecodable NNReal ReedSolomon SmoothDomain
+open ListDecodable NNReal ReedSolomon
 
 variable {F : Type*} [Field F]
          {ι : Type*} [Fintype ι] [Pow ι ℕ]

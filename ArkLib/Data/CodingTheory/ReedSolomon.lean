@@ -8,6 +8,7 @@ import ArkLib.Data.CodingTheory.Basic
 import Mathlib.LinearAlgebra.Lagrange
 import Mathlib.RingTheory.Henselian
 import ArkLib.Data.Fin.Basic
+import ArkLib.Data.MvPolynomial.LinearMvExtension
 import ArkLib.Data.Polynomial.Interface
 
 /-!
@@ -119,7 +120,7 @@ lemma rank_nonsquare_eq_deg_of_deg_le (inj : Function.Injective α) (h : n ≤ m
     Matrix.det_vandermonde_ne_zero_iff
   ]
   apply Function.Injective.comp <;> aesop (add simp Fin.castLE_injective)
-  
+
 /--
   The rank of a non-square Vandermonde matrix with more columns than rows is the number of rows.
 -/
@@ -326,5 +327,113 @@ end
 end ReedSolomonCode
 end
 
+section
+
+open LinearMap Finset
+
+variable {F : Type*} [Field F]
+         {ι : Type*}  [Fintype ι] [DecidableEq ι]
+         {domain : ι ↪ F}
+         {deg : ℕ}
+
+/-- The linear map that maps a codeword `f : ι → F` to a degree < |ι| polynomial p,
+    such that p(x) = f(x) for all x ∈ ι -/
+private noncomputable def interpolate : (ι → F) →ₗ[F] F[X] :=
+  Lagrange.interpolate univ domain
+
+/-- The linear map that maps a ReedSolomon codeword to its associated polynomial -/
+noncomputable def decode : (code domain deg) →ₗ[F] F[X] :=
+  domRestrict
+    (interpolate (domain := domain))
+    (code domain deg)
+
+/- ReedSolomon codewords are decoded into degree < deg polynomials-/
+lemma decoded_polynomial_lt_deg (c : code domain deg) :
+  decode c ∈ (degreeLT F deg : Submodule F F[X]) := by sorry
+
+/-- The linear map that maps a Reed Solomon codeword to its associated polynomial
+    of degree < deg -/
+noncomputable def decodeLT : (code domain deg) →ₗ[F] (Polynomial.degreeLT F deg) :=
+  codRestrict
+    (Polynomial.degreeLT F deg)
+    decode
+    (fun c => decoded_polynomial_lt_deg c)
+
+end
+
+section
+
+open LinearMvExtension
+
+variable {F: Type*} [Semiring F] [DecidableEq F]
+         {ι : Type*} [Fintype ι]
+
+/-- A domain `ι ↪ F` is `smooth`, if `ι ⊆ F`, `|ι| = 2^k` for some `k` and
+    there exists a subgroup `H` in the group of units `Rˣ`
+    and an invertible element `a ∈ R` such that `ι = a • H` -/
+class Smooth
+  (domain : ι ↪ F) where
+    H           : Subgroup (Units F)
+    a           : Units F
+    h_coset     : Finset.image domain Finset.univ
+                  = (fun h : Units F => (a : F) * (h : F)) '' (H : Set (Units F))
+    h_card_pow2 : ∃ k : ℕ, Fintype.card ι = 2 ^ k
+
+variable  {F : Type*} [Field F] [DecidableEq F]
+          {ι : Type*} [Fintype ι] [DecidableEq ι]
+          {domain : ι ↪ F} [Smooth domain]
+          {m : ℕ}
+
+/--Definition 4.2, WHIR[ACFY24]
+  Smooth ReedSolomon Codes are ReedSolomon Codes defined over Smooth Domains, such that
+  their decoded univariate polynomials are of degree < 2ᵐ for some m ∈ ℕ. -/
+def smoothCode
+  (domain : ι ↪ F) [Smooth domain]
+  (m : ℕ): Submodule F (ι → F) := code domain (2^m)
+
+/-- The linear map that maps Smooth Reed Solomon Code words
+    to their decoded degree wise linear `m`-variate polynomial  -/
+noncomputable def mVdecode :
+  (smoothCode domain m) →ₗ[F] MvPolynomial (Fin m) F :=
+    linearMvExtension.comp decodeLT
+
+/-- Auxiliary function to assign values to the weight polynomial variables:
+    index `0` ↦ `p.eval b`, index `j+1` ↦ `b j`. -/
+private def toWeightAssignment
+  (p : MvPolynomial (Fin m) F)
+  (b : Fin m → Fin 2) : Fin (m+1) → F :=
+    let b' : Fin m → F := fun i => ↑(b i : ℕ)
+    Fin.cases (MvPolynomial.eval b' p)
+              (fun i => ↑(b i : ℕ))
+
+/-- constraint is true, if ∑ {b ∈ {0,1}^m} w(f(b),b) = σ for given
+    m-variate polynomial `f` and `(m+1)`-variate polynomial `w`-/
+def weightConstraint
+  (f : MvPolynomial (Fin m) F)
+  (w : MvPolynomial (Fin (m+1)) F) (σ : F) : Prop :=
+    ∑ b : Fin m → Fin 2 , w.eval (toWeightAssignment f b) = σ
+
+/--Definition 4.5, WHIR[ACFY24]
+  Constraint Reed Solomon codes are smooth codes who's decoded m-variate
+  polynomial satisfies the weight constraint for given `w` and `σ`.-/
+def constraintCode
+  (domain : ι ↪ F) [Smooth domain] (m : ℕ)
+  (w : MvPolynomial (Fin (m+1)) F) (σ : F) : Set (ι → F) :=
+    { f | ∃ (h : f ∈ smoothCode domain m),
+      weightConstraint (mVdecode (⟨f, h⟩ : smoothCode domain m)) w σ }
+
+/--Definition 4.6, WHIR[ACFY24]
+  Multi-constraint Reed Solomon codes are smooth codes who's decoded m-variate
+  polynomial satisfies the `t` weight constraints for given `w₀,...,wₜ₋₁` and
+    `σ₀,...,σₜ₋₁`.-/
+def multiConstraintCode
+  (domain : ι ↪ F) [Smooth domain] (m t : ℕ)
+  (w : Fin t → MvPolynomial (Fin (m+1)) F)
+  (σ : Fin t → F) : Set (ι → F) :=
+    { f |
+      ∃ (h : f ∈ smoothCode domain m),
+        ∀ i : Fin t, weightConstraint (mVdecode (⟨f, h⟩ : smoothCode domain m)) (w i) (σ i)}
+
+end
 
 end ReedSolomon
