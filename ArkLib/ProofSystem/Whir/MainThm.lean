@@ -80,7 +80,7 @@ class GenMutualCorrParams (P: Params ι F) (S: ∀ i : Fin (M+1), Finset (ι i))
   exp : ∀ i : Fin (M+1), ∀ j : Fin (P.foldingParam i), (Gen i j).parℓ → ℕ
 
 -- this ensures that Gen_α_ij is a proxmity generator for C_ij = RS[F, ιᵢ^(2^j), (varCountᵢ - j)]
--- wrt proximity generator Gen_α (α,l) = {1,α²,...,α^{parℓ-1}}
+-- wrt proximity function Gen_α (α,l) = {1,α²,...,α^{parℓ-1}}
   hgen : ∀ i : Fin (M+1), ∀ j : Fin (P.foldingParam i), ∀ α : F, Gen_α i j =
     proximityGenerator_α (Gen i j) α (φ i j) (P.varCount i - j) (exp i j)
 

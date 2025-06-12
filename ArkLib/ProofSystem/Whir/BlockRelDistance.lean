@@ -37,18 +37,18 @@ def indexPowT (S : Finset ι) (φ : ι ↪ F) (k : ℕ) := { y : F // ∃ x ∈ 
   Example i = 0 : powFiberT 0 k S' φ' y = { x ∈ S' | (x)^(2^k) = y }.
   Example i = 1 : powFiberT 1 k S' φ' y = { x^2 ∈ S' | (x^2)^(2^(k-1)) = y }.
 -/
-def powFiberT (i k : ℕ) {S : Finset ι} {φ : ι ↪ F} (S' : Finset (indexPowT S φ i))
+def powFiberT (i : ℕ) {k : ℕ} {S : Finset ι} {φ : ι ↪ F} (S' : Finset (indexPowT S φ i))
   (φ' : (indexPowT S φ i) ↪ F)  (y : indexPowT S φ k) :=
   { x : (indexPowT S φ i) // x ∈ S' ∧ (φ' x) ^ (2^(k-i)) = y.val }
 
 /--Definition 4.16
   For `ι` be a smooth evaluation domain, `k` be a folding parameter, `z ∈ (ι^(2ᵏ))`,
   Block is the set of elements `{ y ∈ S', y ^ 2^(k-i) = z }`, for `S' : Finset ι^(2ⁱ)`.-/
-def block (i k : ℕ) {S : Finset ι} {φ : ι ↪ F}
+def block (i : ℕ) {k : ℕ} {S : Finset ι} {φ : ι ↪ F}
   (S' : Finset (indexPowT S φ i))
   (φ' : (indexPowT S φ i) ↪ F)  (z : indexPowT S φ k)
   [DecidableEq F] [DecidableEq ι] [Smooth φ] :=
-    powFiberT i k S' φ' z
+    powFiberT i S' φ' z
 
 /--The class DecidableBlockDisagreement provides a decidability instance for testing
   pointwise inequality of two functions `f, g : ι^(2ⁱ) → F` on elements of `block i k S' φ' z`,
@@ -65,7 +65,7 @@ class DecidableBlockDisagreement
   (φ' : (indexPowT S φ i) ↪ F) where
   dec_inst :
     ∀ z : indexPowT S φ k, ∀ g : (indexPowT S φ i) → F,
-      Decidable (∃ y : block i k S' φ' z, f y.val ≠ g y.val)
+      Decidable (∃ y : block i S' φ' z, f y.val ≠ g y.val)
 
 /--Let C be a smooth ReedSolomon code `C = RS[F, ι^(2ⁱ), φ', m]` and `f,g : ι^(2ⁱ) → F`, then
   the (i,k)-wise block relative distance is defined as

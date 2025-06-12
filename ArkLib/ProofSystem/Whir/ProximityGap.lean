@@ -29,10 +29,10 @@ noncomputable def proximityGapTheorem
   (parℓ : Type) [hℓ : Fintype parℓ] (φ : ι ↪ F) [Smooth φ]
   (m : ℕ) {exp : parℓ ↪ ℕ} : ProximityGenerator ι F :=
     { C      := smoothCode φ m,
-      parℓ      := parℓ,
+      parℓ   := parℓ,
       hℓ     := hℓ,
-      Fun := fun r j => r ^ (exp j),
-      B  := fun _ _ => (Real.sqrt (rate φ m)),
+      Fun    := fun r j => r ^ (exp j),
+      B      := fun _ _ => (Real.sqrt (rate φ m)),
       err    := fun _ _ δ =>
         ENNReal.ofReal (
           if δ ≤ (1 - (rate φ m)) / 2 then

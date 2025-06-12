@@ -31,10 +31,10 @@ structure ProximityGenerator
   -- Underlying linear code
   C         : LinearCode ι F
   -- Number of functions
-  parℓ         : Type
+  parℓ      : Type
   hℓ        : Fintype parℓ
   -- Generator function maps sampled randomness `r : 𝔽 ` to `parℓ`-tuples of field elements
-  Fun    : F → parℓ → F
+  Fun       : F → parℓ → F
   -- Distance threshold parameter
   B         : (LinearCode ι F) → Type → ℝ
   -- Error function bounding the probability of distance within `δ`
@@ -43,7 +43,7 @@ structure ProximityGenerator
       For all `parℓ`-tuples of functions `fᵢ : ι → 𝔽`
         and distance parameter `δ ∈ (0, 1-BStar(C,parℓ))` :
       If the probability that `proximityCondition(r)` is true for uniformly random
-      sampled  `r ← 𝔽 `, exceeds `err(C,l,δ)`, then there exists a  subset `S ⊆ ι ` of size
+      sampled  `r ← 𝔽 `, exceeds `err(C,parℓ,δ)`, then there exists a  subset `S ⊆ ι ` of size
       `|S| ≥ (1-δ)⬝|ι|`) on which each `fᵢ` agrees with some codeword in `C`. -/
   proximity:
     ∀ (f : parℓ → ι → F)
@@ -52,6 +52,6 @@ structure ProximityGenerator
       Pr_{ let r ← $ᵖ F }[ (proximityCondition f δ Fun C r) ] > (err C parℓ δ) →
         ∃ S : Finset ι,
           S.card ≥ (1 - δ) * (Fintype.card ι) ∧
-          ∀ i : parℓ, ∃ u ∈ C, ∀ x ∈ S, f i x = u x
+        ∀ i : parℓ, ∃ u ∈ C, ∀ x ∈ S, f i x = u x
 
 end Generator

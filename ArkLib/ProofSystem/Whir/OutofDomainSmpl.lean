@@ -31,15 +31,15 @@ lemma crs_equiv_rs_randpompt_agreement
   ∀ (r : Fin s → Fin m → F) (δ : ℝ≥0) (hδLe : δ ≤ 1),
     (∃ u u' : smoothCode φ m,
       u.val ≠ u'.val ∧
-      u.val ∈ relHammingBall ↑(smoothCode φ m) f δ ∧
-      u'.val ∈ relHammingBall ↑(smoothCode φ m) f δ ∧
+      u.val ∈ relHammingBall (smoothCode φ m) f δ ∧
+      u'.val ∈ relHammingBall (smoothCode φ m) f δ ∧
       ∀ i : Fin s, (mVdecode u).eval (r i) = (mVdecode u').eval (r i))
     ↔
     (∃ σ : Fin s → F,
       let w : Fin s → MvPolynomial (Fin (m + 1)) F :=
         fun i => MvPolynomial.X (Fin.last m) * rename Fin.castSucc (eqPolynomial (r i))
       let multiCRSCode := multiConstraintCode φ m s w σ
-      ∃ g : ι → F, g ∈ relHammingBall ↑multiCRSCode f δ)
+      ∃ g : ι → F, g ∈ relHammingBall multiCRSCode f δ)
   := by sorry
 
 /--Lemma 4.25 part 1
@@ -64,7 +64,7 @@ lemma out_of_domain_sampling_crs_eq_rs
                           fun i =>
                             MvPolynomial.X (Fin.last m) * rename Fin.castSucc (eqPolynomial (rVec))
                           let multiCRSCode := multiConstraintCode φ m s w σ
-                          ∃ g : ι → F, g ∈ relHammingBall ↑multiCRSCode f δ)]
+                          ∃ g : ι → F, g ∈ relHammingBall multiCRSCode f δ)]
     =
     Pr_{ let r ←$ᵖ F }[ (∃ u u' : smoothCode φ m,
                         u.val ≠ u'.val ∧

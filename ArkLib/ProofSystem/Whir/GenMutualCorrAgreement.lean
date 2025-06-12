@@ -21,8 +21,8 @@ variable  {F : Type} [Field F] [Fintype F] [DecidableEq F]
     and linear code `C` the predicate `proximityCondition(r)` is true, if `∃ S ⊆ ι`, s.t.
     the following three conditions hold
       (i) `|S| > (1-δ)•|ι|` and
-      (ii) `∃ u ∈ C, u(S) = ∑ j : genℓ, rⱼ • fⱼ(S)`
-      (iii) `∃ i : genℓ, ∀ u' ∈ C, u'(S) ≠ fᵢ(S)` -/
+      (ii) `∃ u ∈ C, u(S) = ∑ j : parℓ, rⱼ • fⱼ(S)`
+      (iii) `∃ i : parℓ, ∀ u' ∈ C, u'(S) ≠ fᵢ(S)` -/
 def proximityCondition (f : parℓ → ι → F) (δ : ℝ≥0) (GenFun : F → parℓ → F)
   (C : LinearCode ι F): F → Prop
     | r =>
@@ -146,7 +146,7 @@ theorem genMutualCorrAgreement_le_capacity
 
 section
 
-open InterleavedCode
+open InterleavedCode ListDecodable
 
 /--For `parℓ` functions `{f₁,..,f_parℓ}`, `IC` be the `parℓ`-interleaved code from a linear code C,
   with `Gen` as a proximity generator with mutual correlated agreement,
@@ -157,13 +157,12 @@ def proximityListDecodingCondition
   (Gen : ProximityGenerator ι F) [Fintype Gen.parℓ]
   (δ : ℝ) (fs us : Matrix Gen.parℓ ι F)
   (IC : InterleavedCode Gen.parℓ ι F)
-  (haveIC : IC = codeOfLinearCode Gen.parℓ Gen.C)
-  (haveList : us ∈ Λᵢ(fs, IC.MF, δ)) :
-  F → Prop :=
-  fun r =>
-  let f_r := fun x => ∑ j, Gen.Fun r j • fs j x
-  let u_r := fun x => ∑ j, Gen.Fun r j • us j x
-  f_r ≠ u_r
+  (haveIC : IC = codeOfLinearCode Gen.parℓ Gen.C) : F → Prop :=
+    fun r =>
+      let f_r := fun x => ∑ j, Gen.Fun r j • fs j x
+      let listHamming := relHammingBall Gen.C f_r δ
+      let listIC := { fun x => ∑ j, Gen.Fun r j • us j x | us ∈ Λᵢ(fs, IC.MF, δ)}
+      listHamming ≠ listIC
 
 
 /--lemma 4.13: Mutual correlated agreement preserves list decoding
@@ -180,9 +179,9 @@ lemma mutualCorrAgreement_list_decoding
   (haveIC : IC = codeOfLinearCode Gen.parℓ Gen.C)
   (hGen : genMutualCorrAgreement Gen BStar errStar)
   (C : Set (ι → F)) (hC : C = Gen.C) :
-    ∀ {fs : Matrix Gen.parℓ ι F} (haveList : us ∈ Λᵢ(fs, IC.MF, δ))
+    ∀ {fs : Matrix Gen.parℓ ι F}
     (hδPos : δ > 0) (hδLt : δ < min (δᵣ C : ℝ) (1 - BStar)),
-      Pr_{let r ←$ᵖ F}[ proximityListDecodingCondition Gen δ fs us IC haveIC haveList r]
+      Pr_{let r ←$ᵖ F}[ proximityListDecodingCondition Gen δ fs us IC haveIC r]
         ≤ errStar δ
   := by sorry
 

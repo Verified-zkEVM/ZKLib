@@ -25,7 +25,8 @@ noncomputable def extract_x
 
 /--Given a function `f : (ι^(2ᵏ)) → F`, foldf operates on two inputs:
   element `y ∈ LpowT S (k+1)`, hence `∃ x ∈ S, s.t. y = x ^ 2^(k+1)` and `α ∈ F`.
-  It obtains the square root of y as `xPow := extract_x S φ k y`, here xPow is of the form x ^ 2^k.
+  It obtains the square root of y as `xPow := extract_x S φ k y`,
+    here xPow is of the form `x ^ 2^k`.
   It returns the value `f(xPow) + f(- xPow)/2 + α • (f(xPow) - f(- xPow))/ 2•xPow`. -/
 noncomputable def foldf (S : Finset ι) (φ : ι ↪ F)
   {k : ℕ} [ Neg (indexPowT S φ k) ] (y : indexPowT S φ (k+1))
@@ -180,11 +181,7 @@ theorem folding_listdecoding_if_genMutualCorrAgreement
   -- non-emptiness and smoothness
     let _ : ∀ j : Fin (k + 1), Fintype (indexPowT S φ j) := params.inst1
     let _ : ∀ j : Fin (k + 1), Nonempty (indexPowT S φ j) := params.inst2
-    let _ : ∀ j : Fin (k + 1), DecidableEq (indexPowT S φ j) := params.inst3
-    let _ : ∀ j : Fin (k + 1), Smooth (params.φ_i j) := params.inst4
     let _ : ∀ j : Fin (k + 1), Fintype (params.Gen_α j).parℓ := params.inst6
-    let _ : Fintype (indexPowT S φ k) := params.inst1 ⟨k, Nat.lt_succ_self _⟩
-
 
     Pr_{let α ←$ᵖ F}[  ∀ {f : (indexPowT S φ 0) → F},
 
@@ -210,7 +207,7 @@ theorem folding_listdecoding_if_genMutualCorrAgreement
     `S_0` and `S_1` denote finite sets of elements of type ι and ι², and
     `Λᵣ` denotes the Ball of radius δ wrt block relative distance.
     `Λᵣ(0,k,f,S_0,C)` denotes Λᵣ at f : ι → F for code C and
-    `Λᵣ(1,k-1,foldf(f,α),S_1,C')` denotes Λᵣ at foldf : ι^2 → F for code C'.-/
+    `Λᵣ(1,k,foldf(f,α),S_1,C')` denotes Λᵣ at foldf : ι^2 → F for code C'.-/
 lemma folding_preserves_listdecoding_base
   {S : Finset ι} {k m : ℕ} {φ : ι ↪ F} [Smooth φ] {δ : ℝ≥0}
   {S_0 : Finset (indexPowT S φ 0)} {S_1 : Finset (indexPowT S φ 1)}
