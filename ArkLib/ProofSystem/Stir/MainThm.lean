@@ -67,11 +67,9 @@ structure CodeParams (d : ℕ) (P : Params ι F) (Dist : Distances M) where
   h_code : ∀ i : Fin (M+1), C i = code (P.φ i) (degree ι d P i)
   hlistDecode : ∀ i : Fin (M+1), listDecodable (C i) (Dist.δ i) (Dist.l i)
 
-/-- Predecessor inside `Fin (n+1)` (requires `i ≠ 0`). -/
-def predFin {n : ℕ} (i : Fin (n + 1)) (h : i.val ≠ 0) : Fin (n + 1) :=
-  ⟨Nat.pred i.val, by
-    have hpred : Nat.pred i.val < i.val := Nat.pred_lt h
-    exact Nat.lt_trans hpred i.isLt⟩
+/-- Predecessor inside `Fin n` (requires `i ≠ 0`). -/
+def predFin {n : ℕ} (i : Fin n) (h : i.val ≠ 0) : Fin n :=
+  ⟨i.val - 1, Nat.lt_trans (Nat.pred_lt h) i.isLt⟩
 
 section MainTheorem
 
