@@ -10,7 +10,7 @@ import ArkLib.Data.CodingTheory.ListDecodability
 namespace BlockRelDistance
 
 /-!In the following, we define distances for smooth ReedSolomon codes wrt power and fiber domains,
-  as per Section 4.3.1 [ACFY24]. We have generalized the definitions for a generic i to present
+  as per Section 4.3.1, [ACFY24]. We have generalized the definitions for a generic i to present
   (i,k)-wise distance measures. This modification is necessary to support following lemmas
   from Section  4.3.2. The definitions from Section 4.3.1 correspond to i = 0. -/
 
@@ -32,7 +32,7 @@ def indexPowT (S : Finset ι) (φ : ι ↪ F) (k : ℕ) := { y : F // ∃ x ∈ 
   For `φ' : ι^(2ⁱ) → F`, this defines the preimage of `y` under the map
   `x^(2ⁱ) ↦ x^(2ᵏ)` restricted to `x^(2ⁱ) ∈ S'`.
 
-  It returns the subset of `S'` of elements of type `ι^(2ⁱ)`
+  It returns the subset `S'` of elements of type `ι^(2ⁱ)`
     such that `(x^(2ⁱ))^(2^(k-i)) = x^(2^k) = y`.
   Example i = 0 : powFiberT 0 k S' φ' y = { x ∈ S' | (x)^(2^k) = y }.
   Example i = 1 : powFiberT 1 k S' φ' y = { x^2 ∈ S' | (x^2)^(2^(k-1)) = y }.
@@ -67,8 +67,8 @@ class DecidableBlockDisagreement
     ∀ z : indexPowT S φ k, ∀ g : (indexPowT S φ i) → F,
       Decidable (∃ y : block i k S' φ' z, f y.val ≠ g y.val)
 
-/--Let C be a smooth ReedSolomon code C = RS[F, ι^(2ⁱ), φ', m] and `f,g : ι^(2ⁱ) → F`, then
-  the k-wise block relative distance is defined as
+/--Let C be a smooth ReedSolomon code `C = RS[F, ι^(2ⁱ), φ', m]` and `f,g : ι^(2ⁱ) → F`, then
+  the (i,k)-wise block relative distance is defined as
     Δᵣ(i, k, f, S', φ', g) = |{z ∈ ι ^ 2^k : ∃ y ∈ Block(i,k,S',φ',z) f(y) ≠ g(y)}| / |ι^(2^k)|.
 
   Below, we define a disagreementSet(i,k,f,S',φ') as a map (g → Finset (indexPow S φ k))
@@ -118,15 +118,13 @@ scoped notation "Δₛ( "i", "k", "f", "S'", "φ'", "Set" )"  => minBlockRelDist
   function f : ι^(2ⁱ) → F, we define the following as the ball of radius `δ` centered at
   word `f`, i.e., u ∈ C such that Δᵣ(i, k, f, S', φ', u) ≤ δ.-/
 noncomputable def listBlockRelDistance
-  (i k : ℕ) {S : Finset ι} {φ : ι ↪ F}
-  [DecidableEq F] [DecidableEq ι] [Smooth φ]
+  (i k : ℕ) {S : Finset ι} {φ : ι ↪ F} {φ' : (indexPowT S φ i) ↪ F}
+  {m : ℕ} [DecidableEq F] [DecidableEq ι] [Smooth φ]
   (f : (indexPowT S φ i) → F) (S' : Finset (indexPowT S φ i))
-  {φ' : (indexPowT S φ i) ↪ F} (C : Set ((indexPowT S φ i) → F))
-  [∀ i : ℕ, Fintype (indexPowT S φ i)] [DecidableEq (indexPowT S φ i)] [Smooth φ'] {m : ℕ}
-  (hcode : C = smoothCode φ' m) (δ : ℝ≥0)
+  [∀ i : ℕ, Fintype (indexPowT S φ i)] [DecidableEq (indexPowT S φ i)] [Smooth φ']
+  (C : Set ((indexPowT S φ i) → F)) (hcode : C = smoothCode φ' m) (δ : ℝ≥0)
   [h : DecidableBlockDisagreement i k f S' φ'] : (Set ((indexPowT S φ i) → F)) :=
     let hδLe := δ ≤ 1
-    let C : Set ((indexPowT S φ i) → F) := smoothCode φ' m
     { u ∈ C | Δᵣ(i, k, f, S', φ', u) ≤ δ }
 
  /--`Λᵣ(i, k, f, S', C, hcode, δ)` denotes the ball of radius `δ` centered at word `f`,
@@ -135,19 +133,18 @@ scoped notation "Λᵣ( "i", "k", "f", "S'", "C", "hcode", "δ")" =>
   listBlockRelDistance i k f S' C hcode δ
 
 /--Claim 4.19
-  For a smooth ReedSolomon code `C = RS[F, ι^(2ⁱ), φ', m]`, codewords `f, g : ι^(2ⁱ) → F`,
+  For a smooth ReedSolomon code `C = RS[F, ι^(2ⁱ), m]`, codewords `f, g : ι^(2ⁱ) → F`,
   we have that the block relative distance `Δᵣ(i, k, f, S', φ', g)` is bounded by the
   relative Hamming distance `δᵣ(f,g)`. As a result, we have
     `Λᵣ(i, k, f, S', C, hcode, δ)` is bounded by
     `Λ(f, C, δ)` (Ball of radius δ centered at f, wrt relative Hamming distance)
 -/
 lemma blockRelDistance_le_hammingDistance
-  (i k : ℕ) {S : Finset ι} {φ : ι ↪ F}
-  [DecidableEq F] [DecidableEq ι] [Smooth φ]
+  (i k : ℕ) {S : Finset ι} {φ : ι ↪ F} {φ' : (indexPowT S φ i) ↪ F}
+  {m : ℕ} [DecidableEq F] [DecidableEq ι] [Smooth φ]
   (f g : (indexPowT S φ i) → F) (S' : Finset (indexPowT S φ i))
-  {φ' : (indexPowT S φ i) ↪ F} (C : Set ((indexPowT S φ i) → F))
-  [∀ i : ℕ, Fintype (indexPowT S φ i)] [DecidableEq (indexPowT S φ i)] [Smooth φ'] {m : ℕ}
-  (hcode : C = smoothCode φ' m) (δ : ℝ≥0)
+  [∀ i : ℕ, Fintype (indexPowT S φ i)] [DecidableEq (indexPowT S φ i)] [Smooth φ']
+  (C : Set ((indexPowT S φ i) → F)) (hcode : C = smoothCode φ' m) (δ : ℝ≥0)
   [h : DecidableBlockDisagreement i k f S' φ']
   (hBound :   Δᵣ(i, k, f, S', φ', g) ≤ (δᵣ(f, g) : ℝ)) :
     ∀ {δ : ℝ≥0} (hδLe : δ ≤ 1),

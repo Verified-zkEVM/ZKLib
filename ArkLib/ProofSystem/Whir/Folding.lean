@@ -148,7 +148,7 @@ class GenMutualCorrParams (S : Finset ι) (φ : ι ↪ F) (k : ℕ) where
   h_card : ∀ j : Fin (k + 1), Fintype.card ((Gen_α j).parℓ) = 2
   hδLe : δ ≤ 1 - Finset.univ.sup (fun j => BStar j (Gen_α j).C (Gen_α j).parℓ)
 
-/--Lemma 4.20
+/--Theorem 4.20
   Let C = RS[F,ι,m] be a smooth ReedSolomon code
   For k ≤ m and 0 ≤ i < k,
   let Cⁱ = RS[F,ι^(2ⁱ),m-i] and let Gen(parℓ,α) be a proxmity generator with
@@ -160,7 +160,8 @@ class GenMutualCorrParams (S : Finset ι) (φ : ι ↪ F) (k : ℕ) where
   vecα is generated from α as `{1,α,α²,..}`
   `Λᵣ(0,k,f,S',C,hcode,δ)` corresponds to the Ball of radius δ centered at f,
   wrt (0,k)-wise block relative distance.
-  `Λ(Cᵏ,fold(f,vecα),δ)` is the Ball of radius δ at f, wrt the relative Hamming distance
+  `Λ(Cᵏ,fold(f,vecα),δ)` is the Ball of radius δ at foldf(f, vecα),
+  wrt the relative Hamming distance
   Below, we use an instance of the class `GenMutualCorrParams` to capture the
   conditions of proxmity generator with mutual correlated agreement for codes
   C⁰,...,C^{k-1}.
