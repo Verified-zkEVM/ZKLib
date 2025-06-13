@@ -250,9 +250,18 @@ def OracleVerifier.append (V₁ : OracleVerifier pSpec₁ oSpec Stmt₁ Stmt₂ 
 
   hEq := fun i => by
     rcases h : V₂.embed i with j | j
-    · rcases h' : V₁.embed j with k | k <;>
-      simp [h, h', V₁.hEq j, V₂.hEq i, MessageIdx.inl]
-    · simp [h, V₂.hEq i, MessageIdx.inr]
+    · rcases h' : V₁.embed j with k | k
+      · have h1 := V₁.hEq j
+        have h2 := V₂.hEq i
+        simp [h, h'] at h1 h2 ⊢
+        exact h2.trans h1
+      · have h1 := V₁.hEq j
+        have h2 := V₂.hEq i
+        simp [h, h', MessageIdx.inl] at h1 h2 ⊢
+        exact h2.trans h1
+    · have := V₂.hEq i
+      simp [h] at this ⊢
+      simp [this, MessageIdx.inr]
 
 /-- Sequential composition of oracle reductions is just the sequential composition of the oracle
   provers and oracle verifiers. -/

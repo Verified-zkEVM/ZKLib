@@ -84,7 +84,7 @@ def oracleReduction :
   prover := prover oSpec Statement OStatement
   verifier := verifier oSpec Statement OStatement relComp
 
-def relOut : Unit × (∀ i, (OStatement ⊕ᵥ OStatement) i) → Unit → Prop :=
+def relOut : Unit × (∀ i, (Sum.elim OStatement OStatement) i) → Unit → Prop :=
   fun ⟨(), oracles⟩ () => oracles (.inl default) = oracles (.inr default)
 
 variable [oSpec.FiniteRange]

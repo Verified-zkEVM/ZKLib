@@ -17,6 +17,15 @@ variable {ι ι' ιₜ : Type*} {spec : OracleSpec ι}
     {spec' : OracleSpec ι'} {specₜ : OracleSpec ιₜ}
     {m : Type u → Type v} {α β γ σ : Type u}
 
+#check SubSpec
+
+instance : IsEmpty (OracleQuery []ₒ α) where
+  false := by simp only [IsEmpty.forall_iff]
+
+-- TODO: revamp the `SubSpec` stuff to work for `MonadLiftT` instead of `MonadLift`
+instance (priority := high) : MonadLiftT (OracleComp []ₒ) (OracleComp spec) where
+  monadLift := OracleComp.construct pure (fun a => by contradiction) failure
+
 section SimulateNeverFails
 
 variable [Monad m] (so : QueryImpl spec m)
@@ -98,8 +107,12 @@ def SimOracle.Stateful (spec : OracleSpec ι) (specₜ : OracleSpec ιₜ) (σ :
 def SimOracle.Stateless (spec : OracleSpec ι) (specₜ : OracleSpec ιₜ) :=
   QueryImpl spec (OracleComp specₜ)
 
+set_option pp.universes true
+
 @[reducible]
-def SimOracle.Impl (spec : OracleSpec ι) := QueryImpl spec Option
+def SimOracle.Impl (spec : OracleSpec ι) := SimOracle.Stateless spec []ₒ
+
+#print SimOracle.Stateless
 
 namespace SimOracle
 
@@ -113,7 +126,7 @@ open OracleSpec
 
 def fnOracle (spec : OracleSpec ι) (f : (i : ι) → spec.domain i → spec.range i) :
     SimOracle.Impl spec where
-  impl | query i t => f i t
+  impl | query i t => pure (f i t)
 
 def statelessOracle (baseSpec : OracleSpec ιₜ) (spec : OracleSpec ι)
     (f : (i : ι) → spec.domain i → spec.range i) :
