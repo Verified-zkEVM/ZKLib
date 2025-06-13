@@ -9,7 +9,7 @@ import ArkLib.Data.CodingTheory.ListDecodability
 import ArkLib.Data.Probability.Notation
 import Mathlib.Data.Fintype.Basic
 
-open Finset ListDecodable NNReal ProbabilityTheory ReedSolomon
+open Finset ListDecodable NNReal Polynomial ProbabilityTheory ReedSolomon
 namespace OutOfDomSmpl
 
 variable {F : Type} [Field F] [Fintype F] [DecidableEq F]
@@ -34,7 +34,10 @@ noncomputable def listDecodingCollisionProbability
                                     u.val ∈ relHammingBall (code φ degree) f δ ∧
                                     u'.val ∈ relHammingBall (code φ degree) f δ ∧
                                     ∀ i : Fin s,
-                                    (decode u).eval (Genfun r i) = (decode u').eval (Genfun r i)
+                                    let uPoly := decodeLT u
+                                    let uPoly' := decodeLT u'
+                                    (uPoly : F[X]).eval (Genfun r i)
+                                      = (uPoly' : F[X]).eval (Genfun r i)
                                     ]
 
 /--Lemma 4.5.1-/

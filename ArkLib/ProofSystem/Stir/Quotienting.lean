@@ -6,7 +6,7 @@ Authors: Least Authority
 import ArkLib.Data.CodingTheory.ReedSolomon
 import ArkLib.Data.CodingTheory.ListDecodability
 
-open ReedSolomon ListDecodable
+open Polynomial ReedSolomon ListDecodable
 
 namespace Quotienting
 
@@ -62,7 +62,7 @@ lemma quotienting [DecidableEq F] {degree : ℕ} {domain : ι ↪ F} [Nonempty �
   (S : Finset F) (hS_lt : S.card < degree) (r : F)
   (f : ι → F) (Ans Fill : S → F) (δ : ℝ) (hδPos : δ > 0) (hδLt : δ < 1)
   (h : ∀ u : code domain degree, u.val ∈ (relHammingBall ↑(code domain degree) f δ) →
-    ∃ (x : S) (hx : x.val ∈ S), (decode u).eval x.val ≠ Ans ⟨x.val, hx⟩) :
+    ∃ (x : S) (hx : x.val ∈ S), ((decodeLT u) : F[X]).eval x.val ≠ Ans ⟨x.val, hx⟩) :
     δᵣ((funcQuotient f S Ans Fill), (code domain (degree - S.card))) +
       ((disagreementSet f S Ans).card : ℝ) / (ι.card : ℝ) > δ := by
   sorry
