@@ -23,7 +23,7 @@ namespace Domain
 
 variable {ι F : Type*} [Field F] [Fintype F] [DecidableEq F] [DecidableEq ι]
 
-/-- The image of a finite set `S` under the map `x ↦ (φ x)^(2ᵏ)` -/
+/-- The image of a finite set `S` under the map `x ↦ (φ x)ᵏ` -/
 def indexPow (S : Finset ι) (φ : ι ↪ F) (k : ℕ) : Finset F :=
   S.image (fun x => (φ x) ^ k)
 
@@ -31,7 +31,7 @@ def indexPow (S : Finset ι) (φ : ι ↪ F) (k : ℕ) : Finset F :=
 def pow (S : Finset ι) (φ : ι ↪ F) (k : ℕ) : indexPow S φ k ↪ F :=
     Function.Embedding.subtype fun y => y ∈ indexPow S φ k
 
-/-- The fiber over a point `y` under the map `x ↦ (φ x)^(2ᵏ)` -/
+/-- The fiber over a point `y` under the map `x ↦ (φ x)ᵏ` -/
 def powFiber (S : Finset ι) (φ : ι ↪ F) (k : ℕ) (y : indexPow S φ k) : Finset ι :=
   S.filter (fun x => (φ x) ^ k = y)
 
