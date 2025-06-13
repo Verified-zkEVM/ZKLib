@@ -38,7 +38,7 @@ lemma crs_equiv_rs_randpompt_agreement
     (∃ σ : Fin s → F,
       let w : Fin s → MvPolynomial (Fin (m + 1)) F :=
         fun i => MvPolynomial.X (Fin.last m) * rename Fin.castSucc (eqPolynomial (r i))
-      let multiCRSCode := multiConstraintCode φ m s w σ
+      let multiCRSCode := multiConstrainedCode φ m s w σ
       ∃ g : ι → F, g ∈ relHammingBall multiCRSCode f δ)
   := by sorry
 
@@ -63,7 +63,7 @@ lemma out_of_domain_sampling_crs_eq_rs
                           let w : Fin s → MvPolynomial (Fin (m + 1)) F :=
                           fun i =>
                             MvPolynomial.X (Fin.last m) * rename Fin.castSucc (eqPolynomial (rVec))
-                          let multiCRSCode := multiConstraintCode φ m s w σ
+                          let multiCRSCode := multiConstrainedCode φ m s w σ
                           ∃ g : ι → F, g ∈ relHammingBall multiCRSCode f δ)]
     =
     Pr_{ let r ←$ᵖ F }[ (∃ u u' : smoothCode φ m,

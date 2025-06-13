@@ -143,12 +143,12 @@ theorem whir_rbr_soundness
     [Smooth (P.φ 0)] [Nonempty (ι 0)]
   -- ∀ f₀ : ι₀ → F, f₀ ∉ CRS[F,ι₀,m₀,wPoly₀,σ₀]
     (h_not_code : ∀ f_0 : (ι 0) → F,
-      f_0 ∉ (constraintCode (P.φ 0) m_0 wPoly₀ σ₀))
+      f_0 ∉ (constrainedCode (P.φ 0) m_0 wPoly₀ σ₀))
   -- ∀ f₀ : ι₀ → F, δ₀ < δᵣ(f₀, CRS[F,ι₀,m₀,wPoly₀,σ₀]),
   -- where δᵣ denotes the relative Hamming distance
     (hδ₀Lt : ∀ f_0 : (ι 0) → F,
       (h.δ 0) <
-        (δᵣ(f_0, (constraintCode (P.φ 0) m_0 wPoly₀ σ₀)) : ℝ))
+        (δᵣ(f_0, (constrainedCode (P.φ 0) m_0 wPoly₀ σ₀)) : ℝ))
     (vPSpec : ProtocolSpec.VectorSpec n)
     (oSpec : OracleSpec ιₒ)
     [oSpec.FiniteRange] [O : ∀ i, OracleInterface (OStmtOut ιₛ (ι 0) F i) ]
